@@ -13,8 +13,8 @@
 </head>
 <body>
 
-  <!-- HERO -->
-  <header class="hero" id="top">
+  <!-- NAV -->
+  <div class="nav-bar">
     <nav class="nav">
       <a href="#top" class="nav-logo" aria-label="Abitrolabs home">
         <img src="https://framerusercontent.com/images/qg5lWxQYV0vhiJQ6v3Ta8ZGXEkg.png?width=1000&height=1000" alt="Abitrolabs">
@@ -28,6 +28,10 @@
       </div>
       <a href="#book" class="btn btn-outline btn-sm">Book a call</a>
     </nav>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero" id="top">
 
     <div class="hero-inner container">
       <h1 class="hero-title">
@@ -276,11 +280,7 @@
           </ul>
         </div>
         <div class="calendar">
-          <iframe
-            title="Book a call"
-            src="https://cal.com/abitrolabs/audit-call-15-min/embed?layout=month_view&theme=dark&embedType=inline"
-            loading="lazy"
-            allow="payment"></iframe>
+          <div id="cal-inline" class="cal-inline"></div>
         </div>
       </div>
     </section>
@@ -331,5 +331,17 @@
     </div>
   </footer>
 
+  <!-- Cal.com inline embed (auto-resizes to fit the booking widget) -->
+  <script>
+    (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === "string") { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ["initNamespace", namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+    Cal("init", "audit-call", { origin: "https://app.cal.com" });
+    Cal.ns["audit-call"]("inline", {
+      elementOrSelector: "#cal-inline",
+      calLink: "abitrolabs/audit-call-15-min",
+      config: { layout: "month_view", theme: "auto" }
+    });
+    Cal.ns["audit-call"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
+  </script>
+  <noscript><p style="text-align:center"><a href="https://cal.com/abitrolabs/audit-call-15-min">Book a call on Cal.com</a></p></noscript>
 </body>
 </html>
