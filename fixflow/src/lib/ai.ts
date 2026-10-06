@@ -1,0 +1,301 @@
+import "server-only";
+import Anthropic from "@anthropic-ai/sdk";
+import { CATEGORIES, CHECK_KEYS, CHECK_LABELS, normalizeAnalysis, type QuoteAnalysis } from "./analysis";
+import { computeScore } from "./score";
+import { pickDemoQuote } from "./demo-data";
+import { formatKr } from "./format";
+
+export const isDemoMode = () => !process.env.ANTHROPIC_API_KEY;
+
+const MODEL = () => process.env.ANTHROPIC_MODEL || "claude-sonnet-4-5";
+
+let client: Anthropic | null = null;
+function getClient() {
+  if (!client) client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 110_000, maxRetries: 1 });
+  return client;
+}
+
+/** Newer models (Opus 5.5, Sonnet 5.5, Fable 5.1, …) reject forced tool_choice; steer them via the prompt instead. */
+function supportsForcedToolChoice(model: string) {
+  return !/^claude-(opus-5-5|sonnet-5-5|fable-5-1|mythos-5-1)/.test(model);
+}
+
+export class AnalysisError extends Error {}
+
+const SYSTEM_PROMPT = `Du er en uvildig, erfaren dansk byggerådgiver. Du hjælper almindelige boligejere med at forstå et håndværkertilbud, før de skriver under.
+
+Regler:
+- Opfind aldrig poster, beløb eller oplysninger, der ikke står i dokumentet. Mangler noget, så sig at det mangler.
+- Skriv på klart, roligt og almindeligt dansk uden fagjargon. Forklar fagudtryk kort.
+- Vær ærlig men aldrig alarmistisk – de fleste håndværkere er seriøse. Påpeg risici sagligt.
+- Beløb i lineItems er ekskl. moms. Brug tal (DKK) uden tusindtalsseparatorer.
+- Hver post skal have en kategori: ${CATEGORIES.join(", ")}.
+- clarity: "clear" = man kan se præcis hvad man får; "vague" = delvist beskrevet eller skønnet; "unclear" = samlepost uden indhold.
+- Flag især: "efter regning", "efter forbrug", "diverse", "iht. aftale", forbehold, manglende bortskaffelse/stillads/kørsel, store forudbetalinger (over ca. 25 %), kort gyldighed (under 14 dage), manglende garanti eller forsikring, manglende CVR.
+- Flag-typen "terms" bruges kun til betalings- og aftalevilkår (forudbetaling, gyldighed, prisform, forbehold).
+- estimatedExtraMin/Max og extraCostRisk er realistiske skøn i DKK ekskl. moms for danske forhold. Brug null, hvis et flag ikke har en direkte økonomisk risiko.
+- Udfyld alle 10 checks: ${CHECK_KEYS.map((k) => `${k} (${CHECK_LABELS[k]})`).join("; ")}.
+- Skriv 5–10 konkrete, høflige spørgsmål til håndværkeren, der henviser til de faktiske poster og beløb.
+- priceType: "fast_pris" (fast pris), "tilbud" (bindende tilbud), "overslag" (ikke-bindende skøn), "uklart" (fremgår ikke).
+- Datoer som YYYY-MM-DD hvis muligt.
+- Hvis dokumentet slet ikke er et håndværkertilbud, så udfyld title med "Ikke et håndværkertilbud", lad lineItems være tom og forklar det i summary.
+Kald altid værktøjet registrer_analyse præcis én gang med hele analysen.`;
+
+const nullableString = { type: ["string", "null"] };
+const nullableNumber = { type: ["number", "null"] };
+
+const ANALYSIS_TOOL: Anthropic.Tool = {
+  name: "registrer_analyse",
+  description: "Registrerer den strukturerede analyse af håndværkertilbuddet.",
+  input_schema: {
+    type: "object",
+    properties: {
+      contractor: {
+        type: "object",
+        properties: { name: nullableString, cvr: nullableString, phone: nullableString, email: nullableString },
+        required: ["name", "cvr", "phone", "email"],
+      },
+      title: { type: "string", description: "Kort titel på opgaven, fx 'Renovering af badeværelse'" },
+      quoteDate: nullableString,
+      validUntil: nullableString,
+      priceType: { type: "string", enum: ["fast_pris", "tilbud", "overslag", "uklart"] },
+      totals: {
+        type: "object",
+        properties: { exclVat: nullableNumber, vat: nullableNumber, inclVat: nullableNumber },
+        required: ["exclVat", "vat", "inclVat"],
+      },
+      summary: { type: "string", description: "3–5 sætninger på almindeligt dansk" },
+      lineItems: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            description: { type: "string" },
+            category: { type: "string", enum: [...CATEGORIES] },
+            amount: { type: "number", description: "Beløb ekskl. moms" },
+            quantity: nullableNumber,
+            unit: nullableString,
+            unitPrice: nullableNumber,
+            explanation: { type: "string", description: "Hvad kunden reelt betaler for, på almindeligt dansk" },
+            clarity: { type: "string", enum: ["clear", "vague", "unclear"] },
+            note: nullableString,
+          },
+          required: ["description", "category", "amount", "explanation", "clarity"],
+        },
+      },
+      flags: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            severity: { type: "string", enum: ["high", "medium", "low"] },
+            type: { type: "string", enum: ["hidden_cost", "vague_item", "missing_info", "terms", "price"] },
+            title: { type: "string" },
+            explanation: { type: "string" },
+            relatedItem: nullableString,
+            estimatedExtraMin: nullableNumber,
+            estimatedExtraMax: nullableNumber,
+          },
+          required: ["severity", "type", "title", "explanation"],
+        },
+      },
+      checks: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            key: { type: "string", enum: [...CHECK_KEYS] },
+            present: { type: "boolean" },
+            note: { type: "string" },
+          },
+          required: ["key", "present", "note"],
+        },
+      },
+      questions: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            question: { type: "string" },
+            why: { type: "string" },
+            priority: { type: "string", enum: ["high", "medium", "low"] },
+          },
+          required: ["question", "why", "priority"],
+        },
+      },
+      extraCostRisk: {
+        type: "object",
+        properties: { min: { type: "number" }, max: { type: "number" }, explanation: { type: "string" } },
+        required: ["min", "max", "explanation"],
+      },
+    },
+    required: [
+      "contractor",
+      "title",
+      "priceType",
+      "totals",
+      "summary",
+      "lineItems",
+      "flags",
+      "checks",
+      "questions",
+      "extraCostRisk",
+    ],
+  },
+};
+
+function fileBlock(data: Buffer, mimeType: string): Anthropic.ContentBlockParam {
+  const b64 = data.toString("base64");
+  if (mimeType === "application/pdf") {
+    return { type: "document", source: { type: "base64", media_type: "application/pdf", data: b64 } };
+  }
+  return {
+    type: "image",
+    source: { type: "base64", media_type: mimeType as "image/jpeg" | "image/png" | "image/webp", data: b64 },
+  };
+}
+
+function finalize(raw: unknown, demo = false): QuoteAnalysis {
+  const normalized = normalizeAnalysis(raw);
+  return { ...normalized, score: computeScore(normalized), ...(demo ? { demo: true } : {}) };
+}
+
+export async function analyzeQuote(data: Buffer, mimeType: string, fileName: string): Promise<QuoteAnalysis> {
+  if (isDemoMode()) {
+    await new Promise((r) => setTimeout(r, 1800));
+    return finalize(pickDemoQuote(fileName).raw, true);
+  }
+
+  const model = MODEL();
+  const forced = supportsForcedToolChoice(model);
+  const request = (forceTool: boolean) =>
+    getClient().messages.create({
+      model,
+      max_tokens: 16000,
+      system: SYSTEM_PROMPT,
+      tools: [ANALYSIS_TOOL],
+      tool_choice: forceTool ? { type: "tool", name: ANALYSIS_TOOL.name } : { type: "auto" },
+      messages: [
+        {
+          role: "user",
+          content: [
+            fileBlock(data, mimeType),
+            {
+              type: "text",
+              text: `Analysér dette håndværkertilbud (filnavn: ${fileName}) og kald registrer_analyse med resultatet.`,
+            },
+          ],
+        },
+      ],
+    });
+
+  let response: Anthropic.Message;
+  try {
+    response = await request(forced);
+  } catch (err) {
+    // Some models reject forced tool use – retry once with auto + prompt steering.
+    if (forced && err instanceof Anthropic.BadRequestError && /tool_choice/i.test(err.message)) {
+      response = await request(false);
+    } else if (err instanceof Anthropic.AuthenticationError) {
+      throw new AnalysisError("AI-tjenesten afviste nøglen. Kontakt support.");
+    } else if (err instanceof Anthropic.RateLimitError || err instanceof Anthropic.InternalServerError) {
+      throw new AnalysisError("AI-tjenesten er travl lige nu. Prøv igen om et øjeblik.");
+    } else if (err instanceof Anthropic.APIConnectionError) {
+      throw new AnalysisError("Vi kunne ikke få forbindelse til AI-tjenesten. Prøv igen om lidt.");
+    } else if (err instanceof Anthropic.BadRequestError) {
+      throw new AnalysisError("Filen kunne ikke læses. Prøv en tydeligere PDF eller et skarpere billede.");
+    } else {
+      throw err;
+    }
+  }
+
+  if (response.stop_reason === "refusal") {
+    throw new AnalysisError("Dokumentet kunne ikke analyseres. Prøv med et andet tilbud.");
+  }
+  const toolUse = response.content.find(
+    (b): b is Anthropic.ToolUseBlock => b.type === "tool_use" && b.name === ANALYSIS_TOOL.name,
+  );
+  if (!toolUse) {
+    throw new AnalysisError("Analysen blev ikke færdig. Prøv igen – det hjælper ofte.");
+  }
+  return finalize(toolUse.input);
+}
+
+/* ------------------------------------------------------------------ */
+/* Message drafting                                                    */
+/* ------------------------------------------------------------------ */
+
+export type Tone = "venlig" | "neutral" | "bestemt";
+
+const TONE_TEXT: Record<Tone, string> = {
+  venlig: "venlig og imødekommende",
+  neutral: "saglig og neutral",
+  bestemt: "høflig men bestemt – kunden ønsker klare svar, før der skrives under",
+};
+
+export async function draftMessage(analysis: QuoteAnalysis, topic: string, tone: Tone, customerName: string) {
+  if (isDemoMode()) {
+    await new Promise((r) => setTimeout(r, 700));
+    return templateMessage(analysis, topic, tone, customerName);
+  }
+  const context = {
+    contractor: analysis.contractor.name,
+    title: analysis.title,
+    quoteDate: analysis.quoteDate,
+    totalInclVat: analysis.totals.inclVat,
+    priceType: analysis.priceType,
+    lineItems: analysis.lineItems.map((i) => ({ description: i.description, amount: i.amount, clarity: i.clarity })),
+    flags: analysis.flags.map((f) => ({ title: f.title, explanation: f.explanation })),
+    questions: analysis.questions.map((q) => q.question),
+  };
+  try {
+    const response = await getClient().messages.create({
+      model: MODEL(),
+      max_tokens: 2000,
+      system:
+        "Du skriver korte, høflige beskeder (e-mail/sms) fra en dansk boligejer til en håndværker om et modtaget tilbud. Skriv kun selve beskeden – ingen emnelinje, ingen forklaring, ingen pladsholdere i firkantede parenteser ud over kundens navn. Henvis konkret til poster og beløb fra tilbuddet. Max ca. 150 ord.",
+      messages: [
+        {
+          role: "user",
+          content: `Tilbuddet (JSON):\n${JSON.stringify(context)}\n\nEmne kunden vil spørge om: ${topic}\nTone: ${TONE_TEXT[tone]}\nKundens navn: ${customerName}`,
+        },
+      ],
+    });
+    const text = response.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("\n")
+      .trim();
+    return text || templateMessage(analysis, topic, tone, customerName);
+  } catch (err) {
+    console.error("draftMessage failed, using template", err);
+    return templateMessage(analysis, topic, tone, customerName);
+  }
+}
+
+/** Template fallback (demo mode or AI errors). */
+export function templateMessage(analysis: QuoteAnalysis, topic: string, tone: Tone, customerName: string) {
+  const who = analysis.contractor.name ? `Hej ${analysis.contractor.name}` : "Hej";
+  const t = topic.trim();
+  const flag = analysis.flags.find((f) => f.title.toLowerCase() === t.toLowerCase() || t.toLowerCase().includes(f.title.toLowerCase()));
+  const item = flag?.relatedItem ? analysis.lineItems.find((i) => i.description === flag.relatedItem) : undefined;
+  const ref = analysis.quoteDate ? `jeres tilbud af ${analysis.quoteDate}` : "jeres tilbud";
+  const opening = {
+    venlig: `Tusind tak for ${ref} på ${analysis.title.toLowerCase()}. Det ser spændende ud, og jeg har et enkelt spørgsmål, inden vi beslutter os.`,
+    neutral: `Tak for ${ref} på ${analysis.title.toLowerCase()} (${formatKr(analysis.totals.inclVat)} inkl. moms). Jeg har et spørgsmål, før vi går videre.`,
+    bestemt: `Tak for ${ref} på ${analysis.title.toLowerCase()} (${formatKr(analysis.totals.inclVat)} inkl. moms). Før vi kan skrive under, har jeg brug for en afklaring.`,
+  }[tone];
+  const itemLine = item ? `Det gælder posten "${item.description}" på ${formatKr(item.amount)} ekskl. moms. ` : "";
+  const ask = {
+    venlig: "Vil I være søde at uddybe det? Så er vi helt trygge ved at gå videre.",
+    neutral: "Kan I uddybe det skriftligt?",
+    bestemt: "Jeg vil gerne have det præciseret skriftligt i et opdateret tilbud, før vi træffer en beslutning.",
+  }[tone];
+  const close = tone === "venlig" ? "Mange venlige hilsner" : "Med venlig hilsen";
+  const topicLine = flag
+    ? `Det drejer sig om dette: ${flag.title.replace(/\.$/, "")}.`
+    : t.endsWith("?")
+      ? t
+      : `Det drejer sig om: ${t.replace(/\.$/, "")}.`;
+  return `${who}\n\n${opening}\n\n${topicLine} ${itemLine}\n\n${ask}\n\n${close}\n${customerName}`.replace(/ \n/g, "\n");
+}

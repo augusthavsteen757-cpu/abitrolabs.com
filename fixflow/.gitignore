@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+data
+*.db
+*.db-journal
+.env
+.env.local
+*.tsbuildinfo
+test-results
+/screenshots

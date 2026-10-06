@@ -1,0 +1,44 @@
+{
+  "name": "fixflow",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "db:push": "drizzle-kit push",
+    "db:seed": "tsx scripts/seed.ts",
+    "setup": "npm run db:push && npm run db:seed",
+    "test:e2e": "node scripts/e2e.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@libsql/client": "^0.18.0",
+    "bcryptjs": "^3.0.3",
+    "drizzle-orm": "^0.45.3",
+    "jose": "^6.2.12",
+    "lucide-react": "^1.52.0",
+    "next": "^14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "autoprefixer": "^10.6.1",
+    "dotenv": "^18.0.5",
+    "drizzle-kit": "^0.31.11",
+    "pdf-lib": "^1.17.1",
+    "playwright-core": "^1.63.0",
+    "postcss": "^8.5.29",
+    "tailwindcss": "^3.4.19",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  }
+}
