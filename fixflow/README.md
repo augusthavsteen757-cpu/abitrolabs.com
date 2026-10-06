@@ -162,6 +162,15 @@ Databasen (`/data/fixflow.db`) og uploads (`/data/uploads`) ligger i volumen `/d
 
 Demo-data indlæses ikke automatisk i containeren. Vil du have demo-brugeren med, så kør `npm run db:seed` lokalt med `DATABASE_URL`/`UPLOAD_DIR` pegende på samme data.
 
+### Gratis: Render + Turso
+
+`render.yaml` i repoets rod er en Render Blueprint (gratis plan, Frankfurt).
+
+1. Opret en database på [Turso](https://app.turso.tech) og lav et token (`turso db tokens create <navn>`).
+2. På Render: **New → Blueprint**, vælg repoet. Udfyld `DATABASE_URL` (`libsql://…`) og `DATABASE_AUTH_TOKEN`. `AUTH_SECRET` genereres automatisk.
+3. Uploadede filer gemmes i databasen (`STORAGE_DRIVER=db`), fordi Render free ikke har en permanent disk.
+4. Den gratis plan "sover" efter 15 minutter uden besøg; første besøg tager derefter ca. et minut.
+
 ### Vercel + Turso + objektlager
 
 1. Opret en database på [Turso](https://turso.tech) og sæt `DATABASE_URL=libsql://...` og `DATABASE_AUTH_TOKEN`.

@@ -1,11 +1,24 @@
 import { mkdir, readFile, unlink, writeFile } from "fs/promises";
 import path from "path";
 import { randomBytes } from "crypto";
+import { asc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { fileChunks } from "@/db/schema";
 
 /**
- * Minimal file storage on local disk. Keep this interface stable so it can be
- * swapped for S3 / Cloudflare R2 later (saveFile / readStoredFile / deleteStoredFile).
+ * Minimal file storage behind a stable interface (saveFile / readStoredFile / deleteStoredFile).
+ * Two drivers:
+ *   - "disk": local folder (UPLOAD_DIR) – Docker with a volume, local development.
+ *   - "db":   chunks in the database – hosts without a permanent disk (Render free + Turso).
+ * STORAGE_DRIVER picks one; default is "db" when DATABASE_URL points to a remote database, else "disk".
  */
+const DRIVER =
+  process.env.STORAGE_DRIVER === "db" || process.env.STORAGE_DRIVER === "disk"
+    ? process.env.STORAGE_DRIVER
+    : (process.env.DATABASE_URL || "file:").startsWith("file:")
+      ? "disk"
+      : "db";
+const CHUNK = 512 * 1024;
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -42,6 +55,13 @@ export async function saveFile(userId: string, data: Buffer, mimeType: string): 
   if (!ext) throw new Error("Filtypen understøttes ikke");
   const safeUser = userId.replace(/[^A-Za-z0-9_-]/g, "");
   const key = `${safeUser}/${randomBytes(16).toString("base64url")}.${ext}`;
+  if (DRIVER === "db") {
+    resolveKey(key);
+    for (let i = 0; i * CHUNK < data.length; i++) {
+      await db.insert(fileChunks).values({ key, idx: i, data: data.subarray(i * CHUNK, (i + 1) * CHUNK) });
+    }
+    return key;
+  }
   const full = resolveKey(key);
   await mkdir(path.dirname(full), { recursive: true });
   await writeFile(full, data);
@@ -49,10 +69,20 @@ export async function saveFile(userId: string, data: Buffer, mimeType: string): 
 }
 
 export async function readStoredFile(key: string): Promise<Buffer> {
-  return readFile(resolveKey(key));
+  const full = resolveKey(key);
+  if (DRIVER === "db") {
+    const rows = await db.select().from(fileChunks).where(eq(fileChunks.key, key)).orderBy(asc(fileChunks.idx));
+    if (!rows.length) throw new Error("Filen findes ikke");
+    return Buffer.concat(rows.map((r) => Buffer.from(r.data)));
+  }
+  return readFile(full);
 }
 
 export async function deleteStoredFile(key: string): Promise<void> {
+  if (DRIVER === "db") {
+    await db.delete(fileChunks).where(eq(fileChunks.key, key)).catch(() => undefined);
+    return;
+  }
   try {
     await unlink(resolveKey(key));
   } catch {

@@ -1,0 +1,27 @@
+# Render Blueprint for the FixFlow app in ./fixflow (the static abitrolabs.com site is unaffected).
+# Free plan: no permanent disk, so the database lives in Turso and uploaded files are stored in it.
+services:
+  - type: web
+    name: fixflow
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: claude/sharp-hawking-bec4k1
+    rootDir: fixflow
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_AUTH_TOKEN
+        sync: false
+      - key: STORAGE_DRIVER
+        value: db
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=400

@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, index } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real, index, blob, primaryKey } from "drizzle-orm/sqlite-core";
 import { randomBytes } from "crypto";
 
 export const newId = () => randomBytes(12).toString("base64url");
@@ -95,6 +95,20 @@ export const geoCache = sqliteTable("geo_cache", {
   approx: integer("approx", { mode: "boolean" }).notNull().default(false),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
 });
+
+/**
+ * Uploaded files stored in the database (used on hosts without a permanent disk, e.g. Render free + Turso).
+ * Split into 512 KB chunks to stay well under per-row and per-request limits.
+ */
+export const fileChunks = sqliteTable(
+  "file_chunks",
+  {
+    key: text("key").notNull(),
+    idx: integer("idx").notNull(),
+    data: blob("data", { mode: "buffer" }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.key, t.idx] })],
+);
 
 export type User = typeof users.$inferSelect;
 export type Quote = typeof quotes.$inferSelect;
