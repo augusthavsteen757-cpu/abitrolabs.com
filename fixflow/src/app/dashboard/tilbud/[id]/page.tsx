@@ -13,6 +13,7 @@ import {
   Building2,
   CalendarDays,
   MapPin,
+  Landmark,
 } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { getQuote, listMessages } from "@/lib/quotes";
@@ -21,17 +22,21 @@ import {
   CATEGORIES,
   CHECK_LABELS,
   PRICE_TYPE_LABELS,
+  PRICE_LEVEL_LABELS,
+  RULE_LABELS,
   categoryTotals,
   parseStoredAnalysis,
+  redactForFree,
   type Category,
 } from "@/lib/analysis";
-import { FREE_QUESTION_LIMIT, hasFullAccess } from "@/lib/plans";
-import { cn, formatDate, formatKr, formatRange } from "@/lib/format";
+import { hasFullAccess } from "@/lib/plans";
+import { cn, formatDate, formatMoney, formatRange } from "@/lib/format";
 import { ScoreRing, scoreColor } from "@/components/ScoreRing";
 import { SEVERITY, SeverityBadge } from "@/components/Severity";
 import { CopyButton, DeleteQuoteButton, RetryButton, UnlockWithCreditButton } from "@/components/QuoteActions";
 import { MessageComposer } from "@/components/MessageComposer";
 import { Paywall } from "@/components/Paywall";
+import { Locked } from "@/components/Locked";
 
 export const metadata: Metadata = { title: "Tilbud" };
 
@@ -96,14 +101,20 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
   }
 
   const full = hasFullAccess(user, quote);
+  // Free users get a preview: the paid details are removed on the server, never just hidden with CSS.
+  const { analysis: view, lock } = full ? { analysis, lock: null } : redactForFree(analysis);
   const origin = await locatePostalCode(user.postalCode);
   const firmPlace = origin ? await locatePostalCode(postalCodeFromText(analysis.contractor.address ?? null)) : null;
   const distance = origin && firmPlace ? Math.round(distanceKm(origin, firmPlace)) : null;
   const messages = full ? await listMessages(quote.id) : [];
   const cats = categoryTotals(analysis);
   const catTotal = Object.values(cats).reduce((s, v) => s + Math.max(0, v), 0);
-  const visibleQuestions = full ? analysis.questions : analysis.questions.slice(0, FREE_QUESTION_LIMIT);
-  const hiddenCount = analysis.questions.length - visibleQuestions.length;
+  const cur = view.currency || "DKK";
+  const money = (n: number | null | undefined) => formatMoney(n, cur);
+  const foreign = cur !== "DKK" || (view.language && view.language.toLowerCase() !== "dansk");
+  const visibleQuestions = view.questions;
+  const hiddenCount = lock?.questions ?? 0;
+  const lockedFlags = lock?.flags.length ?? 0;
   const color = scoreColor(analysis.score.total);
   const priceTypeBadge =
     analysis.priceType === "fast_pris"
@@ -193,26 +204,62 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         <div className="flex min-w-0 flex-col gap-5">
           <section className="card p-5 sm:p-6">
             <h2 className="text-xl font-semibold">Kort fortalt</h2>
+            {foreign && (
+              <p className="mt-3 rounded-xl bg-sky-50 px-3.5 py-2.5 text-sm text-sky-900">
+                Tilbuddet er skrevet på {view.language || "et andet sprog"}
+                {cur !== "DKK" ? ` og beløbene er i ${cur} – vi har ikke omregnet dem til kroner` : ""}. Analysen er oversat til dansk.
+                Udenlandske firmaer skal være registreret i RUT for at arbejde i Danmark.
+              </p>
+            )}
             <p className="mt-3 leading-relaxed text-ink-soft">{analysis.summary}</p>
             <dl className="mt-6 grid gap-3 sm:grid-cols-3">
               <div className="rounded-xl bg-paper p-4">
                 <dt className="text-xs text-ink-muted">Pris inkl. moms</dt>
-                <dd className="num mt-1 font-display text-2xl font-semibold">{formatKr(analysis.totals.inclVat)}</dd>
+                <dd className="num mt-1 font-display text-2xl font-semibold">{money(analysis.totals.inclVat)}</dd>
               </div>
               <div className="rounded-xl bg-paper p-4">
                 <dt className="text-xs text-ink-muted">Heraf moms</dt>
-                <dd className="num mt-1 font-display text-2xl font-semibold">{formatKr(analysis.totals.vat)}</dd>
+                <dd className="num mt-1 font-display text-2xl font-semibold">{money(analysis.totals.vat)}</dd>
               </div>
               <div className="rounded-xl bg-red-50 p-4">
                 <dt className="text-xs text-red-800">Mulige ekstraudgifter inkl. moms</dt>
                 <dd className="num mt-1 font-display text-xl font-semibold text-red-800">
-                  {formatRange(analysis.extraCostRisk.min * 1.25, analysis.extraCostRisk.max * 1.25)}
+                  {lock?.extra ? (
+                    <Locked lines={1} label="Se beløbet" />
+                  ) : (
+                    formatRange(view.extraCostRisk.min * 1.25, view.extraCostRisk.max * 1.25, cur)
+                  )}
                 </dd>
               </div>
             </dl>
-            {analysis.extraCostRisk.explanation && (
-              <p className="mt-3 text-sm text-ink-muted">{analysis.extraCostRisk.explanation}</p>
+            {view.extraCostRisk.explanation && (
+              <p className="mt-3 text-sm text-ink-muted">{view.extraCostRisk.explanation}</p>
             )}
+            <div className="mt-4 flex flex-wrap items-start gap-3 rounded-xl border border-line p-4">
+              <span className="text-sm font-semibold">Dansk prisniveau:</span>
+              {lock ? (
+                <Locked lines={1} label="Se om prisen er fair" className="min-w-[180px] flex-1" />
+              ) : (
+                <div className="min-w-0 flex-1 text-sm">
+                  <span
+                    className={cn(
+                      "badge",
+                      view.priceLevel.level === "normal"
+                        ? "bg-brand-50 text-brand-700"
+                        : view.priceLevel.level === "hoej"
+                          ? "bg-red-50 text-red-700"
+                          : view.priceLevel.level === "lav"
+                            ? "bg-amber-50 text-amber-800"
+                            : "bg-paper text-ink-muted",
+                    )}
+                  >
+                    {PRICE_LEVEL_LABELS[view.priceLevel.level]}
+                  </span>
+                  {view.priceLevel.explanation && <p className="mt-1.5 text-ink-soft">{view.priceLevel.explanation}</p>}
+                  <p className="mt-1 text-xs text-ink-muted">Groft skøn i forhold til typiske danske priser.</p>
+                </div>
+              )}
+            </div>
           </section>
 
           <section className="card p-5 sm:p-6">
@@ -221,7 +268,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
               <>
                 <div className="mt-4 flex h-4 overflow-hidden rounded-full bg-paper" role="img" aria-label="Fordeling af beløbet på kategorier">
                   {CATEGORIES.filter((c) => cats[c] > 0).map((c) => (
-                    <div key={c} className={CATEGORY_COLORS[c]} style={{ width: `${(cats[c] / catTotal) * 100}%` }} title={`${c}: ${formatKr(cats[c])}`} />
+                    <div key={c} className={CATEGORY_COLORS[c]} style={{ width: `${(cats[c] / catTotal) * 100}%` }} title={`${c}: ${money(cats[c])}`} />
                   ))}
                 </div>
                 <ul className="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
@@ -232,7 +279,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                         <span className="truncate">{c}</span>
                       </span>
                       <span className="num text-ink-soft">
-                        {formatKr(cats[c])} <span className="text-ink-muted">({Math.round((cats[c] / catTotal) * 100)} %)</span>
+                        {money(cats[c])} <span className="text-ink-muted">({Math.round((cats[c] / catTotal) * 100)} %)</span>
                       </span>
                     </li>
                   ))}
@@ -246,6 +293,20 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         </div>
       </div>
 
+      {!full && (
+        <section id="laas-op" className="mt-8 scroll-mt-24">
+          {user.extraCredits > 0 ? (
+            <UnlockWithCreditButton id={quote.id} credits={user.extraCredits} />
+          ) : (
+            <Paywall
+              quoteId={quote.id}
+              title="Se hele analysen"
+              text={`Lås op for de mulige ekstraudgifter${lockedFlags ? `, forklaringen af ${lockedFlags} ${lockedFlags === 1 ? "fund" : "fund mere"}` : ""}, hvad hver post dækker, ${hiddenCount ? `${hiddenCount} spørgsmål mere ` : ""}og færdige beskeder til håndværkeren.`}
+            />
+          )}
+        </section>
+      )}
+
       {/* Flags */}
       <section className="mt-12">
         <SectionTitle icon={ShieldAlert}>Det skal du være opmærksom på</SectionTitle>
@@ -253,8 +314,9 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           <p className="card mt-5 p-5 text-ink-soft">Vi fandt ingen punkter, der kræver særlig opmærksomhed. Godt tegn!</p>
         ) : (
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            {analysis.flags.map((f, i) => {
+            {view.flags.map((f, i) => {
               const s = SEVERITY[f.severity];
+              const flagLocked = lock?.flags.includes(i) ?? false;
               const hasExtra = f.estimatedExtraMax != null && f.estimatedExtraMax > 0;
               return (
                 <article key={i} className={cn("card flex flex-col border-l-4 p-5", s.border)}>
@@ -263,10 +325,14 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                     <div className="min-w-0 flex-1">
                       <SeverityBadge severity={f.severity} />
                       <h3 className="mt-2 font-sans text-base font-semibold">{f.title}</h3>
-                      <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">{f.explanation}</p>
+                      {flagLocked ? (
+                        <Locked lines={3} label="Se forklaring og beløb" className="mt-2" />
+                      ) : (
+                        <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">{f.explanation}</p>
+                      )}
                       {hasExtra && (
                         <p className="num mt-2 text-sm font-medium text-ink">
-                          Mulig ekstraudgift: {formatRange((f.estimatedExtraMin ?? 0) * 1.25, (f.estimatedExtraMax ?? 0) * 1.25)} inkl. moms
+                          Mulig ekstraudgift: {formatRange((f.estimatedExtraMin ?? 0) * 1.25, (f.estimatedExtraMax ?? 0) * 1.25, cur)} inkl. moms
                         </p>
                       )}
                     </div>
@@ -292,14 +358,18 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         <SectionTitle>Hvad du betaler for</SectionTitle>
         <p className="mt-1 text-sm text-ink-muted">Alle beløb er ekskl. moms, som i tilbuddet.</p>
         <div className="card mt-5 divide-y divide-line">
-          {analysis.lineItems.map((item, i) => (
+          {view.lineItems.map((item, i) => (
             <div key={i} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:gap-6 sm:p-5">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-sans font-semibold">{item.description}</h3>
                   <span className={cn("badge", CLARITY[item.clarity].cls)}>{CLARITY[item.clarity].label}</span>
                 </div>
-                <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">{item.explanation}</p>
+                {lock?.items.includes(i) ? (
+                  <Locked lines={2} label="Se hvad posten dækker" className="mt-1.5" />
+                ) : (
+                  <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">{item.explanation}</p>
+                )}
                 <p className="mt-1.5 flex flex-wrap gap-x-3 text-xs text-ink-muted">
                   <span className="inline-flex items-center gap-1.5">
                     <span className={cn("h-2 w-2 rounded-full", CATEGORY_COLORS[item.category])} />
@@ -307,18 +377,18 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                   </span>
                   {item.quantity != null && item.unitPrice != null && (
                     <span className="num">
-                      {item.quantity.toLocaleString("da-DK")} {item.unit ?? ""} × {formatKr(item.unitPrice)}
+                      {item.quantity.toLocaleString("da-DK")} {item.unit ?? ""} × {money(item.unitPrice)}
                     </span>
                   )}
                   {item.note && <span className="text-amber-800">{item.note}</span>}
                 </p>
               </div>
-              <p className="num shrink-0 font-display text-lg font-semibold sm:text-right">{formatKr(item.amount)}</p>
+              <p className="num shrink-0 font-display text-lg font-semibold sm:text-right">{money(item.amount)}</p>
             </div>
           ))}
           <div className="flex items-center justify-between bg-paper/60 p-4 sm:p-5">
             <span className="font-semibold">I alt ekskl. moms</span>
-            <span className="num font-display text-lg font-semibold">{formatKr(analysis.totals.exclVat)}</span>
+            <span className="num font-display text-lg font-semibold">{money(analysis.totals.exclVat)}</span>
           </div>
         </div>
       </section>
@@ -346,6 +416,35 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         </ul>
       </section>
 
+      {/* Danish rules */}
+      {view.rules.length > 0 && (
+        <section className="mt-12">
+          <SectionTitle icon={Landmark}>Danske regler og ordninger</SectionTitle>
+          <p className="mt-1 text-sm text-ink-muted">Det, der gælder for netop denne opgave efter dansk lovgivning og praksis.</p>
+          <ul className="card mt-5 divide-y divide-line">
+            {view.rules.map((rule) => (
+              <li key={rule.key} className="flex gap-3 p-4">
+                {rule.status === "ok" ? (
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" aria-label="I orden" />
+                ) : rule.status === "missing" ? (
+                  <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" aria-label="Mangler" />
+                ) : (
+                  <HelpCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" aria-label="Uklart" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">{RULE_LABELS[rule.key]}</p>
+                  {lock ? (
+                    <Locked lines={1} label="Se forklaring" className="mt-1" />
+                  ) : (
+                    rule.note && <p className="mt-0.5 text-sm text-ink-muted">{rule.note}</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* Questions */}
       <section className="mt-12">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -372,18 +471,9 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           ))}
         </ol>
         {hiddenCount > 0 && (
-          <div className="mt-5">
-            {user.extraCredits > 0 ? (
-              <UnlockWithCreditButton id={quote.id} credits={user.extraCredits} />
-            ) : (
-              <Paywall
-                compact
-                quoteId={quote.id}
-                title={`${hiddenCount} spørgsmål mere`}
-                text="Få alle spørgsmål og beskedgeneratoren til dette tilbud."
-              />
-            )}
-          </div>
+          <a href="#laas-op" className="card mt-3 flex items-center gap-4 p-4 hover:shadow-lift sm:p-5">
+            <Locked lines={2} label={`${hiddenCount} spørgsmål mere`} className="flex-1" asLink={false} />
+          </a>
         )}
       </section>
 
@@ -400,14 +490,11 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                 initialMessages={messages.map((m) => ({ ...m, createdAt: m.createdAt.toISOString() }))}
               />
             </Suspense>
-          ) : user.extraCredits > 0 ? (
-            <UnlockWithCreditButton id={quote.id} credits={user.extraCredits} />
           ) : (
-            <Paywall
-              quoteId={quote.id}
-              title="Beskedgeneratoren er en del af Pro"
-              text="Få en færdig, høflig besked til håndværkeren med ét klik – eller lås kun dette tilbud op."
-            />
+            <a href="#laas-op" className="card flex flex-col gap-3 p-5 hover:shadow-lift">
+              <p className="text-sm text-ink-soft">Få en færdig, høflig besked til håndværkeren med ét klik, når du låser analysen op.</p>
+              <Locked lines={4} label="Lås op for beskeder" asLink={false} />
+            </a>
           )}
         </div>
       </section>

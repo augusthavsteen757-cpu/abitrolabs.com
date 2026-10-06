@@ -6,7 +6,7 @@ import { AnalysisError, analyzeQuote } from "./ai";
 import { readStoredFile } from "./storage";
 import { consumeAnalysis, refundAnalysis } from "./quota";
 import { HttpError } from "./auth";
-import { parseStoredAnalysis, type QuoteAnalysis } from "./analysis";
+import { parseStoredAnalysis, redactForFree, type LockInfo, type QuoteAnalysis } from "./analysis";
 import { hasFullAccess } from "./plans";
 
 export async function listQuotes(userId: string) {
@@ -71,16 +71,13 @@ export async function runAnalysis(user: User, quote: Quote): Promise<Quote> {
   }
 }
 
-/** Shape sent to the client. Locked (free) quotes only get the first 3 questions. */
-export function publicQuote(user: User, quote: Quote, freeQuestionLimit = 3) {
+/** Shape sent to the client. Locked (free) quotes never include the paid details. */
+export function publicQuote(user: User, quote: Quote) {
   const analysis = parseStoredAnalysis(quote.analysisJson);
   const full = hasFullAccess(user, quote);
   let safe: QuoteAnalysis | null = analysis;
-  let hiddenQuestions = 0;
-  if (analysis && !full) {
-    hiddenQuestions = Math.max(0, analysis.questions.length - freeQuestionLimit);
-    safe = { ...analysis, questions: analysis.questions.slice(0, freeQuestionLimit) };
-  }
+  let lock: LockInfo | null = null;
+  if (analysis && !full) ({ analysis: safe, lock } = redactForFree(analysis));
   const { analysisJson: _omit, fileKey: _key, ...rest } = quote;
-  return { ...rest, analysis: safe, fullAccess: full, hiddenQuestions };
+  return { ...rest, analysis: safe, fullAccess: full, lock };
 }

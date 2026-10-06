@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { FilePlus2, FileSearch, Gauge, AlertTriangle, Wallet, Columns3, Upload } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { listQuotes } from "@/lib/quotes";
-import { parseStoredAnalysis } from "@/lib/analysis";
+import { parseStoredAnalysis, redactForFree } from "@/lib/analysis";
 import { formatRange } from "@/lib/format";
 import { hasFullAccess } from "@/lib/plans";
 import { QuoteCard } from "@/components/QuoteCard";
@@ -24,7 +24,13 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const quotes = await listQuotes(user.id);
   const done = quotes.filter((q) => q.status === "DONE");
-  const analyses = done.map((q) => parseStoredAnalysis(q.analysisJson)).filter((a) => a != null);
+  const analyses = done
+    .map((q) => {
+      const a = parseStoredAnalysis(q.analysisJson);
+      // Locked quotes only contribute what the free preview shows.
+      return a && !hasFullAccess(user, q) ? redactForFree(a).analysis : a;
+    })
+    .filter((a) => a != null);
 
   const avgScore = done.length ? Math.round(done.reduce((s, q) => s + (q.score ?? 0), 0) / done.length) : null;
   const seriousFlags = analyses.reduce((s, a) => s + a.flags.filter((f) => f.severity === "high").length, 0);

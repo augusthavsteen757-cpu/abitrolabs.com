@@ -123,7 +123,7 @@ export default async function HomePage() {
                 </Link>
               </div>
               <p className="mt-5 flex items-center gap-2 text-sm text-ink-muted">
-                <ShieldCheck className="h-4 w-4 text-brand-600" /> Første analyse er gratis. Intet kreditkort.
+                <ShieldCheck className="h-4 w-4 text-brand-600" /> Se din tilbudsscore gratis. Intet kreditkort.
               </p>
             </div>
             <HeroMock />

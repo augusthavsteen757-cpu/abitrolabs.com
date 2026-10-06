@@ -1,6 +1,6 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
-import { CATEGORIES, CHECK_KEYS, CHECK_LABELS, normalizeAnalysis, type QuoteAnalysis } from "./analysis";
+import { CATEGORIES, CHECK_KEYS, CHECK_LABELS, RULE_KEYS, RULE_LABELS, normalizeAnalysis, type QuoteAnalysis } from "./analysis";
 import { computeScore } from "./score";
 import { pickDemoQuote } from "./demo-data";
 import { formatKr } from "./format";
@@ -39,6 +39,19 @@ Regler:
 - Skriv 5–10 konkrete, høflige spørgsmål til håndværkeren, der henviser til de faktiske poster og beløb.
 - priceType: "fast_pris" (fast pris), "tilbud" (bindende tilbud), "overslag" (ikke-bindende skøn), "uklart" (fremgår ikke).
 - Datoer som YYYY-MM-DD hvis muligt.
+- Du kender danske forhold og vurderer altid efter dansk praksis og lovgivning:
+  * El-arbejde må kun udføres af autoriseret el-installatør; vand-, varme- og sanitetsarbejde (VVS) af autoriseret VVS-installatør; kloakarbejde af autoriseret kloakmester; gas af autoriseret gasinstallatør (Sikkerhedsstyrelsen). Står autorisation ikke nævnt ved sådant arbejde, så påpeg det.
+  * AB-Forbruger er de almindelige betingelser for byggearbejder for forbrugere. Betaling bør ske i rater efter udført arbejde; store forudbetalinger er en risiko.
+  * Et overslag må efter dansk praksis normalt kun overskrides med ca. 10–15 %. Et tilbud/fast pris er bindende.
+  * Håndværkerfradrag: kun arbejdsløn (ikke materialer) kan give fradrag, og kun for bestemte typer arbejde, som ændrer sig fra år til år. Påpeg om arbejdsløn er opgjort for sig, og henvis til skat.dk – lov aldrig fradrag.
+  * Udenlandske firmaer, der arbejder i Danmark, skal være registreret i RUT (Registret for Udenlandske Tjenesteydere) og opkræve dansk moms.
+  * Nogle byggerier kræver byggetilladelse eller anmeldelse til kommunen (Bygningsreglementet BR18).
+  * Bygninger opført eller renoveret før ca. 1986 kan indeholde asbest, PCB eller bly; nedrivning kræver kortlægning og korrekt bortskaffelse (Arbejdstilsynet).
+  * Vådrum (badeværelser) skal udføres efter BUILD-anvisning 252 (tidligere SBi-anvisning 252) med godkendt membran.
+  * Klager over byggearbejde kan indbringes for Byggeriets Ankenævn; seriøse firmaer er ofte med i en garantiordning.
+- Danske priser: vurder i priceLevel om den samlede pris virker lav, normal eller høj for opgaven i forhold til typiske danske priser (groft skøn – sig hvis det ikke kan vurderes, og vær forsigtig).
+- rules: vurder hver af disse danske regler/ordninger med status "ok", "missing", "unclear" eller "not_relevant" (hvis den ikke gælder denne opgave): ${RULE_KEYS.map((k) => `${k} (${RULE_LABELS[k]})`).join("; ")}.
+- Tilbuddet kan være fra et dansk eller europæisk firma og skrevet på et andet sprog (fx svensk, norsk, tysk, polsk eller engelsk). Skriv altid dit svar på dansk, angiv sprog i language og valuta (ISO-kode, fx DKK, EUR, SEK) i currency. Beløb angives i tilbuddets egen valuta – omregn ikke.
 - Hvis dokumentet slet ikke er et håndværkertilbud, så udfyld title med "Ikke et håndværkertilbud", lad lineItems være tom og forklar det i summary.
 Kald altid værktøjet registrer_analyse præcis én gang med hele analysen.`;
 
@@ -135,6 +148,28 @@ const ANALYSIS_TOOL: Anthropic.Tool = {
         properties: { min: { type: "number" }, max: { type: "number" }, explanation: { type: "string" } },
         required: ["min", "max", "explanation"],
       },
+      currency: { type: "string", description: "ISO-valutakode for tilbuddets beløb, fx DKK, EUR, SEK" },
+      language: { type: "string", description: "Tilbuddets sprog på dansk, fx dansk, svensk, tysk, polsk" },
+      rules: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            key: { type: "string", enum: [...RULE_KEYS] },
+            status: { type: "string", enum: ["ok", "missing", "unclear", "not_relevant"] },
+            note: { type: "string", description: "Kort forklaring på dansk" },
+          },
+          required: ["key", "status", "note"],
+        },
+      },
+      priceLevel: {
+        type: "object",
+        properties: {
+          level: { type: "string", enum: ["lav", "normal", "hoej", "ukendt"] },
+          explanation: { type: "string", description: "Kort begrundelse i forhold til typiske danske priser" },
+        },
+        required: ["level", "explanation"],
+      },
     },
     required: [
       "contractor",
@@ -147,6 +182,10 @@ const ANALYSIS_TOOL: Anthropic.Tool = {
       "checks",
       "questions",
       "extraCostRisk",
+      "currency",
+      "language",
+      "rules",
+      "priceLevel",
     ],
   },
 };

@@ -38,6 +38,32 @@ export const CHECK_LABELS: Record<CheckKey, string> = {
   warranty: "Garanti, forsikring eller byggeskadeordning",
 };
 
+/** Danish rules and schemes checked for every quote (shown separately – not part of the score). */
+export const RULE_KEYS = [
+  "autorisation",
+  "abForbruger",
+  "fradrag",
+  "rut",
+  "tilladelse",
+  "miljoe",
+  "vaadrum",
+  "ankenaevn",
+] as const;
+export type RuleKey = (typeof RULE_KEYS)[number];
+
+export const RULE_LABELS: Record<RuleKey, string> = {
+  autorisation: "Autorisation til el, VVS, kloak eller gas",
+  abForbruger: "AB-Forbruger eller tilsvarende vilkår",
+  fradrag: "Arbejdsløn opgjort for sig (håndværkerfradrag)",
+  rut: "Udenlandsk firma registreret i RUT",
+  tilladelse: "Byggetilladelse eller anmeldelse til kommunen",
+  miljoe: "Asbest, PCB og bly i ældre bygninger",
+  vaadrum: "Vådrum efter BUILD-anvisning 252",
+  ankenaevn: "Byggeriets Ankenævn eller garantiordning",
+};
+
+export const PRICE_LEVEL_LABELS = { lav: "Lav pris", normal: "Normal pris", hoej: "Høj pris", ukendt: "Kan ikke vurderes" } as const;
+
 export const PRICE_TYPE_LABELS = {
   fast_pris: "Fast pris",
   tilbud: "Tilbud",
@@ -80,6 +106,13 @@ const checkSchema = z.object({
 });
 export type Check = z.infer<typeof checkSchema>;
 
+const ruleSchema = z.object({
+  key: z.enum(RULE_KEYS),
+  status: z.enum(["ok", "missing", "unclear", "not_relevant"]).catch("unclear"),
+  note: z.string().catch(""),
+});
+export type Rule = z.infer<typeof ruleSchema>;
+
 const questionSchema = z.object({
   question: z.string(),
   why: z.string().catch(""),
@@ -119,6 +152,18 @@ export const rawAnalysisSchema = z.object({
   extraCostRisk: z
     .object({ min: z.coerce.number().catch(0), max: z.coerce.number().catch(0), explanation: z.string().catch("") })
     .catch({ min: 0, max: 0, explanation: "" }),
+  /** ISO currency of the quote's amounts. Non-DKK quotes are shown in their own currency. */
+  currency: z
+    .string()
+    .transform((c) => c.trim().toUpperCase())
+    .pipe(z.string().regex(/^[A-Z]{3}$/))
+    .catch("DKK"),
+  /** Language the quote was written in, in Danish ("dansk", "svensk", "tysk", "polsk", …). */
+  language: z.string().catch("dansk"),
+  rules: lenientArray(ruleSchema),
+  priceLevel: z
+    .object({ level: z.enum(["lav", "normal", "hoej", "ukendt"]).catch("ukendt"), explanation: z.string().catch("") })
+    .catch({ level: "ukendt" as const, explanation: "" }),
 });
 
 export type ScoreBreakdownItem = { key: string; label: string; points: number; max: number; hint: string };
@@ -154,8 +199,16 @@ export function normalizeAnalysis(raw: unknown): Omit<QuoteAnalysis, "score"> {
   const min = Math.max(0, a.extraCostRisk.min || 0);
   const max = Math.max(min, a.extraCostRisk.max || 0);
 
+  // Keep each Danish rule once, in a stable order; drop the ones that don't apply to this job.
+  const ruleByKey = new Map(a.rules.map((x) => [x.key, x]));
+  const rules = RULE_KEYS.flatMap((key) => {
+    const x = ruleByKey.get(key);
+    return x && x.status !== "not_relevant" ? [x] : [];
+  });
+
   return {
     ...a,
+    rules,
     totals: { exclVat: round(exclVat), vat: round(vat), inclVat: round(inclVat) },
     checks,
     flags,
@@ -166,7 +219,15 @@ export function normalizeAnalysis(raw: unknown): Omit<QuoteAnalysis, "score"> {
 export function parseStoredAnalysis(json: string | null): QuoteAnalysis | null {
   if (!json) return null;
   try {
-    return JSON.parse(json) as QuoteAnalysis;
+    const a = JSON.parse(json) as QuoteAnalysis;
+    // Analyses saved before the Danish rules / currency fields existed.
+    return {
+      ...a,
+      rules: a.rules ?? [],
+      currency: a.currency ?? "DKK",
+      language: a.language ?? "dansk",
+      priceLevel: a.priceLevel ?? { level: "ukendt", explanation: "" },
+    };
   } catch {
     return null;
   }
@@ -189,4 +250,52 @@ export function categoryTotals(a: Pick<QuoteAnalysis, "lineItems">): Record<Cate
 /** Worst case incl. VAT: price + maximum estimated extra cost (estimates are excl. VAT). */
 export function worstCase(a: Pick<QuoteAnalysis, "totals" | "extraCostRisk">): number {
   return a.totals.inclVat + a.extraCostRisk.max * 1.25;
+}
+
+/* ------------------------------------------------------------------ */
+/* Free preview: the important details stay on the server until paid. */
+/* ------------------------------------------------------------------ */
+
+export const FREE_PREVIEW = { flags: 1, itemExplanations: 2, questions: 1 } as const;
+
+export type LockInfo = {
+  /** Indexes of flags whose explanation and extra-cost estimate are hidden. */
+  flags: number[];
+  /** Indexes of line items whose explanation is hidden. */
+  items: number[];
+  /** The total extra-cost estimate and the price level are hidden. */
+  extra: boolean;
+  /** How many questions are hidden. */
+  questions: number;
+};
+
+/**
+ * Removes the paid details from an analysis. The real text never leaves the server for a locked
+ * quote – the page only shows blurred placeholders – so it can't be read with developer tools.
+ */
+export function redactForFree(a: QuoteAnalysis): { analysis: QuoteAnalysis; lock: LockInfo } {
+  const lock: LockInfo = { flags: [], items: [], extra: true, questions: 0 };
+  const flags = a.flags.map((f, i) => {
+    if (i < FREE_PREVIEW.flags) return f;
+    lock.flags.push(i);
+    return { ...f, explanation: "", relatedItem: null, estimatedExtraMin: null, estimatedExtraMax: null };
+  });
+  const lineItems = a.lineItems.map((it, i) => {
+    if (i < FREE_PREVIEW.itemExplanations) return it;
+    lock.items.push(i);
+    return { ...it, explanation: "", note: null };
+  });
+  lock.questions = Math.max(0, a.questions.length - FREE_PREVIEW.questions);
+  return {
+    analysis: {
+      ...a,
+      flags,
+      lineItems,
+      questions: a.questions.slice(0, FREE_PREVIEW.questions),
+      extraCostRisk: { min: 0, max: 0, explanation: "" },
+      priceLevel: { level: "ukendt", explanation: "" },
+      rules: (a.rules ?? []).map((x) => ({ ...x, note: "" })),
+    },
+    lock,
+  };
 }

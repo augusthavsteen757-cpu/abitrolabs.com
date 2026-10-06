@@ -238,6 +238,13 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
         </div>
       </details>
 
+      {rows.some((r) => (r.a.currency ?? "DKK") !== "DKK") && (
+        <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Et eller flere tilbud er ikke i danske kroner ({[...new Set(rows.map((r) => r.a.currency ?? "DKK"))].join(", ")}). Beløbene er
+          ikke omregnet, så sammenlign priserne med forsigtighed.
+        </p>
+      )}
+
       <section className="mt-6 rounded-2xl border border-brand-700 bg-brand-900 p-5 text-white shadow-lift sm:p-6">
         <p className="flex items-center gap-2 text-sm font-semibold text-brand-300">
           <Sparkles className="h-4 w-4" /> Bedste samlede match

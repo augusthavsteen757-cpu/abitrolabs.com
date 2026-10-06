@@ -17,7 +17,7 @@ export default async function PricingPage() {
           <p className="eyebrow">Priser</p>
           <h1 className="mt-3 text-4xl font-semibold sm:text-5xl">Enkel pris. Ingen binding.</h1>
           <p className="mt-4 text-lg text-ink-soft">
-            Din første analyse er gratis. Bagefter vælger du selv, om du vil have Pro eller blot købe én analyse.
+            Se gratis hvordan dit tilbud scorer, og hvilke røde flag der er. Lås hele analysen op for 99 kr. – eller vælg Pro.
           </p>
         </div>
         <div className="mt-12">

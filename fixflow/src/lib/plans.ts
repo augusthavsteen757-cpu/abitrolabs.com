@@ -13,12 +13,12 @@ export const PLANS = {
     price: 0,
     priceLabel: "0 kr.",
     period: "",
-    tagline: "Prøv FixFlow på dit første tilbud.",
+    tagline: "Se hvad der er galt med dit tilbud.",
     features: [
-      "1 analyse af et håndværkertilbud",
-      "Tilbudsscore og røde flag",
-      "Forklaring af alle poster i almindeligt dansk",
-      "3 spørgsmål til håndværkeren",
+      "1 tilbud gennemgået",
+      "Tilbudsscore og kort forklaring",
+      "Se hvilke røde flag der er – det første forklaret",
+      "Detaljer, ekstraudgifter og spørgsmål er låst",
     ],
   },
   PRO: {
@@ -43,10 +43,10 @@ export const PLANS = {
     period: "",
     tagline: "Én komplet analyse – uden abonnement.",
     features: [
-      "1 komplet analyse",
-      "Alle spørgsmål til håndværkeren",
-      "Beskedgenerator til det tilbud",
-      "Kan også låse et allerede analyseret tilbud op",
+      "Lås hele analysen op for ét tilbud",
+      "Mulige ekstraudgifter i kroner",
+      "Alle røde flag forklaret og alle spørgsmål",
+      "Færdige beskeder til håndværkeren",
     ],
   },
 } as const;

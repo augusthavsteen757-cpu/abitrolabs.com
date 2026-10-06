@@ -56,7 +56,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     <div>
       <h1 className="text-3xl font-semibold">{isSignup ? "Opret gratis konto" : "Velkommen tilbage"}</h1>
       <p className="mt-2 text-ink-soft">
-        {isSignup ? "Din første analyse er gratis. Intet kreditkort." : "Log ind for at se dine tilbud."}
+        {isSignup ? "Se din tilbudsscore gratis. Intet kreditkort." : "Log ind for at se dine tilbud."}
       </p>
       {plan && isSignup && (
         <p className="mt-4 rounded-xl bg-brand-50 px-3.5 py-2.5 text-sm text-brand-800">

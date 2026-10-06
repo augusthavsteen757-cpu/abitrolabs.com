@@ -6,10 +6,17 @@ export function formatKr(n: number | null | undefined): string {
   return `${dkk.format(Math.round(n))} kr.`;
 }
 
-export function formatRange(min: number, max: number): string {
-  if (max <= 0) return "0 kr.";
-  if (Math.round(min) === Math.round(max)) return formatKr(max);
-  return `${dkk.format(Math.round(min))}–${formatKr(max)}`;
+/** Money in the quote's own currency: "160.500 kr." for DKK, "12.400 EUR" otherwise. */
+export function formatMoney(n: number | null | undefined, currency = "DKK"): string {
+  if (currency === "DKK") return formatKr(n);
+  if (n == null || !Number.isFinite(n)) return "–";
+  return `${dkk.format(Math.round(n))} ${currency}`;
+}
+
+export function formatRange(min: number, max: number, currency = "DKK"): string {
+  if (max <= 0) return formatMoney(0, currency);
+  if (Math.round(min) === Math.round(max)) return formatMoney(max, currency);
+  return `${dkk.format(Math.round(min))}–${formatMoney(max, currency)}`;
 }
 
 export function formatPct(n: number): string {

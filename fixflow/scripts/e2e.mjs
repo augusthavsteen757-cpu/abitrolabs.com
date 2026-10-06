@@ -86,12 +86,19 @@ try {
 
   const scoreText = await page.locator("text=Tilbudsscore 36 ud af 100").count();
   assert(scoreText > 0, "score 36 shown");
-  await page.getByText("5 spørgsmål mere").waitFor();
-  await page.getByText("Beskedgeneratoren er en del af Pro").waitFor();
+  await page.getByText("7 spørgsmål mere", { exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Se hele analysen" }).waitFor();
+  // The paid details must not be in the page at all (not just blurred)
+  const lockedHtml = await page.content();
+  assert(!lockedHtml.includes("tilbuddets største enkeltpost"), "locked flag explanation is not sent to the browser");
+  assert(!lockedHtml.includes("36.250"), "locked extra-cost amount is not sent to the browser");
+  const apiJson = await page.evaluate(async (u) => (await fetch(`/api/quotes/${u.split("/").pop()}`)).text(), page.url());
+  assert(!apiJson.includes("tilbuddets største enkeltpost"), "API does not leak locked details");
+  log("locked details never reach the browser (page + API)");
   const visibleQuestions = await page.locator("section:has(h2:has-text('Spørgsmål til håndværkeren')) ol > li").count();
-  assert(visibleQuestions === 3, `free user sees 3 questions (saw ${visibleQuestions})`);
+  assert(visibleQuestions === 1, `free user sees 1 question (saw ${visibleQuestions})`);
   await shot(page, "analysis-free");
-  log("free user sees paywall + 3 questions");
+  log("free user sees preview with locked details");
 
   // The free analysis is used up → upload shows paywall
   await page.goto(`${BASE}/dashboard/upload`);
@@ -100,7 +107,7 @@ try {
 
   // Buy single analysis from the quote page → unlocks this quote
   await page.goto(quoteUrl);
-  const buyBox = page.locator("section#besked");
+  const buyBox = page.locator("section#laas-op");
   await buyBox.getByRole("button", { name: /Køb – 99 kr\./ }).click();
   await buyBox.getByText("Sæt flueben").waitFor();
   log("purchase requires consent to immediate delivery");
@@ -109,6 +116,7 @@ try {
   await page.getByText("Skriv besked").waitFor({ timeout: 15_000 });
   const after = await page.locator("section:has(h2:has-text('Spørgsmål til håndværkeren')) ol > li").count();
   assert(after === 8, `all 8 questions after unlock (saw ${after})`);
+  assert((await page.content()).includes("tilbuddets største enkeltpost"), "unlocked details are shown");
   await shot(page, "analysis-unlocked");
   log("single purchase unlocks the quote");
 

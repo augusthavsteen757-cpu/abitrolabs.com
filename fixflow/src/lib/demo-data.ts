@@ -3,7 +3,7 @@
  * the seed script, which also renders matching fictional PDF quotes from them.
  * All companies, CVR numbers and contact details are FICTIONAL.
  */
-import type { CheckKey, LineItem, Flag, Question, PriceType } from "./analysis";
+import type { CheckKey, LineItem, Flag, Question, PriceType, RuleKey } from "./analysis";
 
 export type DemoQuote = {
   slug: string;
@@ -27,6 +27,10 @@ export type DemoQuote = {
     checks: { key: CheckKey; present: boolean; note: string }[];
     questions: Question[];
     extraCostRisk: { min: number; max: number; explanation: string };
+    currency: string;
+    language: string;
+    rules: { key: RuleKey; status: "ok" | "missing" | "unclear" | "not_relevant"; note: string }[];
+    priceLevel: { level: "lav" | "normal" | "hoej" | "ukendt"; explanation: string };
   };
 };
 
@@ -151,6 +155,17 @@ export const DEMO_QUOTES: DemoQuote[] = [
         { question: "Hvilken timepris bruger I, hvis der opstår ekstraarbejde?", why: "Så kan du selv regne på eventuelle tillæg.", priority: "low" },
         { question: "Er I medlem af en garantiordning eller Byggeriets Ankenævn, og hvilken garanti giver I på vådrumsarbejdet?", why: "Et badeværelse er dyrt at lave om, hvis membranen svigter.", priority: "medium" },
       ],
+      currency: "DKK",
+      language: "dansk",
+      rules: [
+        { key: "autorisation", status: "missing", note: "Tilbuddet omfatter både VVS- og el-arbejde, men nævner ikke, at det udføres af autoriserede installatører. Spørg efter autorisationsnumrene." },
+        { key: "abForbruger", status: "missing", note: "Der henvises ikke til AB-Forbruger eller andre standardvilkår, så det er uklart, hvad der gælder ved mangler og forsinkelse." },
+        { key: "fradrag", status: "unclear", note: "Noget af arbejdslønnen står for sig, men \"Diverse arbejde\" og materialer er blandet sammen. Tjek på skat.dk, om opgaven giver fradrag." },
+        { key: "miljoe", status: "unclear", note: "Det gamle badeværelse rives ned. Er huset opført eller renoveret før ca. 1986, bør der tjekkes for asbest og PCB først." },
+        { key: "vaadrum", status: "missing", note: "Membran og vådrumssikring er ikke nævnt. Et nyt badeværelse skal udføres efter BUILD-anvisning 252." },
+        { key: "ankenaevn", status: "missing", note: "Der står intet om Byggeriets Ankenævn eller en garantiordning." },
+      ],
+      priceLevel: { level: "normal", explanation: "Omkring 160.000 kr. for et nyt badeværelse ligger inden for et almindeligt dansk prisniveau – men det er et overslag, så prisen kan stige." },
       extraCostRisk: {
         min: 8000,
         max: 29000,
@@ -243,6 +258,17 @@ export const DEMO_QUOTES: DemoQuote[] = [
         { question: "Hvilken farve og overflade har Marazzi-fliserne, og kan jeg se en prøve?", why: "Det er nemmere at ændre nu end efter bestilling.", priority: "low" },
         { question: "Får jeg dokumentation for membranen (fotos og produktblad) ved aflevering?", why: "Det er vigtigt ved et senere salg af boligen.", priority: "medium" },
       ],
+      currency: "DKK",
+      language: "dansk",
+      rules: [
+        { key: "autorisation", status: "unclear", note: "VVS og el er med i prisen. Spørg efter firmaets autorisationsnumre, så du kan tjekke dem hos Sikkerhedsstyrelsen." },
+        { key: "abForbruger", status: "unclear", note: "Betalingsplan og vilkår er tydelige, men AB-Forbruger nævnes ikke direkte. Spørg om de bruger den." },
+        { key: "fradrag", status: "ok", note: "Arbejdsløn og materialer står hver for sig. Tjek på skat.dk, om opgaven giver fradrag i år." },
+        { key: "miljoe", status: "unclear", note: "Spørg om der er tjekket for asbest, hvis huset er fra før ca. 1986." },
+        { key: "vaadrum", status: "ok", note: "Vådrumssikring efter SBi-/BUILD-anvisning 252 er nævnt, og der gives 5 års garanti på membranen." },
+        { key: "ankenaevn", status: "ok", note: "Firmaet er medlem af Byggeriets Ankenævn." },
+      ],
+      priceLevel: { level: "normal", explanation: "Prisen ligger på et almindeligt dansk niveau for et totalrenoveret badeværelse på ca. 6 m² med de nævnte produkter." },
       extraCostRisk: {
         min: 0,
         max: 6000,
@@ -344,6 +370,16 @@ export const DEMO_QUOTES: DemoQuote[] = [
         { question: "Udføres vådrumssikringen efter SBi-anvisning 252, og hvilken garanti giver I?", why: "Membranen er det vigtigste i et badeværelse.", priority: "medium" },
         { question: "Hvilken forsikring har I, hvis der sker skade under arbejdet?", why: "Du skal vide, hvem der betaler, hvis noget går galt.", priority: "medium" },
       ],
+      currency: "DKK",
+      language: "dansk",
+      rules: [
+        { key: "autorisation", status: "missing", note: "Et nyt badeværelse kræver normalt autoriseret VVS- og el-arbejde, men der står intet om autorisation – og firmaet har intet CVR-nummer i tilbuddet." },
+        { key: "abForbruger", status: "missing", note: "Ingen standardvilkår. 50 % forudbetaling er langt fra almindelig praksis efter AB-Forbruger, hvor man betaler efter udført arbejde." },
+        { key: "fradrag", status: "missing", note: "Arbejdsløn og materialer er slået sammen i én post, så du kan ikke se, hvad der evt. kan give fradrag." },
+        { key: "vaadrum", status: "missing", note: "Membran og vådrumssikring er ikke nævnt." },
+        { key: "ankenaevn", status: "missing", note: "Ingen garanti, forsikring eller ankenævn." },
+      ],
+      priceLevel: { level: "lav", explanation: "Prisen er lav for et totalrenoveret badeværelse i Danmark. Det kan betyde, at noget ikke er med i prisen." },
       extraCostRisk: {
         min: 8000,
         max: 40000,
@@ -441,6 +477,15 @@ export const DEMO_QUOTES: DemoQuote[] = [
         { question: "Kan de 30 % ved bestilling nedsættes, eller stilles der sikkerhed for dem?", why: "Du betaler 46.200 kr. inkl. moms ca. 6 uger før levering.", priority: "medium" },
         { question: "Hvilken U-værdi har vinduerne, og opfylder de kravene til evt. tilskud?", why: "Så kan du tjekke, om du får det, du betaler for.", priority: "low" },
       ],
+      currency: "DKK",
+      language: "dansk",
+      rules: [
+        { key: "fradrag", status: "ok", note: "Montering er opgjort for sig. Tjek på skat.dk, om udskiftning af vinduer giver fradrag i år." },
+        { key: "tilladelse", status: "unclear", note: "Nye vinduer kræver normalt ikke byggetilladelse, men ændres facadens udseende, eller er huset bevaringsværdigt, så spørg kommunen først." },
+        { key: "miljoe", status: "unclear", note: "Ved udskiftning i ældre huse kan fuger og kit indeholde PCB eller asbest. Spørg om det er undersøgt." },
+        { key: "ankenaevn", status: "unclear", note: "Der er god garanti, men Byggeriets Ankenævn eller en garantiordning er ikke nævnt." },
+      ],
+      priceLevel: { level: "normal", explanation: "Prisen pr. vindue inkl. montering ligger på et almindeligt dansk niveau for 3-lags træ/alu-vinduer." },
       extraCostRisk: {
         min: 3000,
         max: 18000,

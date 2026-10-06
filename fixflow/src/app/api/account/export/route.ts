@@ -4,6 +4,8 @@ import { db } from "@/db";
 import { contractorMessages, payments, quotes } from "@/db/schema";
 import { requireApiUser } from "@/lib/auth";
 import { handle } from "@/lib/api";
+import { parseStoredAnalysis, redactForFree } from "@/lib/analysis";
+import { hasFullAccess } from "@/lib/plans";
 import { rateLimit } from "@/lib/rate-limit";
 
 /** GDPR art. 15 + 20: the user's own data as JSON. */
@@ -32,7 +34,10 @@ export const GET = handle(async () => {
       fileName: q.fileName,
       status: q.status,
       createdAt: q.createdAt,
-      analysis: q.analysisJson ? JSON.parse(q.analysisJson) : null,
+      analysis: (() => {
+        const a = parseStoredAnalysis(q.analysisJson);
+        return a && !hasFullAccess(user, q) ? redactForFree(a).analysis : a;
+      })(),
       messages: msgs.filter((m) => m.quoteId === q.id).map((m) => ({ topic: m.topic, body: m.body, createdAt: m.createdAt })),
     })),
     payments: pays.map((p) => ({ kind: p.kind, amountDkk: p.amountDkk, provider: p.provider, createdAt: p.createdAt })),
