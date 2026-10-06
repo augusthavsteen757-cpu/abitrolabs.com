@@ -33,8 +33,9 @@ COPY package.json drizzle.config.ts ./
 COPY src/db/schema.ts ./src/db/schema.ts
 
 RUN mkdir -p /data && chown -R node:node /data /app /migrate
-USER node
 VOLUME ["/data"]
 EXPOSE 3000
 
-CMD ["sh", "-c", "cd /migrate && npx drizzle-kit push && cd /app && exec node server.js"]
+# Hosting volumes (Railway, Fly, Docker) are often mounted as root. Fix ownership of /data,
+# then drop to the unprivileged "node" user before running anything else.
+CMD ["sh", "-c", "mkdir -p /data/uploads && chown -R node:node /data && exec setpriv --reuid=node --regid=node --init-groups sh -c 'cd /migrate && npx drizzle-kit push && cd /app && exec node server.js'"]
