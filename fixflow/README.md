@@ -9,7 +9,10 @@ FixFlow er en dansk SaaS-webapp, der hjælper boligejere med at forstå håndvæ
 - en forklaring af **hver post** på almindeligt dansk
 - en **10-punkts tjekliste** (CVR, betalingsplan, garanti, tidsplan …)
 - konkrete **spørgsmål til håndværkeren** og en **beskedgenerator**
-- **sammenligning** af op til 4 tilbud, inkl. "værste scenarie"
+- **sammenligning** af op til 4 tilbud, inkl. "værste scenarie", afstand og et "bedste samlede match"
+- **Find håndværkere** i nærheden (CVR-registret) og en færdig **tilbudsanmodning**, så tilbuddene bliver nemme at sammenligne
+
+**Skal du lancere?** Se [LANCERING.md](./LANCERING.md) – en trin-for-trin-plan for virksomhed, jura, betaling, sikkerhed og drift.
 
 Vi sælger ikke AI – vi sælger tryghed.
 
@@ -17,7 +20,7 @@ Vi sælger ikke AI – vi sælger tryghed.
 
 ## Kom i gang
 
-Kræver Node.js 20+.
+Kræver Node.js 20+. Bygget med Next.js 15.
 
 ```bash
 cd fixflow
@@ -169,13 +172,35 @@ Demo-data indlæses ikke automatisk i containeren. Vil du have demo-brugeren med
 
 ---
 
+## Find håndværkere i nærheden
+
+`/dashboard/find`: vælg fag, postnummer og afstand. Med `CVR_ES_USER`/`CVR_ES_PASSWORD` (gratis adgang til CVR's system-til-system-søgning hos Erhvervsstyrelsen) søges der i rigtige, aktive firmaer efter branchekode; uden adgang vises tydeligt markerede fiktive demo-firmaer. Afstande beregnes ud fra postnumre (`src/lib/geo.ts`) – med en indbygget tabel over bymidter (omtrentlig) eller en DAWA-kompatibel API via `GEO_API_URL`. Firmaer sorteres efter afstand; FixFlow vurderer ikke firmaernes kvalitet. Brugeren sender selv tilbudsanmodningen – appen kontakter aldrig firmaer.
+
+## Sikkerhed
+
+- Next.js 15.5 (rettede kritiske sårbarheder i 14.x) – `npm audit --omit=dev`: 0 sårbarheder.
+- Sikkerhedsheadere: Content Security Policy, HSTS, X-Frame-Options, nosniff, Referrer- og Permissions-Policy (`next.config.mjs`).
+- CSRF: alle ændrende API-kald skal komme fra samme origin (`src/middleware.ts`) + SameSite-cookie.
+- Login: bcrypt (cost 12), krav om stærke adgangskoder, ens svartid uanset om e-mailen findes, rate limiting pr. IP og pr. konto, "log ud alle steder" og skift af adgangskode ugyldiggør gamle sessioner.
+- Rate limiting i databasen (virker på tværs af servere): login, oprettelse, upload, beskeder, køb, søgning.
+- Upload: kun PDF/JPG/PNG/WEBP efter filens indhold (magic bytes), maks. 10 MB, gemt uden for webroden med tilfældige navne og beskyttelse mod path traversal; filer kan kun hentes af ejeren.
+- Adgangskontrol: alle tilbud, filer og beskeder slås op med både id og bruger-id.
+- AI: dokumenter behandles som data – systemprompten afviser instruktioner i tilbuddet.
+- Stripe-webhooks verificeres med signatur og er idempotente.
+
+## Jura
+
+- Handelsbetingelser (`/handelsbetingelser`) og privatlivspolitik med cookie-information (`/privatlivspolitik`) – udfyld `COMPANY_*` og få dem gennemgået af en advokat.
+- Accept af vilkår ved oprettelse, samtykke til straks-levering før køb (fortrydelsesret), opsigelse til periodens udløb.
+- GDPR: dataeksport og kontosletning på kontosiden; betalinger anonymiseres og gemmes 5 år (bogføringsloven).
+
 ## Stripe
 
 Uden `STRIPE_SECRET_KEY` er betaling simuleret. Sådan slår du rigtig betaling til:
 
 1. Opret to produkter i Stripe: **Pro** (49 kr./md., recurring) og **Engangskøb** (99 kr., one-time). Notér pris-id'erne.
 2. Sæt `STRIPE_SECRET_KEY`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_SINGLE` og `NEXT_PUBLIC_APP_URL`.
-3. Opret et webhook-endpoint til `https://dit-domæne.dk/api/billing/webhook` med hændelsen `checkout.session.completed`, og sæt `STRIPE_WEBHOOK_SECRET`.
+3. Opret et webhook-endpoint til `https://dit-domæne.dk/api/billing/webhook` med hændelserne `checkout.session.completed` og `customer.subscription.deleted`, og sæt `STRIPE_WEBHOOK_SECRET`.
 4. `/api/billing/checkout` returnerer nu `{ url }` til Stripe Checkout, og webhooken giver Pro/kredit (idempotent via `payments.reference`).
 5. Anbefalet før lancering: håndtér `customer.subscription.deleted` og `invoice.paid` (fornyelse af perioden) i webhooken, og tilføj Stripes kundeportal.
 

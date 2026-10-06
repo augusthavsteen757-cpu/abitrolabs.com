@@ -24,7 +24,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const data = Object.fromEntries(new FormData(e.currentTarget));
+    const form = new FormData(e.currentTarget);
+    const data = {
+      ...Object.fromEntries(form),
+      acceptTerms: form.get("acceptTerms") === "on",
+    };
     try {
       const res = await fetch(`/api/auth/${mode}`, {
         method: "POST",
@@ -77,12 +81,23 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             name="password"
             type="password"
             required
-            minLength={isSignup ? 8 : undefined}
+            minLength={isSignup ? 10 : undefined}
             autoComplete={isSignup ? "new-password" : "current-password"}
             className="input"
-            placeholder={isSignup ? "Mindst 8 tegn" : "••••••••"}
+            placeholder={isSignup ? "Mindst 10 tegn" : "••••••••"}
           />
         </div>
+        {isSignup && (
+          <label className="flex cursor-pointer gap-2.5 text-sm text-ink-soft">
+            <input type="checkbox" name="acceptTerms" required className="mt-0.5 h-4 w-4 shrink-0 accent-brand-700" />
+            <span>
+              Jeg accepterer{" "}
+              <Link href="/handelsbetingelser" target="_blank" className="font-medium text-brand-700 underline">handelsbetingelserne</Link>{" "}
+              og har læst{" "}
+              <Link href="/privatlivspolitik" target="_blank" className="font-medium text-brand-700 underline">privatlivspolitikken</Link>.
+            </span>
+          </label>
+        )}
         {error && (
           <p role="alert" className="rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
             {error}

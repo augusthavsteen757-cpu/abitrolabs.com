@@ -15,7 +15,7 @@ export type DemoQuote = {
   contractorAddress: string;
   customer: string;
   raw: {
-    contractor: { name: string; cvr: string | null; phone: string | null; email: string | null };
+    contractor: { name: string; cvr: string | null; phone: string | null; email: string | null; address: string | null };
     title: string;
     quoteDate: string | null;
     validUntil: string | null;
@@ -64,7 +64,7 @@ export const DEMO_QUOTES: DemoQuote[] = [
       "Tilbuddet er gældende i 14 dage.",
     ],
     raw: {
-      contractor: { name: "Hansen & Søn VVS-Byg ApS", cvr: "39 21 48 57", phone: "46 12 34 56", email: "tilbud@hansensoen.example" },
+      contractor: { name: "Hansen & Søn VVS-Byg ApS", cvr: "39 21 48 57", phone: "46 12 34 56", email: "tilbud@hansensoen.example", address: "Industrivej 14, 4000 Roskilde" },
       title: "Renovering af badeværelse",
       quoteDate: "2026-09-02",
       validUntil: "2026-09-16",
@@ -174,7 +174,7 @@ export const DEMO_QUOTES: DemoQuote[] = [
       "Oprydning og bortskaffelse er inkluderet. Tilbuddet gælder i 30 dage.",
     ],
     raw: {
-      contractor: { name: "Nordvest Badeværelser A/S", cvr: "41 87 22 09", phone: "38 10 20 30", email: "kontakt@nordvestbad.example" },
+      contractor: { name: "Nordvest Badeværelser A/S", cvr: "41 87 22 09", phone: "38 10 20 30", email: "kontakt@nordvestbad.example", address: "Håndværkervej 3, 2400 København NV" },
       title: "Totalrenovering af badeværelse, 6 m²",
       quoteDate: "2026-09-05",
       validUntil: "2026-10-05",
@@ -263,7 +263,7 @@ export const DEMO_QUOTES: DemoQuote[] = [
       "Tilbuddet gælder 8 dage. Alle priser er ekskl. moms.",
     ],
     raw: {
-      contractor: { name: "KBH Totalbyg", cvr: null, phone: "20 30 40 50", email: null },
+      contractor: { name: "KBH Totalbyg", cvr: null, phone: "20 30 40 50", email: null, address: "København" },
       title: "Badeværelse – totalpakke",
       quoteDate: "2026-09-08",
       validUntil: "2026-09-16",
@@ -366,7 +366,7 @@ export const DEMO_QUOTES: DemoQuote[] = [
       "10 års producentgaranti på vinduer. 5 års garanti på montering. Tilbuddet gælder 30 dage.",
     ],
     raw: {
-      contractor: { name: "Lys & Luft Vinduer ApS", cvr: "37 55 10 92", phone: "86 40 50 60", email: "salg@lysogluft.example" },
+      contractor: { name: "Lys & Luft Vinduer ApS", cvr: "37 55 10 92", phone: "86 40 50 60", email: "salg@lysogluft.example", address: "Vestergade 51, 8000 Aarhus C" },
       title: "Udskiftning af 8 vinduer",
       quoteDate: "2026-08-28",
       validUntil: "2026-09-27",

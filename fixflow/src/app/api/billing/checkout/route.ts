@@ -3,11 +3,13 @@ import { z } from "zod";
 import { randomBytes } from "crypto";
 import { requireApiUser } from "@/lib/auth";
 import { handle, jsonError } from "@/lib/api";
-import { cancelPro, createStripeCheckout, fulfill, isStripeEnabled } from "@/lib/billing";
+import { rateLimit } from "@/lib/rate-limit";
+import { resumePro, cancelPro, createStripeCheckout, fulfill, isStripeEnabled } from "@/lib/billing";
 
 const schema = z.object({
-  kind: z.enum(["PRO_MONTHLY", "SINGLE", "CANCEL"]),
+  kind: z.enum(["PRO_MONTHLY", "SINGLE", "CANCEL", "RESUME"]),
   quoteId: z.string().max(64).nullish(),
+  consent: z.boolean().optional(),
 });
 
 export const POST = handle(async (req: Request) => {
@@ -19,10 +21,19 @@ export const POST = handle(async (req: Request) => {
 
   if (kind === "CANCEL") {
     if (user.plan !== "PRO") return jsonError("Du har ikke et aktivt Pro-abonnement.");
+    if (user.planEndsAt) return jsonError("Dit abonnement er allerede opsagt.");
     await cancelPro(user);
     return NextResponse.json({ ok: true });
   }
+  if (kind === "RESUME") {
+    if (user.plan !== "PRO" || !user.planEndsAt) return jsonError("Dit abonnement er ikke opsagt.");
+    await resumePro(user);
+    return NextResponse.json({ ok: true });
+  }
   if (kind === "PRO_MONTHLY" && user.plan === "PRO") return jsonError("Du har allerede Pro.");
+  // Forbrugeraftaleloven: explicit consent to immediate delivery before the purchase.
+  if (parsed.data.consent !== true) return jsonError("Du skal bekræfte, at du vil have adgang med det samme.");
+  await rateLimit(`checkout:${user.id}`, 20, 60 * 60);
 
   if (isStripeEnabled()) {
     const url = await createStripeCheckout(user, kind, quoteId);
@@ -36,6 +47,7 @@ export const POST = handle(async (req: Request) => {
     provider: "simulated",
     reference: `sim_${randomBytes(8).toString("hex")}`,
     quoteId,
+    consentAt: new Date(),
   });
   return NextResponse.json({ ok: true, simulated: true });
 });

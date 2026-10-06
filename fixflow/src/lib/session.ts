@@ -16,19 +16,20 @@ function secretKey() {
   return new TextEncoder().encode(s);
 }
 
-export async function signSession(userId: string): Promise<string> {
-  return new SignJWT({ sub: userId })
+export async function signSession(userId: string, version: number): Promise<string> {
+  return new SignJWT({ sub: userId, ver: version })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_MAX_AGE}s`)
     .sign(secretKey());
 }
 
-export async function verifySession(token: string | undefined): Promise<string | null> {
+export async function verifySession(token: string | undefined): Promise<{ userId: string; version: number } | null> {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secretKey(), { algorithms: ["HS256"] });
-    return typeof payload.sub === "string" ? payload.sub : null;
+    if (typeof payload.sub !== "string") return null;
+    return { userId: payload.sub, version: typeof payload.ver === "number" ? payload.ver : 0 };
   } catch {
     return null;
   }

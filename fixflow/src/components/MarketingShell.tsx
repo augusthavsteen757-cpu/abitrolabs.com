@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
+import { COMPANY } from "@/lib/company";
 
 export function MarketingHeader({ loggedIn = false }: { loggedIn?: boolean }) {
   return (
@@ -47,10 +48,12 @@ export function MarketingFooter() {
           <Link href="/priser" className="hover:text-ink">Priser</Link>
           <Link href="/login" className="hover:text-ink">Log ind</Link>
           <Link href="/opret" className="hover:text-ink">Opret konto</Link>
+          <Link href="/handelsbetingelser" className="hover:text-ink">Handelsbetingelser</Link>
+          <Link href="/privatlivspolitik" className="hover:text-ink">Privatliv og cookies</Link>
         </nav>
       </div>
       <p className="mx-auto max-w-6xl px-4 pb-8 text-xs text-ink-muted sm:px-6">
-        © {new Date().getFullYear()} FixFlow. Analyserne er vejledende og erstatter ikke juridisk eller teknisk rådgivning.
+        © {new Date().getFullYear()} {COMPANY.name} · CVR {COMPANY.cvr}. Analyserne er vejledende og erstatter ikke juridisk eller teknisk rådgivning.
       </p>
     </footer>
   );

@@ -6,6 +6,7 @@ import { handle, jsonError } from "@/lib/api";
 import { ALLOWED_TYPES, MAX_FILE_SIZE, detectMimeType, saveFile } from "@/lib/storage";
 import { listQuotes, publicQuote, runAnalysis } from "@/lib/quotes";
 import { getUsage } from "@/lib/plans";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -18,6 +19,8 @@ export const GET = handle(async () => {
 
 export const POST = handle(async (req: Request) => {
   const user = await requireApiUser();
+  await rateLimit(`upload:${user.id}`, 20, 60 * 60);
+  await rateLimit(`upload-ip:${await clientIp()}`, 40, 60 * 60);
   if (getUsage(user).remaining <= 0) {
     return jsonError("Du har ikke flere analyser tilbage. Opgradér til Pro eller køb en enkelt analyse.", 402);
   }

@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { payments, quotes, users, type User } from "@/db/schema";
-import { PRO_PRICE_DKK, SINGLE_PRICE_DKK } from "./plans";
+import { PRO_PRICE_DKK, SINGLE_PRICE_DKK, currentPeriod } from "./plans";
 import { spendCredit } from "./quota";
 
 export type CheckoutKind = "PRO_MONTHLY" | "SINGLE";
@@ -17,8 +17,9 @@ export async function fulfill(opts: {
   provider: "stripe" | "simulated";
   reference: string | null;
   quoteId?: string | null;
+  consentAt?: Date | null;
 }) {
-  const { userId, kind, provider, reference, quoteId } = opts;
+  const { userId, kind, provider, reference, quoteId, consentAt } = opts;
   if (reference) {
     const dup = await db.query.payments.findFirst({ where: eq(payments.reference, reference) });
     if (dup) return; // idempotent for webhook retries
@@ -28,12 +29,13 @@ export async function fulfill(opts: {
     kind,
     provider,
     reference,
+    consentAt: consentAt ?? null,
     amountDkk: kind === "PRO_MONTHLY" ? PRO_PRICE_DKK : SINGLE_PRICE_DKK,
   });
 
   if (kind === "PRO_MONTHLY") {
     // New Pro period starts now with a fresh quota. Free-plan usage does not carry over.
-    await db.update(users).set({ plan: "PRO", periodStart: new Date(), periodUsed: 0 }).where(eq(users.id, userId));
+    await db.update(users).set({ plan: "PRO", planEndsAt: null, periodStart: new Date(), periodUsed: 0 }).where(eq(users.id, userId));
     await db.update(quotes).set({ unlocked: true }).where(eq(quotes.userId, userId));
     return;
   }
@@ -51,18 +53,45 @@ export async function fulfill(opts: {
   }
 }
 
-export async function cancelPro(user: User) {
+/** Cancels Pro at the end of the current paid period (the customer keeps what they paid for). */
+export async function cancelPro(user: User, opts: { immediately?: boolean } = {}) {
   if (isStripeEnabled()) {
     const last = await db.query.payments.findFirst({
       where: and(eq(payments.userId, user.id), eq(payments.kind, "PRO_MONTHLY"), eq(payments.provider, "stripe")),
       orderBy: [desc(payments.createdAt)],
     });
     if (last?.reference?.startsWith("sub_")) {
-      await stripe(`/v1/subscriptions/${last.reference}`, {}, "DELETE");
+      if (opts.immediately) await stripe(`/v1/subscriptions/${last.reference}`, {}, "DELETE");
+      else await stripe(`/v1/subscriptions/${last.reference}`, { cancel_at_period_end: "true" });
     }
   }
-  // Analyses already unlocked stay unlocked. Remaining quota is kept as the free plan's (used up) allowance.
-  await db.update(users).set({ plan: "FREE", periodUsed: 1 }).where(eq(users.id, user.id));
+  if (opts.immediately) {
+    await db.update(users).set({ plan: "FREE", planEndsAt: null, periodUsed: 1 }).where(eq(users.id, user.id));
+    return;
+  }
+  const { periodEnd } = currentPeriod(user);
+  await db.update(users).set({ planEndsAt: periodEnd }).where(eq(users.id, user.id));
+}
+
+/** Re-activates a cancelled Pro subscription before it runs out. */
+export async function resumePro(user: User) {
+  if (isStripeEnabled()) {
+    const last = await db.query.payments.findFirst({
+      where: and(eq(payments.userId, user.id), eq(payments.kind, "PRO_MONTHLY"), eq(payments.provider, "stripe")),
+      orderBy: [desc(payments.createdAt)],
+    });
+    if (last?.reference?.startsWith("sub_")) {
+      await stripe(`/v1/subscriptions/${last.reference}`, { cancel_at_period_end: "false" });
+    }
+  }
+  await db.update(users).set({ planEndsAt: null }).where(eq(users.id, user.id));
+}
+
+/** Stripe told us the subscription has ended (after cancellation or failed payments). */
+export async function subscriptionEnded(subscriptionId: string) {
+  const pay = await db.query.payments.findFirst({ where: eq(payments.reference, subscriptionId) });
+  if (!pay?.userId) return;
+  await db.update(users).set({ plan: "FREE", planEndsAt: null, periodUsed: 1 }).where(eq(users.id, pay.userId));
 }
 
 /* ---------------------------- Stripe (REST) ---------------------------- */
@@ -95,6 +124,7 @@ export async function createStripeCheckout(user: User, kind: CheckoutKind, quote
     "metadata[userId]": user.id,
     "metadata[kind]": kind,
     "metadata[quoteId]": quoteId ?? "",
+    "metadata[consentAt]": new Date().toISOString(),
     success_url: `${appUrl}${back}?betalt=1`,
     cancel_url: `${appUrl}/dashboard/konto`,
     locale: "da",

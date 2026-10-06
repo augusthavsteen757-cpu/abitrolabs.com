@@ -8,22 +8,24 @@ import { PLANS, getUsage } from "@/lib/plans";
 import { isStripeEnabled } from "@/lib/billing";
 import { cn, formatDate, formatKr } from "@/lib/format";
 import { CheckoutButton } from "@/components/CheckoutButton";
+import { AccountSettings } from "@/components/AccountSettings";
 
 export const metadata: Metadata = { title: "Konto" };
 
 export default async function AccountPage({
   searchParams,
 }: {
-  searchParams: { upgrade?: string; quote?: string; betalt?: string };
+  searchParams: Promise<{ upgrade?: string; quote?: string; betalt?: string }>;
 }) {
+  const sp = await searchParams;
   const user = await requireUser();
   const usage = getUsage(user);
   const history = await db.query.payments.findMany({
     where: eq(payments.userId, user.id),
     orderBy: [desc(payments.createdAt)],
   });
-  const upgrade = searchParams.upgrade;
-  const quoteId = searchParams.quote;
+  const upgrade = sp.upgrade;
+  const quoteId = sp.quote;
   const quote = quoteId
     ? await db.query.quotes.findFirst({ where: and(eq(quotes.id, quoteId), eq(quotes.userId, user.id)) })
     : null;
@@ -37,7 +39,7 @@ export default async function AccountPage({
         {user.name} · {user.email}
       </p>
 
-      {searchParams.betalt && (
+      {sp.betalt && (
         <p className="mt-6 flex items-center gap-2 rounded-xl bg-brand-50 px-4 py-3 text-sm text-brand-800">
           <CheckCircle2 className="h-4 w-4" /> Tak for din betaling. Det kan tage et øjeblik, før den er registreret.
         </p>
@@ -113,16 +115,26 @@ export default async function AccountPage({
             ))}
           </ul>
           <div className="mt-6">
-            {isPro ? (
+            {isPro && user.planEndsAt ? (
+              <div>
+                <p className={cn("mb-3 text-sm", upgrade === "pro" ? "text-brand-100" : "text-ink-soft")}>
+                  Opsagt. Pro fortsætter til {formatDate(user.planEndsAt)}.
+                </p>
+                <CheckoutButton kind="RESUME" dark={upgrade === "pro"} className={upgrade === "pro" ? "btn-light" : "btn-primary"}>
+                  Genoptag Pro
+                </CheckoutButton>
+              </div>
+            ) : isPro ? (
               <CheckoutButton
                 kind="CANCEL"
                 className="btn-secondary"
-                confirmText="Vil du opsige Pro? Dine analyser og oplåste tilbud bliver liggende."
+                dark={upgrade === "pro"}
+                confirmText={`Vil du opsige Pro? Du beholder Pro til ${formatDate(usage.periodEnd)}, og dine analyser bliver liggende.`}
               >
                 Opsig Pro
               </CheckoutButton>
             ) : (
-              <CheckoutButton kind="PRO_MONTHLY" className={upgrade === "pro" ? "btn-light" : "btn-primary"} redirectTo="/dashboard/konto">
+              <CheckoutButton kind="PRO_MONTHLY" dark={upgrade === "pro"} className={upgrade === "pro" ? "btn-light" : "btn-primary"} redirectTo="/dashboard/konto">
                 Opgradér til Pro
               </CheckoutButton>
             )}
@@ -150,6 +162,7 @@ export default async function AccountPage({
           <div className="mt-6">
             <CheckoutButton
               kind="SINGLE"
+              dark={upgrade === "single" || !!quote}
               quoteId={quote?.id}
               className={upgrade === "single" || quote ? "btn-light" : "btn-secondary"}
               redirectTo={quote ? `/dashboard/tilbud/${quote.id}` : "/dashboard/konto"}
@@ -183,6 +196,7 @@ export default async function AccountPage({
           </div>
         )}
       </section>
+      <AccountSettings postalCode={user.postalCode ?? ""} />
     </div>
   );
 }

@@ -5,9 +5,10 @@ import { readStoredFile } from "@/lib/storage";
 
 export const runtime = "nodejs";
 
-export const GET = handle(async (_req: Request, { params }: { params: { id: string } }) => {
+export const GET = handle(async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
   const user = await requireApiUser();
-  const quote = await getQuote(user.id, params.id);
+  const quote = await getQuote(user.id, id);
   if (!quote) return jsonError("Filen blev ikke fundet.", 404);
   let data: Buffer;
   try {

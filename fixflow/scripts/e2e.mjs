@@ -61,7 +61,12 @@ try {
   await page.goto(`${BASE}/opret`);
   await page.fill("#name", "Test Testesen");
   await page.fill("#email", email);
-  await page.fill("#password", "hemmelig123");
+  await page.fill("#password", "kort");
+  await page.check("input[name=acceptTerms]");
+  await page.click("button[type=submit]");
+  await page.getByText("Adgangskoden skal være mindst 10 tegn.").waitFor();
+  log("weak password rejected");
+  await page.fill("#password", "Hemmelig-Kode-2026");
   await page.click("button[type=submit]");
   await page.waitForURL(`${BASE}/dashboard`);
   await page.getByText("Upload dit første tilbud").waitFor();
@@ -95,7 +100,12 @@ try {
 
   // Buy single analysis from the quote page → unlocks this quote
   await page.goto(quoteUrl);
-  await page.locator("section#besked").getByRole("button", { name: /Køb – 99 kr\./ }).click();
+  const buyBox = page.locator("section#besked");
+  await buyBox.getByRole("button", { name: /Køb – 99 kr\./ }).click();
+  await buyBox.getByText("Sæt flueben").waitFor();
+  log("purchase requires consent to immediate delivery");
+  await buyBox.getByRole("checkbox").nth(1).check();
+  await buyBox.getByRole("button", { name: /Køb – 99 kr\./ }).click();
   await page.getByText("Skriv besked").waitFor({ timeout: 15_000 });
   const after = await page.locator("section:has(h2:has-text('Spørgsmål til håndværkeren')) ol > li").count();
   assert(after === 8, `all 8 questions after unlock (saw ${after})`);
@@ -114,6 +124,18 @@ try {
   await page.getByText("Upload dit første tilbud").waitFor();
   log("delete with confirm");
 
+  await page.goto(`${BASE}/dashboard/konto`);
+  await page.getByRole("button", { name: "Slet min konto" }).click();
+  await page.fill("#delpw", "Hemmelig-Kode-2026");
+  await page.getByRole("button", { name: "Slet alt permanent" }).click();
+  await page.waitForURL(`${BASE}/`);
+  await page.goto(`${BASE}/login`);
+  await page.fill("#email", email);
+  await page.fill("#password", "Hemmelig-Kode-2026");
+  await page.click("button[type=submit]");
+  await page.getByText("Forkert e-mail eller adgangskode.").waitFor();
+  log("account deletion removes the account");
+
   /* ---------------- 2. Demo user: compare + ask contractor ---------------- */
   const demo = await newPage();
   await demo.goto(`${BASE}/login`);
@@ -125,6 +147,8 @@ try {
   await demo.waitForURL(/sammenlign\?ids=/);
   await demo.getByText("Det bør du vide").waitFor();
   await demo.getByText("Lavest værste scenarie").waitFor();
+  await demo.getByText("Bedste samlede match").waitFor();
+  await demo.getByRole("rowheader", { name: "Afstand fra dig" }).waitFor();
   const cols = await demo.locator("table thead th").count();
   assert(cols === 4, `comparison table has 3 quotes (+label col), saw ${cols - 1}`);
   await shot(demo, "compare");
@@ -151,14 +175,32 @@ try {
   await shot(demo, "message");
   log("message generated and saved");
 
+  // Find contractors nearby (demo firms) and build a quote request
+  await demo.goto(`${BASE}/dashboard/find`);
+  await demo.selectOption("#trade", "vvs");
+  await demo.fill("#postal", "4000");
+  await demo.getByRole("button", { name: "Søg" }).click();
+  await demo.getByText(/firma(er)? nær 4000 Roskilde/).waitFor();
+  await demo.locator("ul li input[type=checkbox]").first().check();
+  await demo.fill("#project", "Nyt badeværelse på 6 m².");
+  await demo.getByText("En fast pris eller et bindende tilbud").waitFor();
+  await shot(demo, "find");
+  log("find contractors nearby + quote request");
+
   await demo.goto(`${BASE}/dashboard/konto`);
+  await demo.getByRole("button", { name: "Opsig Pro" }).click();
+  await demo.getByText(/Du beholder Pro til/).waitFor();
+  await demo.getByRole("button", { name: "Ja, bekræft" }).click();
+  await demo.getByText(/Opsagt\. Pro fortsætter til/).waitFor();
+  await demo.getByRole("button", { name: "Genoptag Pro" }).click();
   await demo.getByRole("button", { name: "Opsig Pro" }).waitFor();
+  log("cancel Pro keeps access to period end, and resume");
   await shot(demo, "account");
   log("account page");
 
   /* ---------------- 3. Mobile overflow check at 390px ---------------- */
   const mobile = await newPage(390, 844);
-  const routesPublic = ["/", "/priser", "/login", "/opret", "/findes-ikke"];
+  const routesPublic = ["/", "/priser", "/login", "/opret", "/handelsbetingelser", "/privatlivspolitik", "/findes-ikke"];
   for (const r of routesPublic) {
     await mobile.goto(`${BASE}${r}`);
     await mobile.waitForLoadState("networkidle");
@@ -170,7 +212,7 @@ try {
   await mobile.click("button[type=submit]");
   await mobile.waitForURL(`${BASE}/dashboard`);
   const quoteHref = await mobile.getByRole("link", { name: /Nordvest/ }).getAttribute("href");
-  const routesApp = ["/dashboard", "/dashboard/upload", "/dashboard/sammenlign", "/dashboard/konto", quoteHref];
+  const routesApp = ["/dashboard", "/dashboard/upload", "/dashboard/sammenlign", "/dashboard/find", "/dashboard/konto", quoteHref];
   for (const r of routesApp) {
     await mobile.goto(`${BASE}${r}`);
     await mobile.waitForLoadState("networkidle");
@@ -184,7 +226,8 @@ try {
   await shot(mobile, "mobile-compare");
   log("no horizontal overflow at 390px on all pages");
 
-  const relevant = errors.filter((e) => !e.includes("/findes-ikke")); // the 404 page logs a 404 resource by design
+  // Expected: the 404 page logs a 404 resource, and the weak-password test gets a deliberate 400.
+  const relevant = errors.filter((e) => !e.includes("/findes-ikke") && !(e.includes("/opret") && e.includes("status of 400")) && !(e.includes("/login") && e.includes("status of 401")));
   if (relevant.length) {
     console.error("\nConsole errors:\n" + relevant.join("\n"));
     process.exitCode = 1;

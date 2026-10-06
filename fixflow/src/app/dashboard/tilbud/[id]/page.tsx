@@ -12,9 +12,11 @@ import {
   ShieldAlert,
   Building2,
   CalendarDays,
+  MapPin,
 } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { getQuote, listMessages } from "@/lib/quotes";
+import { distanceKm, locatePostalCode, postalCodeFromText } from "@/lib/geo";
 import {
   CATEGORIES,
   CHECK_LABELS,
@@ -58,9 +60,10 @@ function SectionTitle({ icon: Icon, children, id }: { icon?: typeof HelpCircle; 
   );
 }
 
-export default async function QuotePage({ params }: { params: { id: string } }) {
+export default async function QuotePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const user = await requireUser();
-  const quote = await getQuote(user.id, params.id);
+  const quote = await getQuote(user.id, id);
   if (!quote) notFound();
 
   const back = (
@@ -93,6 +96,9 @@ export default async function QuotePage({ params }: { params: { id: string } }) 
   }
 
   const full = hasFullAccess(user, quote);
+  const origin = await locatePostalCode(user.postalCode);
+  const firmPlace = origin ? await locatePostalCode(postalCodeFromText(analysis.contractor.address ?? null)) : null;
+  const distance = origin && firmPlace ? Math.round(distanceKm(origin, firmPlace)) : null;
   const messages = full ? await listMessages(quote.id) : [];
   const cats = categoryTotals(analysis);
   const catTotal = Object.values(cats).reduce((s, v) => s + Math.max(0, v), 0);
@@ -135,6 +141,13 @@ export default async function QuotePage({ params }: { params: { id: string } }) 
                 <span className="text-red-700">· intet CVR</span>
               )}
             </span>
+            {analysis.contractor.address && (
+              <span className="inline-flex flex-wrap items-center gap-x-1.5">
+                <MapPin className="h-4 w-4 text-ink-muted" />
+                {analysis.contractor.address}
+                {distance != null && <span className="text-ink-muted">· ca. {distance} km fra dig</span>}
+              </span>
+            )}
             <span className="inline-flex flex-wrap items-center gap-x-1.5">
               <CalendarDays className="h-4 w-4 text-ink-muted" />
               {formatDate(analysis.quoteDate)}

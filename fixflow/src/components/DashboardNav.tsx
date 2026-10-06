@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, FilePlus2, Columns3, UserRound, LogOut } from "lucide-react";
+import { LayoutGrid, FilePlus2, Columns3, UserRound, LogOut, MapPin } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/format";
 
-const NAV = [
+const NAV: { href: string; label: string; short?: string; icon: typeof LayoutGrid; exact?: boolean }[] = [
   { href: "/dashboard", label: "Oversigt", icon: LayoutGrid, exact: true },
   { href: "/dashboard/upload", label: "Nyt tilbud", icon: FilePlus2 },
   { href: "/dashboard/sammenlign", label: "Sammenlign", icon: Columns3 },
+  { href: "/dashboard/find", label: "Find håndværkere", short: "Find", icon: MapPin },
   { href: "/dashboard/konto", label: "Konto", icon: UserRound },
 ];
 
@@ -102,7 +103,7 @@ export function DashboardNav({ name, email, plan, used, limit, remaining, credit
 
       {/* Mobile bottom tabs */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
         aria-label="Hovedmenu"
       >
         {NAV.map((n) => {
@@ -115,7 +116,7 @@ export function DashboardNav({ name, email, plan, used, limit, remaining, credit
               className={cn("flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium", active ? "text-brand-700" : "text-ink-muted")}
             >
               <n.icon className="h-5 w-5" />
-              {n.label}
+              {n.short ?? n.label}
             </Link>
           );
         })}

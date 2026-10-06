@@ -32,7 +32,7 @@ export function Paywall({ title, text, quoteId, showSingle = true, compact = fal
             </p>
             <p className="mt-1 text-sm text-brand-100">10 analyser/md., sammenligning og alle værktøjer.</p>
             <div className="mt-3">
-              <CheckoutButton kind="PRO_MONTHLY" className="btn-light">
+              <CheckoutButton kind="PRO_MONTHLY" className="btn-light" dark>
                 Opgradér – {PRO_PRICE_DKK} kr./md.
               </CheckoutButton>
             </div>

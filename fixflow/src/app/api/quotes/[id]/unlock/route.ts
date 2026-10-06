@@ -7,9 +7,10 @@ import { handle, jsonError } from "@/lib/api";
 import { getQuote } from "@/lib/quotes";
 import { spendCredit } from "@/lib/quota";
 
-export const POST = handle(async (_req: Request, { params }: { params: { id: string } }) => {
+export const POST = handle(async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
   const user = await requireApiUser();
-  const quote = await getQuote(user.id, params.id);
+  const quote = await getQuote(user.id, id);
   if (!quote) return jsonError("Tilbuddet blev ikke fundet.", 404);
   if (quote.unlocked) return NextResponse.json({ ok: true, alreadyUnlocked: true });
   if (quote.status !== "DONE") return jsonError("Tilbuddet er ikke analyseret endnu.");

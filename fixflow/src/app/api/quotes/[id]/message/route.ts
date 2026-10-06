@@ -8,6 +8,7 @@ import { getQuote } from "@/lib/quotes";
 import { draftMessage } from "@/lib/ai";
 import { parseStoredAnalysis } from "@/lib/analysis";
 import { hasFullAccess } from "@/lib/plans";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -17,9 +18,11 @@ const schema = z.object({
   tone: z.enum(["venlig", "neutral", "bestemt"]).catch("venlig"),
 });
 
-export const POST = handle(async (req: Request, { params }: { params: { id: string } }) => {
+export const POST = handle(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
   const user = await requireApiUser();
-  const quote = await getQuote(user.id, params.id);
+  await rateLimit(`message:${user.id}`, 40, 60 * 60);
+  const quote = await getQuote(user.id, id);
   if (!quote) return jsonError("Tilbuddet blev ikke fundet.", 404);
   if (!hasFullAccess(user, quote)) {
     return jsonError("Beskedgeneratoren kræver Pro eller et engangskøb for dette tilbud.", 402);

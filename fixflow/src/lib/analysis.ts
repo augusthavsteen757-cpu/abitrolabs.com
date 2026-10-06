@@ -102,8 +102,8 @@ function lenientArray<T extends z.ZodTypeAny>(item: T) {
 
 export const rawAnalysisSchema = z.object({
   contractor: z
-    .object({ name: str, cvr: str, phone: str, email: str })
-    .catch({ name: null, cvr: null, phone: null, email: null }),
+    .object({ name: str, cvr: str, phone: str, email: str, address: str })
+    .catch({ name: null, cvr: null, phone: null, email: null, address: null }),
   title: z.string().catch("Håndværkertilbud"),
   quoteDate: str,
   validUntil: str,

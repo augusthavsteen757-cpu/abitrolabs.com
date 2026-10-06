@@ -9,7 +9,7 @@ import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { PDFDocument, StandardFonts, rgb, degrees, type PDFFont, type PDFPage } from "pdf-lib";
 import { db } from "../src/db";
-import { contractorMessages, payments, quotes, users } from "../src/db/schema";
+import { contractorMessages, payments, quotes, rateLimits, users } from "../src/db/schema";
 import { DEMO_QUOTES, type DemoQuote } from "../src/lib/demo-data";
 import { normalizeAnalysis } from "../src/lib/analysis";
 import { computeScore } from "../src/lib/score";
@@ -140,6 +140,9 @@ async function renderPdf(q: DemoQuote): Promise<Uint8Array> {
 }
 
 async function main() {
+  if (process.env.NODE_ENV === "production" && !process.env.ALLOW_DEMO_SEED) {
+    throw new Error("Seed er slået fra i produktion (demo-brugeren har en svag adgangskode). Sæt ALLOW_DEMO_SEED=1 hvis du er sikker.");
+  }
   await mkdir(OUT_DIR, { recursive: true });
   const pdfs = new Map<string, Buffer>();
   for (const q of DEMO_QUOTES) {
@@ -150,6 +153,7 @@ async function main() {
     console.log(`  ✓ ${q.fileName}  (score ${computeScore(a).total})`);
   }
 
+  await db.delete(rateLimits); // fresh counters for local testing
   const email = "demo@fixflow.dk";
   // Remove any previous demo user explicitly (don't rely on SQLite's foreign_keys pragma).
   const old = await db.query.users.findFirst({ where: eq(users.email, email) });
@@ -170,6 +174,8 @@ async function main() {
       name: "Demo Jensen",
       passwordHash: await bcrypt.hash("demo1234", 10),
       plan: "PRO",
+      postalCode: "4000",
+      acceptedTermsAt: new Date(),
       periodStart: new Date(),
       periodUsed: 3,
     })

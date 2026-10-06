@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fulfill, verifyStripeSignature, type CheckoutKind } from "@/lib/billing";
+import { fulfill, subscriptionEnded, verifyStripeSignature, type CheckoutKind } from "@/lib/billing";
 
 export const runtime = "nodejs";
 
@@ -25,8 +25,12 @@ export async function POST(req: Request) {
         provider: "stripe",
         reference: s.subscription || s.id,
         quoteId: s.metadata?.quoteId || null,
+        consentAt: s.metadata?.consentAt ? new Date(s.metadata.consentAt) : null,
       });
     }
+  }
+  if (event.type === "customer.subscription.deleted") {
+    await subscriptionEnded(event.data.object.id);
   }
   return NextResponse.json({ received: true });
 }

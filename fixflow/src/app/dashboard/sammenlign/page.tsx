@@ -1,8 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Trophy, Eye, ShieldCheck, Lightbulb, CheckCircle2, XCircle, Columns3 } from "lucide-react";
+import { Trophy, Eye, ShieldCheck, Lightbulb, CheckCircle2, XCircle, Columns3, Sparkles } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { listQuotes } from "@/lib/quotes";
+import { distanceKm, locatePostalCode, postalCodeFromText } from "@/lib/geo";
 import { canCompare } from "@/lib/plans";
 import {
   CATEGORIES,
@@ -22,7 +23,39 @@ import { ScoreRing } from "@/components/ScoreRing";
 
 export const metadata: Metadata = { title: "Sammenlign" };
 
-type Row = { id: string; name: string; a: QuoteAnalysis; worst: number; unspec: number; cats: Record<string, number> };
+type Row = {
+  id: string;
+  name: string;
+  a: QuoteAnalysis;
+  worst: number;
+  unspec: number;
+  cats: Record<string, number>;
+  distance: number | null;
+};
+
+const km = (n: number) => `ca. ${n.toLocaleString("da-DK", { maximumFractionDigits: 0 })} km`;
+
+/**
+ * "Bedste samlede match": a transparent weighting, not advice.
+ * 50 % worst-case price (lower is better), 35 % Tilbudsscore, 15 % distance (when known).
+ */
+function bestMatch(rows: Row[]) {
+  const worsts = rows.map((r) => r.worst);
+  const minW = Math.min(...worsts);
+  const maxW = Math.max(...worsts);
+  const dists = rows.map((r) => r.distance).filter((d): d is number => d != null);
+  const useDist = dists.length === rows.length && rows.length > 1;
+  const maxD = useDist ? Math.max(...dists, 1) : 1;
+  const scored = rows.map((r) => {
+    const price = maxW === minW ? 1 : 1 - (r.worst - minW) / (maxW - minW);
+    const clarity = r.a.score.total / 100;
+    const near = useDist && r.distance != null ? 1 - r.distance / maxD : 0;
+    const total = useDist ? price * 0.5 + clarity * 0.35 + near * 0.15 : price * 0.6 + clarity * 0.4;
+    return { r, total };
+  });
+  scored.sort((x, y) => y.total - x.total);
+  return { best: scored[0].r, useDist };
+}
 
 function shortName(name: string | null) {
   return (name || "Ukendt firma").replace(/\s+(ApS|A\/S|I\/S|IVS)$/i, "");
@@ -48,6 +81,17 @@ function buildInsights(rows: Row[]): string[] {
     );
   } else {
     out.push(`${cheapest.name} er også billigst i værste fald (${formatKr(cheapest.worst)} inkl. mulige ekstraudgifter).`);
+  }
+
+  const withDist = rows.filter((r) => r.distance != null);
+  if (withDist.length === rows.length) {
+    const nearest = [...withDist].sort((x, y) => x.distance! - y.distance!)[0];
+    const farthest = [...withDist].sort((x, y) => y.distance! - x.distance!)[0];
+    if (nearest.id !== farthest.id && farthest.distance! - nearest.distance! >= 10) {
+      out.push(
+        `${nearest.name} ligger tættest på dig (${km(nearest.distance!)}), ${farthest.name} længst væk (${km(farthest.distance!)}). Lang afstand kan betyde mere kørsel på regningen og længere ventetid ved fejl.`,
+      );
+    }
   }
 
   for (const r of rows) {
@@ -78,7 +122,8 @@ function buildInsights(rows: Row[]): string[] {
   return out.map((t) => t.replace(/kr\.\./g, "kr."));
 }
 
-export default async function ComparePage({ searchParams }: { searchParams: { ids?: string } }) {
+export default async function ComparePage({ searchParams }: { searchParams: Promise<{ ids?: string }> }) {
+  const sp = await searchParams;
   const user = await requireUser();
 
   if (!canCompare(user)) {
@@ -105,7 +150,7 @@ export default async function ComparePage({ searchParams }: { searchParams: { id
     total: q.totalInclVat,
   }));
 
-  let ids = (searchParams.ids ?? "").split(",").filter(Boolean);
+  let ids = (sp.ids ?? "").split(",").filter(Boolean);
   if (ids.length === 0) {
     // Default: the project with the most analyzed quotes.
     const counts = new Map<string, string[]>();
@@ -115,14 +160,22 @@ export default async function ComparePage({ searchParams }: { searchParams: { id
   }
   ids = ids.slice(0, 4);
 
-  const rows: Row[] = ids
-    .map((id) => quotes.find((q) => q.id === id))
-    .filter((q) => q != null)
-    .flatMap((q) => {
-      const a = parseStoredAnalysis(q.analysisJson);
-      if (!a) return [];
-      return [{ id: q.id, name: shortName(a.contractor.name), a, worst: worstCase(a), unspec: unspecifiedShare(a), cats: categoryTotals(a) }];
+  const origin = await locatePostalCode(user.postalCode);
+  const rows: Row[] = [];
+  for (const q of ids.map((id) => quotes.find((x) => x.id === id))) {
+    const a = q ? parseStoredAnalysis(q.analysisJson) : null;
+    if (!q || !a) continue;
+    const place = origin ? await locatePostalCode(postalCodeFromText(a.contractor.address)) : null;
+    rows.push({
+      id: q.id,
+      name: shortName(a.contractor.name),
+      a,
+      worst: worstCase(a),
+      unspec: unspecifiedShare(a),
+      cats: categoryTotals(a),
+      distance: origin && place ? distanceKm(origin, place) : null,
     });
+  }
 
   const header = (
     <div>
@@ -161,6 +214,7 @@ export default async function ComparePage({ searchParams }: { searchParams: { id
   const clearest = [...rows].sort((x, y) => y.a.score.total - x.a.score.total)[0];
   const safest = [...rows].sort((x, y) => x.worst - y.worst)[0];
   const insights = buildInsights(rows);
+  const match = bestMatch(rows);
 
   const winners = [
     { icon: Trophy, label: "Lavest pris", row: cheapest, value: formatKr(cheapest.a.totals.inclVat), sub: "inkl. moms" },
@@ -184,7 +238,30 @@ export default async function ComparePage({ searchParams }: { searchParams: { id
         </div>
       </details>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
+      <section className="mt-6 rounded-2xl border border-brand-700 bg-brand-900 p-5 text-white shadow-lift sm:p-6">
+        <p className="flex items-center gap-2 text-sm font-semibold text-brand-300">
+          <Sparkles className="h-4 w-4" /> Bedste samlede match
+        </p>
+        <p className="mt-2 font-display text-2xl font-semibold text-white">{match.best.name}</p>
+        <p className="mt-1 text-sm text-brand-100">
+          {formatKr(match.best.a.totals.inclVat)} · score {match.best.a.score.total} · værste scenarie {formatKr(match.best.worst)}
+          {match.best.distance != null && ` · ${km(match.best.distance)} fra dig`}
+        </p>
+        <p className="mt-3 text-xs leading-relaxed text-brand-200">
+          Beregnet ud fra pris i værste fald ({match.useDist ? "50" : "60"} %), Tilbudsscore ({match.useDist ? "35" : "40"} %)
+          {match.useDist ? " og afstand (15 %)" : ""}. Det er en hjælp til at prioritere – ikke en vurdering af håndværkerens
+          faglige kvalitet.
+          {!origin && (
+            <>
+              {" "}
+              <Link href="/dashboard/konto#postnummer" className="font-semibold text-white underline">Tilføj dit postnummer</Link> for også at
+              tage afstand med.
+            </>
+          )}
+        </p>
+      </section>
+
+      <div className="mt-4 grid gap-4 md:grid-cols-3">
         {winners.map((w) => (
           <div key={w.label} className="card p-5">
             <p className="flex items-center gap-2 text-sm font-semibold text-brand-700">
@@ -232,6 +309,14 @@ export default async function ComparePage({ searchParams }: { searchParams: { id
             <tbody className="divide-y divide-line">
               <CompareRow label="Pris inkl. moms" rows={rows} render={(r) => <strong className="num">{formatKr(r.a.totals.inclVat)}</strong>} best={cheapest.id} cell={cell} />
               <CompareRow label="Tilbudsscore" rows={rows} render={(r) => <span className="num">{r.a.score.total} · {r.a.score.label}</span>} best={clearest.id} cell={cell} />
+              {origin && (
+                <CompareRow
+                  label="Afstand fra dig"
+                  rows={rows}
+                  render={(r) => (r.distance != null ? <span className="num">{km(r.distance)}</span> : <span className="text-ink-muted">Ukendt</span>)}
+                  cell={cell}
+                />
+              )}
               <CompareRow label="Prisform" rows={rows} render={(r) => PRICE_TYPE_LABELS[r.a.priceType]} cell={cell} />
               <CompareRow
                 label="Mulige ekstraudgifter"
