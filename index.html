@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Abitrolabs — Scale your revenue by 150% in six months, or you don't pay</title>
   <meta name="description" content="We audit your whole funnel: store design, conversion rate, AOV and upsells, email, TikTok Shop and affiliate. Then we fix the one bottleneck costing you money. Paid on the outcome.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://abitrolabs.com/">
+  <meta property="og:title" content="Abitrolabs — Scale your revenue by 150% in six months, or you don't pay">
+  <meta property="og:description" content="We audit your whole funnel, find the one bottleneck costing you money, and fix it. One in-house team, paid on the outcome.">
+  <meta property="og:image" content="https://framerusercontent.com/images/qg5lWxQYV0vhiJQ6v3Ta8ZGXEkg.png?width=1000&height=1000">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#121212">
   <link rel="icon" href="https://framerusercontent.com/images/qg5lWxQYV0vhiJQ6v3Ta8ZGXEkg.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,8 +33,20 @@
         <a href="#founder">Founder</a>
         <a href="#book">Free Audit</a>
       </div>
-      <a href="#book" class="btn btn-outline btn-sm">Book a call</a>
+      <div class="nav-actions">
+        <a href="#book" class="btn btn-outline btn-sm">Book a call</a>
+        <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+          <span></span><span></span>
+        </button>
+      </div>
     </nav>
+    <div class="mobile-menu" id="mobile-menu" hidden>
+      <a href="#why">Why Us</a>
+      <a href="#cases">Case Studies</a>
+      <a href="#process">Process</a>
+      <a href="#founder">Founder</a>
+      <a href="#book">Free Audit</a>
+    </div>
   </div>
 
   <!-- HERO -->
@@ -56,7 +75,7 @@
       <div class="trust">
         <span class="stars">★★★★★</span>
         <span>Partnering with emerging &amp; 9-figure D2C brands</span>
-        <span class="availability"><span class="pulse"></span>Now accepting Q2 partners</span>
+        <span class="availability"><span class="pulse"></span>Now accepting new partners</span>
       </div>
     </div>
 
@@ -331,6 +350,23 @@
     </div>
   </footer>
 
+  <!-- Mobile menu -->
+  <script>
+    (function () {
+      var toggle = document.querySelector('.nav-toggle');
+      var menu = document.getElementById('mobile-menu');
+      function setOpen(open) {
+        menu.hidden = !open;
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      }
+      toggle.addEventListener('click', function () { setOpen(menu.hidden); });
+      menu.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+      window.matchMedia('(min-width: 901px)').addEventListener('change', function (e) { if (e.matches) setOpen(false); });
+    })();
+  </script>
+
   <!-- Cal.com inline embed (auto-resizes to fit the booking widget) -->
   <script>
     (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === "string") { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ["initNamespace", namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
@@ -338,7 +374,7 @@
     Cal.ns["audit-call"]("inline", {
       elementOrSelector: "#cal-inline",
       calLink: "abitrolabs/audit-call-15-min",
-      config: { layout: "month_view", theme: "auto" }
+      config: { layout: "month_view", theme: "dark" }
     });
     Cal.ns["audit-call"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
   </script>
