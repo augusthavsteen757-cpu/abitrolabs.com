@@ -240,8 +240,14 @@ try {
   await en.goto(BASE);
   assert((await en.getAttribute("html", "lang")) === "en", "English browser gets English UI");
   // The switcher stores the choice in a cookie and reloads.
-  await Promise.all([en.waitForEvent("load"), en.getByTestId("language-switcher").first().selectOption("de")]);
-  await en.waitForFunction(() => document.documentElement.lang === "de");
+  await en.locator("[data-testid=language-switcher]:visible").first().selectOption("de");
+  let switched = false;
+  for (let i = 0; i < 50 && !switched; i++) {
+    switched = await en.evaluate(() => document.documentElement.lang === "de").catch(() => false);
+    if (!switched) await en.waitForTimeout(200);
+  }
+  assert(switched, "language switcher changes the UI language");
+  await en.waitForLoadState("networkidle");
   await shot(en, "landing-de");
   log("auto-detects browser language and switches via the selector");
 
