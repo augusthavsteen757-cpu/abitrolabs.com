@@ -228,7 +228,8 @@
           </ul>
         </div>
         <div class="calendar">
-          <div id="cal-inline" class="cal-inline"></div>
+          <div class="calendly-inline-widget" data-resize="true"
+            data-url="https://calendly.com/havsteenaugust999?hide_gdpr_banner=1&amp;background_color=1a1a1a&amp;text_color=f5f5f0&amp;primary_color=d0ff00"></div>
         </div>
       </div>
     </section>
@@ -295,17 +296,8 @@
     })();
   </script>
 
-  <!-- Cal.com inline embed (auto-resizes to fit the booking widget) -->
-  <script>
-    (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === "string") { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ["initNamespace", namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
-    Cal("init", "audit-call", { origin: "https://app.cal.com" });
-    Cal.ns["audit-call"]("inline", {
-      elementOrSelector: "#cal-inline",
-      calLink: "abitrolabs/audit-call-15-min",
-      config: { layout: "month_view", theme: "dark" }
-    });
-    Cal.ns["audit-call"]("ui", { hideEventTypeDetails: false, layout: "month_view" });
-  </script>
-  <noscript><p style="text-align:center"><a href="https://cal.com/abitrolabs/audit-call-15-min">Book a call on Cal.com</a></p></noscript>
+  <!-- Calendly inline embed -->
+  <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+  <noscript><p style="text-align:center"><a href="https://calendly.com/havsteenaugust999">Book a call on Calendly</a></p></noscript>
 </body>
 </html>
