@@ -1,3 +1,4 @@
+import { da } from "@/i18n/dict/da";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -13,13 +14,13 @@ export const POST = handle(async (req: Request) => {
   const ip = await clientIp();
   await rateLimit(`login-ip:${ip}`, 30, 15 * 60);
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return jsonError("Skriv e-mail og adgangskode.");
+  if (!parsed.success) return jsonError(da.errors.enterLogin);
   // Limit guesses per account too, so a single account can't be brute-forced from many IPs.
   await rateLimit(`login-email:${parsed.data.email}`, 10, 15 * 60);
 
   const user = await db.query.users.findFirst({ where: eq(users.email, parsed.data.email) });
   const ok = await checkPassword(parsed.data.password, user?.passwordHash);
-  if (!user || !ok) return jsonError("Forkert e-mail eller adgangskode.", 401);
+  if (!user || !ok) return jsonError(da.errors.wrongLogin, 401);
   await setSessionCookie(user);
   return NextResponse.json({ ok: true });
 });

@@ -1,13 +1,21 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Languages } from "lucide-react";
+import { getI18n } from "@/i18n/server";
 import { MarketingFooter, MarketingHeader } from "./MarketingShell";
 import { isCompanyConfigured, LEGAL_UPDATED } from "@/lib/company";
 
-export function LegalPage({ title, children }: { title: string; children: React.ReactNode }) {
+export async function LegalPage({ title, children }: { title: string; children: React.ReactNode }) {
+  const { locale, d } = await getI18n();
   return (
     <>
       <MarketingHeader />
       <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
-        <h1 className="text-4xl font-semibold">{title}</h1>
+        {locale !== "da" && (
+          <p lang={locale} className="mb-6 flex gap-2 rounded-xl border border-line bg-paper p-4 text-sm text-ink-soft">
+            <Languages className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{d.lang.legalDanishOnly}</span>
+          </p>
+        )}
+        <h1 lang="da" className="text-4xl font-semibold">{title}</h1>
         <p className="mt-2 text-sm text-ink-muted">Senest opdateret {LEGAL_UPDATED}</p>
         {!isCompanyConfigured() && (
           <p className="mt-6 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">

@@ -1,3 +1,4 @@
+import { da } from "@/i18n/dict/da";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { eq, sql } from "drizzle-orm";
@@ -13,8 +14,8 @@ export const POST = handle(async (req: Request) => {
   const user = await requireApiUser();
   await rateLimit(`pw:${user.id}`, 5, 15 * 60);
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return jsonError("Udfyld begge felter.");
-  if (!(await checkPassword(parsed.data.current, user.passwordHash))) return jsonError("Den nuværende adgangskode er forkert.", 401);
+  if (!parsed.success) return jsonError(da.errors.pwFillBoth);
+  if (!(await checkPassword(parsed.data.current, user.passwordHash))) return jsonError(da.errors.pwWrongCurrent, 401);
   const problem = passwordProblem(parsed.data.next, user.email);
   if (problem) return jsonError(problem);
   // New hash + bumped session version logs out every other device.

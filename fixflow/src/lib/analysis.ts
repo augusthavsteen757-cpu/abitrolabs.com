@@ -62,6 +62,32 @@ export const RULE_LABELS: Record<RuleKey, string> = {
   ankenaevn: "Byggeriets Ankenævn eller garantiordning",
 };
 
+const LANGUAGE_NAMES_DA: Record<string, string> = {
+  dansk: "da", engelsk: "en", svensk: "sv", norsk: "no", tysk: "de", polsk: "pl", ukrainsk: "uk", rumænsk: "ro",
+  litauisk: "lt", lettisk: "lv", estisk: "et", finsk: "fi", fransk: "fr", spansk: "es", italiensk: "it", hollandsk: "nl",
+};
+
+/** Normalises "dansk" / "Danish" / "da-DK" / "DA" to an ISO 639-1 code. Unknown → "da". */
+export function languageCode(v: unknown): string {
+  if (typeof v !== "string") return "da";
+  const s = v.trim().toLowerCase();
+  if (/^[a-z]{2}(-[a-z]{2})?$/.test(s)) return s.slice(0, 2) === "nb" || s.slice(0, 2) === "nn" ? "no" : s.slice(0, 2);
+  const word = s.split(/[\s(,]/)[0];
+  if (LANGUAGE_NAMES_DA[word]) return LANGUAGE_NAMES_DA[word];
+  const en: Record<string, string> = { danish: "da", english: "en", swedish: "sv", norwegian: "no", german: "de", polish: "pl", ukrainian: "uk", romanian: "ro" };
+  return en[word] ?? "da";
+}
+
+/** "sv" → "svensk" / "Swedish" / "szwedzki" … in the viewer's language. */
+export function languageDisplayName(code: string | null | undefined, intlLocale: string): string {
+  if (!code) return "";
+  try {
+    return new Intl.DisplayNames([intlLocale], { type: "language" }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 export const PRICE_LEVEL_LABELS = { lav: "Lav pris", normal: "Normal pris", hoej: "Høj pris", ukendt: "Kan ikke vurderes" } as const;
 
 export const PRICE_TYPE_LABELS = {
@@ -158,8 +184,13 @@ export const rawAnalysisSchema = z.object({
     .transform((c) => c.trim().toUpperCase())
     .pipe(z.string().regex(/^[A-Z]{3}$/))
     .catch("DKK"),
-  /** Language the quote was written in, in Danish ("dansk", "svensk", "tysk", "polsk", …). */
-  language: z.string().catch("dansk"),
+  /** Language the quote document was written in, as an ISO 639-1 code ("da", "sv", "de", "pl", …). */
+  language: z
+    .string()
+    .transform((v) => languageCode(v))
+    .catch("da"),
+  /** The UI language the analysis texts were written in. */
+  outputLocale: z.string().catch("da"),
   rules: lenientArray(ruleSchema),
   priceLevel: z
     .object({ level: z.enum(["lav", "normal", "hoej", "ukendt"]).catch("ukendt"), explanation: z.string().catch("") })
@@ -225,7 +256,8 @@ export function parseStoredAnalysis(json: string | null): QuoteAnalysis | null {
       ...a,
       rules: a.rules ?? [],
       currency: a.currency ?? "DKK",
-      language: a.language ?? "dansk",
+      language: languageCode(a.language),
+      outputLocale: a.outputLocale ?? "da",
       priceLevel: a.priceLevel ?? { level: "ukendt", explanation: "" },
     };
   } catch {

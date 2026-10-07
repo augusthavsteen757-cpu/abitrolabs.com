@@ -1,4 +1,6 @@
+import { DEFAULT_LOCALE, type Locale } from "@/i18n/config";
 import "server-only";
+import { da } from "@/i18n/dict/da";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { contractorMessages, quotes, type Quote, type User } from "@/db/schema";
@@ -29,15 +31,15 @@ export async function listMessages(quoteId: string) {
  * Consumes quota, runs the analysis synchronously and stores the result.
  * On failure the quota/credit is refunded and the quote is marked FAILED.
  */
-export async function runAnalysis(user: User, quote: Quote): Promise<Quote> {
+export async function runAnalysis(user: User, quote: Quote, locale: Locale = DEFAULT_LOCALE): Promise<Quote> {
   const source = await consumeAnalysis(user);
-  if (!source) throw new HttpError(402, "Du har ikke flere analyser tilbage. Opgradér til Pro eller køb en enkelt analyse.");
+  if (!source) throw new HttpError(402, da.errors.noAnalysesLeft);
 
   await db.update(quotes).set({ status: "ANALYZING", error: null, updatedAt: new Date() }).where(eq(quotes.id, quote.id));
 
   try {
     const data = await readStoredFile(quote.fileKey);
-    const analysis = await analyzeQuote(data, quote.mimeType, quote.fileName);
+    const analysis = await analyzeQuote(data, quote.mimeType, quote.fileName, locale);
     const unlocked = quote.unlocked || user.plan === "PRO" || source === "credit";
     const [updated] = await db
       .update(quotes)
@@ -61,7 +63,7 @@ export async function runAnalysis(user: User, quote: Quote): Promise<Quote> {
     const message =
       err instanceof AnalysisError
         ? err.message
-        : "Analysen mislykkedes. Du er ikke blevet trukket for en analyse – prøv igen.";
+        : da.errors.analysisFailed;
     const [updated] = await db
       .update(quotes)
       .set({ status: "FAILED", error: message, updatedAt: new Date() })

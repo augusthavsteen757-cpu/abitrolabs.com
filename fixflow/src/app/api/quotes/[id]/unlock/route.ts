@@ -1,3 +1,4 @@
+import { da } from "@/i18n/dict/da";
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -11,11 +12,11 @@ export const POST = handle(async (_req: Request, { params }: { params: Promise<{
   const { id } = await params;
   const user = await requireApiUser();
   const quote = await getQuote(user.id, id);
-  if (!quote) return jsonError("Tilbuddet blev ikke fundet.", 404);
+  if (!quote) return jsonError(da.errors.quoteNotFound, 404);
   if (quote.unlocked) return NextResponse.json({ ok: true, alreadyUnlocked: true });
-  if (quote.status !== "DONE") return jsonError("Tilbuddet er ikke analyseret endnu.");
+  if (quote.status !== "DONE") return jsonError(da.errors.notAnalyzed);
   if (!(await spendCredit(user.id))) {
-    return jsonError("Du har ingen engangskøb tilbage. Køb en analyse for at låse tilbuddet op.", 402);
+    return jsonError(da.errors.noCredits, 402);
   }
   await db.update(quotes).set({ unlocked: true, updatedAt: new Date() }).where(eq(quotes.id, quote.id));
   return NextResponse.json({ ok: true });

@@ -3,26 +3,24 @@
 import { useEffect, useRef, useState } from "react";
 import { UploadCloud, FileText, Camera, X, Check, Loader2, ShieldCheck } from "lucide-react";
 import { cn, formatBytes } from "@/lib/format";
+import { useI18n } from "@/i18n/client";
+import { plural } from "@/i18n/fmt";
+import type { Dict } from "@/i18n/dict/da";
 
 const ACCEPT = "application/pdf,image/jpeg,image/png,image/webp";
 const MAX = 10 * 1024 * 1024;
-const STEPS = [
-  "Læser tilbuddet",
-  "Finder poster og beløb",
-  "Tjekker vilkår og forbehold",
-  "Vurderer risiko for ekstraudgifter",
-  "Beregner tilbudsscore",
-];
-
-function validate(file: File): string | null {
+function validate(file: File, t: Dict["upload"]): string | null {
   const okExt = /\.(pdf|jpe?g|png|webp)$/i.test(file.name);
-  if (!ACCEPT.split(",").includes(file.type) && !(file.type === "" && okExt)) return "Filtypen understøttes ikke. Brug PDF, JPG, PNG eller WEBP.";
-  if (file.size > MAX) return "Filen er for stor. Maks. 10 MB.";
-  if (file.size === 0) return "Filen er tom.";
+  if (!ACCEPT.split(",").includes(file.type) && !(file.type === "" && okExt)) return t.errType;
+  if (file.size > MAX) return t.errSize;
+  if (file.size === 0) return t.errEmpty;
   return null;
 }
 
 export function UploadForm({ projects, remaining }: { projects: string[]; remaining: number }) {
+  const { d } = useI18n();
+  const t = d.upload;
+  const STEPS = t.steps;
   const inputRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -48,18 +46,18 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
     setStep(0);
     const t = setInterval(() => setStep((s) => Math.min(STEPS.length - 1, s + 1)), 1600);
     return () => clearInterval(t);
-  }, [busy]);
+  }, [busy, STEPS.length]);
 
   function pick(f: File | undefined | null) {
     if (!f) return;
-    const err = validate(f);
+    const err = validate(f, t);
     setError(err);
     setFile(err ? null : f);
   }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!file) return setError("Vælg en fil først.");
+    if (!file) return setError(t.errChoose);
     setBusy(true);
     setError(null);
     const fd = new FormData();
@@ -68,11 +66,11 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
     try {
       const res = await fetch("/api/quotes", { method: "POST", body: fd });
       const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json.error || "Upload mislykkedes. Prøv igen.");
+      if (!res.ok) throw new Error(json.error || t.errFailed);
       setStep(STEPS.length);
       window.location.assign(`/dashboard/tilbud/${json.quote.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload mislykkedes.");
+      setError(err instanceof Error ? err.message : t.errFailed);
       setBusy(false);
     }
   }
@@ -99,8 +97,8 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
             <div className="absolute inset-x-0 h-1 animate-scan bg-brand-400 shadow-[0_0_16px_4px_rgba(78,162,131,0.6)]" />
           </div>
           <div className="w-full">
-            <h2 className="text-xl font-semibold">Vi gennemgår dit tilbud</h2>
-            <p className="mt-1 text-sm text-ink-muted">Det tager typisk under et minut. Luk ikke siden.</p>
+            <h2 className="text-xl font-semibold">{t.waitingTitle}</h2>
+            <p className="mt-1 text-sm text-ink-muted">{t.waitingText}</p>
             <ol className="mt-5 space-y-3">
               {STEPS.map((s, i) => (
                 <li key={s} className="flex items-center gap-3 text-[15px]">
@@ -128,7 +126,7 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
         <div
           role="button"
           tabIndex={0}
-          aria-label="Vælg fil eller træk den hertil"
+          aria-label={t.dropAria}
           onClick={() => inputRef.current?.click()}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
@@ -155,16 +153,16 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
             <UploadCloud className="h-7 w-7" />
           </span>
           <p className="mt-4 text-lg font-semibold">
-            <span className="hidden sm:inline">Træk dit tilbud hertil eller </span>
-            <span className="text-brand-700 underline underline-offset-4">vælg en fil</span>
+            <span className="hidden sm:inline">{t.dropDrag} </span>
+            <span className="text-brand-700 underline underline-offset-4">{t.dropChoose}</span>
           </p>
-          <p className="mt-1 text-sm text-ink-muted">PDF, JPG, PNG eller WEBP · maks. 10 MB</p>
+          <p className="mt-1 text-sm text-ink-muted">{t.fileTypes}</p>
         </div>
       ) : (
         <div className="card flex items-center gap-4 p-4">
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={preview} alt="Forhåndsvisning" className="h-16 w-16 shrink-0 rounded-lg object-cover" />
+            <img src={preview} alt={t.previewAlt} className="h-16 w-16 shrink-0 rounded-lg object-cover" />
           ) : (
             <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600">
               <FileText className="h-7 w-7" />
@@ -174,7 +172,7 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
             <p className="truncate font-medium">{file.name}</p>
             <p className="text-sm text-ink-muted">{formatBytes(file.size)}</p>
           </div>
-          <button type="button" onClick={() => setFile(null)} className="rounded-lg p-2 text-ink-muted hover:bg-paper hover:text-ink" aria-label="Fjern fil">
+          <button type="button" onClick={() => setFile(null)} className="rounded-lg p-2 text-ink-muted hover:bg-paper hover:text-ink" aria-label={t.removeFile}>
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -185,12 +183,12 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
 
       {!file && (
         <button type="button" onClick={() => cameraRef.current?.click()} className="btn-secondary w-full sm:hidden">
-          <Camera className="h-4 w-4" /> Tag et billede af tilbuddet
+          <Camera className="h-4 w-4" /> {t.camera}
         </button>
       )}
 
       <div>
-        <label htmlFor="project" className="label">Projekt</label>
+        <label htmlFor="project" className="label">{t.project}</label>
         <input
           id="project"
           list="projects"
@@ -198,14 +196,14 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
           onChange={(e) => setProject(e.target.value)}
           maxLength={80}
           className="input"
-          placeholder="Fx Nyt badeværelse"
+          placeholder={t.projectPlaceholder}
         />
         <datalist id="projects">
           {projects.map((p) => (
             <option key={p} value={p} />
           ))}
         </datalist>
-        <p className="mt-1.5 text-xs text-ink-muted">Giv tilbud på samme opgave samme projektnavn, så kan du sammenligne dem.</p>
+        <p className="mt-1.5 text-xs text-ink-muted">{t.projectHelp}</p>
       </div>
 
       {error && (
@@ -215,11 +213,11 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
       )}
 
       <button type="submit" disabled={!file} className="btn-primary w-full py-3 text-base">
-        Analysér tilbuddet
+        {t.submit}
       </button>
       <p className="flex items-center justify-center gap-2 text-center text-xs text-ink-muted">
         <ShieldCheck className="h-4 w-4 text-brand-600" />
-        Du har {remaining} {remaining === 1 ? "analyse" : "analyser"} tilbage. Mislykkes analysen, bliver du ikke trukket.
+        {plural(remaining, t.remainingOne, t.remainingOther)}
       </p>
     </form>
   );

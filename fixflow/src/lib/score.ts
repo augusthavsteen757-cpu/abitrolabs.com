@@ -1,16 +1,22 @@
 import type { QuoteAnalysis, ScoreResult } from "./analysis";
+import { da, type Dict } from "@/i18n/dict/da";
+import { fmt } from "@/i18n/fmt";
 
 type Input = Pick<QuoteAnalysis, "lineItems" | "checks" | "priceType" | "flags">;
+type ScoreTexts = Dict["score"];
 
-export function scoreLabel(score: number): string {
-  if (score >= 80) return "Gennemsigtigt";
-  if (score >= 60) return "Rimeligt klart";
-  if (score >= 40) return "Uklart";
-  return "Meget uklart";
+export function scoreLabel(score: number, t: ScoreTexts = da.score): string {
+  if (score >= 80) return t.labels.transparent;
+  if (score >= 60) return t.labels.fair;
+  if (score >= 40) return t.labels.unclear;
+  return t.labels.veryUnclear;
 }
 
-/** Deterministic Tilbudsscore (0–100). Computed in code, never by the AI. */
-export function computeScore(a: Input): ScoreResult {
+/**
+ * Deterministic Tilbudsscore (0–100). Computed in code, never by the AI.
+ * The texts argument only changes the wording (language) – never the points.
+ */
+export function computeScore(a: Input, t: ScoreTexts = da.score): ScoreResult {
   // 1. Specificering (30)
   const weights = { clear: 1, vague: 0.5, unclear: 0 } as const;
   const total = a.lineItems.reduce((s, i) => s + Math.max(0, i.amount), 0);
@@ -34,53 +40,38 @@ export function computeScore(a: Input): ScoreResult {
   const riskFlags = a.flags.filter((f) => f.type !== "terms");
   const risk = Math.max(0, 20 - riskFlags.reduce((s, f) => s + penalty[f.severity], 0));
 
-  const priceHint = {
-    fast_pris: "Fast pris giver den største sikkerhed for, hvad det ender med at koste.",
-    tilbud: "Et tilbud er bindende, men tjek hvad der står med småt om forbehold.",
-    overslag: "Et overslag er ikke bindende – prisen må normalt overskrides med op til 10–15 %.",
-    uklart: "Det fremgår ikke tydeligt, om prisen er fast, et tilbud eller et overslag.",
-  }[a.priceType];
-
+  const priceHint = t.priceHint[a.priceType];
   const breakdown = [
     {
       key: "spec",
-      label: "Specificering",
+      label: t.spec,
       points: spec,
       max: 30,
-      hint:
-        unclearPct <= 5
-          ? "Næsten alle poster er tydeligt beskrevet."
-          : `Ca. ${unclearPct} % af beløbet ligger i poster, der er vage eller uklare.`,
+      hint: unclearPct <= 5 ? t.specAllClear : fmt(t.specUnclear, { pct: unclearPct }),
     },
     {
       key: "complete",
-      label: "Fuldstændighed",
+      label: t.complete,
       points: complete,
       max: 30,
-      hint:
-        missing === 0
-          ? "Alle 10 vigtige punkter er med i tilbuddet."
-          : `${present} af 10 vigtige punkter er med – ${missing} mangler.`,
+      hint: missing === 0 ? t.completeAll : fmt(t.completeSome, { present, missing }),
     },
     {
       key: "terms",
-      label: "Prisform & vilkår",
+      label: t.terms,
       points: terms,
       max: 20,
-      hint: termsFlags > 0 ? `${priceHint} Der er ${termsFlags} punkt(er) om vilkår, du bør se på.` : priceHint,
+      hint: termsFlags > 0 ? `${priceHint} ${fmt(t.termsFlags, { n: termsFlags })}` : priceHint,
     },
     {
       key: "risk",
-      label: "Risiko for ekstraudgifter",
+      label: t.risk,
       points: risk,
       max: 20,
-      hint:
-        riskFlags.length === 0
-          ? "Vi fandt ingen tydelige risici for ekstraregninger."
-          : `${riskFlags.length} fund kan give ekstraudgifter undervejs.`,
+      hint: riskFlags.length === 0 ? t.riskNone : fmt(t.riskSome, { n: riskFlags.length }),
     },
   ];
 
   const sum = Math.max(0, Math.min(100, spec + complete + terms + risk));
-  return { total: sum, label: scoreLabel(sum), breakdown };
+  return { total: sum, label: scoreLabel(sum, t), breakdown };
 }

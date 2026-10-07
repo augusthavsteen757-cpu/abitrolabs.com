@@ -1,3 +1,5 @@
+import { getLocale } from "@/i18n/server";
+import { da } from "@/i18n/dict/da";
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { quotes } from "@/db/schema";
@@ -22,19 +24,19 @@ export const POST = handle(async (req: Request) => {
   await rateLimit(`upload:${user.id}`, 20, 60 * 60);
   await rateLimit(`upload-ip:${await clientIp()}`, 40, 60 * 60);
   if (getUsage(user).remaining <= 0) {
-    return jsonError("Du har ikke flere analyser tilbage. Opgradér til Pro eller køb en enkelt analyse.", 402);
+    return jsonError(da.errors.noAnalysesLeft, 402);
   }
 
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");
-  if (!(file instanceof File)) return jsonError("Vælg en fil at uploade.");
-  if (file.size === 0) return jsonError("Filen er tom.");
-  if (file.size > MAX_FILE_SIZE) return jsonError("Filen er for stor. Maks. 10 MB.", 413);
+  if (!(file instanceof File)) return jsonError(da.errors.chooseFile);
+  if (file.size === 0) return jsonError(da.errors.fileEmpty);
+  if (file.size > MAX_FILE_SIZE) return jsonError(da.errors.fileTooBig, 413);
 
   const buf = Buffer.from(await file.arrayBuffer());
   const mimeType = detectMimeType(buf);
   if (!mimeType || !ALLOWED_TYPES[mimeType]) {
-    return jsonError("Filtypen understøttes ikke. Brug PDF, JPG, PNG eller WEBP.", 415);
+    return jsonError(da.errors.fileType, 415);
   }
 
   const projectRaw = String(form?.get("projectName") ?? "").trim().slice(0, 80);
@@ -47,6 +49,6 @@ export const POST = handle(async (req: Request) => {
     .values({ userId: user.id, projectName, fileName, fileKey, mimeType, fileSize: buf.length })
     .returning();
 
-  const result = await runAnalysis(user, quote);
+  const result = await runAnalysis(user, quote, await getLocale());
   return NextResponse.json({ quote: publicQuote(user, result) }, { status: 201 });
 });

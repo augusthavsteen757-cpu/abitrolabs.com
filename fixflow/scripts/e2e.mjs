@@ -22,8 +22,8 @@ function assert(cond, msg) {
   if (!cond) throw new Error(`Assertion failed: ${msg}`);
 }
 
-async function newPage(width = 1280, height = 900) {
-  const ctx = await browser.newContext({ viewport: { width, height }, permissions: ["clipboard-read", "clipboard-write"] });
+async function newPage(width = 1280, height = 900, locale = "da-DK") {
+  const ctx = await browser.newContext({ viewport: { width, height }, locale, permissions: ["clipboard-read", "clipboard-write"] });
   const page = await ctx.newPage();
   page.on("console", (m) => {
     if (m.type() === "error") errors.push(`[console] ${page.url()} ${m.text()}`);
@@ -233,6 +233,39 @@ try {
   await mobile.goto(`${BASE}/dashboard/sammenlign`);
   await shot(mobile, "mobile-compare");
   log("no horizontal overflow at 390px on all pages");
+
+  /* ---------------- 4. Languages ---------------- */
+  // Browser language is picked up automatically (no cookie yet).
+  const en = await newPage(1280, 900, "en-GB");
+  await en.goto(BASE);
+  assert((await en.getAttribute("html", "lang")) === "en", "English browser gets English UI");
+  // The switcher stores the choice in a cookie and reloads.
+  await Promise.all([en.waitForEvent("load"), en.getByTestId("language-switcher").first().selectOption("de")]);
+  await en.waitForFunction(() => document.documentElement.lang === "de");
+  await shot(en, "landing-de");
+  log("auto-detects browser language and switches via the selector");
+
+  const LOCALES = ["en", "sv", "nb", "de", "pl", "uk", "ro"];
+  const langPage = await newPage(390, 844);
+  await langPage.goto(`${BASE}/login`);
+  await langPage.fill("#email", "demo@fixflow.dk");
+  await langPage.fill("#password", "demo1234");
+  await langPage.click("button[type=submit]");
+  await langPage.waitForURL(`${BASE}/dashboard`);
+  const host = new URL(BASE).hostname;
+  for (const loc of LOCALES) {
+    await langPage.context().addCookies([{ name: "ff_lang", value: loc, domain: host, path: "/" }]);
+    for (const r of ["/", "/priser", "/handelsbetingelser", ...routesApp]) {
+      await langPage.goto(`${BASE}${r}`);
+      await langPage.waitForLoadState("networkidle");
+      assert((await langPage.getAttribute("html", "lang")) === loc, `${loc} ${r}: html lang`);
+      await noOverflow(langPage, `${loc} ${r}`);
+    }
+    await langPage.goto(`${BASE}${quoteHref}`);
+    await shot(langPage, `mobile-quote-${loc}`);
+  }
+  await langPage.context().addCookies([{ name: "ff_lang", value: "da", domain: host, path: "/" }]);
+  log(`all pages render in ${LOCALES.length} more languages without overflow at 390px`);
 
   // Expected: the 404 page logs a 404 resource, and the weak-password test gets a deliberate 400.
   const relevant = errors.filter((e) => !e.includes("/findes-ikke") && !(e.includes("/opret") && e.includes("status of 400")) && !(e.includes("/login") && e.includes("status of 401")));

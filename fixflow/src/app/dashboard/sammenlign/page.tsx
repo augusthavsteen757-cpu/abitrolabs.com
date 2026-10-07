@@ -8,8 +8,6 @@ import { canCompare } from "@/lib/plans";
 import {
   CATEGORIES,
   CHECK_KEYS,
-  CHECK_LABELS,
-  PRICE_TYPE_LABELS,
   categoryTotals,
   parseStoredAnalysis,
   unspecifiedShare,
@@ -20,8 +18,15 @@ import { cn, formatKr, formatPct, formatRange } from "@/lib/format";
 import { Paywall } from "@/components/Paywall";
 import { ComparePicker } from "@/components/ComparePicker";
 import { ScoreRing } from "@/components/ScoreRing";
+import { scoreLabel } from "@/lib/score";
+import { getDict, getI18n } from "@/i18n/server";
+import { fmt } from "@/i18n/fmt";
+import { INTL_LOCALE } from "@/i18n/config";
+import type { Dict } from "@/i18n/dict";
 
-export const metadata: Metadata = { title: "Sammenlign" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getDict()).compare.metaTitle };
+}
 
 type Row = {
   id: string;
@@ -32,8 +37,6 @@ type Row = {
   cats: Record<string, number>;
   distance: number | null;
 };
-
-const km = (n: number) => `ca. ${n.toLocaleString("da-DK", { maximumFractionDigits: 0 })} km`;
 
 /**
  * "Bedste samlede match": a transparent weighting, not advice.
@@ -57,84 +60,86 @@ function bestMatch(rows: Row[]) {
   return { best: scored[0].r, useDist };
 }
 
-function shortName(name: string | null) {
-  return (name || "Ukendt firma").replace(/\s+(ApS|A\/S|I\/S|IVS)$/i, "");
+function shortName(name: string | null, unknown: string) {
+  return (name || unknown).replace(/\s+(ApS|A\/S|I\/S|IVS)$/i, "");
 }
 
-function buildInsights(rows: Row[]): string[] {
+function buildInsights(rows: Row[], d: Dict, km: (n: number) => string): string[] {
+  const t = d.compare.insight;
+  const and = d.compare.and;
   const out: string[] = [];
   const cheapest = [...rows].sort((x, y) => x.a.totals.inclVat - y.a.totals.inclVat)[0];
   const clearest = [...rows].sort((x, y) => y.a.score.total - x.a.score.total)[0];
   const safest = [...rows].sort((x, y) => x.worst - y.worst)[0];
 
-  if (cheapest.id !== clearest.id) {
-    out.push(
-      `${cheapest.name} er billigst (${formatKr(cheapest.a.totals.inclVat)}), men ${clearest.name} har det mest gennemsigtige tilbud (score ${clearest.a.score.total} mod ${cheapest.a.score.total}). Prisforskellen er ${formatKr(clearest.a.totals.inclVat - cheapest.a.totals.inclVat)}.`,
-    );
-  } else {
-    out.push(`${cheapest.name} er både billigst og mest gennemsigtigt. Det er et godt udgangspunkt.`);
-  }
-
-  if (safest.id !== cheapest.id) {
-    out.push(
-      `Regner man de mulige ekstraudgifter med, kan ${cheapest.name} i værste fald ende på ${formatKr(cheapest.worst)}, mens ${safest.name} højst ender på ${formatKr(safest.worst)}. Den laveste pris er ikke nødvendigvis den billigste løsning.`,
-    );
-  } else {
-    out.push(`${cheapest.name} er også billigst i værste fald (${formatKr(cheapest.worst)} inkl. mulige ekstraudgifter).`);
-  }
+  out.push(
+    cheapest.id !== clearest.id
+      ? fmt(t.cheapVsClear, {
+          cheap: cheapest.name,
+          price: formatKr(cheapest.a.totals.inclVat),
+          clear: clearest.name,
+          s1: clearest.a.score.total,
+          s2: cheapest.a.score.total,
+          diff: formatKr(clearest.a.totals.inclVat - cheapest.a.totals.inclVat),
+        })
+      : fmt(t.cheapAndClear, { name: cheapest.name }),
+  );
+  out.push(
+    safest.id !== cheapest.id
+      ? fmt(t.worstCase, { cheap: cheapest.name, w1: formatKr(cheapest.worst), safe: safest.name, w2: formatKr(safest.worst) })
+      : fmt(t.worstSame, { name: cheapest.name, worst: formatKr(cheapest.worst) }),
+  );
 
   const withDist = rows.filter((r) => r.distance != null);
   if (withDist.length === rows.length) {
     const nearest = [...withDist].sort((x, y) => x.distance! - y.distance!)[0];
     const farthest = [...withDist].sort((x, y) => y.distance! - x.distance!)[0];
     if (nearest.id !== farthest.id && farthest.distance! - nearest.distance! >= 10) {
-      out.push(
-        `${nearest.name} ligger tættest på dig (${km(nearest.distance!)}), ${farthest.name} længst væk (${km(farthest.distance!)}). Lang afstand kan betyde mere kørsel på regningen og længere ventetid ved fejl.`,
-      );
+      out.push(fmt(t.distance, { near: nearest.name, d1: km(nearest.distance!), far: farthest.name, d2: km(farthest.distance!) }));
     }
   }
-
   for (const r of rows) {
-    if (r.unspec >= 0.25) {
-      out.push(`${formatPct(r.unspec)} af beløbet hos ${r.name} ligger i poster, der ikke er tydeligt beskrevet. Bed om en specifikation.`);
-    }
+    if (r.unspec >= 0.25) out.push(fmt(t.unspec, { pct: formatPct(r.unspec), name: r.name }));
   }
-
   for (const r of rows) {
-    if (r.a.priceType === "overslag") {
-      out.push(`${r.name} har givet et overslag. Det er ikke bindende, så prisen kan blive højere end de andre tilbud viser.`);
-    } else if (r.a.priceType === "uklart") {
-      out.push(`Det fremgår ikke, om prisen fra ${r.name} er fast. Få det bekræftet skriftligt.`);
-    }
+    if (r.a.priceType === "overslag") out.push(fmt(t.overslag, { name: r.name }));
+    else if (r.a.priceType === "uklart") out.push(fmt(t.unclearPrice, { name: r.name }));
   }
-
   for (const c of CATEGORIES) {
     if (c === "Diverse") continue;
     const has = rows.filter((r) => r.cats[c] > 0);
     const missing = rows.filter((r) => !(r.cats[c] > 0));
     if (has.length > 0 && missing.length > 0) {
       out.push(
-        `${c} står i tilbuddet fra ${has.map((r) => r.name).join(" og ")}, men ikke hos ${missing.map((r) => r.name).join(" og ")}. Spørg, om det er med i prisen.`,
+        fmt(t.missingCategory, {
+          category: d.labels.category[c],
+          has: has.map((r) => r.name).join(and),
+          missing: missing.map((r) => r.name).join(and),
+        }),
       );
     }
   }
-  // formatKr() ends with "kr." – avoid "kr.." at the end of sentences.
-  return out.map((t) => t.replace(/kr\.\./g, "kr."));
+  // Sentences end with a full stop – but formatKr() already ends with "kr.".
+  return out.map((x) => (x.endsWith(".") ? x : `${x}.`));
 }
 
 export default async function ComparePage({ searchParams }: { searchParams: Promise<{ ids?: string }> }) {
   const sp = await searchParams;
   const user = await requireUser();
+  const { locale, d } = await getI18n();
+  const t = d.compare;
+  const intl = INTL_LOCALE[locale];
+  const km = (n: number) => fmt(t.km, { n: Math.round(n).toLocaleString(intl) });
 
   if (!canCompare(user)) {
     return (
       <div className="mx-auto max-w-2xl animate-fade-up">
-        <h1 className="text-3xl font-semibold sm:text-4xl">Sammenlign tilbud</h1>
-        <p className="mt-2 text-ink-soft">Se op til 4 tilbud side om side – pris, risiko og hvad der mangler hvor.</p>
+        <h1 className="text-3xl font-semibold sm:text-4xl">{t.title}</h1>
+        <p className="mt-2 text-ink-soft">{t.lockedIntro}</p>
         <div className="mt-8">
           <Paywall
-            title="Sammenligning er en del af Pro"
-            text="Med Pro kan du sammenligne op til 4 tilbud og se, hvilket der er billigst – også i værste fald."
+            title={t.lockedTitle}
+            text={t.lockedText}
             showSingle={false}
           />
         </div>
@@ -145,7 +150,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   const quotes = (await listQuotes(user.id)).filter((q) => q.status === "DONE" && q.analysisJson);
   const items = quotes.map((q) => ({
     id: q.id,
-    label: shortName(q.contractorName) + (q.title ? ` – ${q.title}` : ""),
+    label: shortName(q.contractorName, d.common.unknownFirm) + (q.title ? ` – ${q.title}` : ""),
     project: q.projectName,
     total: q.totalInclVat,
   }));
@@ -168,7 +173,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
     const place = origin ? await locatePostalCode(postalCodeFromText(a.contractor.address)) : null;
     rows.push({
       id: q.id,
-      name: shortName(a.contractor.name),
+      name: shortName(a.contractor.name, d.common.unknownFirm),
       a,
       worst: worstCase(a),
       unspec: unspecifiedShare(a),
@@ -179,8 +184,8 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
 
   const header = (
     <div>
-      <h1 className="text-3xl font-semibold sm:text-4xl">Sammenlign tilbud</h1>
-      <p className="mt-2 text-ink-soft">Se tilbuddene side om side – og hvad den laveste pris egentlig dækker.</p>
+      <h1 className="text-3xl font-semibold sm:text-4xl">{t.title}</h1>
+      <p className="mt-2 text-ink-soft">{t.intro}</p>
     </div>
   );
 
@@ -190,9 +195,9 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
         {header}
         <div className="card mt-8 flex flex-col items-center px-6 py-14 text-center">
           <Columns3 className="h-8 w-8 text-brand-600" />
-          <h2 className="mt-4 text-xl font-semibold">Du skal have mindst 2 analyserede tilbud</h2>
-          <p className="mt-2 max-w-md text-ink-soft">Upload flere tilbud på samme opgave, så kan du sammenligne dem her.</p>
-          <Link href="/dashboard/upload" className="btn-primary mt-6">Upload tilbud</Link>
+          <h2 className="mt-4 text-xl font-semibold">{t.needTwoTitle}</h2>
+          <p className="mt-2 max-w-md text-ink-soft">{t.needTwoText}</p>
+          <Link href="/dashboard/upload" className="btn-primary mt-6">{t.upload}</Link>
         </div>
       </div>
     );
@@ -213,13 +218,14 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   const cheapest = [...rows].sort((x, y) => x.a.totals.inclVat - y.a.totals.inclVat)[0];
   const clearest = [...rows].sort((x, y) => y.a.score.total - x.a.score.total)[0];
   const safest = [...rows].sort((x, y) => x.worst - y.worst)[0];
-  const insights = buildInsights(rows);
+  const insights = buildInsights(rows, d, km);
+  const scoreLbl = (r: Row) => scoreLabel(r.a.score.total, d.score);
   const match = bestMatch(rows);
 
   const winners = [
-    { icon: Trophy, label: "Lavest pris", row: cheapest, value: formatKr(cheapest.a.totals.inclVat), sub: "inkl. moms" },
-    { icon: Eye, label: "Mest gennemsigtigt", row: clearest, value: `${clearest.a.score.total}/100`, sub: clearest.a.score.label },
-    { icon: ShieldCheck, label: "Lavest værste scenarie", row: safest, value: formatKr(safest.worst), sub: "pris + mulige ekstraudgifter" },
+    { icon: Trophy, label: t.cheapest, row: cheapest, value: formatKr(cheapest.a.totals.inclVat), sub: t.inclVat },
+    { icon: Eye, label: t.clearest, row: clearest, value: `${clearest.a.score.total}/100`, sub: scoreLbl(clearest) },
+    { icon: ShieldCheck, label: t.safest, row: safest, value: formatKr(safest.worst), sub: t.worstSub },
   ];
 
   const usedCats = CATEGORIES.filter((c) => rows.some((r) => r.cats[c] > 0));
@@ -231,7 +237,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
 
       <details className="mt-6">
         <summary className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-brand-700 hover:underline">
-          Skift tilbud ({rows.length} valgt)
+          {fmt(t.change, { n: rows.length })}
         </summary>
         <div className="mt-3">
           <ComparePicker items={pickerItems} selected={rows.map((r) => r.id)} />
@@ -240,29 +246,25 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
 
       {rows.some((r) => (r.a.currency ?? "DKK") !== "DKK") && (
         <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Et eller flere tilbud er ikke i danske kroner ({[...new Set(rows.map((r) => r.a.currency ?? "DKK"))].join(", ")}). Beløbene er
-          ikke omregnet, så sammenlign priserne med forsigtighed.
+          {fmt(t.currencyWarning, { list: [...new Set(rows.map((r) => r.a.currency ?? "DKK"))].join(", ") })}
         </p>
       )}
 
       <section className="mt-6 rounded-2xl border border-brand-700 bg-brand-900 p-5 text-white shadow-lift sm:p-6">
         <p className="flex items-center gap-2 text-sm font-semibold text-brand-300">
-          <Sparkles className="h-4 w-4" /> Bedste samlede match
+          <Sparkles className="h-4 w-4" /> {t.bestMatch}
         </p>
         <p className="mt-2 font-display text-2xl font-semibold text-white">{match.best.name}</p>
         <p className="mt-1 text-sm text-brand-100">
-          {formatKr(match.best.a.totals.inclVat)} · score {match.best.a.score.total} · værste scenarie {formatKr(match.best.worst)}
-          {match.best.distance != null && ` · ${km(match.best.distance)} fra dig`}
+          {fmt(t.bestLine, { price: formatKr(match.best.a.totals.inclVat), score: match.best.a.score.total, worst: formatKr(match.best.worst) })}
+          {match.best.distance != null && fmt(t.bestDistance, { km: km(match.best.distance) })}
         </p>
         <p className="mt-3 text-xs leading-relaxed text-brand-200">
-          Beregnet ud fra pris i værste fald ({match.useDist ? "50" : "60"} %), Tilbudsscore ({match.useDist ? "35" : "40"} %)
-          {match.useDist ? " og afstand (15 %)" : ""}. Det er en hjælp til at prioritere – ikke en vurdering af håndværkerens
-          faglige kvalitet.
+          {fmt(t.bestExplain, { p: match.useDist ? 50 : 60, c: match.useDist ? 35 : 40, dist: match.useDist ? t.bestExplainDist : "" })}
           {!origin && (
             <>
               {" "}
-              <Link href="/dashboard/konto#postnummer" className="font-semibold text-white underline">Tilføj dit postnummer</Link> for også at
-              tage afstand med.
+              <Link href="/dashboard/konto#postnummer" className="font-semibold text-white underline">{t.addPostal}</Link> {t.addPostalTail}
             </>
           )}
         </p>
@@ -283,13 +285,13 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
 
       <section className="card mt-6 p-5 sm:p-6">
         <h2 className="flex items-center gap-2 text-xl font-semibold">
-          <Lightbulb className="h-5 w-5 text-amber-500" /> Det bør du vide
+          <Lightbulb className="h-5 w-5 text-amber-500" /> {t.insightsTitle}
         </h2>
         <ul className="mt-4 space-y-3">
-          {insights.map((t, i) => (
+          {insights.map((line, i) => (
             <li key={i} className="flex gap-3 text-[15px] leading-relaxed text-ink-soft">
               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
-              {t}
+              {line}
             </li>
           ))}
         </ul>
@@ -301,7 +303,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
             <thead>
               <tr className="border-b border-line bg-paper/60 text-left">
                 <th className="sticky left-0 z-10 w-48 bg-paper px-4 py-3 font-medium text-ink-muted" scope="col">
-                  <span className="sr-only">Punkt</span>
+                  <span className="sr-only">{t.point}</span>
                 </th>
                 {rows.map((r) => (
                   <th key={r.id} scope="col" className="px-4 py-3">
@@ -314,32 +316,32 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              <CompareRow label="Pris inkl. moms" rows={rows} render={(r) => <strong className="num">{formatKr(r.a.totals.inclVat)}</strong>} best={cheapest.id} cell={cell} />
-              <CompareRow label="Tilbudsscore" rows={rows} render={(r) => <span className="num">{r.a.score.total} · {r.a.score.label}</span>} best={clearest.id} cell={cell} />
+              <CompareRow label={t.rowPrice} rows={rows} render={(r) => <strong className="num">{formatKr(r.a.totals.inclVat)}</strong>} best={cheapest.id} cell={cell} />
+              <CompareRow label={t.rowScore} rows={rows} render={(r) => <span className="num">{r.a.score.total} · {scoreLbl(r)}</span>} best={clearest.id} cell={cell} />
               {origin && (
                 <CompareRow
-                  label="Afstand fra dig"
+                  label={t.rowDistance}
                   rows={rows}
-                  render={(r) => (r.distance != null ? <span className="num">{km(r.distance)}</span> : <span className="text-ink-muted">Ukendt</span>)}
+                  render={(r) => (r.distance != null ? <span className="num">{km(r.distance)}</span> : <span className="text-ink-muted">{t.unknown}</span>)}
                   cell={cell}
                 />
               )}
-              <CompareRow label="Prisform" rows={rows} render={(r) => PRICE_TYPE_LABELS[r.a.priceType]} cell={cell} />
+              <CompareRow label={t.rowPriceType} rows={rows} render={(r) => d.labels.priceType[r.a.priceType]} cell={cell} />
               <CompareRow
-                label="Mulige ekstraudgifter"
+                label={t.rowExtra}
                 rows={rows}
                 render={(r) => <span className="num">{formatRange(r.a.extraCostRisk.min * 1.25, r.a.extraCostRisk.max * 1.25)}</span>}
                 cell={cell}
               />
-              <CompareRow label="Værste scenarie" rows={rows} render={(r) => <strong className="num">{formatKr(r.worst)}</strong>} best={safest.id} cell={cell} />
+              <CompareRow label={t.rowWorst} rows={rows} render={(r) => <strong className="num">{formatKr(r.worst)}</strong>} best={safest.id} cell={cell} />
               <CompareRow
-                label="Uspecificeret andel"
+                label={t.rowUnspec}
                 rows={rows}
                 render={(r) => <span className={cn("num", r.unspec >= 0.25 && "font-semibold text-red-700")}>{formatPct(r.unspec)}</span>}
                 cell={cell}
               />
               <CompareRow
-                label="Alvorlige fund"
+                label={t.rowSerious}
                 rows={rows}
                 render={(r) => {
                   const n = r.a.flags.filter((f) => f.severity === "high").length;
@@ -349,13 +351,13 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
               />
               <tr className="bg-paper/60">
                 <th colSpan={rows.length + 1} scope="colgroup" className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-ink-muted">
-                  Beløb pr. kategori (ekskl. moms)
+                  {t.sectionCategories}
                 </th>
               </tr>
               {usedCats.map((c) => (
                 <CompareRow
                   key={c}
-                  label={c}
+                  label={d.labels.category[c]}
                   rows={rows}
                   render={(r) =>
                     r.cats[c] > 0 ? (
@@ -363,7 +365,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
                     ) : c === "Diverse" ? (
                       <span className="text-ink-muted">–</span>
                     ) : (
-                      <span className="font-medium text-red-700">Ikke angivet</span>
+                      <span className="font-medium text-red-700">{t.notStated}</span>
                     )
                   }
                   cell={cell}
@@ -371,19 +373,19 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
               ))}
               <tr className="bg-paper/60">
                 <th colSpan={rows.length + 1} scope="colgroup" className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-ink-muted">
-                  Står det i tilbuddet?
+                  {t.sectionChecks}
                 </th>
               </tr>
               {CHECK_KEYS.map((k) => (
                 <CompareRow
                   key={k}
-                  label={CHECK_LABELS[k]}
+                  label={d.labels.check[k]}
                   rows={rows}
                   render={(r) =>
                     r.a.checks.find((c) => c.key === k)?.present ? (
-                      <CheckCircle2 className="h-5 w-5 text-brand-600" aria-label="Ja" />
+                      <CheckCircle2 className="h-5 w-5 text-brand-600" aria-label={d.quote.yes} />
                     ) : (
-                      <XCircle className="h-5 w-5 text-red-500" aria-label="Nej" />
+                      <XCircle className="h-5 w-5 text-red-500" aria-label={d.quote.no} />
                     )
                   }
                   cell={cell}
@@ -394,7 +396,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
         </div>
       </section>
       <p className="mt-4 text-xs text-ink-muted">
-        Værste scenarie = pris inkl. moms + den højeste skønnede ekstraudgift inkl. moms. Skønnene er vejledende.
+        {t.footnote}
       </p>
     </div>
   );

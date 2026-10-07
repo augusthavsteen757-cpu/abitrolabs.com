@@ -1,3 +1,4 @@
+import { da } from "@/i18n/dict/da";
 import { requireApiUser } from "@/lib/auth";
 import { handle, jsonError } from "@/lib/api";
 import { getQuote } from "@/lib/quotes";
@@ -9,12 +10,12 @@ export const GET = handle(async (_req: Request, { params }: { params: Promise<{ 
   const { id } = await params;
   const user = await requireApiUser();
   const quote = await getQuote(user.id, id);
-  if (!quote) return jsonError("Filen blev ikke fundet.", 404);
+  if (!quote) return jsonError(da.errors.fileNotFound, 404);
   let data: Buffer;
   try {
     data = await readStoredFile(quote.fileKey);
   } catch {
-    return jsonError("Filen findes ikke længere.", 404);
+    return jsonError(da.errors.fileGone, 404);
   }
   const safeName = quote.fileName.replace(/[^\w.\-æøåÆØÅ ]/g, "_");
   return new Response(new Uint8Array(data), {

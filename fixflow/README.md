@@ -181,6 +181,17 @@ Demo-data indlæses ikke automatisk i containeren. Vil du have demo-brugeren med
 
 ---
 
+## Sprog
+
+Appen findes på dansk, engelsk, svensk, norsk, tysk, polsk, ukrainsk og rumænsk. Sproget vælges i sprogvælgeren
+(gemmes i cookien `ff_lang`) – ellers bruges browserens sprog, og dansk som standard.
+
+- Tekster ligger i `src/i18n/dict/` – `da.ts` er kilden, de andre skal have præcis samme nøgler (TypeScript tjekker det).
+- AI-analysen og beskeder til håndværkeren skrives på brugerens sprog. Demo-analyserne findes kun på dansk.
+- Handelsbetingelser og privatlivspolitik er kun på dansk (den juridisk gældende version).
+- Tilbudsforespørgsler til håndværkere sendes altid på dansk.
+- Oversættelserne er maskinoversat – lad gerne en, der har sproget som modersmål, læse dem igennem før lancering.
+
 ## Find håndværkere i nærheden
 
 `/dashboard/find`: vælg fag, postnummer og afstand. Med `CVR_ES_USER`/`CVR_ES_PASSWORD` (gratis adgang til CVR's system-til-system-søgning hos Erhvervsstyrelsen) søges der i rigtige, aktive firmaer efter branchekode; uden adgang vises tydeligt markerede fiktive demo-firmaer. Afstande beregnes ud fra postnumre (`src/lib/geo.ts`) – med en indbygget tabel over bymidter (omtrentlig) eller en DAWA-kompatibel API via `GEO_API_URL`. Firmaer sorteres efter afstand; FixFlow vurderer ikke firmaernes kvalitet. Brugeren sender selv tilbudsanmodningen – appen kontakter aldrig firmaer.

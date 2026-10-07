@@ -1,3 +1,4 @@
+import { da } from "@/i18n/dict/da";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { eq, inArray } from "drizzle-orm";
@@ -17,7 +18,7 @@ export const POST = handle(async (req: Request) => {
   await rateLimit(`delete:${user.id}`, 5, 15 * 60);
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success || !(await checkPassword(parsed.data.password, user.passwordHash))) {
-    return jsonError("Adgangskoden er forkert.", 401);
+    return jsonError(da.errors.pwWrong, 401);
   }
   if (user.plan === "PRO") await cancelPro(user, { immediately: true });
 

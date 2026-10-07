@@ -23,19 +23,17 @@ export function formatPct(n: number): string {
   return `${Math.round(n * 100)} %`;
 }
 
-const dateFmt = new Intl.DateTimeFormat("da-DK", { day: "numeric", month: "long", year: "numeric" });
-const shortFmt = new Intl.DateTimeFormat("da-DK", { day: "numeric", month: "short" });
-
-export function formatDate(d: Date | string | number | null | undefined): string {
+/** Dates in the viewer's language (default Danish). */
+export function formatDate(d: Date | string | number | null | undefined, locale = "da-DK"): string {
   if (d == null || d === "") return "–";
   const date = d instanceof Date ? d : new Date(d);
   if (Number.isNaN(date.getTime())) return String(d);
-  return dateFmt.format(date);
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(date);
 }
 
-export function formatShortDate(d: Date | string | number): string {
+export function formatShortDate(d: Date | string | number, locale = "da-DK"): string {
   const date = d instanceof Date ? d : new Date(d);
-  return shortFmt.format(date);
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(date);
 }
 
 export function formatBytes(n: number): string {

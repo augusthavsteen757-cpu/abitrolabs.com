@@ -1,3 +1,4 @@
+import { translateError } from "@/i18n/errors";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -20,10 +21,7 @@ import { getQuote, listMessages } from "@/lib/quotes";
 import { distanceKm, locatePostalCode, postalCodeFromText } from "@/lib/geo";
 import {
   CATEGORIES,
-  CHECK_LABELS,
-  PRICE_TYPE_LABELS,
-  PRICE_LEVEL_LABELS,
-  RULE_LABELS,
+  languageDisplayName,
   categoryTotals,
   parseStoredAnalysis,
   redactForFree,
@@ -37,8 +35,14 @@ import { CopyButton, DeleteQuoteButton, RetryButton, UnlockWithCreditButton } fr
 import { MessageComposer } from "@/components/MessageComposer";
 import { Paywall } from "@/components/Paywall";
 import { Locked } from "@/components/Locked";
+import { getDict, getI18n } from "@/i18n/server";
+import { fmt } from "@/i18n/fmt";
+import { INTL_LOCALE } from "@/i18n/config";
+import { computeScore } from "@/lib/score";
 
-export const metadata: Metadata = { title: "Tilbud" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getDict()).quote.metaTitle };
+}
 
 const CATEGORY_COLORS: Record<Category, string> = {
   Arbejdsløn: "bg-brand-700",
@@ -50,10 +54,10 @@ const CATEGORY_COLORS: Record<Category, string> = {
   Diverse: "bg-red-400",
 };
 
-const CLARITY = {
-  clear: { label: "Tydelig", cls: "bg-brand-50 text-brand-700 ring-1 ring-brand-200" },
-  vague: { label: "Delvist beskrevet", cls: "bg-amber-50 text-amber-800 ring-1 ring-amber-200" },
-  unclear: { label: "Uklar", cls: "bg-red-50 text-red-700 ring-1 ring-red-200" },
+const CLARITY_CLS = {
+  clear: "bg-brand-50 text-brand-700 ring-1 ring-brand-200",
+  vague: "bg-amber-50 text-amber-800 ring-1 ring-amber-200",
+  unclear: "bg-red-50 text-red-700 ring-1 ring-red-200",
 } as const;
 
 function SectionTitle({ icon: Icon, children, id }: { icon?: typeof HelpCircle; children: React.ReactNode; id?: string }) {
@@ -70,10 +74,14 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
   const user = await requireUser();
   const quote = await getQuote(user.id, id);
   if (!quote) notFound();
+  const { locale, d } = await getI18n();
+  const t = d.quote;
+  const L = d.labels;
+  const intl = INTL_LOCALE[locale];
 
   const back = (
     <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink">
-      <ArrowLeft className="h-4 w-4" /> Alle tilbud
+      <ArrowLeft className="h-4 w-4" /> {t.back}
     </Link>
   );
 
@@ -85,10 +93,10 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         <div className="card mt-6 p-6 text-center sm:p-10">
           <XCircle className={cn("mx-auto h-10 w-10", quote.status === "FAILED" ? "text-red-500" : "text-ink-muted")} />
           <h1 className="mt-4 text-2xl font-semibold">
-            {quote.status === "FAILED" ? "Analysen mislykkedes" : "Analysen er ikke færdig"}
+            {quote.status === "FAILED" ? t.failedTitle : t.notDoneTitle}
           </h1>
           <p className="mt-2 text-ink-soft">
-            {quote.error || "Prøv igen om lidt."} Du er ikke blevet trukket for en analyse.
+            {quote.error ? translateError(quote.error, d) : t.tryLater} {t.notCharged}
           </p>
           <p className="mt-1 text-sm text-ink-muted">{quote.fileName}</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -111,11 +119,15 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
   const catTotal = Object.values(cats).reduce((s, v) => s + Math.max(0, v), 0);
   const cur = view.currency || "DKK";
   const money = (n: number | null | undefined) => formatMoney(n, cur);
-  const foreign = cur !== "DKK" || (view.language && view.language.toLowerCase() !== "dansk");
+  const foreign = cur !== "DKK" || view.language !== "da";
   const visibleQuestions = view.questions;
   const hiddenCount = lock?.questions ?? 0;
   const lockedFlags = lock?.flags.length ?? 0;
-  const color = scoreColor(analysis.score.total);
+  // Re-computed for display so the wording follows the viewer's language (the points never change).
+  const score = computeScore(analysis, d.score);
+  const color = scoreColor(score.total);
+  const sourceLanguage = languageDisplayName(view.language, intl);
+  const writtenIn = view.outputLocale && view.outputLocale !== locale ? languageDisplayName(view.outputLocale, intl) : null;
   const priceTypeBadge =
     analysis.priceType === "fast_pris"
       ? "bg-brand-50 text-brand-700 ring-1 ring-brand-200"
@@ -125,8 +137,8 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
 
   const suggestions = [
     ...analysis.flags.filter((f) => f.severity !== "low").map((f) => f.title),
-    "Hvornår kan I starte, og hvornår er I færdige?",
-    "Kan prisen laves som fast pris?",
+    t.suggestionStart,
+    t.suggestionFixed,
   ].slice(0, 6);
 
   return (
@@ -137,38 +149,38 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
       <header className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap gap-2">
-            <span className={cn("badge", priceTypeBadge)}>{PRICE_TYPE_LABELS[analysis.priceType]}</span>
+            <span className={cn("badge", priceTypeBadge)}>{L.priceType[analysis.priceType]}</span>
             <span className="badge bg-white text-ink-soft ring-1 ring-line">{quote.projectName}</span>
-            {analysis.demo && <span className="badge bg-amber-100 text-amber-900">Demo-analyse</span>}
+            {analysis.demo && <span className="badge bg-amber-100 text-amber-900">{t.demoBadge}</span>}
           </div>
           <h1 className="mt-3 break-words text-3xl font-semibold sm:text-4xl">{analysis.title}</h1>
           <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-ink-soft">
             <span className="inline-flex flex-wrap items-center gap-x-1.5">
               <Building2 className="h-4 w-4 text-ink-muted" />
-              {analysis.contractor.name || "Ukendt firma"}
+              {analysis.contractor.name || d.common.unknownFirm}
               {analysis.contractor.cvr ? (
                 <span className="text-ink-muted">· CVR {analysis.contractor.cvr}</span>
               ) : (
-                <span className="text-red-700">· intet CVR</span>
+                <span className="text-red-700">· {t.noCvr}</span>
               )}
             </span>
             {analysis.contractor.address && (
               <span className="inline-flex flex-wrap items-center gap-x-1.5">
                 <MapPin className="h-4 w-4 text-ink-muted" />
                 {analysis.contractor.address}
-                {distance != null && <span className="text-ink-muted">· ca. {distance} km fra dig</span>}
+                {distance != null && <span className="text-ink-muted">· {fmt(t.distance, { km: distance })}</span>}
               </span>
             )}
             <span className="inline-flex flex-wrap items-center gap-x-1.5">
               <CalendarDays className="h-4 w-4 text-ink-muted" />
-              {formatDate(analysis.quoteDate)}
-              {analysis.validUntil && <span className="text-ink-muted">· gælder til {formatDate(analysis.validUntil)}</span>}
+              {formatDate(analysis.quoteDate, intl)}
+              {analysis.validUntil && <span className="text-ink-muted">· {fmt(t.validUntil, { date: formatDate(analysis.validUntil, intl) })}</span>}
             </span>
           </div>
         </div>
         <div className="flex shrink-0 gap-2">
           <a href={`/api/quotes/${quote.id}/file`} target="_blank" rel="noopener" className="btn-secondary">
-            <ExternalLink className="h-4 w-4" /> Se original
+            <ExternalLink className="h-4 w-4" /> {t.viewOriginal}
           </a>
           <DeleteQuoteButton id={quote.id} />
         </div>
@@ -178,13 +190,13 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
       <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
         <section className="card p-5 sm:p-6" aria-labelledby="score-h">
           <h2 id="score-h" className="font-sans text-sm font-semibold uppercase tracking-wider text-ink-muted">
-            Tilbudsscore
+            {t.scoreTitle}
           </h2>
           <div className="mt-4 flex justify-center">
-            <ScoreRing score={analysis.score.total} size={148} label={analysis.score.label} />
+            <ScoreRing score={score.total} size={148} label={score.label} />
           </div>
           <ul className="mt-6 space-y-4">
-            {analysis.score.breakdown.map((b) => (
+            {score.breakdown.map((b) => (
               <li key={b.key}>
                 <div className="flex items-baseline justify-between text-sm">
                   <span className="font-medium">{b.label}</span>
@@ -203,29 +215,30 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
 
         <div className="flex min-w-0 flex-col gap-5">
           <section className="card p-5 sm:p-6">
-            <h2 className="text-xl font-semibold">Kort fortalt</h2>
+            <h2 className="text-xl font-semibold">{t.summary}</h2>
+            {writtenIn && <p className="mt-2 text-xs text-ink-muted">{fmt(t.analysisLanguageNote, { language: writtenIn })}</p>}
             {foreign && (
               <p className="mt-3 rounded-xl bg-sky-50 px-3.5 py-2.5 text-sm text-sky-900">
-                Tilbuddet er skrevet på {view.language || "et andet sprog"}
-                {cur !== "DKK" ? ` og beløbene er i ${cur} – vi har ikke omregnet dem til kroner` : ""}. Analysen er oversat til dansk.
-                Udenlandske firmaer skal være registreret i RUT for at arbejde i Danmark.
+                {fmt(t.foreign, { language: sourceLanguage || t.otherLanguage })}{" "}
+                {cur !== "DKK" ? `${fmt(t.foreignCurrency, { currency: cur })} ` : ""}
+                {t.foreignRut}
               </p>
             )}
             <p className="mt-3 leading-relaxed text-ink-soft">{analysis.summary}</p>
             <dl className="mt-6 grid gap-3 sm:grid-cols-3">
               <div className="rounded-xl bg-paper p-4">
-                <dt className="text-xs text-ink-muted">Pris inkl. moms</dt>
+                <dt className="text-xs text-ink-muted">{t.priceIncl}</dt>
                 <dd className="num mt-1 font-display text-2xl font-semibold">{money(analysis.totals.inclVat)}</dd>
               </div>
               <div className="rounded-xl bg-paper p-4">
-                <dt className="text-xs text-ink-muted">Heraf moms</dt>
+                <dt className="text-xs text-ink-muted">{t.vat}</dt>
                 <dd className="num mt-1 font-display text-2xl font-semibold">{money(analysis.totals.vat)}</dd>
               </div>
               <div className="rounded-xl bg-red-50 p-4">
-                <dt className="text-xs text-red-800">Mulige ekstraudgifter inkl. moms</dt>
+                <dt className="text-xs text-red-800">{t.extraIncl}</dt>
                 <dd className="num mt-1 font-display text-xl font-semibold text-red-800">
                   {lock?.extra ? (
-                    <Locked lines={1} label="Se beløbet" />
+                    <Locked lines={1} label={t.seeAmount} />
                   ) : (
                     formatRange(view.extraCostRisk.min * 1.25, view.extraCostRisk.max * 1.25, cur)
                   )}
@@ -236,9 +249,9 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
               <p className="mt-3 text-sm text-ink-muted">{view.extraCostRisk.explanation}</p>
             )}
             <div className="mt-4 flex flex-wrap items-start gap-3 rounded-xl border border-line p-4">
-              <span className="text-sm font-semibold">Dansk prisniveau:</span>
+              <span className="text-sm font-semibold">{t.priceLevelTitle}</span>
               {lock ? (
-                <Locked lines={1} label="Se om prisen er fair" className="min-w-[180px] flex-1" />
+                <Locked lines={1} label={t.priceLevelLocked} className="min-w-[180px] flex-1" />
               ) : (
                 <div className="min-w-0 flex-1 text-sm">
                   <span
@@ -253,22 +266,22 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                             : "bg-paper text-ink-muted",
                     )}
                   >
-                    {PRICE_LEVEL_LABELS[view.priceLevel.level]}
+                    {L.priceLevel[view.priceLevel.level]}
                   </span>
                   {view.priceLevel.explanation && <p className="mt-1.5 text-ink-soft">{view.priceLevel.explanation}</p>}
-                  <p className="mt-1 text-xs text-ink-muted">Groft skøn i forhold til typiske danske priser.</p>
+                  <p className="mt-1 text-xs text-ink-muted">{t.priceLevelNote}</p>
                 </div>
               )}
             </div>
           </section>
 
           <section className="card p-5 sm:p-6">
-            <h2 className="text-xl font-semibold">Hvor går pengene hen?</h2>
+            <h2 className="text-xl font-semibold">{t.whereMoney}</h2>
             {catTotal > 0 ? (
               <>
-                <div className="mt-4 flex h-4 overflow-hidden rounded-full bg-paper" role="img" aria-label="Fordeling af beløbet på kategorier">
+                <div className="mt-4 flex h-4 overflow-hidden rounded-full bg-paper" role="img" aria-label={t.categoryAria}>
                   {CATEGORIES.filter((c) => cats[c] > 0).map((c) => (
-                    <div key={c} className={CATEGORY_COLORS[c]} style={{ width: `${(cats[c] / catTotal) * 100}%` }} title={`${c}: ${money(cats[c])}`} />
+                    <div key={c} className={CATEGORY_COLORS[c]} style={{ width: `${(cats[c] / catTotal) * 100}%` }} title={`${L.category[c]}: ${money(cats[c])}`} />
                   ))}
                 </div>
                 <ul className="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
@@ -276,7 +289,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                     <li key={c} className="flex items-center justify-between gap-3">
                       <span className="flex min-w-0 items-center gap-2">
                         <span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", CATEGORY_COLORS[c])} />
-                        <span className="truncate">{c}</span>
+                        <span className="truncate">{L.category[c]}</span>
                       </span>
                       <span className="num text-ink-soft">
                         {money(cats[c])} <span className="text-ink-muted">({Math.round((cats[c] / catTotal) * 100)} %)</span>
@@ -284,10 +297,10 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                     </li>
                   ))}
                 </ul>
-                <p className="mt-3 text-xs text-ink-muted">Beløb ekskl. moms.</p>
+                <p className="mt-3 text-xs text-ink-muted">{t.amountsExcl}</p>
               </>
             ) : (
-              <p className="mt-3 text-sm text-ink-muted">Der var ingen poster med beløb i tilbuddet.</p>
+              <p className="mt-3 text-sm text-ink-muted">{t.noItems}</p>
             )}
           </section>
         </div>
@@ -300,8 +313,8 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           ) : (
             <Paywall
               quoteId={quote.id}
-              title="Se hele analysen"
-              text={`Lås op for de mulige ekstraudgifter${lockedFlags ? `, forklaringen af ${lockedFlags} ${lockedFlags === 1 ? "fund" : "fund mere"}` : ""}, hvad hver post dækker, ${hiddenCount ? `${hiddenCount} spørgsmål mere ` : ""}og færdige beskeder til håndværkeren.`}
+              title={t.unlockTitle}
+              text={t.unlockText}
             />
           )}
         </section>
@@ -309,9 +322,9 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
 
       {/* Flags */}
       <section className="mt-12">
-        <SectionTitle icon={ShieldAlert}>Det skal du være opmærksom på</SectionTitle>
+        <SectionTitle icon={ShieldAlert}>{t.flagsTitle}</SectionTitle>
         {analysis.flags.length === 0 ? (
-          <p className="card mt-5 p-5 text-ink-soft">Vi fandt ingen punkter, der kræver særlig opmærksomhed. Godt tegn!</p>
+          <p className="card mt-5 p-5 text-ink-soft">{t.noFlags}</p>
         ) : (
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {view.flags.map((f, i) => {
@@ -323,16 +336,16 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                   <div className="flex items-start gap-3">
                     <s.icon className={cn("mt-0.5 h-5 w-5 shrink-0", s.iconColor)} />
                     <div className="min-w-0 flex-1">
-                      <SeverityBadge severity={f.severity} />
+                      <SeverityBadge severity={f.severity} label={L.severity[f.severity]} />
                       <h3 className="mt-2 font-sans text-base font-semibold">{f.title}</h3>
                       {flagLocked ? (
-                        <Locked lines={3} label="Se forklaring og beløb" className="mt-2" />
+                        <Locked lines={3} label={t.seeExplanation} className="mt-2" />
                       ) : (
                         <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">{f.explanation}</p>
                       )}
                       {hasExtra && (
                         <p className="num mt-2 text-sm font-medium text-ink">
-                          Mulig ekstraudgift: {formatRange((f.estimatedExtraMin ?? 0) * 1.25, (f.estimatedExtraMax ?? 0) * 1.25, cur)} inkl. moms
+                          {fmt(t.extraLine, { range: formatRange((f.estimatedExtraMin ?? 0) * 1.25, (f.estimatedExtraMax ?? 0) * 1.25, cur) })}
                         </p>
                       )}
                     </div>
@@ -343,7 +356,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                       scroll={!full}
                       className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:underline"
                     >
-                      <MessageSquareText className="h-4 w-4" /> Spørg håndværkeren
+                      <MessageSquareText className="h-4 w-4" /> {t.askContractor}
                     </Link>
                   </div>
                 </article>
@@ -355,29 +368,29 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
 
       {/* Line items */}
       <section className="mt-12">
-        <SectionTitle>Hvad du betaler for</SectionTitle>
-        <p className="mt-1 text-sm text-ink-muted">Alle beløb er ekskl. moms, som i tilbuddet.</p>
+        <SectionTitle>{t.itemsTitle}</SectionTitle>
+        <p className="mt-1 text-sm text-ink-muted">{t.itemsNote}</p>
         <div className="card mt-5 divide-y divide-line">
           {view.lineItems.map((item, i) => (
             <div key={i} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:gap-6 sm:p-5">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-sans font-semibold">{item.description}</h3>
-                  <span className={cn("badge", CLARITY[item.clarity].cls)}>{CLARITY[item.clarity].label}</span>
+                  <span className={cn("badge", CLARITY_CLS[item.clarity])}>{L.clarity[item.clarity]}</span>
                 </div>
                 {lock?.items.includes(i) ? (
-                  <Locked lines={2} label="Se hvad posten dækker" className="mt-1.5" />
+                  <Locked lines={2} label={t.seeItem} className="mt-1.5" />
                 ) : (
                   <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">{item.explanation}</p>
                 )}
                 <p className="mt-1.5 flex flex-wrap gap-x-3 text-xs text-ink-muted">
                   <span className="inline-flex items-center gap-1.5">
                     <span className={cn("h-2 w-2 rounded-full", CATEGORY_COLORS[item.category])} />
-                    {item.category}
+                    {L.category[item.category]}
                   </span>
                   {item.quantity != null && item.unitPrice != null && (
                     <span className="num">
-                      {item.quantity.toLocaleString("da-DK")} {item.unit ?? ""} × {money(item.unitPrice)}
+                      {item.quantity.toLocaleString(intl)} {item.unit ?? ""} × {money(item.unitPrice)}
                     </span>
                   )}
                   {item.note && <span className="text-amber-800">{item.note}</span>}
@@ -387,7 +400,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             </div>
           ))}
           <div className="flex items-center justify-between bg-paper/60 p-4 sm:p-5">
-            <span className="font-semibold">I alt ekskl. moms</span>
+            <span className="font-semibold">{t.totalExcl}</span>
             <span className="num font-display text-lg font-semibold">{money(analysis.totals.exclVat)}</span>
           </div>
         </div>
@@ -395,20 +408,20 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
 
       {/* Checklist */}
       <section className="mt-12">
-        <SectionTitle>Står det i tilbuddet?</SectionTitle>
+        <SectionTitle>{t.checklistTitle}</SectionTitle>
         <p className="mt-1 text-sm text-ink-muted">
-          {analysis.checks.filter((c) => c.present).length} af 10 vigtige punkter er med.
+          {fmt(t.checklistCount, { n: analysis.checks.filter((c) => c.present).length })}
         </p>
         <ul className="card mt-5 grid divide-y divide-line sm:grid-cols-2 sm:divide-y-0">
           {analysis.checks.map((c) => (
             <li key={c.key} className="flex gap-3 p-4 sm:border-b sm:border-line sm:[&:nth-last-child(-n+2)]:border-b-0 sm:odd:border-r">
               {c.present ? (
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" aria-label="Ja" />
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" aria-label={t.yes} />
               ) : (
-                <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" aria-label="Nej" />
+                <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" aria-label={t.no} />
               )}
               <div className="min-w-0">
-                <p className="font-medium">{CHECK_LABELS[c.key]}</p>
+                <p className="font-medium">{L.check[c.key]}</p>
                 {c.note && <p className="mt-0.5 text-sm text-ink-muted">{c.note}</p>}
               </div>
             </li>
@@ -419,22 +432,22 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
       {/* Danish rules */}
       {view.rules.length > 0 && (
         <section className="mt-12">
-          <SectionTitle icon={Landmark}>Danske regler og ordninger</SectionTitle>
-          <p className="mt-1 text-sm text-ink-muted">Det, der gælder for netop denne opgave efter dansk lovgivning og praksis.</p>
+          <SectionTitle icon={Landmark}>{t.rulesTitle}</SectionTitle>
+          <p className="mt-1 text-sm text-ink-muted">{t.rulesIntro}</p>
           <ul className="card mt-5 divide-y divide-line">
             {view.rules.map((rule) => (
               <li key={rule.key} className="flex gap-3 p-4">
                 {rule.status === "ok" ? (
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" aria-label="I orden" />
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" aria-label={t.ruleOk} />
                 ) : rule.status === "missing" ? (
-                  <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" aria-label="Mangler" />
+                  <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" aria-label={t.ruleMissing} />
                 ) : (
-                  <HelpCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" aria-label="Uklart" />
+                  <HelpCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" aria-label={t.ruleUnclear} />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium">{RULE_LABELS[rule.key]}</p>
+                  <p className="font-medium">{L.rule[rule.key]}</p>
                   {lock ? (
-                    <Locked lines={1} label="Se forklaring" className="mt-1" />
+                    <Locked lines={1} label={t.seeNote} className="mt-1" />
                   ) : (
                     rule.note && <p className="mt-0.5 text-sm text-ink-muted">{rule.note}</p>
                   )}
@@ -448,10 +461,10 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
       {/* Questions */}
       <section className="mt-12">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <SectionTitle icon={HelpCircle}>Spørgsmål til håndværkeren</SectionTitle>
+          <SectionTitle icon={HelpCircle}>{t.questionsTitle}</SectionTitle>
           {visibleQuestions.length > 0 && (
             <CopyButton
-              label="Kopiér alle"
+              label={t.copyAll}
               text={visibleQuestions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")}
             />
           )}
@@ -466,21 +479,21 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                 <p className="font-medium">{q.question}</p>
                 <p className="mt-1 text-sm text-ink-muted">{q.why}</p>
               </div>
-              {q.priority === "high" && <span className="badge h-fit shrink-0 bg-red-50 text-red-700">Vigtig</span>}
+              {q.priority === "high" && <span className="badge h-fit shrink-0 bg-red-50 text-red-700">{t.important}</span>}
             </li>
           ))}
         </ol>
         {hiddenCount > 0 && (
           <a href="#laas-op" className="card mt-3 flex items-center gap-4 p-4 hover:shadow-lift sm:p-5">
-            <Locked lines={2} label={`${hiddenCount} spørgsmål mere`} className="flex-1" asLink={false} />
+            <Locked lines={2} label={fmt(t.moreQuestions, { n: hiddenCount })} className="flex-1" asLink={false} />
           </a>
         )}
       </section>
 
       {/* Message composer */}
       <section className="mt-12" id="besked">
-        <SectionTitle icon={MessageSquareText}>Skriv til håndværkeren</SectionTitle>
-        <p className="mt-1 text-sm text-ink-muted">Vælg et emne og en tone – så skriver vi en høflig besked, du kan sende.</p>
+        <SectionTitle icon={MessageSquareText}>{t.messageTitle}</SectionTitle>
+        <p className="mt-1 text-sm text-ink-muted">{t.messageIntro}</p>
         <div className="mt-5">
           {full ? (
             <Suspense>
@@ -492,17 +505,15 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             </Suspense>
           ) : (
             <a href="#laas-op" className="card flex flex-col gap-3 p-5 hover:shadow-lift">
-              <p className="text-sm text-ink-soft">Få en færdig, høflig besked til håndværkeren med ét klik, når du låser analysen op.</p>
-              <Locked lines={4} label="Lås op for beskeder" asLink={false} />
+              <p className="text-sm text-ink-soft">{t.messageLocked}</p>
+              <Locked lines={4} label={t.unlockMessages} asLink={false} />
             </a>
           )}
         </div>
       </section>
 
       <p className="mt-14 border-t border-line pt-6 text-xs leading-relaxed text-ink-muted">
-        Analysen er vejledende og bygger på det, der står i det uploadede dokument. Tilbudsscoren er beregnet efter faste
-        regler og siger noget om, hvor tydeligt tilbuddet er – ikke om håndværkerens faglige kvalitet. Beløb for mulige
-        ekstraudgifter er skøn. FixFlow erstatter ikke juridisk eller byggeteknisk rådgivning.
+        {t.disclaimer}
       </p>
     </div>
   );

@@ -1,13 +1,15 @@
 import { Lock } from "lucide-react";
 import { cn } from "@/lib/format";
+import { getDict } from "@/i18n/server";
+import { fmt } from "@/i18n/fmt";
 
 /**
  * Placeholder for paid content. Renders fake grey bars – the real text is never sent to the browser,
  * so the lock can't be removed with developer tools.
  */
-export function Locked({
+export async function Locked({
   lines = 2,
-  label = "Låst",
+  label,
   className,
   asLink = true,
 }: {
@@ -17,6 +19,8 @@ export function Locked({
   /** false when the placeholder already sits inside a link (links can't be nested). */
   asLink?: boolean;
 }) {
+  const d = await getDict();
+  label = label ?? d.locked.default;
   const widths = ["92%", "78%", "85%", "64%", "88%"];
   return (
     <div className={cn("relative", className)}>
@@ -26,7 +30,7 @@ export function Locked({
         ))}
       </div>
       {asLink ? (
-        <a href="#laas-op" className="absolute inset-0 flex items-center justify-center" aria-label={`${label} – lås op for at se`}>
+        <a href="#laas-op" className="absolute inset-0 flex items-center justify-center" aria-label={fmt(d.locked.aria, { label })}>
           <Badge label={label} />
         </a>
       ) : (

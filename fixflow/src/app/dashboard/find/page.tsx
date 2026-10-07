@@ -1,20 +1,26 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/auth";
-import { TRADES, isCvrEnabled } from "@/lib/contractors";
+import { TRADES, isCvrEnabled, type TradeKey } from "@/lib/contractors";
 import { FindContractors } from "@/components/FindContractors";
+import { getDict } from "@/i18n/server";
+import { da } from "@/i18n/dict/da";
 
-export const metadata: Metadata = { title: "Find håndværkere" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getDict()).find.metaTitle };
+}
 
 export default async function FindPage() {
   const user = await requireUser();
-  const trades = Object.entries(TRADES).map(([key, t]) => ({ key, label: t.label }));
+  const d = await getDict();
+  const trades = (Object.keys(TRADES) as TradeKey[]).map((key) => ({
+    key,
+    label: d.labels.trade[key],
+    labelDa: da.labels.trade[key],
+  }));
   return (
     <div className="animate-fade-up">
-      <h1 className="text-3xl font-semibold sm:text-4xl">Find håndværkere tæt på dig</h1>
-      <p className="mt-2 max-w-2xl text-ink-soft">
-        Find firmaer i nærheden, bed dem om et tilbud med én besked – og sammenlign tilbuddene her bagefter. Vi rangerer
-        ikke firmaerne efter kvalitet; det bedste tilbud finder du, når tilbuddene ligger side om side.
-      </p>
+      <h1 className="text-3xl font-semibold sm:text-4xl">{d.find.title}</h1>
+      <p className="mt-2 max-w-2xl text-ink-soft">{d.find.intro}</p>
       <div className="mt-8">
         <FindContractors
           trades={trades}

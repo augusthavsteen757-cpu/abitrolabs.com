@@ -1,3 +1,4 @@
+import { da } from "@/i18n/dict/da";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { randomBytes } from "crypto";
@@ -15,24 +16,24 @@ const schema = z.object({
 export const POST = handle(async (req: Request) => {
   const user = await requireApiUser();
   const parsed = schema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return jsonError("Ugyldigt køb.");
+  if (!parsed.success) return jsonError(da.errors.invalidPurchase);
   const { kind } = parsed.data;
   const quoteId = parsed.data.quoteId || null;
 
   if (kind === "CANCEL") {
-    if (user.plan !== "PRO") return jsonError("Du har ikke et aktivt Pro-abonnement.");
-    if (user.planEndsAt) return jsonError("Dit abonnement er allerede opsagt.");
+    if (user.plan !== "PRO") return jsonError(da.errors.noPro);
+    if (user.planEndsAt) return jsonError(da.errors.alreadyCancelled);
     await cancelPro(user);
     return NextResponse.json({ ok: true });
   }
   if (kind === "RESUME") {
-    if (user.plan !== "PRO" || !user.planEndsAt) return jsonError("Dit abonnement er ikke opsagt.");
+    if (user.plan !== "PRO" || !user.planEndsAt) return jsonError(da.errors.notCancelled);
     await resumePro(user);
     return NextResponse.json({ ok: true });
   }
-  if (kind === "PRO_MONTHLY" && user.plan === "PRO") return jsonError("Du har allerede Pro.");
+  if (kind === "PRO_MONTHLY" && user.plan === "PRO") return jsonError(da.errors.alreadyPro);
   // Forbrugeraftaleloven: explicit consent to immediate delivery before the purchase.
-  if (parsed.data.consent !== true) return jsonError("Du skal bekræfte, at du vil have adgang med det samme.");
+  if (parsed.data.consent !== true) return jsonError(da.errors.needConsent);
   await rateLimit(`checkout:${user.id}`, 20, 60 * 60);
 
   if (isStripeEnabled()) {

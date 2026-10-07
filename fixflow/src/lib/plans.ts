@@ -5,51 +5,7 @@ export const SINGLE_PRICE_DKK = 99;
 export const PRO_ANALYSES_PER_PERIOD = 10;
 export const FREE_ANALYSES_TOTAL = 1;
 export const PERIOD_DAYS = 30;
-export const FREE_QUESTION_LIMIT = 3;
 
-export const PLANS = {
-  FREE: {
-    name: "Gratis",
-    price: 0,
-    priceLabel: "0 kr.",
-    period: "",
-    tagline: "Se hvad der er galt med dit tilbud.",
-    features: [
-      "1 tilbud gennemgået",
-      "Tilbudsscore og kort forklaring",
-      "Se hvilke røde flag der er – det første forklaret",
-      "Detaljer, ekstraudgifter og spørgsmål er låst",
-    ],
-  },
-  PRO: {
-    name: "Pro",
-    price: PRO_PRICE_DKK,
-    priceLabel: `${PRO_PRICE_DKK} kr.`,
-    period: "/md.",
-    tagline: "Til dig, der indhenter flere tilbud.",
-    features: [
-      `${PRO_ANALYSES_PER_PERIOD} analyser pr. måned`,
-      "Sammenlign op til 4 tilbud side om side",
-      "Alle spørgsmål til håndværkeren",
-      "Skriv beskeder til håndværkeren med ét klik",
-      "Historik over alle dine tilbud",
-      "Opsig når som helst",
-    ],
-  },
-  SINGLE: {
-    name: "Engangskøb",
-    price: SINGLE_PRICE_DKK,
-    priceLabel: `${SINGLE_PRICE_DKK} kr.`,
-    period: "",
-    tagline: "Én komplet analyse – uden abonnement.",
-    features: [
-      "Lås hele analysen op for ét tilbud",
-      "Mulige ekstraudgifter i kroner",
-      "Alle røde flag forklaret og alle spørgsmål",
-      "Færdige beskeder til håndværkeren",
-    ],
-  },
-} as const;
 
 const PERIOD_MS = PERIOD_DAYS * 24 * 60 * 60 * 1000;
 

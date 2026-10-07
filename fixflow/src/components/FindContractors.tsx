@@ -5,6 +5,10 @@ import Link from "next/link";
 import { Search, Loader2, MapPin, ExternalLink, Info, Send, Columns3 } from "lucide-react";
 import { CopyButton } from "./QuoteActions";
 import { cn } from "@/lib/format";
+import { useI18n } from "@/i18n/client";
+import { fmt } from "@/i18n/fmt";
+import { INTL_LOCALE } from "@/i18n/config";
+import { da } from "@/i18n/dict/da";
 
 type Firm = {
   id: string;
@@ -22,7 +26,6 @@ type Firm = {
   source: "cvr" | "demo";
 };
 
-const km = (n: number) => n.toLocaleString("da-DK", { maximumFractionDigits: 1 });
 
 export function FindContractors({
   trades,
@@ -30,11 +33,15 @@ export function FindContractors({
   customerName,
   demo,
 }: {
-  trades: { key: string; label: string }[];
+  /** Each trade with its label in the viewer's language and in Danish (for the request to Danish firms). */
+  trades: { key: string; label: string; labelDa: string }[];
   initialPostalCode: string;
   customerName: string;
   demo: boolean;
 }) {
+  const { d, locale } = useI18n();
+  const t = d.find;
+  const intl = INTL_LOCALE[locale];
   const [trade, setTrade] = useState(trades[0].key);
   const [postalCode, setPostalCode] = useState(initialPostalCode);
   const [radius, setRadius] = useState("25");
@@ -48,30 +55,39 @@ export function FindContractors({
 
   async function search(e: React.FormEvent) {
     e.preventDefault();
-    if (!/^\d{4}$/.test(postalCode)) return setError("Skriv dit postnummer med 4 cifre.");
+    if (!/^\d{4}$/.test(postalCode)) return setError(t.errPostal);
     setBusy(true);
     setError(null);
     try {
       const qs = new URLSearchParams({ trade, postalCode, radius });
       const res = await fetch(`/api/contractors?${qs}`);
       const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json.error || "Søgningen mislykkedes.");
+      if (!res.ok) throw new Error(json.error || t.errFailed);
       setResults(json.results);
       setPlace(`${json.origin.postalCode} ${json.origin.name}`);
       setSelected([]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Søgningen mislykkedes.");
+      setError(err instanceof Error ? err.message : t.errFailed);
     } finally {
       setBusy(false);
     }
   }
 
-  const tradeLabel = trades.find((t) => t.key === trade)?.label ?? "";
+  // The request goes to Danish firms, so it is always written in Danish.
+  const tradeLabelDa = trades.find((x) => x.key === trade)?.labelDa ?? "";
   const request = useMemo(() => {
-    const desc = project.trim() || "[Beskriv opgaven: hvad skal laves, størrelse i m², nuværende stand]";
-    const time = when.trim() || "[ønsket tidspunkt]";
-    return `Hej\n\nJeg søger tilbud på følgende opgave (${tradeLabel.toLowerCase()}) i ${place ?? postalCode}:\n\n${desc}\n\nØnsket udførelse: ${time}.\n\nFor at jeg kan sammenligne tilbuddene, vil jeg gerne have:\n• En fast pris eller et bindende tilbud (ikke et overslag)\n• Specificerede poster med mængder, materialer (mærke/type) og priser ekskl. og inkl. moms\n• Hvad der er med af kørsel, stillads/lift, oprydning og bortskaffelse\n• Tidsplan med start og aflevering\n• Betalingsplan – gerne rater efter udført arbejde\n• Timepris for eventuelt ekstraarbejde, og hvordan uforudsete forhold aftales\n• Garanti og forsikring (og om I er med i en ankenævns- eller garantiordning)\n• CVR-nummer, og hvor længe tilbuddet gælder (gerne mindst 30 dage)\n\nI er velkomne til at komme forbi og se opgaven.\n\nVenlig hilsen\n${customerName}`;
-  }, [project, when, tradeLabel, place, postalCode, customerName]);
+    const q = da.quoteRequest;
+    const desc = project.trim() || q.descFallback;
+    const time = when.trim() || q.whenFallback;
+    return [
+      fmt(q.intro, { trade: tradeLabelDa.toLowerCase(), place: place ?? postalCode }),
+      desc,
+      fmt(q.when, { when: time }),
+      `${q.listIntro}\n${q.list.map((l) => `• ${l}`).join("\n")}`,
+      q.visit,
+      `${q.regards}\n${customerName}`,
+    ].join("\n\n");
+  }, [project, when, tradeLabelDa, place, postalCode, customerName]);
 
   const chosen = results?.filter((r) => selected.includes(r.id)) ?? [];
 
@@ -79,15 +95,15 @@ export function FindContractors({
     <div className="space-y-6">
       <form onSubmit={search} className="card grid gap-4 p-5 sm:grid-cols-[1.4fr_1fr_1fr_auto] sm:items-end sm:p-6">
         <div>
-          <label htmlFor="trade" className="label">Fag</label>
+          <label htmlFor="trade" className="label">{t.trade}</label>
           <select id="trade" value={trade} onChange={(e) => setTrade(e.target.value)} className="input">
-            {trades.map((t) => (
-              <option key={t.key} value={t.key}>{t.label}</option>
+            {trades.map((x) => (
+              <option key={x.key} value={x.key}>{x.label}</option>
             ))}
           </select>
         </div>
         <div>
-          <label htmlFor="postal" className="label">Dit postnummer</label>
+          <label htmlFor="postal" className="label">{t.postal}</label>
           <input
             id="postal"
             value={postalCode}
@@ -95,19 +111,19 @@ export function FindContractors({
             inputMode="numeric"
             autoComplete="postal-code"
             className="input"
-            placeholder="Fx 4000"
+            placeholder={t.postalPlaceholder}
           />
         </div>
         <div>
-          <label htmlFor="radius" className="label">Afstand</label>
+          <label htmlFor="radius" className="label">{t.radius}</label>
           <select id="radius" value={radius} onChange={(e) => setRadius(e.target.value)} className="input">
             {["10", "25", "50", "100"].map((r) => (
-              <option key={r} value={r}>Inden for {r} km</option>
+              <option key={r} value={r}>{fmt(t.within, { n: r })}</option>
             ))}
           </select>
         </div>
         <button type="submit" disabled={busy} className="btn-primary h-[46px]">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />} Søg
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />} {t.search}
         </button>
       </form>
 
@@ -115,8 +131,7 @@ export function FindContractors({
         <p className="flex items-start gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            <strong>Demo:</strong> Firmaerne nedenfor er fiktive. Når appen er koblet til CVR-registret, vises rigtige,
-            aktive firmaer i dit område.
+            <strong>{t.demo}</strong> {t.demoText}
           </span>
         </p>
       )}
@@ -126,12 +141,12 @@ export function FindContractors({
         <section>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="text-xl font-semibold">
-              {results.length} {results.length === 1 ? "firma" : "firmaer"} nær {place}
+              {fmt(results.length === 1 ? t.resultsOne : t.resultsOther, { n: results.length, place: place ?? "" })}
             </h2>
-            <p className="text-sm text-ink-muted">Sorteret efter afstand. Vælg dem, du vil bede om tilbud.</p>
+            <p className="text-sm text-ink-muted">{t.sorted}</p>
           </div>
           {results.length === 0 ? (
-            <p className="card mt-4 p-5 text-ink-soft">Ingen firmaer fundet. Prøv en større afstand eller et andet fag.</p>
+            <p className="card mt-4 p-5 text-ink-soft">{t.none}</p>
           ) : (
             <ul className="mt-4 grid gap-3 md:grid-cols-2">
               {results.map((f) => {
@@ -149,10 +164,10 @@ export function FindContractors({
                       <label htmlFor={`f-${f.id}`} className="block cursor-pointer font-semibold">{f.name}</label>
                       <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-sm text-ink-muted">
                         <span className="inline-flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5" /> {f.approxDistance ? "ca. " : ""}{km(f.distanceKm)} km
+                          <MapPin className="h-3.5 w-3.5" /> {f.approxDistance ? t.approx : ""}{f.distanceKm.toLocaleString(intl, { maximumFractionDigits: 1 })} km
                         </span>
                         <span>· {f.postalCode} {f.city}</span>
-                        {f.foundedYear && <span>· siden {f.foundedYear}</span>}
+                        {f.foundedYear && <span>· {fmt(t.since, { year: f.foundedYear })}</span>}
                       </p>
                       {(f.phone || f.email) && (
                         <p className="mt-1 select-all text-sm text-ink-soft">{[f.phone, f.email].filter(Boolean).join(" · ")}</p>
@@ -179,15 +194,14 @@ export function FindContractors({
       {results && results.length > 0 && (
         <section className="card p-5 sm:p-6">
           <h2 className="flex items-center gap-2 text-xl font-semibold">
-            <Send className="h-5 w-5 text-brand-600" /> Bed om tilbud
+            <Send className="h-5 w-5 text-brand-600" /> {t.requestTitle}
           </h2>
           <p className="mt-1 text-sm text-ink-muted">
-            Send den samme besked til {chosen.length > 0 ? `de ${chosen.length} valgte firmaer` : "de firmaer, du vælger"}. Så
-            får du tilbud, der er nemme at sammenligne – og som scorer højt i FixFlow.
+            {chosen.length > 0 ? fmt(t.requestIntroSelected, { n: chosen.length }) : t.requestIntro}
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-[2fr_1fr]">
             <div>
-              <label htmlFor="project" className="label">Opgaven</label>
+              <label htmlFor="project" className="label">{t.project}</label>
               <textarea
                 id="project"
                 rows={3}
@@ -195,38 +209,39 @@ export function FindContractors({
                 onChange={(e) => setProject(e.target.value)}
                 maxLength={1000}
                 className="input"
-                placeholder="Fx Totalrenovering af badeværelse på ca. 6 m² i parcelhus fra 1975. Nye fliser, gulvvarme, væghængt toilet."
+                placeholder={t.projectPlaceholder}
               />
             </div>
             <div>
-              <label htmlFor="when" className="label">Hvornår</label>
-              <input id="when" value={when} onChange={(e) => setWhen(e.target.value)} maxLength={100} className="input" placeholder="Fx i løbet af foråret" />
+              <label htmlFor="when" className="label">{t.when}</label>
+              <input id="when" value={when} onChange={(e) => setWhen(e.target.value)} maxLength={100} className="input" placeholder={t.whenPlaceholder} />
             </div>
           </div>
           <div className="mt-4 rounded-xl bg-paper p-4">
             <div className="flex items-start justify-between gap-3">
-              <p className="text-sm font-medium text-ink-soft">Din besked</p>
+              <p className="text-sm font-medium text-ink-soft">{t.yourMessage}</p>
               <CopyButton text={request} />
             </div>
             <p className="mt-2 whitespace-pre-line text-[15px] leading-relaxed">{request}</p>
+            {locale !== "da" && <p className="mt-3 text-xs text-ink-muted">{t.requestLanguageNote}</p>}
           </div>
           {chosen.length > 0 && (
             <div className="mt-4">
-              <p className="text-sm font-medium text-ink-soft">Send til</p>
+              <p className="text-sm font-medium text-ink-soft">{t.sendTo}</p>
               <ul className="mt-2 space-y-1 text-sm">
                 {chosen.map((f) => (
                   <li key={f.id} className="select-all">
                     <strong>{f.name}</strong>
-                    {f.email ? ` – ${f.email}` : f.phone ? ` – ${f.phone}` : " – find kontaktoplysninger på firmaets hjemmeside eller CVR-siden"}
+                    {f.email ? ` – ${f.email}` : f.phone ? ` – ${f.phone}` : ` – ${t.noContact}`}
                   </li>
                 ))}
               </ul>
             </div>
           )}
           <p className="mt-5 flex flex-wrap items-center gap-2 text-sm text-ink-soft">
-            <Columns3 className="h-4 w-4 text-brand-600" /> Når tilbuddene kommer:
-            <Link href="/dashboard/upload" className="font-semibold text-brand-700 hover:underline">upload dem med samme projektnavn</Link>
-            og sammenlign dem – inkl. afstand og værste scenarie.
+            <Columns3 className="h-4 w-4 text-brand-600" /> {t.whenQuotesArrive}
+            <Link href="/dashboard/upload" className="font-semibold text-brand-700 hover:underline">{t.uploadSameProject}</Link>
+            {t.andCompare}
           </p>
         </section>
       )}

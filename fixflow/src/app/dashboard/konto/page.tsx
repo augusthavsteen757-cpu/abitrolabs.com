@@ -4,13 +4,18 @@ import { Check, Sparkles, FlaskConical, Receipt, CheckCircle2 } from "lucide-rea
 import { db } from "@/db";
 import { payments, quotes } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
-import { PLANS, getUsage } from "@/lib/plans";
+import { PRO_PRICE_DKK, SINGLE_PRICE_DKK, getUsage } from "@/lib/plans";
+import { getDict, getI18n } from "@/i18n/server";
+import { fmt } from "@/i18n/fmt";
+import { INTL_LOCALE } from "@/i18n/config";
 import { isStripeEnabled } from "@/lib/billing";
 import { cn, formatDate, formatKr } from "@/lib/format";
 import { CheckoutButton } from "@/components/CheckoutButton";
 import { AccountSettings } from "@/components/AccountSettings";
 
-export const metadata: Metadata = { title: "Konto" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getDict()).account.metaTitle };
+}
 
 export default async function AccountPage({
   searchParams,
@@ -20,6 +25,10 @@ export default async function AccountPage({
   const sp = await searchParams;
   const user = await requireUser();
   const usage = getUsage(user);
+  const { locale, d } = await getI18n();
+  const t = d.account;
+  const intl = INTL_LOCALE[locale];
+  const date = (v: Date | null) => formatDate(v, intl);
   const history = await db.query.payments.findMany({
     where: eq(payments.userId, user.id),
     orderBy: [desc(payments.createdAt)],
@@ -34,14 +43,14 @@ export default async function AccountPage({
 
   return (
     <div className="mx-auto max-w-4xl animate-fade-up">
-      <h1 className="text-3xl font-semibold sm:text-4xl">Konto</h1>
+      <h1 className="text-3xl font-semibold sm:text-4xl">{t.title}</h1>
       <p className="mt-2 text-ink-soft">
         {user.name} · {user.email}
       </p>
 
       {sp.betalt && (
         <p className="mt-6 flex items-center gap-2 rounded-xl bg-brand-50 px-4 py-3 text-sm text-brand-800">
-          <CheckCircle2 className="h-4 w-4" /> Tak for din betaling. Det kan tage et øjeblik, før den er registreret.
+          <CheckCircle2 className="h-4 w-4" /> {t.paid}
         </p>
       )}
 
@@ -49,8 +58,7 @@ export default async function AccountPage({
         <div className="mt-6 flex items-start gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
           <FlaskConical className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
-            <strong>Testtilstand:</strong> Betaling er ikke sat op endnu, så køb gennemføres med det samme uden at trække
-            penge. Det er perfekt til at prøve funktionerne af.
+            <strong>{t.testMode}</strong> {t.testModeText}
           </p>
         </div>
       )}
@@ -59,21 +67,21 @@ export default async function AccountPage({
       <section className="card mt-6 p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm text-ink-muted">Dit abonnement</p>
+            <p className="text-sm text-ink-muted">{t.yourPlan}</p>
             <p className="mt-1 flex items-center gap-2 font-display text-2xl font-semibold">
               {isPro && <Sparkles className="h-5 w-5 text-brand-500" />}
-              {isPro ? "Pro" : "Gratis"}
+              {isPro ? d.nav.pro : d.nav.free}
             </p>
             <p className="mt-1 text-sm text-ink-soft">
               {isPro
-                ? `${usage.used} af ${usage.limit} analyser brugt i denne periode${usage.periodEnd ? ` · nulstilles ${formatDate(usage.periodEnd)}` : ""}.`
-                : `${usage.used} af ${usage.limit} gratis analyse brugt.`}
-              {usage.credits > 0 && ` Du har ${usage.credits} engangskøb til gode.`}
+                ? `${fmt(t.usagePro, { used: usage.used, limit: usage.limit })}${usage.periodEnd ? fmt(t.resets, { date: date(usage.periodEnd) }) : ""}.`
+                : fmt(t.usageFree, { used: usage.used, limit: usage.limit })}
+              {usage.credits > 0 && fmt(t.credits, { n: usage.credits })}
             </p>
           </div>
           <div className="text-left sm:text-right">
             <p className="num font-display text-4xl font-semibold text-brand-800">{usage.remaining}</p>
-            <p className="text-sm text-ink-muted">{usage.remaining === 1 ? "analyse" : "analyser"} tilbage</p>
+            <p className="text-sm text-ink-muted">{usage.remaining === 1 ? t.remainingOne : t.remainingOther}</p>
           </div>
         </div>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-paper">
@@ -86,7 +94,7 @@ export default async function AccountPage({
 
       {quote && (
         <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Engangskøbet bruges til at låse <strong>{quote.title || quote.fileName}</strong> op.
+          {fmt(t.unlockFor, { title: quote.title || quote.fileName })}
         </p>
       )}
 
@@ -100,14 +108,14 @@ export default async function AccountPage({
         >
           <div className="flex items-center justify-between">
             <h2 className={cn("text-xl font-semibold", upgrade === "pro" && "text-white")}>Pro</h2>
-            {isPro && <span className="badge bg-brand-300 text-brand-950">Aktiv</span>}
+            {isPro && <span className="badge bg-brand-300 text-brand-950">{t.active}</span>}
           </div>
           <p className="mt-2 flex items-baseline gap-1">
-            <span className="num font-display text-3xl font-semibold">{PLANS.PRO.priceLabel}</span>
-            <span className={upgrade === "pro" ? "text-brand-100" : "text-ink-muted"}>/md.</span>
+            <span className="num font-display text-3xl font-semibold">{PRO_PRICE_DKK} kr.</span>
+            <span className={upgrade === "pro" ? "text-brand-100" : "text-ink-muted"}>{d.common.perMonth}</span>
           </p>
           <ul className="mt-4 flex-1 space-y-2 text-sm">
-            {PLANS.PRO.features.map((f) => (
+            {d.plans.pro.features.map((f) => (
               <li key={f} className="flex gap-2">
                 <Check className={cn("mt-0.5 h-4 w-4 shrink-0", upgrade === "pro" ? "text-brand-300" : "text-brand-600")} />
                 <span className={upgrade === "pro" ? "text-brand-50" : "text-ink-soft"}>{f}</span>
@@ -118,10 +126,10 @@ export default async function AccountPage({
             {isPro && user.planEndsAt ? (
               <div>
                 <p className={cn("mb-3 text-sm", upgrade === "pro" ? "text-brand-100" : "text-ink-soft")}>
-                  Opsagt. Pro fortsætter til {formatDate(user.planEndsAt)}.
+                  {fmt(t.cancelled, { date: date(user.planEndsAt) })}
                 </p>
                 <CheckoutButton kind="RESUME" dark={upgrade === "pro"} className={upgrade === "pro" ? "btn-light" : "btn-primary"}>
-                  Genoptag Pro
+                  {t.resume}
                 </CheckoutButton>
               </div>
             ) : isPro ? (
@@ -129,13 +137,13 @@ export default async function AccountPage({
                 kind="CANCEL"
                 className="btn-secondary"
                 dark={upgrade === "pro"}
-                confirmText={`Vil du opsige Pro? Du beholder Pro til ${formatDate(usage.periodEnd)}, og dine analyser bliver liggende.`}
+                confirmText={fmt(t.cancelConfirm, { date: date(usage.periodEnd) })}
               >
-                Opsig Pro
+                {t.cancel}
               </CheckoutButton>
             ) : (
               <CheckoutButton kind="PRO_MONTHLY" dark={upgrade === "pro"} className={upgrade === "pro" ? "btn-light" : "btn-primary"} redirectTo="/dashboard/konto">
-                Opgradér til Pro
+                {t.upgrade}
               </CheckoutButton>
             )}
           </div>
@@ -147,12 +155,12 @@ export default async function AccountPage({
             upgrade === "single" || quote ? "border-brand-700 bg-brand-900 text-white shadow-lift ring-4 ring-brand-300/40" : "border-line bg-white shadow-card",
           )}
         >
-          <h2 className={cn("text-xl font-semibold", (upgrade === "single" || quote) && "text-white")}>Engangskøb</h2>
+          <h2 className={cn("text-xl font-semibold", (upgrade === "single" || quote) && "text-white")}>{d.plans.single.name}</h2>
           <p className="mt-2">
-            <span className="num font-display text-3xl font-semibold">{PLANS.SINGLE.priceLabel}</span>
+            <span className="num font-display text-3xl font-semibold">{SINGLE_PRICE_DKK} kr.</span>
           </p>
           <ul className="mt-4 flex-1 space-y-2 text-sm">
-            {PLANS.SINGLE.features.map((f) => (
+            {d.plans.single.features.map((f) => (
               <li key={f} className="flex gap-2">
                 <Check className={cn("mt-0.5 h-4 w-4 shrink-0", upgrade === "single" || quote ? "text-brand-300" : "text-brand-600")} />
                 <span className={upgrade === "single" || quote ? "text-brand-50" : "text-ink-soft"}>{f}</span>
@@ -167,7 +175,7 @@ export default async function AccountPage({
               className={upgrade === "single" || quote ? "btn-light" : "btn-secondary"}
               redirectTo={quote ? `/dashboard/tilbud/${quote.id}` : "/dashboard/konto"}
             >
-              {quote ? "Køb og lås tilbuddet op" : "Køb én analyse"}
+              {quote ? t.buyAndUnlock : t.buyOne}
             </CheckoutButton>
           </div>
         </section>
@@ -176,18 +184,18 @@ export default async function AccountPage({
       {/* History */}
       <section className="mt-10">
         <h2 className="flex items-center gap-2 text-xl font-semibold">
-          <Receipt className="h-5 w-5 text-brand-600" /> Betalinger
+          <Receipt className="h-5 w-5 text-brand-600" /> {t.payments}
         </h2>
         {history.length === 0 ? (
-          <p className="card mt-4 p-5 text-sm text-ink-muted">Du har ingen betalinger endnu.</p>
+          <p className="card mt-4 p-5 text-sm text-ink-muted">{t.noPayments}</p>
         ) : (
           <div className="card mt-4 divide-y divide-line">
             {history.map((p) => (
               <div key={p.id} className="flex items-center justify-between gap-4 p-4">
                 <div className="min-w-0">
-                  <p className="font-medium">{p.kind === "PRO_MONTHLY" ? "Pro – 1 måned" : "Engangskøb – 1 analyse"}</p>
+                  <p className="font-medium">{p.kind === "PRO_MONTHLY" ? t.payPro : t.paySingle}</p>
                   <p className="text-xs text-ink-muted">
-                    {formatDate(p.createdAt)} · {p.provider === "simulated" ? "Testbetaling" : "Kort via Stripe"}
+                    {date(p.createdAt)} · {p.provider === "simulated" ? t.payTest : t.payStripe}
                   </p>
                 </div>
                 <p className="num shrink-0 font-semibold">{formatKr(p.amountDkk)}</p>

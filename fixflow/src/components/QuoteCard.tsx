@@ -4,8 +4,9 @@ import type { Quote } from "@/db/schema";
 import { ScoreRing } from "./ScoreRing";
 import { formatKr, formatShortDate } from "@/lib/format";
 import { scoreLabel } from "@/lib/score";
+import type { Dict } from "@/i18n/dict";
 
-export function QuoteCard({ quote, locked }: { quote: Quote; locked: boolean }) {
+export function QuoteCard({ quote, locked, d, intlLocale }: { quote: Quote; locked: boolean; d: Dict; intlLocale: string }) {
   return (
     <Link
       href={`/dashboard/tilbud/${quote.id}`}
@@ -24,26 +25,26 @@ export function QuoteCard({ quote, locked }: { quote: Quote; locked: boolean }) 
       )}
       <div className="min-w-0 flex-1">
         <p className="truncate text-xs text-ink-muted">{quote.contractorName || quote.fileName}</p>
-        <p className="truncate font-semibold text-ink">{quote.title || "Analyse i gang…"}</p>
+        <p className="truncate font-semibold text-ink">{quote.title || d.quoteCard.analyzing}</p>
         <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-sm text-ink-muted">
           {quote.status === "DONE" ? (
             <>
               <span className="num font-medium text-ink-soft">{formatKr(quote.totalInclVat)}</span>
               <span aria-hidden>·</span>
-              <span>{quote.score != null ? scoreLabel(quote.score) : ""}</span>
+              <span>{quote.score != null ? scoreLabel(quote.score, d.score) : ""}</span>
             </>
           ) : quote.status === "FAILED" ? (
-            <span className="text-red-700">Analysen mislykkedes</span>
+            <span className="text-red-700">{d.quoteCard.failed}</span>
           ) : (
-            <span>Analyseres…</span>
+            <span>{d.quoteCard.inProgress}</span>
           )}
         </p>
       </div>
       <div className="hidden shrink-0 flex-col items-end gap-1 text-xs text-ink-muted sm:flex">
-        <span>{formatShortDate(quote.createdAt)}</span>
+        <span>{formatShortDate(quote.createdAt, intlLocale)}</span>
         {locked && quote.status === "DONE" && (
           <span className="badge bg-paper text-ink-muted ring-1 ring-line">
-            <Lock className="h-3 w-3" /> Basis
+            <Lock className="h-3 w-3" /> {d.quoteCard.basic}
           </span>
         )}
       </div>

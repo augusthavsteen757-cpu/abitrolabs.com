@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
-import { PLANS } from "@/lib/plans";
+import { PRO_PRICE_DKK, SINGLE_PRICE_DKK } from "@/lib/plans";
 import { cn } from "@/lib/format";
+import { getDict } from "@/i18n/server";
 
-export function PricingCards() {
+export async function PricingCards() {
+  const d = await getDict();
   const cards = [
-    { key: "FREE", plan: PLANS.FREE, cta: "Kom i gang gratis", href: "/opret", highlight: false },
-    { key: "PRO", plan: PLANS.PRO, cta: "Vælg Pro", href: "/opret?plan=pro", highlight: true },
-    { key: "SINGLE", plan: PLANS.SINGLE, cta: "Køb én analyse", href: "/opret?plan=single", highlight: false },
-  ] as const;
+    { key: "FREE", plan: d.plans.free, price: "0 kr.", period: "", href: "/opret", highlight: false },
+    { key: "PRO", plan: d.plans.pro, price: `${PRO_PRICE_DKK} kr.`, period: d.common.perMonth, href: "/opret?plan=pro", highlight: true },
+    { key: "SINGLE", plan: d.plans.single, price: `${SINGLE_PRICE_DKK} kr.`, period: "", href: "/opret?plan=single", highlight: false },
+  ];
   return (
     <div className="grid gap-5 md:grid-cols-3">
-      {cards.map(({ key, plan, cta, href, highlight }) => (
+      {cards.map(({ key, plan, price, period, href, highlight }) => (
         <div
           key={key}
           className={cn(
@@ -21,14 +23,14 @@ export function PricingCards() {
         >
           {highlight && (
             <span className="absolute -top-3 left-6 rounded-full bg-brand-300 px-3 py-1 text-xs font-semibold text-brand-950">
-              Mest valgt
+              {d.plans.popular}
             </span>
           )}
           <h3 className={cn("text-xl font-semibold", highlight ? "text-white" : "text-ink")}>{plan.name}</h3>
           <p className={cn("mt-1 text-sm", highlight ? "text-brand-100" : "text-ink-muted")}>{plan.tagline}</p>
           <p className="mt-5 flex items-baseline gap-1">
-            <span className="num font-display text-4xl font-semibold">{plan.priceLabel}</span>
-            {plan.period && <span className={highlight ? "text-brand-100" : "text-ink-muted"}>{plan.period}</span>}
+            <span className="num font-display text-4xl font-semibold">{price}</span>
+            {period && <span className={highlight ? "text-brand-100" : "text-ink-muted"}>{period}</span>}
           </p>
           <ul className="mt-6 flex-1 space-y-2.5 text-[15px]">
             {plan.features.map((f) => (
@@ -39,7 +41,7 @@ export function PricingCards() {
             ))}
           </ul>
           <Link href={href} className={cn("mt-7 w-full", highlight ? "btn-light" : "btn-secondary")}>
-            {cta}
+            {plan.cta}
           </Link>
         </div>
       ))}

@@ -1,9 +1,13 @@
 import "server-only";
+import { da } from "@/i18n/dict/da";
 import Anthropic from "@anthropic-ai/sdk";
 import { CATEGORIES, CHECK_KEYS, CHECK_LABELS, RULE_KEYS, RULE_LABELS, normalizeAnalysis, type QuoteAnalysis } from "./analysis";
 import { computeScore } from "./score";
 import { pickDemoQuote } from "./demo-data";
-import { formatKr } from "./format";
+import { formatMoney } from "./format";
+import { AI_LANGUAGE, DEFAULT_LOCALE, type Locale } from "@/i18n/config";
+import { DICTS } from "@/i18n/dict";
+import { fmt } from "@/i18n/fmt";
 
 export const isDemoMode = () => !process.env.ANTHROPIC_API_KEY;
 
@@ -206,7 +210,18 @@ function finalize(raw: unknown, demo = false): QuoteAnalysis {
   return { ...normalized, score: computeScore(normalized), ...(demo ? { demo: true } : {}) };
 }
 
-export async function analyzeQuote(data: Buffer, mimeType: string, fileName: string): Promise<QuoteAnalysis> {
+/** Instruction telling the model which language the user reads. */
+function outputLanguageNote(locale: Locale) {
+  if (locale === "da") return "";
+  return `\n\nVIGTIGT – sprog: Brugeren læser ${AI_LANGUAGE[locale]}. Skriv ALLE tekstfelter (title, summary, forklaringer, flag, spørgsmål, noter, plainName m.m.) på ${AI_LANGUAGE[locale]}. Behold lineItems[].description præcis som i dokumentet. Feltet "language" er stadig ISO-koden for dokumentets eget sprog. Sæt outputLocale til "${locale}". Kategorier, enum-værdier og nøgler skal stadig være præcis som angivet i skemaet.`;
+}
+
+export async function analyzeQuote(
+  data: Buffer,
+  mimeType: string,
+  fileName: string,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<QuoteAnalysis> {
   if (isDemoMode()) {
     await new Promise((r) => setTimeout(r, 1800));
     return finalize(pickDemoQuote(fileName).raw, true);
@@ -218,7 +233,7 @@ export async function analyzeQuote(data: Buffer, mimeType: string, fileName: str
     getClient().messages.create({
       model,
       max_tokens: 16000,
-      system: SYSTEM_PROMPT,
+      system: SYSTEM_PROMPT + outputLanguageNote(locale),
       tools: [ANALYSIS_TOOL],
       tool_choice: forceTool ? { type: "tool", name: ANALYSIS_TOOL.name } : { type: "auto" },
       messages: [
@@ -243,28 +258,29 @@ export async function analyzeQuote(data: Buffer, mimeType: string, fileName: str
     if (forced && err instanceof Anthropic.BadRequestError && /tool_choice/i.test(err.message)) {
       response = await request(false);
     } else if (err instanceof Anthropic.AuthenticationError) {
-      throw new AnalysisError("AI-tjenesten afviste nøglen. Kontakt support.");
+      throw new AnalysisError(da.errors.aiKey);
     } else if (err instanceof Anthropic.RateLimitError || err instanceof Anthropic.InternalServerError) {
-      throw new AnalysisError("AI-tjenesten er travl lige nu. Prøv igen om et øjeblik.");
+      throw new AnalysisError(da.errors.aiBusy);
     } else if (err instanceof Anthropic.APIConnectionError) {
-      throw new AnalysisError("Vi kunne ikke få forbindelse til AI-tjenesten. Prøv igen om lidt.");
+      throw new AnalysisError(da.errors.aiConnection);
     } else if (err instanceof Anthropic.BadRequestError) {
-      throw new AnalysisError("Filen kunne ikke læses. Prøv en tydeligere PDF eller et skarpere billede.");
+      throw new AnalysisError(da.errors.aiUnreadable);
     } else {
       throw err;
     }
   }
 
   if (response.stop_reason === "refusal") {
-    throw new AnalysisError("Dokumentet kunne ikke analyseres. Prøv med et andet tilbud.");
+    throw new AnalysisError(da.errors.aiRefused);
   }
   const toolUse = response.content.find(
     (b): b is Anthropic.ToolUseBlock => b.type === "tool_use" && b.name === ANALYSIS_TOOL.name,
   );
   if (!toolUse) {
-    throw new AnalysisError("Analysen blev ikke færdig. Prøv igen – det hjælper ofte.");
+    throw new AnalysisError(da.errors.aiIncomplete);
   }
-  return finalize(toolUse.input);
+  const input = toolUse.input as Record<string, unknown>;
+  return finalize({ ...input, outputLocale: locale });
 }
 
 /* ------------------------------------------------------------------ */
@@ -279,10 +295,16 @@ const TONE_TEXT: Record<Tone, string> = {
   bestemt: "høflig men bestemt – kunden ønsker klare svar, før der skrives under",
 };
 
-export async function draftMessage(analysis: QuoteAnalysis, topic: string, tone: Tone, customerName: string) {
+export async function draftMessage(
+  analysis: QuoteAnalysis,
+  topic: string,
+  tone: Tone,
+  customerName: string,
+  locale: Locale = DEFAULT_LOCALE,
+) {
   if (isDemoMode()) {
     await new Promise((r) => setTimeout(r, 700));
-    return templateMessage(analysis, topic, tone, customerName);
+    return templateMessage(analysis, topic, tone, customerName, locale);
   }
   const context = {
     contractor: analysis.contractor.name,
@@ -299,7 +321,7 @@ export async function draftMessage(analysis: QuoteAnalysis, topic: string, tone:
       model: MODEL(),
       max_tokens: 2000,
       system:
-        "Du skriver korte, høflige beskeder (e-mail/sms) fra en dansk boligejer til en håndværker om et modtaget tilbud. Skriv kun selve beskeden – ingen emnelinje, ingen forklaring, ingen pladsholdere i firkantede parenteser ud over kundens navn. Henvis konkret til poster og beløb fra tilbuddet. Max ca. 150 ord.",
+        `Du skriver korte, høflige beskeder (e-mail/sms) fra en dansk boligejer til en håndværker om et modtaget tilbud. Skriv kun selve beskeden – ingen emnelinje, ingen forklaring, ingen pladsholdere i firkantede parenteser ud over kundens navn. Henvis konkret til poster og beløb fra tilbuddet. Max ca. 150 ord. Skriv beskeden på ${AI_LANGUAGE[locale]}.`,
       messages: [
         {
           role: "user",
@@ -312,36 +334,35 @@ export async function draftMessage(analysis: QuoteAnalysis, topic: string, tone:
       .map((b) => b.text)
       .join("\n")
       .trim();
-    return text || templateMessage(analysis, topic, tone, customerName);
+    return text || templateMessage(analysis, topic, tone, customerName, locale);
   } catch (err) {
     console.error("draftMessage failed, using template", err);
-    return templateMessage(analysis, topic, tone, customerName);
+    return templateMessage(analysis, topic, tone, customerName, locale);
   }
 }
 
 /** Template fallback (demo mode or AI errors). */
-export function templateMessage(analysis: QuoteAnalysis, topic: string, tone: Tone, customerName: string) {
-  const who = analysis.contractor.name ? `Hej ${analysis.contractor.name}` : "Hej";
+export function templateMessage(
+  analysis: QuoteAnalysis,
+  topic: string,
+  tone: Tone,
+  customerName: string,
+  locale: Locale = DEFAULT_LOCALE,
+) {
+  const m = DICTS[locale].messageTemplate;
+  const money = (n: number | null | undefined) => formatMoney(n, analysis.currency);
+  const who = analysis.contractor.name ? fmt(m.hello, { name: analysis.contractor.name }) : m.helloNoName;
   const t = topic.trim();
   const flag = analysis.flags.find((f) => f.title.toLowerCase() === t.toLowerCase() || t.toLowerCase().includes(f.title.toLowerCase()));
   const item = flag?.relatedItem ? analysis.lineItems.find((i) => i.description === flag.relatedItem) : undefined;
-  const ref = analysis.quoteDate ? `jeres tilbud af ${analysis.quoteDate}` : "jeres tilbud";
-  const opening = {
-    venlig: `Tusind tak for ${ref} på ${analysis.title.toLowerCase()}. Det ser spændende ud, og jeg har et enkelt spørgsmål, inden vi beslutter os.`,
-    neutral: `Tak for ${ref} på ${analysis.title.toLowerCase()} (${formatKr(analysis.totals.inclVat)} inkl. moms). Jeg har et spørgsmål, før vi går videre.`,
-    bestemt: `Tak for ${ref} på ${analysis.title.toLowerCase()} (${formatKr(analysis.totals.inclVat)} inkl. moms). Før vi kan skrive under, har jeg brug for en afklaring.`,
-  }[tone];
-  const itemLine = item ? `Det gælder posten "${item.description}" på ${formatKr(item.amount)} ekskl. moms. ` : "";
-  const ask = {
-    venlig: "Vil I være søde at uddybe det? Så er vi helt trygge ved at gå videre.",
-    neutral: "Kan I uddybe det skriftligt?",
-    bestemt: "Jeg vil gerne have det præciseret skriftligt i et opdateret tilbud, før vi træffer en beslutning.",
-  }[tone];
-  const close = tone === "venlig" ? "Mange venlige hilsner" : "Med venlig hilsen";
+  const ref = analysis.quoteDate ? fmt(m.ref, { date: analysis.quoteDate }) : m.refNoDate;
+  const opening = fmt(m.opening[tone], { ref, title: analysis.title.toLowerCase(), price: money(analysis.totals.inclVat) });
+  const itemLine = item ? fmt(m.item, { item: item.description, amount: money(item.amount) }) + " " : "";
+  const close = tone === "venlig" ? m.closeWarm : m.close;
   const topicLine = flag
-    ? `Det drejer sig om dette: ${flag.title.replace(/\.$/, "")}.`
+    ? fmt(m.aboutFlag, { title: flag.title.replace(/\.$/, "") })
     : t.endsWith("?")
       ? t
-      : `Det drejer sig om: ${t.replace(/\.$/, "")}.`;
-  return `${who}\n\n${opening}\n\n${topicLine} ${itemLine}\n\n${ask}\n\n${close}\n${customerName}`.replace(/ \n/g, "\n");
+      : fmt(m.aboutTopic, { topic: t.replace(/\.$/, "") });
+  return `${who}\n\n${opening}\n\n${topicLine} ${itemLine}\n\n${m.ask[tone]}\n\n${close}\n${customerName}`.replace(/ \n/g, "\n");
 }

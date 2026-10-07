@@ -7,7 +7,7 @@ export const SEVERITY = {
   low: { label: "Godt at vide", badge: "bg-sky-50 text-sky-700 ring-1 ring-sky-200", border: "border-l-sky-500", icon: Info, iconColor: "text-sky-600" },
 } as const;
 
-export function SeverityBadge({ severity, className }: { severity: keyof typeof SEVERITY; className?: string }) {
+export function SeverityBadge({ severity, label, className }: { severity: keyof typeof SEVERITY; label: string; className?: string }) {
   const s = SEVERITY[severity];
-  return <span className={cn("badge", s.badge, className)}>{s.label}</span>;
+  return <span className={cn("badge", s.badge, className)}>{label}</span>;
 }

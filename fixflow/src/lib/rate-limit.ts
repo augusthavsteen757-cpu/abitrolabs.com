@@ -1,3 +1,4 @@
+import { da } from "@/i18n/dict/da";
 import "server-only";
 import { headers } from "next/headers";
 import { lt, sql } from "drizzle-orm";
@@ -40,6 +41,6 @@ export async function rateLimit(key: string, limit: number, windowSeconds: numbe
 
   if (row && row.count > limit) {
     const minutes = Math.max(1, Math.ceil((row.resetAt - now) / 60000));
-    throw new HttpError(429, `For mange forsøg. Prøv igen om ${minutes} ${minutes === 1 ? "minut" : "minutter"}.`);
+    throw new HttpError(429, da.errors.tooMany, { n: minutes });
   }
 }

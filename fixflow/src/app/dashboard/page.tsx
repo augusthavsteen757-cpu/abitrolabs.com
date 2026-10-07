@@ -7,21 +7,29 @@ import { parseStoredAnalysis, redactForFree } from "@/lib/analysis";
 import { formatRange } from "@/lib/format";
 import { hasFullAccess } from "@/lib/plans";
 import { QuoteCard } from "@/components/QuoteCard";
+import { getDict, getI18n } from "@/i18n/server";
+import { fmt } from "@/i18n/fmt";
+import { INTL_LOCALE } from "@/i18n/config";
+import type { Dict } from "@/i18n/dict";
 
-export const metadata: Metadata = { title: "Oversigt" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getDict()).dashboard.metaTitle };
+}
 
-function greeting() {
+function greeting(d: Dict) {
   const hour = Number(
     new Intl.DateTimeFormat("da-DK", { hour: "numeric", hour12: false, timeZone: "Europe/Copenhagen" }).format(new Date()),
   );
-  if (hour < 5) return "Godnat";
-  if (hour < 10) return "Godmorgen";
-  if (hour < 18) return "Goddag";
-  return "Godaften";
+  if (hour < 5) return d.dashboard.night;
+  if (hour < 10) return d.dashboard.morning;
+  if (hour < 18) return d.dashboard.day;
+  return d.dashboard.evening;
 }
 
 export default async function DashboardPage() {
   const user = await requireUser();
+  const { locale, d } = await getI18n();
+  const t = d.dashboard;
   const quotes = await listQuotes(user.id);
   const done = quotes.filter((q) => q.status === "DONE");
   const analyses = done
@@ -45,21 +53,21 @@ export default async function DashboardPage() {
   }
 
   const stats = [
-    { icon: FileSearch, label: "Tilbud analyseret", value: String(done.length) },
-    { icon: Gauge, label: "Gns. tilbudsscore", value: avgScore != null ? `${avgScore}` : "–" },
-    { icon: AlertTriangle, label: "Alvorlige fund", value: String(seriousFlags) },
-    { icon: Wallet, label: "Mulige ekstraudgifter", value: analyses.length ? formatRange(extraMin, extraMax) : "–", small: true },
+    { icon: FileSearch, label: t.statAnalyzed, value: String(done.length) },
+    { icon: Gauge, label: t.statAvg, value: avgScore != null ? `${avgScore}` : "–" },
+    { icon: AlertTriangle, label: t.statSerious, value: String(seriousFlags) },
+    { icon: Wallet, label: t.statExtra, value: analyses.length ? formatRange(extraMin, extraMax) : "–", small: true },
   ];
 
   return (
     <div className="animate-fade-up">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm text-ink-muted">{greeting()}, {user.name.split(" ")[0]}</p>
-          <h1 className="mt-1 text-3xl font-semibold sm:text-4xl">Dine tilbud</h1>
+          <p className="text-sm text-ink-muted">{greeting(d)}, {user.name.split(" ")[0]}</p>
+          <h1 className="mt-1 text-3xl font-semibold sm:text-4xl">{t.title}</h1>
         </div>
         <Link href="/dashboard/upload" className="btn-primary self-start sm:self-auto">
-          <FilePlus2 className="h-4 w-4" /> Analysér nyt tilbud
+          <FilePlus2 className="h-4 w-4" /> {t.newQuote}
         </Link>
       </div>
 
@@ -73,7 +81,7 @@ export default async function DashboardPage() {
         ))}
       </div>
       {analyses.length > 0 && (
-        <p className="mt-2 text-xs text-ink-muted">Ekstraudgifter er vores skøn inkl. moms, samlet for alle dine tilbud.</p>
+        <p className="mt-2 text-xs text-ink-muted">{t.extraNote}</p>
       )}
 
       {quotes.length === 0 ? (
@@ -81,13 +89,10 @@ export default async function DashboardPage() {
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-700">
             <Upload className="h-6 w-6" />
           </span>
-          <h2 className="mt-5 text-2xl font-semibold">Upload dit første tilbud</h2>
-          <p className="mt-2 max-w-md text-ink-soft">
-            Det tager under to minutter. Du får tilbuddet forklaret på almindeligt dansk – og ved præcis, hvad du skal
-            spørge om.
-          </p>
+          <h2 className="mt-5 text-2xl font-semibold">{t.emptyTitle}</h2>
+          <p className="mt-2 max-w-md text-ink-soft">{t.emptyText}</p>
           <Link href="/dashboard/upload" className="btn-primary mt-6">
-            <FilePlus2 className="h-4 w-4" /> Kom i gang
+            <FilePlus2 className="h-4 w-4" /> {t.emptyCta}
           </Link>
         </div>
       ) : (
@@ -105,13 +110,13 @@ export default async function DashboardPage() {
                       href={`/dashboard/sammenlign?ids=${comparable.slice(0, 4).map((q) => q.id).join(",")}`}
                       className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:underline"
                     >
-                      <Columns3 className="h-4 w-4" /> Sammenlign {Math.min(4, comparable.length)} tilbud
+                      <Columns3 className="h-4 w-4" /> {fmt(t.compareN, { n: Math.min(4, comparable.length) })}
                     </Link>
                   )}
                 </div>
                 <div className="space-y-3">
                   {list.map((q) => (
-                    <QuoteCard key={q.id} quote={q} locked={!hasFullAccess(user, q)} />
+                    <QuoteCard key={q.id} quote={q} locked={!hasFullAccess(user, q)} d={d} intlLocale={INTL_LOCALE[locale]} />
                   ))}
                 </div>
               </section>

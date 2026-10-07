@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AuthLayout } from "@/components/AuthLayout";
 import { AuthForm } from "@/components/AuthForm";
+import { getDict } from "@/i18n/server";
 
-export const metadata: Metadata = { title: "Log ind" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getDict()).auth.loginButton };
+}
 
-export default function LoginPage() {
+export default async function LoginPage() {
   return (
     <AuthLayout>
       <Suspense>

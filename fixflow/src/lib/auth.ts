@@ -1,4 +1,5 @@
 import "server-only";
+import { da } from "@/i18n/dict/da";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
@@ -18,11 +19,11 @@ const COMMON_PASSWORDS = new Set([
 
 /** Returns a Danish error message, or null if the password is acceptable. */
 export function passwordProblem(pw: string, email?: string): string | null {
-  if (pw.length < 10) return "Adgangskoden skal være mindst 10 tegn.";
-  if (pw.length > 200) return "Adgangskoden er for lang.";
-  if (COMMON_PASSWORDS.has(pw.toLowerCase()) || /^(.)\1+$/.test(pw)) return "Adgangskoden er for nem at gætte. Vælg en anden.";
+  if (pw.length < 10) return da.errors.pwShort;
+  if (pw.length > 200) return da.errors.pwLong;
+  if (COMMON_PASSWORDS.has(pw.toLowerCase()) || /^(.)\1+$/.test(pw)) return da.errors.pwWeak;
   if (email && pw.toLowerCase().includes(email.split("@")[0].toLowerCase()) && email.split("@")[0].length >= 4)
-    return "Adgangskoden må ikke indeholde din e-mail.";
+    return da.errors.pwEmail;
   return null;
 }
 
@@ -79,6 +80,7 @@ export class HttpError extends Error {
   constructor(
     public status: number,
     message: string,
+    public vars?: Record<string, string | number>,
   ) {
     super(message);
   }
@@ -87,6 +89,6 @@ export class HttpError extends Error {
 /** For API routes: throws a 401 HttpError if not signed in. */
 export async function requireApiUser(): Promise<User> {
   const user = await getCurrentUser();
-  if (!user) throw new HttpError(401, "Du skal være logget ind.");
+  if (!user) throw new HttpError(401, da.errors.notLoggedIn);
   return user;
 }

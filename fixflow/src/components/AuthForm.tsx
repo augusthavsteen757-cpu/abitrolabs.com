@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { useI18n } from "@/i18n/client";
 
 function safeNext(next: string | null) {
   return next && next.startsWith("/") && !next.startsWith("//") ? next : null;
@@ -11,6 +12,8 @@ function safeNext(next: string | null) {
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const params = useSearchParams();
+  const { d } = useI18n();
+  const a = d.auth;
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const plan = params.get("plan");
@@ -37,7 +40,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(json.error || "Noget gik galt. Prøv igen.");
+        setError(json.error || d.common.somethingWrong);
         setLoading(false);
         return;
       }
@@ -46,7 +49,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       // Full navigation so the dashboard renders with the new session (and no stale router cache).
       window.location.assign(dest);
     } catch {
-      setError("Ingen forbindelse. Tjek dit internet og prøv igen.");
+      setError(d.common.noConnection);
       setLoading(false);
     }
   }
@@ -54,28 +57,28 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const isSignup = mode === "signup";
   return (
     <div>
-      <h1 className="text-3xl font-semibold">{isSignup ? "Opret gratis konto" : "Velkommen tilbage"}</h1>
+      <h1 className="text-3xl font-semibold">{isSignup ? a.signupTitle : a.loginTitle}</h1>
       <p className="mt-2 text-ink-soft">
-        {isSignup ? "Se din tilbudsscore gratis. Intet kreditkort." : "Log ind for at se dine tilbud."}
+        {isSignup ? a.signupText : a.loginText}
       </p>
       {plan && isSignup && (
         <p className="mt-4 rounded-xl bg-brand-50 px-3.5 py-2.5 text-sm text-brand-800">
-          {plan === "pro" ? "Du har valgt Pro. Opret din konto først – så kommer du direkte til betaling." : "Du har valgt et engangskøb. Opret din konto først – så kommer du direkte til betaling."}
+          {plan === "pro" ? a.chosePro : a.choseSingle}
         </p>
       )}
       <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>
         {isSignup && (
           <div>
-            <label htmlFor="name" className="label">Navn</label>
-            <input id="name" name="name" required autoComplete="name" className="input" placeholder="Fornavn Efternavn" />
+            <label htmlFor="name" className="label">{a.name}</label>
+            <input id="name" name="name" required autoComplete="name" className="input" placeholder={a.namePlaceholder} />
           </div>
         )}
         <div>
-          <label htmlFor="email" className="label">E-mail</label>
-          <input id="email" name="email" type="email" required autoComplete="email" inputMode="email" className="input" placeholder="dig@eksempel.dk" />
+          <label htmlFor="email" className="label">{a.email}</label>
+          <input id="email" name="email" type="email" required autoComplete="email" inputMode="email" className="input" placeholder={a.emailPlaceholder} />
         </div>
         <div>
-          <label htmlFor="password" className="label">Adgangskode</label>
+          <label htmlFor="password" className="label">{a.password}</label>
           <input
             id="password"
             name="password"
@@ -84,17 +87,17 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             minLength={isSignup ? 10 : undefined}
             autoComplete={isSignup ? "new-password" : "current-password"}
             className="input"
-            placeholder={isSignup ? "Mindst 10 tegn" : "••••••••"}
+            placeholder={isSignup ? a.passwordNew : "••••••••"}
           />
         </div>
         {isSignup && (
           <label className="flex cursor-pointer gap-2.5 text-sm text-ink-soft">
             <input type="checkbox" name="acceptTerms" required className="mt-0.5 h-4 w-4 shrink-0 accent-brand-700" />
             <span>
-              Jeg accepterer{" "}
-              <Link href="/handelsbetingelser" target="_blank" className="font-medium text-brand-700 underline">handelsbetingelserne</Link>{" "}
-              og har læst{" "}
-              <Link href="/privatlivspolitik" target="_blank" className="font-medium text-brand-700 underline">privatlivspolitikken</Link>.
+              {a.acceptPrefix}{" "}
+              <Link href="/handelsbetingelser" target="_blank" className="font-medium text-brand-700 underline">{a.acceptTerms}</Link>{" "}
+              {a.acceptMiddle}{" "}
+              <Link href="/privatlivspolitik" target="_blank" className="font-medium text-brand-700 underline">{a.acceptPrivacy}</Link>.
             </span>
           </label>
         )}
@@ -105,23 +108,23 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         )}
         <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {isSignup ? "Opret konto" : "Log ind"}
+          {isSignup ? a.signupButton : a.loginButton}
         </button>
       </form>
       <p className="mt-6 text-center text-sm text-ink-soft">
         {isSignup ? (
-          <>Har du allerede en konto? <Link href={`/login${carryQs}`} className="font-semibold text-brand-700 hover:underline">Log ind</Link></>
+          <>{a.haveAccount} <Link href={`/login${carryQs}`} className="font-semibold text-brand-700 hover:underline">{a.loginButton}</Link></>
         ) : (
-          <>Ny her? <Link href={`/opret${carryQs}`} className="font-semibold text-brand-700 hover:underline">Opret gratis konto</Link></>
+          <>{a.newHere} <Link href={`/opret${carryQs}`} className="font-semibold text-brand-700 hover:underline">{a.createFree}</Link></>
         )}
       </p>
       {!isSignup && (
         <div className="mt-8 rounded-2xl border border-dashed border-brand-300 bg-brand-50/60 p-4 text-sm">
-          <p className="font-semibold text-brand-800">Demo-konto</p>
+          <p className="font-semibold text-brand-800">{a.demoTitle}</p>
           <p className="mt-1 text-ink-soft">
-            E-mail: <span className="font-mono text-ink">demo@fixflow.dk</span>
+            {a.demoEmail}: <span className="font-mono text-ink">demo@fixflow.dk</span>
             <br />
-            Adgangskode: <span className="font-mono text-ink">demo1234</span>
+            {a.demoPassword}: <span className="font-mono text-ink">demo1234</span>
           </p>
         </div>
       )}

@@ -1,3 +1,4 @@
+import { da } from "@/i18n/dict/da";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -20,17 +21,17 @@ export const POST = handle(async (req: Request) => {
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     const field = parsed.error.issues[0]?.path[0];
-    if (field === "acceptTerms") return jsonError("Du skal acceptere handelsbetingelserne og privatlivspolitikken.");
-    if (field === "email") return jsonError("Skriv en gyldig e-mailadresse.");
-    if (field === "password") return jsonError("Skriv en adgangskode.");
-    return jsonError("Skriv dit navn.");
+    if (field === "acceptTerms") return jsonError(da.errors.acceptTerms);
+    if (field === "email") return jsonError(da.errors.invalidEmail);
+    if (field === "password") return jsonError(da.errors.enterPassword);
+    return jsonError(da.errors.enterName);
   }
   const { name, email, password } = parsed.data;
   const problem = passwordProblem(password, email);
   if (problem) return jsonError(problem);
 
   const existing = await db.query.users.findFirst({ where: eq(users.email, email) });
-  if (existing) return jsonError("Der findes allerede en konto med den e-mail. Prøv at logge ind.", 409);
+  if (existing) return jsonError(da.errors.emailTaken, 409);
 
   const [user] = await db
     .insert(users)

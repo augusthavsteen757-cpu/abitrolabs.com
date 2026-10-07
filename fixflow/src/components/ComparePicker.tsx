@@ -3,11 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { cn, formatKr } from "@/lib/format";
+import { useI18n } from "@/i18n/client";
+import { fmt } from "@/i18n/fmt";
 
 type Item = { id: string; label: string; project: string; total: number | null };
 
 export function ComparePicker({ items, selected }: { items: Item[]; selected: string[] }) {
   const router = useRouter();
+  const { d } = useI18n();
   const [ids, setIds] = useState<string[]>(selected);
 
   function toggle(id: string) {
@@ -18,14 +21,14 @@ export function ComparePicker({ items, selected }: { items: Item[]; selected: st
   return (
     <div className="card p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="font-semibold">Vælg 2–4 tilbud</p>
+        <p className="font-semibold">{d.compare.pick}</p>
         <button
           type="button"
           disabled={ids.length < 2}
           onClick={() => router.push(`/dashboard/sammenlign?ids=${ids.join(",")}`)}
           className="btn-primary"
         >
-          Sammenlign {ids.length > 0 ? ids.length : ""} tilbud
+          {fmt(d.compare.compareBtn, { n: ids.length > 0 ? ids.length : "" }).replace("  ", " ")}
         </button>
       </div>
       <div className="mt-4 space-y-4">
@@ -55,7 +58,7 @@ export function ComparePicker({ items, selected }: { items: Item[]; selected: st
           </fieldset>
         ))}
       </div>
-      {ids.length >= 4 && <p className="mt-3 text-xs text-ink-muted">Du kan højst sammenligne 4 tilbud ad gangen.</p>}
+      {ids.length >= 4 && <p className="mt-3 text-xs text-ink-muted">{d.compare.max4}</p>}
     </div>
   );
 }

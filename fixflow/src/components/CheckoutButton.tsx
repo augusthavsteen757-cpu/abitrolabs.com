@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/format";
+import { useI18n } from "@/i18n/client";
 
 type Props = {
   kind: "PRO_MONTHLY" | "SINGLE" | "CANCEL" | "RESUME";
@@ -20,6 +21,7 @@ type Props = {
 
 export function CheckoutButton({ kind, quoteId, className, children, redirectTo, confirmText, dark }: Props) {
   const router = useRouter();
+  const { d } = useI18n();
   const consentId = useId();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +31,7 @@ export function CheckoutButton({ kind, quoteId, className, children, redirectTo,
 
   async function onClick() {
     if (isPurchase && !consent) {
-      setError("Sæt flueben for at bekræfte, at du vil have adgang med det samme.");
+      setError(d.checkout.needConsent);
       return;
     }
     if (confirmText && !confirming) {
@@ -45,7 +47,7 @@ export function CheckoutButton({ kind, quoteId, className, children, redirectTo,
         body: JSON.stringify({ kind, quoteId, consent: isPurchase ? consent : undefined }),
       });
       const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json.error || "Betalingen kunne ikke gennemføres.");
+      if (!res.ok) throw new Error(json.error || d.checkout.failed);
       if (json.url) {
         window.location.href = json.url;
         return;
@@ -58,7 +60,7 @@ export function CheckoutButton({ kind, quoteId, className, children, redirectTo,
       setLoading(false);
       setConfirming(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Noget gik galt.");
+      setError(e instanceof Error ? e.message : d.common.somethingWrong);
       setLoading(false);
     }
   }
@@ -75,15 +77,15 @@ export function CheckoutButton({ kind, quoteId, className, children, redirectTo,
             className="mt-0.5 h-4 w-4 shrink-0 accent-brand-500"
           />
           <span>
-            Jeg vil have adgang med det samme og accepterer, at fortrydelsesretten bortfalder for analyser, der er leveret.{" "}
-            <Link href="/handelsbetingelser" target="_blank" className="underline">Handelsbetingelser</Link>
+            {d.checkout.consent}{" "}
+            <Link href="/handelsbetingelser" target="_blank" className="underline">{d.checkout.terms}</Link>
           </span>
         </label>
       )}
       {confirming && confirmText && <p className={cn("mb-2 text-sm", dark ? "text-white" : "text-ink")}>{confirmText}</p>}
       <button type="button" onClick={onClick} disabled={loading} className={cn("w-full", className)}>
         {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-        {confirming ? "Ja, bekræft" : children}
+        {confirming ? d.common.confirm : children}
       </button>
       {error && (
         <p role="alert" className={cn("mt-2 text-sm", dark ? "text-red-200" : "text-red-700")}>

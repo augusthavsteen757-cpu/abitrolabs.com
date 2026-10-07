@@ -1,3 +1,4 @@
+import { da } from "@/i18n/dict/da";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -21,7 +22,7 @@ export const GET = handle(async (req: Request) => {
   await rateLimit(`find:${user.id}`, 40, 60 * 60);
   const params = Object.fromEntries(new URL(req.url).searchParams);
   const parsed = schema.safeParse(params);
-  if (!parsed.success) return jsonError("Vælg fag og skriv et postnummer med 4 cifre.");
+  if (!parsed.success) return jsonError(da.errors.findInvalid);
   const { trade, postalCode, radius } = parsed.data;
 
   let result;
@@ -29,9 +30,9 @@ export const GET = handle(async (req: Request) => {
     result = await findContractors(trade, postalCode, radius);
   } catch (err) {
     console.error("Contractor search failed", err);
-    return jsonError("Søgningen i CVR-registret mislykkedes. Prøv igen om lidt.", 502);
+    return jsonError(da.errors.findFailed, 502);
   }
-  if (!result.origin) return jsonError("Vi kender ikke det postnummer. Tjek at det er rigtigt.");
+  if (!result.origin) return jsonError(da.errors.postalUnknown);
   if (user.postalCode !== postalCode) {
     await db.update(users).set({ postalCode }).where(eq(users.id, user.id));
   }
