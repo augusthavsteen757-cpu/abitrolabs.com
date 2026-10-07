@@ -273,8 +273,8 @@
         <p>Built for operators. Run by operators.</p>
       </div>
       <div class="footer-legal">
-        <a href="/privacy">Privacy Policy</a>
-        <a href="/terms">Terms of Service</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
       </div>
     </div>
   </footer>
@@ -293,6 +293,12 @@
       menu.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
       window.matchMedia('(min-width: 901px)').addEventListener('change', function (e) { if (e.matches) setOpen(false); });
+
+      // Arriving from another page with a #section link: jump there once the page has loaded
+      window.addEventListener('load', function () {
+        var target = location.hash && document.getElementById(location.hash.slice(1));
+        if (target) target.scrollIntoView();
+      });
     })();
   </script>
 
