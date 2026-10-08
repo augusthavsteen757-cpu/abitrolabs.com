@@ -1,8 +1,8 @@
-# Merova
+# Budsyn
 
 **Forstå dit håndværkertilbud — før du skriver under.**
 
-Merova er en dansk SaaS-webapp, der hjælper boligejere med at forstå håndværkertilbud. Brugeren uploader et tilbud (PDF eller foto) og får:
+Budsyn er en dansk SaaS-webapp, der hjælper boligejere med at forstå håndværkertilbud. Brugeren uploader et tilbud (PDF eller foto) og får:
 
 - en **Tilbudsscore** (0–100), beregnet efter faste regler i koden – ikke af AI'en
 - **røde flag**: skjulte udgifter, uklare poster, manglende oplysninger og vilkår
@@ -34,7 +34,7 @@ npm run dev               # http://localhost:3000
 
 | E-mail            | Adgangskode |
 | ----------------- | ----------- |
-| `demo@merova.dk` | `demo1234`  |
+| `demo@budsyn.dk` | `demo1234`  |
 
 Demo-brugeren har Pro og tre badeværelsestilbud i projektet "Nyt badeværelse" samt én gemt besked.
 
@@ -194,7 +194,7 @@ Appen findes på dansk, engelsk, svensk, norsk, tysk, polsk, ukrainsk og rumæns
 
 ## Find håndværkere i nærheden
 
-`/dashboard/find`: vælg fag, postnummer og afstand. Med `CVR_ES_USER`/`CVR_ES_PASSWORD` (gratis adgang til CVR's system-til-system-søgning hos Erhvervsstyrelsen) søges der i rigtige, aktive firmaer efter branchekode; uden adgang vises tydeligt markerede fiktive demo-firmaer. Afstande beregnes ud fra postnumre (`src/lib/geo.ts`) – med en indbygget tabel over bymidter (omtrentlig) eller en DAWA-kompatibel API via `GEO_API_URL`. Firmaer sorteres efter afstand; Merova vurderer ikke firmaernes kvalitet. Brugeren sender selv tilbudsanmodningen – appen kontakter aldrig firmaer.
+`/dashboard/find`: vælg fag, postnummer og afstand. Med `CVR_ES_USER`/`CVR_ES_PASSWORD` (gratis adgang til CVR's system-til-system-søgning hos Erhvervsstyrelsen) søges der i rigtige, aktive firmaer efter branchekode; uden adgang vises tydeligt markerede fiktive demo-firmaer. Afstande beregnes ud fra postnumre (`src/lib/geo.ts`) – med en indbygget tabel over bymidter (omtrentlig) eller en DAWA-kompatibel API via `GEO_API_URL`. Firmaer sorteres efter afstand; Budsyn vurderer ikke firmaernes kvalitet. Brugeren sender selv tilbudsanmodningen – appen kontakter aldrig firmaer.
 
 ## Sikkerhed
 

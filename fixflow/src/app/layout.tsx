@@ -6,7 +6,7 @@ import { INTL_LOCALE } from "@/i18n/config";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { d } = await getI18n();
-  return { title: { default: d.meta.title, template: "%s · Merova" }, description: d.meta.description };
+  return { title: { default: d.meta.title, template: "%s · Budsyn" }, description: d.meta.description };
 }
 
 export const viewport: Viewport = { themeColor: "#f7f6f2", width: "device-width", initialScale: 1 };

@@ -33,7 +33,7 @@ export const sv: Dict = {
     ],
   },
   meta: {
-    title: "Merova – förstå din hantverkaroffert",
+    title: "Budsyn – förstå din hantverkaroffert",
     description:
       "Ladda upp din hantverkaroffert och få den förklarad: dolda kostnader, otydliga poster, danska regler och frågorna du bör ställa innan du skriver på.",
   },
@@ -45,7 +45,7 @@ export const sv: Dict = {
     tryFree: "Prova gratis",
   },
   footer: {
-    tagline: "Trygghet när det handlar om mycket pengar. Merova förklarar hantverkarofferter enligt danska regler.",
+    tagline: "Trygghet när det handlar om mycket pengar. Budsyn förklarar hantverkarofferter enligt danska regler.",
     pricing: "Priser",
     login: "Logga in",
     signup: "Skapa konto",
@@ -91,10 +91,10 @@ export const sv: Dict = {
       { title: "AI går igenom den", text: "Vår AI läser offerten, förklarar posterna och markerar otydliga punkter. Offertpoängen från 0 till 100 beräknas sedan enligt fasta regler." },
       { title: "Ställ rätt frågor", text: "Få konkreta frågor och ett färdigt meddelande som du kan skicka till hantverkaren." },
     ],
-    whyEyebrow: "Varför Merova",
+    whyEyebrow: "Varför Budsyn",
     whyTitle: "Tekniken är AI. Det du får är trygghet.",
     whyText:
-      "Ett badrum eller nya fönster kostar ofta mer än en bil. Du ska inte behöva vara expert för att förstå vad du säger ja till. De flesta hantverkare är seriösa – Merova hjälper er att vara överens från början.",
+      "Ett badrum eller nya fönster kostar ofta mer än en bil. Du ska inte behöva vara expert för att förstå vad du säger ja till. De flesta hantverkare är seriösa – Budsyn hjälper er att vara överens från början.",
     features: [
       { title: "Offertpoäng", text: "En siffra från 0–100 som visar hur tydlig offerten är – beräknad enligt fasta regler utifrån AI:ns genomgång." },
       { title: "Dolda kostnader", text: "Vi hittar ”enligt räkning”, ”diverse” och saknade poster som kan bli extrafakturor." },
@@ -157,19 +157,19 @@ export const sv: Dict = {
   },
   faq: [
     {
-      q: "Hur fungerar Merova?",
+      q: "Hur fungerar Budsyn?",
       a: "Du laddar upp din offert som PDF eller foto. Vår AI läser den, förklarar varje post, hittar otydliga punkter och möjliga extrakostnader, går igenom vad offerten säger om danska regler och ger dig konkreta frågor att ställa till hantverkaren.",
     },
     {
-      q: "Är Merova emot hantverkare?",
-      a: "Nej. De flesta hantverkare är seriösa och duktiga. En otydlig offert beror oftast på tidsbrist – inte ond vilja. Merova hjälper er att vara överens innan arbetet börjar.",
+      q: "Är Budsyn emot hantverkare?",
+      a: "Nej. De flesta hantverkare är seriösa och duktiga. En otydlig offert beror oftast på tidsbrist – inte ond vilja. Budsyn hjälper er att vara överens innan arbetet börjar.",
     },
     {
       q: "Kan jag lita på analysen?",
       a: "Analysen är ett stöd för att ställa rätt frågor – inte juridisk eller teknisk rådgivning. Analysen görs av AI och kan innehålla fel. Offertpoängen räknas ut enligt fasta regler utifrån AI:ns genomgång av offerten. Vid stora eller komplicerade projekt rekommenderar vi alltid att du pratar med en byggkonsult.",
     },
     {
-      q: "Kan jag använda Merova på ett annat språk?",
+      q: "Kan jag använda Budsyn på ett annat språk?",
       a: "Ja. Välj språk högst upp på sidan. Analysen skrivs på ditt språk, och offerter på t.ex. svenska, tyska eller polska förklaras också. Meddelanden till hantverkaren kan du få på danska eller ditt eget språk.",
     },
     {
@@ -398,7 +398,7 @@ export const sv: Dict = {
     messageLocked: "Få ett färdigt, artigt meddelande till hantverkaren med ett klick när du låser upp analysen.",
     unlockMessages: "Lås upp meddelanden",
     disclaimer:
-      "Analysen är gjord av AI, är vägledande och bygger bara på det som står i det uppladdade dokumentet. Den kan innehålla fel. Offertpoängen beräknas enligt fasta regler utifrån AI:ns genomgång och säger något om hur tydlig offerten är – inte om hantverkarens yrkesskicklighet. Belopp för möjliga extrakostnader och prisläge är uppskattningar. Merova ersätter inte juridisk eller byggteknisk rådgivning.",
+      "Analysen är gjord av AI, är vägledande och bygger bara på det som står i det uppladdade dokumentet. Den kan innehålla fel. Offertpoängen beräknas enligt fasta regler utifrån AI:ns genomgång och säger något om hur tydlig offerten är – inte om hantverkarens yrkesskicklighet. Belopp för möjliga extrakostnader och prisläge är uppskattningar. Budsyn ersätter inte juridisk eller byggteknisk rådgivning.",
     suggestionStart: "När kan ni börja, och när är ni klara?",
     suggestionFixed: "Kan priset göras till ett fast pris?",
     analysisLanguageNote: "Den här analysen är skriven på {language}. Nya analyser skrivs på ditt valda språk.",
@@ -563,8 +563,8 @@ export const sv: Dict = {
     approx: "ca ",
     since: "sedan {year}",
     requestTitle: "Be om offert",
-    requestIntroSelected: "Skicka samma meddelande till de {n} valda företagen. Då får du offerter som är lätta att jämföra – och som får höga poäng i Merova.",
-    requestIntro: "Skicka samma meddelande till de företag du väljer. Då får du offerter som är lätta att jämföra – och som får höga poäng i Merova.",
+    requestIntroSelected: "Skicka samma meddelande till de {n} valda företagen. Då får du offerter som är lätta att jämföra – och som får höga poäng i Budsyn.",
+    requestIntro: "Skicka samma meddelande till de företag du väljer. Då får du offerter som är lätta att jämföra – och som får höga poäng i Budsyn.",
     project: "Jobbet",
     projectPlaceholder: "T.ex. Totalrenovering av badrum på ca 6 m² i villa från 1975. Nytt kakel, golvvärme, vägghängd toalett.",
     when: "När",

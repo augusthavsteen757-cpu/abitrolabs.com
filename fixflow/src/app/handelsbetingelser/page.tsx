@@ -13,14 +13,14 @@ export default function TermsPage() {
     <LegalPage title="Handelsbetingelser">
       <h2>Hvem er vi?</h2>
       <p>
-        Merova drives af {COMPANY.name}, CVR {COMPANY.cvr}, {COMPANY.address}. E-mail: {COMPANY.email}. Telefon:{" "}
+        Budsyn drives af {COMPANY.name}, CVR {COMPANY.cvr}, {COMPANY.address}. E-mail: {COMPANY.email}. Telefon:{" "}
         {COMPANY.phone}. E-mailadressen er også vores kontaktpunkt for myndigheder og brugere efter EU&apos;s forordning
         om digitale tjenester.
       </p>
 
-      <h2>Hvad er Merova?</h2>
+      <h2>Hvad er Budsyn?</h2>
       <p>
-        Merova er en digital tjeneste, der forklarer håndværkertilbud, peger på uklare punkter og mulige ekstraudgifter
+        Budsyn er en digital tjeneste, der forklarer håndværkertilbud, peger på uklare punkter og mulige ekstraudgifter
         og hjælper dig med at stille spørgsmål. <strong>Analysen laves automatisk med kunstig intelligens (AI)</strong>,
         og Tilbudsscoren beregnes derefter efter faste regler ud fra AI&apos;ens gennemgang. Beskeder til håndværkeren er
         udkast skrevet med AI, som du selv læser igennem og sender.
@@ -38,7 +38,7 @@ export default function TermsPage() {
         dem ikke efter kvalitet og har ingen aftaler med dem. Det er dig, der sender din tilbudsforespørgsel.
       </p>
 
-      <h2>Hvem kan bruge Merova?</h2>
+      <h2>Hvem kan bruge Budsyn?</h2>
       <p>Du skal være mindst 18 år for at oprette en konto og købe. Tjenesten er til privatpersoner (forbrugere).</p>
 
       <h2>Priser og betaling</h2>

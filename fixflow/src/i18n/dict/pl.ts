@@ -29,7 +29,7 @@ export const pl: Dict = {
     ],
   },
   meta: {
-    title: "Merova – zrozum wycenę od wykonawcy",
+    title: "Budsyn – zrozum wycenę od wykonawcy",
     description:
       "Wgraj wycenę od wykonawcy i poznaj jej znaczenie: ukryte koszty, niejasne pozycje, duńskie przepisy i pytania, które warto zadać przed podpisaniem.",
   },
@@ -41,7 +41,7 @@ export const pl: Dict = {
     tryFree: "Wypróbuj za darmo",
   },
   footer: {
-    tagline: "Spokój, gdy wydajesz duże pieniądze. Merova wyjaśnia wyceny wykonawców według duńskich przepisów.",
+    tagline: "Spokój, gdy wydajesz duże pieniądze. Budsyn wyjaśnia wyceny wykonawców według duńskich przepisów.",
     pricing: "Cennik",
     login: "Zaloguj się",
     signup: "Załóż konto",
@@ -87,10 +87,10 @@ export const pl: Dict = {
       { title: "AI ją przegląda", text: "Nasza AI czyta wycenę, wyjaśnia pozycje i zaznacza niejasności. Następnie ocena wyceny od 0 do 100 jest liczona według stałych zasad." },
       { title: "Zadaj właściwe pytania", text: "Otrzymasz konkretne pytania i gotową wiadomość do wysłania wykonawcy." },
     ],
-    whyEyebrow: "Dlaczego Merova",
+    whyEyebrow: "Dlaczego Budsyn",
     whyTitle: "Technologia to AI. To, co otrzymujesz, to spokój.",
     whyText:
-      "Łazienka czy nowe okna często kosztują więcej niż samochód. Nie musisz być ekspertem, by rozumieć, na co się zgadzasz. Większość wykonawców to rzetelni fachowcy – Merova pomaga wam od początku rozumieć umowę tak samo.",
+      "Łazienka czy nowe okna często kosztują więcej niż samochód. Nie musisz być ekspertem, by rozumieć, na co się zgadzasz. Większość wykonawców to rzetelni fachowcy – Budsyn pomaga wam od początku rozumieć umowę tak samo.",
     features: [
       { title: "Ocena wyceny", text: "Jedna liczba od 0 do 100 pokazująca, jak przejrzysta jest wycena – liczona według stałych zasad na podstawie przeglądu przeprowadzonego przez AI." },
       { title: "Ukryte koszty", text: "Wyłapujemy „wg rzeczywistych kosztów”, „różne” i brakujące pozycje, które mogą skończyć się dopłatami." },
@@ -153,19 +153,19 @@ export const pl: Dict = {
   },
   faq: [
     {
-      q: "Jak działa Merova?",
+      q: "Jak działa Budsyn?",
       a: "Wgrywasz wycenę jako PDF lub zdjęcie. Nasza AI ją odczytuje, wyjaśnia każdą pozycję, wskazuje niejasności i możliwe dodatkowe koszty, przegląda, co wycena mówi o duńskich przepisach, i podaje konkretne pytania, które możesz zadać wykonawcy.",
     },
     {
-      q: "Czy Merova jest przeciwko wykonawcom?",
-      a: "Nie. Większość wykonawców to rzetelni i kompetentni fachowcy. Niejasna wycena wynika zwykle z pośpiechu – nie ze złej woli. Merova pomaga wam ustalić to samo, zanim ruszą prace.",
+      q: "Czy Budsyn jest przeciwko wykonawcom?",
+      a: "Nie. Większość wykonawców to rzetelni i kompetentni fachowcy. Niejasna wycena wynika zwykle z pośpiechu – nie ze złej woli. Budsyn pomaga wam ustalić to samo, zanim ruszą prace.",
     },
     {
       q: "Czy mogę ufać analizie?",
       a: "Analiza pomaga zadać właściwe pytania – nie jest poradą prawną ani techniczną. Analizę przygotowuje AI i może ona zawierać błędy. Ocena wyceny jest liczona według stałych zasad na podstawie przeglądu wyceny przeprowadzonego przez AI. Przy dużych lub skomplikowanych projektach zawsze zalecamy rozmowę z doradcą budowlanym.",
     },
     {
-      q: "Czy mogę używać Merova w innym języku?",
+      q: "Czy mogę używać Budsyn w innym języku?",
       a: "Tak. Wybierz język u góry strony. Analiza powstaje w Twoim języku, a wyceny np. po szwedzku, niemiecku czy polsku też zostaną wyjaśnione. Wiadomości do wykonawcy możesz otrzymać po duńsku lub w swoim języku.",
     },
     {
@@ -394,7 +394,7 @@ export const pl: Dict = {
     messageLocked: "Po odblokowaniu analizy otrzymasz jednym kliknięciem gotową, uprzejmą wiadomość do wykonawcy.",
     unlockMessages: "Odblokuj wiadomości",
     disclaimer:
-      "Analiza została przygotowana przez AI, ma charakter orientacyjny i opiera się wyłącznie na treści wgranego dokumentu. Może zawierać błędy. Ocena wyceny jest liczona według stałych zasad na podstawie przeglądu przeprowadzonego przez AI i mówi o tym, jak przejrzysta jest wycena – nie o jakości pracy wykonawcy. Kwoty możliwych dodatkowych kosztów i poziom cen to szacunki. Merova nie zastępuje porady prawnej ani budowlano-technicznej.",
+      "Analiza została przygotowana przez AI, ma charakter orientacyjny i opiera się wyłącznie na treści wgranego dokumentu. Może zawierać błędy. Ocena wyceny jest liczona według stałych zasad na podstawie przeglądu przeprowadzonego przez AI i mówi o tym, jak przejrzysta jest wycena – nie o jakości pracy wykonawcy. Kwoty możliwych dodatkowych kosztów i poziom cen to szacunki. Budsyn nie zastępuje porady prawnej ani budowlano-technicznej.",
     suggestionStart: "Kiedy mogą Państwo zacząć i kiedy skończą?",
     suggestionFixed: "Czy cena może być ceną stałą?",
     analysisLanguageNote: "Ta analiza jest napisana w języku: {language}. Nowe analizy powstają w wybranym przez Ciebie języku.",
@@ -559,8 +559,8 @@ export const pl: Dict = {
     approx: "ok. ",
     since: "od {year}",
     requestTitle: "Poproś o wycenę",
-    requestIntroSelected: "Wyślij tę samą wiadomość do wybranych firm ({n}). Otrzymasz wyceny łatwe do porównania – i wysoko oceniane w Merova.",
-    requestIntro: "Wyślij tę samą wiadomość do wybranych firm. Otrzymasz wyceny łatwe do porównania – i wysoko oceniane w Merova.",
+    requestIntroSelected: "Wyślij tę samą wiadomość do wybranych firm ({n}). Otrzymasz wyceny łatwe do porównania – i wysoko oceniane w Budsyn.",
+    requestIntro: "Wyślij tę samą wiadomość do wybranych firm. Otrzymasz wyceny łatwe do porównania – i wysoko oceniane w Budsyn.",
     project: "Zlecenie",
     projectPlaceholder: "Np. Kompletny remont łazienki ok. 6 m² w domu jednorodzinnym z 1975 r. Nowe płytki, ogrzewanie podłogowe, WC podwieszane.",
     when: "Kiedy",

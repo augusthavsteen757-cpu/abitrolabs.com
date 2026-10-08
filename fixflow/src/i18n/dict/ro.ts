@@ -33,7 +33,7 @@ export const ro: Dict = {
     ],
   },
   meta: {
-    title: "Merova – înțelege oferta meșterului",
+    title: "Budsyn – înțelege oferta meșterului",
     description:
       "Încarcă oferta de la meșter și primește explicații: costuri ascunse, poziții neclare, reguli daneze și întrebările pe care să le pui înainte să semnezi.",
   },
@@ -45,7 +45,7 @@ export const ro: Dict = {
     tryFree: "Încearcă gratuit",
   },
   footer: {
-    tagline: "Liniște atunci când cheltui mulți bani. Merova explică ofertele meșterilor conform regulilor daneze.",
+    tagline: "Liniște atunci când cheltui mulți bani. Budsyn explică ofertele meșterilor conform regulilor daneze.",
     pricing: "Prețuri",
     login: "Autentificare",
     signup: "Creează cont",
@@ -91,10 +91,10 @@ export const ro: Dict = {
       { title: "AI-ul o analizează", text: "AI-ul nostru citește oferta, explică pozițiile și marchează punctele neclare. Scorul ofertei de la 0 la 100 este apoi calculat după reguli fixe." },
       { title: "Pune întrebările potrivite", text: "Primești întrebări concrete și un mesaj gata de trimis meșterului." },
     ],
-    whyEyebrow: "De ce Merova",
+    whyEyebrow: "De ce Budsyn",
     whyTitle: "Tehnologia este AI. Ce primești este liniște.",
     whyText:
-      "O baie sau ferestre noi costă adesea mai mult decât o mașină. Nu trebuie să fii expert ca să înțelegi la ce spui da. Majoritatea meșterilor sunt serioși – Merova vă ajută să fiți de acord asupra acelorași lucruri de la început.",
+      "O baie sau ferestre noi costă adesea mai mult decât o mașină. Nu trebuie să fii expert ca să înțelegi la ce spui da. Majoritatea meșterilor sunt serioși – Budsyn vă ajută să fiți de acord asupra acelorași lucruri de la început.",
     features: [
       { title: "Scorul ofertei", text: "Un număr de la 0 la 100 care arată cât de transparentă e oferta – calculat după reguli fixe pe baza analizei făcute de AI." },
       { title: "Costuri ascunse", text: "Găsim „în regie”, „diverse” și poziții lipsă care pot deveni facturi în plus." },
@@ -157,19 +157,19 @@ export const ro: Dict = {
   },
   faq: [
     {
-      q: "Cum funcționează Merova?",
+      q: "Cum funcționează Budsyn?",
       a: "Încarci oferta ca PDF sau fotografie. AI-ul nostru o citește, explică fiecare poziție, găsește punctele neclare și posibilele costuri suplimentare, analizează ce spune oferta despre regulile daneze și îți dă întrebări concrete pe care să le pui meșterului.",
     },
     {
-      q: "Este Merova împotriva meșterilor?",
-      a: "Nu. Majoritatea meșterilor sunt serioși și pricepuți. O ofertă neclară apare de obicei din grabă – nu din rea-voință. Merova vă ajută să fiți de acord asupra acelorași lucruri înainte să înceapă lucrarea.",
+      q: "Este Budsyn împotriva meșterilor?",
+      a: "Nu. Majoritatea meșterilor sunt serioși și pricepuți. O ofertă neclară apare de obicei din grabă – nu din rea-voință. Budsyn vă ajută să fiți de acord asupra acelorași lucruri înainte să înceapă lucrarea.",
     },
     {
       q: "Mă pot baza pe analiză?",
       a: "Analiza te ajută să pui întrebările potrivite – nu este consultanță juridică sau tehnică. Analiza este realizată de AI și poate conține erori. Scorul ofertei se calculează după reguli fixe, pe baza analizei ofertei făcute de AI. La proiecte mari sau complicate recomandăm mereu să vorbești cu un consultant în construcții.",
     },
     {
-      q: "Pot folosi Merova în altă limbă?",
+      q: "Pot folosi Budsyn în altă limbă?",
       a: "Da. Alege limba din partea de sus a paginii. Analiza este scrisă în limba ta, iar ofertele în, de exemplu, suedeză, germană sau poloneză sunt explicate și ele. Mesajele către meșter le poți primi în daneză sau în limba ta.",
     },
     {
@@ -398,7 +398,7 @@ export const ro: Dict = {
     messageLocked: "Primește un mesaj politicos, gata de trimis meșterului, dintr-un clic, după ce deblochezi analiza.",
     unlockMessages: "Deblochează mesajele",
     disclaimer:
-      "Analiza este realizată de AI, are caracter orientativ și se bazează doar pe conținutul documentului încărcat. Poate conține erori. Scorul ofertei este calculat după reguli fixe pe baza analizei făcute de AI și arată cât de clară este oferta – nu calitatea profesională a meșterului. Sumele pentru posibilele costuri suplimentare și nivelul de preț sunt estimări. Merova nu înlocuiește consultanța juridică sau tehnică în construcții.",
+      "Analiza este realizată de AI, are caracter orientativ și se bazează doar pe conținutul documentului încărcat. Poate conține erori. Scorul ofertei este calculat după reguli fixe pe baza analizei făcute de AI și arată cât de clară este oferta – nu calitatea profesională a meșterului. Sumele pentru posibilele costuri suplimentare și nivelul de preț sunt estimări. Budsyn nu înlocuiește consultanța juridică sau tehnică în construcții.",
     suggestionStart: "Când puteți începe și când terminați?",
     suggestionFixed: "Se poate face prețul ca preț fix?",
     analysisLanguageNote: "Această analiză este scrisă în {language}. Analizele noi sunt scrise în limba aleasă de tine.",
@@ -563,8 +563,8 @@ export const ro: Dict = {
     approx: "cca ",
     since: "din {year}",
     requestTitle: "Cere ofertă",
-    requestIntroSelected: "Trimite același mesaj celor {n} firme alese. Așa primești oferte ușor de comparat – și care obțin scor mare în Merova.",
-    requestIntro: "Trimite același mesaj firmelor pe care le alegi. Așa primești oferte ușor de comparat – și care obțin scor mare în Merova.",
+    requestIntroSelected: "Trimite același mesaj celor {n} firme alese. Așa primești oferte ușor de comparat – și care obțin scor mare în Budsyn.",
+    requestIntro: "Trimite același mesaj firmelor pe care le alegi. Așa primești oferte ușor de comparat – și care obțin scor mare în Budsyn.",
     project: "Lucrarea",
     projectPlaceholder: "Ex.: Renovare completă a unei băi de cca 6 m² într-o casă din 1975. Faianță nouă, încălzire în pardoseală, toaletă suspendată.",
     when: "Când",

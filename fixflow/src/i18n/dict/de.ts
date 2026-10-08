@@ -33,7 +33,7 @@ export const de: Dict = {
     ],
   },
   meta: {
-    title: "Merova – verstehe dein Handwerkerangebot",
+    title: "Budsyn – verstehe dein Handwerkerangebot",
     description:
       "Lade dein Handwerkerangebot hoch und lass es dir erklären: versteckte Kosten, unklare Posten, dänische Vorschriften und die Fragen, die du vor der Unterschrift stellen solltest.",
   },
@@ -45,7 +45,7 @@ export const de: Dict = {
     tryFree: "Kostenlos testen",
   },
   footer: {
-    tagline: "Sicherheit, wenn es um viel Geld geht. Merova erklärt Handwerkerangebote nach dänischen Regeln.",
+    tagline: "Sicherheit, wenn es um viel Geld geht. Budsyn erklärt Handwerkerangebote nach dänischen Regeln.",
     pricing: "Preise",
     login: "Anmelden",
     signup: "Konto erstellen",
@@ -91,10 +91,10 @@ export const de: Dict = {
       { title: "KI prüft es", text: "Unsere KI liest das Angebot, erklärt die Posten und markiert unklare Punkte. Der Angebots-Score von 0 bis 100 wird anschließend nach festen Regeln berechnet." },
       { title: "Die richtigen Fragen stellen", text: "Erhalte konkrete Fragen und eine fertige Nachricht, die du an den Handwerker schicken kannst." },
     ],
-    whyEyebrow: "Warum Merova",
+    whyEyebrow: "Warum Budsyn",
     whyTitle: "Die Technologie ist KI. Was du bekommst, ist Sicherheit.",
     whyText:
-      "Ein neues Bad oder neue Fenster kosten oft mehr als ein Auto. Du musst kein Experte sein, um zu verstehen, wozu du Ja sagst. Die meisten Handwerker sind seriös – Merova hilft euch, von Anfang an vom Gleichen zu sprechen.",
+      "Ein neues Bad oder neue Fenster kosten oft mehr als ein Auto. Du musst kein Experte sein, um zu verstehen, wozu du Ja sagst. Die meisten Handwerker sind seriös – Budsyn hilft euch, von Anfang an vom Gleichen zu sprechen.",
     features: [
       { title: "Angebots-Score", text: "Eine Zahl von 0–100, die zeigt, wie transparent das Angebot ist – nach festen Regeln auf Grundlage der KI-Prüfung berechnet." },
       { title: "Versteckte Kosten", text: "Wir finden „nach Aufwand“, „Sonstiges“ und fehlende Posten, die zu Nachforderungen führen können." },
@@ -157,19 +157,19 @@ export const de: Dict = {
   },
   faq: [
     {
-      q: "Wie funktioniert Merova?",
+      q: "Wie funktioniert Budsyn?",
       a: "Du lädst dein Angebot als PDF oder Foto hoch. Unsere KI liest es, erklärt jeden Posten, findet unklare Punkte und mögliche Zusatzkosten, sieht durch, was das Angebot zu dänischen Vorschriften sagt, und gibt dir konkrete Fragen, die du dem Handwerker stellen kannst.",
     },
     {
-      q: "Ist Merova gegen Handwerker?",
-      a: "Nein. Die meisten Handwerker sind seriös und kompetent. Ein unklares Angebot liegt meist an Zeitdruck – nicht an böser Absicht. Merova hilft euch, euch einig zu sein, bevor die Arbeit beginnt.",
+      q: "Ist Budsyn gegen Handwerker?",
+      a: "Nein. Die meisten Handwerker sind seriös und kompetent. Ein unklares Angebot liegt meist an Zeitdruck – nicht an böser Absicht. Budsyn hilft euch, euch einig zu sein, bevor die Arbeit beginnt.",
     },
     {
       q: "Kann ich mich auf die Analyse verlassen?",
       a: "Die Analyse hilft dir, die richtigen Fragen zu stellen – sie ist keine rechtliche oder technische Beratung. Die Analyse wird von KI erstellt und kann Fehler enthalten. Der Angebots-Score wird nach festen Regeln auf Grundlage der KI-Prüfung des Angebots berechnet. Bei großen oder komplizierten Projekten empfehlen wir immer, mit einem Bauberater zu sprechen.",
     },
     {
-      q: "Kann ich Merova in einer anderen Sprache nutzen?",
+      q: "Kann ich Budsyn in einer anderen Sprache nutzen?",
       a: "Ja. Wähle die Sprache oben auf der Seite. Die Analyse wird in deiner Sprache geschrieben, und auch Angebote z. B. auf Schwedisch, Deutsch oder Polnisch werden erklärt. Nachrichten an den Handwerker bekommst du auf Dänisch oder in deiner Sprache.",
     },
     {
@@ -398,7 +398,7 @@ export const de: Dict = {
     messageLocked: "Erhalte mit einem Klick eine fertige, höfliche Nachricht an den Handwerker, sobald du die Analyse freischaltest.",
     unlockMessages: "Nachrichten freischalten",
     disclaimer:
-      "Die Analyse wurde von KI erstellt, dient zur Orientierung und basiert nur auf dem Inhalt des hochgeladenen Dokuments. Sie kann Fehler enthalten. Der Angebots-Score wird nach festen Regeln auf Grundlage der KI-Prüfung berechnet und sagt etwas darüber aus, wie klar das Angebot ist – nicht über die fachliche Qualität des Handwerkers. Beträge für mögliche Zusatzkosten und das Preisniveau sind Schätzungen. Merova ersetzt keine rechtliche oder bautechnische Beratung.",
+      "Die Analyse wurde von KI erstellt, dient zur Orientierung und basiert nur auf dem Inhalt des hochgeladenen Dokuments. Sie kann Fehler enthalten. Der Angebots-Score wird nach festen Regeln auf Grundlage der KI-Prüfung berechnet und sagt etwas darüber aus, wie klar das Angebot ist – nicht über die fachliche Qualität des Handwerkers. Beträge für mögliche Zusatzkosten und das Preisniveau sind Schätzungen. Budsyn ersetzt keine rechtliche oder bautechnische Beratung.",
     suggestionStart: "Wann können Sie anfangen, und wann sind Sie fertig?",
     suggestionFixed: "Ist ein Festpreis möglich?",
     analysisLanguageNote: "Diese Analyse ist auf {language} verfasst. Neue Analysen werden in deiner gewählten Sprache geschrieben.",
@@ -563,8 +563,8 @@ export const de: Dict = {
     approx: "ca. ",
     since: "seit {year}",
     requestTitle: "Angebot anfragen",
-    requestIntroSelected: "Sende dieselbe Nachricht an die {n} gewählten Firmen. So erhältst du Angebote, die leicht zu vergleichen sind – und in Merova gut abschneiden.",
-    requestIntro: "Sende dieselbe Nachricht an die Firmen, die du auswählst. So erhältst du Angebote, die leicht zu vergleichen sind – und in Merova gut abschneiden.",
+    requestIntroSelected: "Sende dieselbe Nachricht an die {n} gewählten Firmen. So erhältst du Angebote, die leicht zu vergleichen sind – und in Budsyn gut abschneiden.",
+    requestIntro: "Sende dieselbe Nachricht an die Firmen, die du auswählst. So erhältst du Angebote, die leicht zu vergleichen sind – und in Budsyn gut abschneiden.",
     project: "Der Auftrag",
     projectPlaceholder: "z. B. Komplettsanierung eines ca. 6 m² großen Bads in einem Einfamilienhaus von 1975. Neue Fliesen, Fußbodenheizung, Hänge-WC.",
     when: "Wann",

@@ -12,10 +12,10 @@ export function LogoMark({ className }: { className?: string }) {
 
 export function Logo({ href = "/", light = false }: { href?: string; light?: boolean }) {
   return (
-    <Link href={href} className="inline-flex items-center gap-2.5" aria-label="Merova – forside">
+    <Link href={href} className="inline-flex items-center gap-2.5" aria-label="Budsyn – forside">
       <LogoMark />
       <span className={cn("font-display text-xl font-semibold tracking-tight", light ? "text-white" : "text-ink")}>
-        Merova
+        Budsyn
       </span>
     </Link>
   );

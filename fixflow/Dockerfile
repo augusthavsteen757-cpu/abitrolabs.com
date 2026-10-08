@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# Merova – multi-stage build. Data (SQLite + uploads) lives in the /data volume.
+# Budsyn – multi-stage build. Data (SQLite + uploads) lives in the /data volume.
 
 FROM node:22-bookworm-slim AS deps
 WORKDIR /app
