@@ -33,7 +33,9 @@ function HeroMock({ d }: { d: Dict }) {
       <div className="card relative z-10 p-5 shadow-lift sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs font-medium text-ink-muted">{m.firm}</p>
+            <p className="text-xs font-medium text-ink-muted">
+              {m.firm} · <span className="italic">{m.example}</span>
+            </p>
             <p className="truncate font-display text-lg font-semibold">{m.job}</p>
           </div>
           <span className="badge shrink-0 bg-amber-50 text-amber-800 ring-1 ring-amber-200">{m.priceType}</span>

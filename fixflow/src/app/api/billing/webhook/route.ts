@@ -1,12 +1,23 @@
 import { NextResponse } from "next/server";
-import { fulfill, subscriptionEnded, verifyStripeSignature, type CheckoutKind } from "@/lib/billing";
+import {
+  fulfill,
+  subscriptionEnded,
+  subscriptionRenewed,
+  verifyStripeSignature,
+  type CheckoutKind,
+} from "@/lib/billing";
 
 export const runtime = "nodejs";
 
-type StripeEvent = {
-  type: string;
-  data: { object: { id: string; subscription?: string | null; metadata?: Record<string, string> } };
+type StripeObject = {
+  id: string;
+  subscription?: string | null;
+  payment_intent?: string | null;
+  billing_reason?: string | null;
+  metadata?: Record<string, string>;
+  parent?: { subscription_details?: { subscription?: string | null } | null } | null;
 };
+type StripeEvent = { type: string; data: { object: StripeObject } };
 
 export async function POST(req: Request) {
   const payload = await req.text();
@@ -14,23 +25,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
   const event = JSON.parse(payload) as StripeEvent;
+  const o = event.data.object;
   if (event.type === "checkout.session.completed") {
-    const s = event.data.object;
-    const kind = s.metadata?.kind as CheckoutKind | undefined;
-    const userId = s.metadata?.userId;
+    const kind = o.metadata?.kind as CheckoutKind | undefined;
+    const userId = o.metadata?.userId;
     if (userId && (kind === "PRO_MONTHLY" || kind === "SINGLE")) {
       await fulfill({
         userId,
         kind,
         provider: "stripe",
-        reference: s.subscription || s.id,
-        quoteId: s.metadata?.quoteId || null,
-        consentAt: s.metadata?.consentAt ? new Date(s.metadata.consentAt) : null,
+        reference: o.subscription || o.id,
+        paymentIntent: o.payment_intent ?? null,
+        quoteId: o.metadata?.quoteId || null,
+        consentAt: o.metadata?.consentAt ? new Date(o.metadata.consentAt) : null,
+        consentText: o.metadata?.consentText || null,
       });
     }
   }
+  if (event.type === "invoice.paid" && o.billing_reason === "subscription_cycle") {
+    const sub = o.subscription ?? o.parent?.subscription_details?.subscription ?? null;
+    if (sub) await subscriptionRenewed(sub, o.id, o.payment_intent ?? null);
+  }
   if (event.type === "customer.subscription.deleted") {
-    await subscriptionEnded(event.data.object.id);
+    await subscriptionEnded(o.id);
   }
   return NextResponse.json({ received: true });
 }

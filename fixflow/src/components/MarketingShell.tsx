@@ -57,7 +57,8 @@ export async function MarketingFooter() {
         </nav>
       </div>
       <p className="mx-auto max-w-6xl px-4 pb-8 text-xs text-ink-muted sm:px-6">
-        © {new Date().getFullYear()} {COMPANY.name} · CVR {COMPANY.cvr}. {d.footer.disclaimer}
+        © {new Date().getFullYear()} {COMPANY.name} · CVR {COMPANY.cvr} · {COMPANY.address} ·{" "}
+        <a href={`mailto:${COMPANY.email}`} className="underline">{COMPANY.email}</a> · {COMPANY.phone}. {d.footer.disclaimer}
       </p>
     </footer>
   );

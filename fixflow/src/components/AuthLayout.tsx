@@ -1,4 +1,4 @@
-import { Quote, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { Logo } from "./Logo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { getDict } from "@/i18n/server";
@@ -19,8 +19,7 @@ export async function AuthLayout({ children }: { children: React.ReactNode }) {
       <aside className="relative hidden overflow-hidden bg-brand-900 text-white lg:flex lg:flex-col lg:justify-center lg:px-16">
         <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-brand-700/60 blur-3xl" aria-hidden />
         <div className="relative max-w-md">
-          <Quote className="h-10 w-10 text-brand-300" />
-          <p className="mt-6 font-display text-3xl font-medium leading-snug text-white">{d.auth.sideQuote}</p>
+          <p className="font-display text-3xl font-medium leading-snug text-white">{d.auth.sideQuote}</p>
           <p className="mt-5 text-sm text-brand-200">{d.auth.sideCaption}</p>
           <ul className="mt-10 space-y-3 text-brand-100">
             {d.auth.sideBullets.map((t) => (

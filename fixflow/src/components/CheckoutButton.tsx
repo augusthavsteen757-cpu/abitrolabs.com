@@ -77,7 +77,7 @@ export function CheckoutButton({ kind, quoteId, className, children, redirectTo,
             className="mt-0.5 h-4 w-4 shrink-0 accent-brand-500"
           />
           <span>
-            {d.checkout.consent}{" "}
+            {kind === "PRO_MONTHLY" ? d.checkout.consentPro : d.checkout.consentSingle}{" "}
             <Link href="/handelsbetingelser" target="_blank" className="underline">{d.checkout.terms}</Link>
           </span>
         </label>
@@ -87,6 +87,9 @@ export function CheckoutButton({ kind, quoteId, className, children, redirectTo,
         {loading && <Loader2 className="h-4 w-4 animate-spin" />}
         {confirming ? d.common.confirm : children}
       </button>
+      {kind === "PRO_MONTHLY" && (
+        <p className={cn("mt-2 text-xs", dark ? "text-brand-100" : "text-ink-muted")}>{d.paywall.renewal}</p>
+      )}
       {error && (
         <p role="alert" className={cn("mt-2 text-sm", dark ? "text-red-200" : "text-red-700")}>
           {error}

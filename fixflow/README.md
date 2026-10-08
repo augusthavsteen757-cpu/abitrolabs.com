@@ -212,7 +212,7 @@ Appen findes på dansk, engelsk, svensk, norsk, tysk, polsk, ukrainsk og rumæns
 
 - Handelsbetingelser (`/handelsbetingelser`) og privatlivspolitik med cookie-information (`/privatlivspolitik`) – udfyld `COMPANY_*` og få dem gennemgået af en advokat.
 - Accept af vilkår ved oprettelse, samtykke til straks-levering før køb (fortrydelsesret), opsigelse til periodens udløb.
-- GDPR: dataeksport og kontosletning på kontosiden; betalinger anonymiseres og gemmes 5 år (bogføringsloven).
+- GDPR: dataeksport og kontosletning på kontosiden; betalinger gemmes uden navn og e-mail i 5 år (bogføringsloven).
 
 ## Stripe
 
@@ -220,9 +220,9 @@ Uden `STRIPE_SECRET_KEY` er betaling simuleret. Sådan slår du rigtig betaling 
 
 1. Opret to produkter i Stripe: **Pro** (49 kr./md., recurring) og **Engangskøb** (99 kr., one-time). Notér pris-id'erne.
 2. Sæt `STRIPE_SECRET_KEY`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_SINGLE` og `NEXT_PUBLIC_APP_URL`.
-3. Opret et webhook-endpoint til `https://dit-domæne.dk/api/billing/webhook` med hændelserne `checkout.session.completed` og `customer.subscription.deleted`, og sæt `STRIPE_WEBHOOK_SECRET`.
+3. Opret et webhook-endpoint til `https://dit-domæne.dk/api/billing/webhook` med hændelserne `checkout.session.completed`, `invoice.paid` og `customer.subscription.deleted`, og sæt `STRIPE_WEBHOOK_SECRET`.
 4. `/api/billing/checkout` returnerer nu `{ url }` til Stripe Checkout, og webhooken giver Pro/kredit (idempotent via `payments.reference`).
-5. Anbefalet før lancering: håndtér `customer.subscription.deleted` og `invoice.paid` (fornyelse af perioden) i webhooken, og tilføj Stripes kundeportal.
+5. Ved fortrydelse refunderer appen automatisk via Stripe (`/v1/refunds`). Kunden får kvittering og ordrebekræftelse på e-mail (Brevo).
 
 ---
 

@@ -216,10 +216,10 @@ async function main() {
   }
 
   await db.insert(contractorMessages).values({
-    quoteId: created.hansen,
+    quoteId: created["eksempel-vvs"],
     topic: "Materialer for 32.000 kr. er ikke specificeret",
     body:
-      "Hej Hansen & Søn VVS-Byg ApS\n\nTusind tak for jeres overslag af 2. september på renovering af badeværelset. Det ser fornuftigt ud, og vi har et enkelt spørgsmål, inden vi beslutter os.\n\nPosten \"Materialer iht. aftale\" på 32.000 kr. ekskl. moms er ikke beskrevet nærmere. Vil I sende en liste over, hvad den dækker – fx fliser, toilet, armaturer og membran med mærke og mængde?\n\nSå er vi helt trygge ved at gå videre.\n\nMange venlige hilsner\nDemo Jensen",
+      "Hej Eksempel VVS ApS\n\nTusind tak for jeres overslag af 2. september på renovering af badeværelset. Det ser fornuftigt ud, og vi har et enkelt spørgsmål, inden vi beslutter os.\n\nPosten \"Materialer iht. aftale\" på 32.000 kr. ekskl. moms er ikke beskrevet nærmere. Vil I sende en liste over, hvad den dækker – fx fliser, toilet, armaturer og membran med mærke og mængde?\n\nSå er vi helt trygge ved at gå videre.\n\nMange venlige hilsner\nDemo Jensen",
   });
 
   console.log(`\n  Demo-bruger: ${email} / demo1234 (Pro, ${bathroom.length} tilbud i "Nyt badeværelse")`);

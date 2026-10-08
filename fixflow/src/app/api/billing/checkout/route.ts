@@ -6,6 +6,8 @@ import { requireApiUser } from "@/lib/auth";
 import { handle, jsonError } from "@/lib/api";
 import { rateLimit } from "@/lib/rate-limit";
 import { resumePro, cancelPro, createStripeCheckout, fulfill, isStripeEnabled } from "@/lib/billing";
+import { isDemoMode } from "@/lib/ai";
+import { getDict } from "@/i18n/server";
 
 const schema = z.object({
   kind: z.enum(["PRO_MONTHLY", "SINGLE", "CANCEL", "RESUME"]),
@@ -35,9 +37,14 @@ export const POST = handle(async (req: Request) => {
   // Forbrugeraftaleloven: explicit consent to immediate delivery before the purchase.
   if (parsed.data.consent !== true) return jsonError(da.errors.needConsent);
   await rateLimit(`checkout:${user.id}`, 20, 60 * 60);
+  // The exact wording the customer saw and accepted (in their language) is kept as proof.
+  const t = (await getDict()).checkout;
+  const consentText = kind === "PRO_MONTHLY" ? t.consentPro : t.consentSingle;
 
   if (isStripeEnabled()) {
-    const url = await createStripeCheckout(user, kind, quoteId);
+    // Never take real money while the app can only produce example analyses.
+    if (isDemoMode()) return jsonError(da.errors.paymentsOffline, 503);
+    const url = await createStripeCheckout(user, kind, quoteId, consentText);
     return NextResponse.json({ url });
   }
 
@@ -49,6 +56,7 @@ export const POST = handle(async (req: Request) => {
     reference: `sim_${randomBytes(8).toString("hex")}`,
     quoteId,
     consentAt: new Date(),
+    consentText,
   });
   return NextResponse.json({ ok: true, simulated: true });
 });

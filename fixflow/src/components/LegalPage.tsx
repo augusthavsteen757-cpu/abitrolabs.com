@@ -15,6 +15,16 @@ export async function LegalPage({ title, children }: { title: string; children: 
             <span>{d.lang.legalDanishOnly}</span>
           </p>
         )}
+        {locale !== "da" && (
+          <section lang={locale} className="mb-8 rounded-xl border border-brand-200 bg-brand-50 p-4 text-sm text-ink-soft">
+            <h2 className="font-semibold text-ink">{d.lang.legalSummaryTitle}</h2>
+            <ul className="mt-2 list-disc space-y-1 pl-5">
+              {d.lang.legalSummary.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </section>
+        )}
         <h1 lang="da" className="text-4xl font-semibold">{title}</h1>
         <p className="mt-2 text-sm text-ink-muted">Senest opdateret {LEGAL_UPDATED}</p>
         {!isCompanyConfigured() && (

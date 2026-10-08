@@ -17,27 +17,34 @@ En trin-for-trin-plan fra "appen virker på min computer" til "kunder kan betale
 
 ## 2. Jura i appen (uge 1–2)
 
-Appen har allerede:
+Appen har allerede (gennemgået for forbrugeraftaleloven, markedsføringsloven, GDPR og AI-forordningen):
 
-- **Handelsbetingelser** (`/handelsbetingelser`) og **privatlivspolitik** (`/privatlivspolitik`) som udkast. Udfyld `COMPANY_NAME`, `COMPANY_CVR`, `COMPANY_ADDRESS`, `CONTACT_EMAIL` og `HOSTING_PROVIDER` i `.env` – så forsvinder "Udkast"-advarslen. **Få en advokat til at læse dem.**
-- **Accept ved oprettelse** af handelsbetingelser og privatlivspolitik (tidspunktet gemmes).
-- **Fortrydelsesret**: kunden skal sætte flueben for at få adgang med det samme, før de kan betale (forbrugeraftalelovens § 18). Tidspunktet gemmes på betalingen.
+- **Handelsbetingelser** og **privatlivspolitik** med fortrydelsesret, standardfortrydelsesformular, mangelsregler, databehandlere og opbevaringsperioder. Udfyld `COMPANY_NAME`, `COMPANY_CVR`, `COMPANY_ADDRESS`, `CONTACT_EMAIL` og `COMPANY_PHONE` (i Render under *Environment*) – så forsvinder "Udkast"-advarslen. På andre sprog vises et oversat resumé af det vigtigste.
+- **Samtykke ved køb**, forskelligt for engangskøb og Pro, med automatisk fornyelse nævnt ved knappen. Den præcise tekst og tidspunktet gemmes på betalingen.
+- **Ordrebekræftelse på e-mail** med samtykke, fortrydelsesret og links til betingelserne (kræver `BREVO_API_KEY` og `EMAIL_FROM`).
+- **»Fortryd købet«-knap** på kontosiden i 14 dage: ubrugt engangskøb refunderes fuldt, Pro forholdsmæssigt (49 kr. ÷ 30 pr. påbegyndt dag). Kan Stripe ikke refundere automatisk, får du en e-mail om at gøre det manuelt.
 - **Opsigelse** når som helst – kunden beholder Pro perioden ud.
-- **GDPR-rettigheder**: "Hent mine data" (indsigt/dataportabilitet) og "Slet min konto" på kontosiden. Betalinger gemmes anonymt i 5 år (bogføringsloven).
-- **Cookies**: kun én nødvendig login-cookie og ingen sporing → ingen cookie-banner nødvendig. Tilføjer du Google Analytics, Meta Pixel el.lign., **skal** du have et samtykke-banner.
-- **Tydelig ansvarsfraskrivelse**: analysen er vejledende og ikke rådgivning.
+- **AI-oplysning** på forside, upload, analyse og beskeder. Eksempelfirmaer er tydeligt fiktive, og der er ingen opdigtede udtalelser eller "mest valgt"-påstande.
+- **Ingen salg i demo-tilstand**: med Stripe slået til, men uden AI-nøgle, kan man ikke betale.
+- **GDPR**: "Hent mine data" (alt, også låste detaljer), "Slet min konto", automatisk sletning efter 3 års inaktivitet.
+- **CVR**: firmaer med reklamebeskyttelse vises ikke, og kilden står ved resultaterne.
+- **Cookies**: kun to nødvendige (login og sprog) og ingen sporing → intet cookie-banner. Tilføjer du Google Analytics, Meta Pixel el.lign., **skal** du have et samtykke-banner.
 
 Du skal selv:
 
-- [ ] **Databehandleraftaler (DPA)** med alle, der behandler persondata for dig:
-  - Hosting (Vercel/Hetzner/…) – accepteres typisk i deres dashboard.
-  - **Anthropic** – brug en betalt API-konto under Anthropics kommercielle vilkår (indeholder DPA). Tjek at data ikke bruges til træning.
-  - Stripe – indgår i Stripes vilkår.
+- [ ] **Telefonnummer** til virksomheden (skal stå i betingelserne).
+- [ ] **E-mail**: opret en gratis konto hos [Brevo](https://www.brevo.com), bekræft dit afsenderdomæne, og sæt `BREVO_API_KEY` og `EMAIL_FROM` i Render. Uden det sendes ingen ordrebekræftelser – og så må du ikke tage betaling.
+- [ ] **Databehandleraftaler (DPA)** – accepteres typisk i hver tjenestes dashboard/vilkår:
+  - **Render** (hosting), **Turso** (database og filer), **Brevo** (e-mail).
+  - **Anthropic** – betalt API-konto under de kommercielle vilkår (indeholder DPA). Tjek kontraktpart, hvor længe data gemmes, og at de ikke bruges til træning – og ret privatlivspolitikken, hvis noget afviger.
+  - Tjek for hver af dem, om de er certificeret under EU-US Data Privacy Framework.
+  - Stripe er selvstændig dataansvarlig for kortbetalingen.
+- [ ] **Advokat**: få bekræftet paragrafhenvisningerne, fortrydelsesknappen (EU-direktiv 2023/2673), ansvarsafsnittet og at Stripes betalingsknap er tydelig nok (Merova sætter teksten "Du forpligter dig til at betale …" over knappen).
 - [ ] **Fortegnelse over behandlingsaktiviteter** (GDPR art. 30) – et simpelt dokument. Datatilsynet har skabeloner.
 - [ ] **Procedure ved databrud**: hvem gør hvad, og anmeldelse til Datatilsynet inden for 72 timer.
 - [ ] **Markedsføring**: priser skal altid vises inkl. moms (det gør appen). Send aldrig nyhedsbreve uden samtykke (markedsføringslovens § 10). Påstande som "spar 20.000 kr." skal kunne dokumenteres.
 - [ ] **Håndværkere**: Merova viser offentlige CVR-oplysninger og anbefaler ikke bestemte firmaer – hold det sådan. Skriv aldrig negativt om navngivne firmaer i markedsføring.
-- [ ] **AI-forordningen (EU AI Act)**: Merova er ikke højrisiko, men brugerne skal vide, at analysen laves med AI – det står i handelsbetingelserne. Nævn det også på forsiden/FAQ.
+- [ ] **AI-forordningen (EU AI Act)**: Merova er ikke højrisiko. Brugerne får at vide, at analysen og beskederne laves med AI – hold det sådan i al markedsføring.
 
 ## 3. Rigtig AI-analyse (uge 2)
 
@@ -80,8 +87,8 @@ Mangler stadig i koden (gør det før eller kort efter lancering):
 
 - [ ] **Glemt adgangskode** via e-mail (kræver en e-mailtjeneste, fx Postmark eller Brevo i EU).
 - [ ] **Bekræftelse af e-mail** ved oprettelse.
-- [ ] **Kvitterings-e-mails** (Stripe kan sende dem automatisk – slå det til).
-- [ ] Fornyelse af Pro-perioden via Stripe-hændelsen `invoice.paid`.
+- [x] **Kvitterings-e-mails** sendes af appen ved køb og fornyelse (kræver Brevo).
+- [x] Fornyelse af Pro-perioden via Stripe-hændelsen `invoice.paid` (husk at vælge den hændelse i Stripes webhook).
 
 ## 7. Lancering (uge 4)
 

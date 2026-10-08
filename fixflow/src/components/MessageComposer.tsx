@@ -134,6 +134,7 @@ export function MessageComposer({
             {error}
           </p>
         )}
+        <p className="mt-3 text-xs text-ink-muted">{t.aiNote}</p>
       </form>
 
       {messages.length > 0 && (

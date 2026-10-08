@@ -195,6 +195,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           <div className="mt-4 flex justify-center">
             <ScoreRing score={score.total} size={148} label={score.label} />
           </div>
+          <p className="mt-3 text-center text-xs text-ink-muted">{t.scoreNote}</p>
           <ul className="mt-6 space-y-4">
             {score.breakdown.map((b) => (
               <li key={b.key}>

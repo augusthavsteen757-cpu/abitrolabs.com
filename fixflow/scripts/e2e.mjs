@@ -73,7 +73,7 @@ try {
   log("signup → empty dashboard");
 
   await page.goto(`${BASE}/dashboard/upload`);
-  await page.setInputFiles("[data-testid=file-input]", "sample-quotes/hansen-soen-badevaerelse.pdf");
+  await page.setInputFiles("[data-testid=file-input]", "sample-quotes/eksempel-vvs-badevaerelse.pdf");
   await page.fill("#project", "Nyt badeværelse");
   await page.click("button[type=submit]");
   await page.getByText("Vi gennemgår dit tilbud").waitFor();
@@ -108,11 +108,11 @@ try {
   // Buy single analysis from the quote page → unlocks this quote
   await page.goto(quoteUrl);
   const buyBox = page.locator("section#laas-op");
-  await buyBox.getByRole("button", { name: /Køb – 99 kr\./ }).click();
+  await buyBox.getByRole("button", { name: /Gå til betaling – 99 kr\./ }).click();
   await buyBox.getByText("Sæt flueben").waitFor();
   log("purchase requires consent to immediate delivery");
   await buyBox.getByRole("checkbox").nth(1).check();
-  await buyBox.getByRole("button", { name: /Køb – 99 kr\./ }).click();
+  await buyBox.getByRole("button", { name: /Gå til betaling – 99 kr\./ }).click();
   await page.getByText("Skriv besked").waitFor({ timeout: 15_000 });
   const after = await page.locator("section:has(h2:has-text('Spørgsmål til håndværkeren')) ol > li").count();
   assert(after === 8, `all 8 questions after unlock (saw ${after})`);
@@ -124,6 +124,20 @@ try {
   await page.getByText("Engangskøb – 1 analyse").waitFor();
   await page.getByText("Testtilstand:").waitFor();
   log("payment history shows simulated purchase");
+  await page.getByText("Brugt – kan ikke fortrydes").waitFor();
+  log("used single purchase cannot be withdrawn");
+
+  // Buy an extra analysis and withdraw it ("Fortryd købet").
+  const buyOne = page.locator("div.w-full", { has: page.getByRole("button", { name: "Køb én analyse" }) });
+  await buyOne.getByRole("checkbox").check();
+  await buyOne.getByRole("button", { name: "Køb én analyse" }).click();
+  await page.getByTestId("withdraw").waitFor({ timeout: 15_000 });
+  await page.getByTestId("withdraw").click();
+  await page.getByText(/Du får 99 kr\. tilbage/).waitFor();
+  await page.getByTestId("withdraw").click();
+  await page.getByText("Købet er fortrudt").waitFor();
+  await page.getByText(/Fortrudt – 99 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
+  log("unused purchase can be withdrawn in the app with full refund");
 
   await page.goto(quoteUrl);
   page.once("dialog", (d) => d.accept());
@@ -162,9 +176,9 @@ try {
   await shot(demo, "compare");
   log("demo user compares 3 quotes");
 
-  // Open Hansen quote and use "Spørg håndværkeren"
+  // Open Eksempel VVS quote and use "Spørg håndværkeren"
   await demo.goto(`${BASE}/dashboard`);
-  await demo.getByRole("link", { name: /Hansen & Søn/ }).click();
+  await demo.getByRole("link", { name: /Eksempel VVS/ }).click();
   await demo.waitForURL(/tilbud\//);
   const countText = await demo.getByText(/Dine beskeder \(\d+\)/).textContent();
   const before = Number(countText.match(/\d+/)[0]);
@@ -219,7 +233,7 @@ try {
   await mobile.fill("#password", "demo1234");
   await mobile.click("button[type=submit]");
   await mobile.waitForURL(`${BASE}/dashboard`);
-  const quoteHref = await mobile.getByRole("link", { name: /Nordvest/ }).getAttribute("href");
+  const quoteHref = await mobile.getByRole("link", { name: /Eksempel Bad/ }).getAttribute("href");
   const routesApp = ["/dashboard", "/dashboard/upload", "/dashboard/sammenlign", "/dashboard/find", "/dashboard/konto", quoteHref];
   for (const r of routesApp) {
     await mobile.goto(`${BASE}${r}`);

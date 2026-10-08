@@ -103,6 +103,8 @@ async function fromCvr(trade: TradeKey, origin: Place, radiusKm: number): Promis
             },
           },
         ],
+        // Respect reklamebeskyttelse: firms that opted out of marketing are never listed.
+        must_not: [{ term: { "Vrvirksomhed.reklamebeskyttet": true } }],
       },
     },
   };

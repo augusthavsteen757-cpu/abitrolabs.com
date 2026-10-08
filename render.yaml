@@ -25,5 +25,21 @@ services:
         value: db
       - key: ANTHROPIC_API_KEY
         sync: false
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: COMPANY_NAME
+        sync: false
+      - key: COMPANY_CVR
+        sync: false
+      - key: COMPANY_ADDRESS
+        sync: false
+      - key: CONTACT_EMAIL
+        sync: false
+      - key: COMPANY_PHONE
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
       - key: NODE_OPTIONS
         value: --max-old-space-size=400

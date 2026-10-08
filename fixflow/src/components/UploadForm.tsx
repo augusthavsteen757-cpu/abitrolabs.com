@@ -219,6 +219,7 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
         <ShieldCheck className="h-4 w-4 text-brand-600" />
         {plural(remaining, t.remainingOne, t.remainingOther)}
       </p>
+      <p className="text-center text-xs text-ink-muted">{t.aiNote}</p>
     </form>
   );
 }

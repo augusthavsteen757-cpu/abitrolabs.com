@@ -35,12 +35,20 @@ export const GET = handle(async () => {
       status: q.status,
       createdAt: q.createdAt,
       analysis: (() => {
-        const a = parseStoredAnalysis(q.analysisJson);
-        return a && !hasFullAccess(user, q) ? redactForFree(a).analysis : a;
+        // GDPR art. 15: the export contains everything we store, also details locked in the app.
+        return parseStoredAnalysis(q.analysisJson);
       })(),
       messages: msgs.filter((m) => m.quoteId === q.id).map((m) => ({ topic: m.topic, body: m.body, createdAt: m.createdAt })),
     })),
-    payments: pays.map((p) => ({ kind: p.kind, amountDkk: p.amountDkk, provider: p.provider, createdAt: p.createdAt })),
+    payments: pays.map((p) => ({
+      kind: p.kind,
+      amountDkk: p.amountDkk,
+      provider: p.provider,
+      createdAt: p.createdAt,
+      consentAt: p.consentAt,
+      consentText: p.consentText,
+      refundedAt: p.refundedAt,
+    })),
   };
   return new NextResponse(JSON.stringify(data, null, 2), {
     headers: {

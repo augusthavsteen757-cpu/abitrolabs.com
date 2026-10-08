@@ -145,6 +145,7 @@ export function FindContractors({
             </h2>
             <p className="text-sm text-ink-muted">{t.sorted}</p>
           </div>
+          <p className="mt-1 text-xs text-ink-muted">{t.source}</p>
           {results.length === 0 ? (
             <p className="card mt-4 p-5 text-ink-soft">{t.none}</p>
           ) : (

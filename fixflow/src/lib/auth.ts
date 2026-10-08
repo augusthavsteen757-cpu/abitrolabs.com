@@ -66,6 +66,10 @@ export async function getCurrentUser(): Promise<User | null> {
       .returning();
     return downgraded;
   }
+  // Activity stamp (at most once a day) – inactive accounts are deleted after 3 years.
+  if (!user.lastSeenAt || Date.now() - user.lastSeenAt.getTime() > 24 * 60 * 60 * 1000) {
+    await db.update(users).set({ lastSeenAt: new Date() }).where(eq(users.id, user.id));
+  }
   return user;
 }
 

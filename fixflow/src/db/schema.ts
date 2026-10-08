@@ -19,6 +19,8 @@ export const users = sqliteTable("users", {
   /** Bumped to invalidate all existing sessions (log out everywhere, password change). */
   sessionVersion: integer("session_version").notNull().default(0),
   acceptedTermsAt: integer("accepted_terms_at", { mode: "timestamp_ms" }),
+  /** Last time the user was active (at most updated daily). Inactive accounts are deleted after 3 years. */
+  lastSeenAt: integer("last_seen_at", { mode: "timestamp_ms" }),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
 });
 
@@ -74,6 +76,14 @@ export const payments = sqliteTable(
     reference: text("reference"),
     /** When the customer consented to immediate delivery (forbrugeraftaleloven § 18, stk. 2, nr. 13). */
     consentAt: integer("consent_at", { mode: "timestamp_ms" }),
+    /** The exact consent wording the customer accepted (proof for the right-of-withdrawal rules). */
+    consentText: text("consent_text"),
+    /** Stripe payment intent – needed to refund a withdrawal. */
+    paymentIntent: text("payment_intent"),
+    /** A monthly Pro renewal (not a new contract, so no new withdrawal period). */
+    renewal: integer("renewal", { mode: "boolean" }).default(false),
+    refundedAt: integer("refunded_at", { mode: "timestamp_ms" }),
+    refundedOere: integer("refunded_oere"),
     createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
   },
   (t) => [index("payments_user_idx").on(t.userId)],

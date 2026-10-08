@@ -55,11 +55,11 @@ const li = (
 
 export const DEMO_QUOTES: DemoQuote[] = [
   {
-    slug: "hansen",
-    keywords: ["hansen", "soen", "søn", "vvs-byg"],
-    fileName: "hansen-soen-badevaerelse.pdf",
+    slug: "eksempel-vvs",
+    keywords: ["eksempel-vvs", "vvs"],
+    fileName: "eksempel-vvs-badevaerelse.pdf",
     projectName: "Nyt badeværelse",
-    contractorAddress: "Industrivej 14, 4000 Roskilde",
+    contractorAddress: "Eksempelvej 1, 4000 Roskilde",
     customer: "Familien Jensen, Søndergade 8, 4000 Roskilde",
     pdfTerms: [
       "Prisen er et overslag og kan ændre sig afhængigt af forholdene.",
@@ -68,14 +68,14 @@ export const DEMO_QUOTES: DemoQuote[] = [
       "Tilbuddet er gældende i 14 dage.",
     ],
     raw: {
-      contractor: { name: "Hansen & Søn VVS-Byg ApS", cvr: "39 21 48 57", phone: "46 12 34 56", email: "tilbud@hansensoen.example", address: "Industrivej 14, 4000 Roskilde" },
+      contractor: { name: "Eksempel VVS ApS", cvr: "12 34 56 78", phone: null, email: "tilbud@eksempel-vvs.example", address: "Eksempelvej 1, 4000 Roskilde" },
       title: "Renovering af badeværelse",
       quoteDate: "2026-09-02",
       validUntil: "2026-09-16",
       priceType: "overslag",
       totals: { exclVat: 128400, vat: 32100, inclVat: 160500 },
       summary:
-        "Hansen & Søn giver et overslag på 160.500 kr. inkl. moms for at rive det gamle badeværelse ned og bygge et nyt med nye rør, fliser og el. Det er et overslag, så den endelige pris er ikke bindende og kan blive højere. En stor del af beløbet – 40.500 kr. ekskl. moms – ligger i to poster, der ikke er beskrevet: \"Materialer iht. aftale\" og \"Diverse arbejde\". El-arbejdet afregnes efter forbrug, og der står intet om bortskaffelse, tidsplan eller garanti. Bed om en mere detaljeret specifikation, før du skriver under.",
+        "Eksempel VVS giver et overslag på 160.500 kr. inkl. moms for at rive det gamle badeværelse ned og bygge et nyt med nye rør, fliser og el. Det er et overslag, så den endelige pris er ikke bindende og kan blive højere. En stor del af beløbet – 40.500 kr. ekskl. moms – ligger i to poster, der ikke er beskrevet: \"Materialer iht. aftale\" og \"Diverse arbejde\". El-arbejdet afregnes efter forbrug, og der står intet om bortskaffelse, tidsplan eller garanti. Bed om en mere detaljeret specifikation, før du skriver under.",
       lineItems: [
         li("Nedrivning af eksisterende badeværelse", "Arbejdsløn", 14500, "clear", "Fjernelse af gamle fliser, toilet, håndvask og bruseniche, så rummet står klar til opbygning."),
         li("Afdækning og opsætning af støvvæg", "Arbejdsløn", 5200, "clear", "Beskyttelse af gang og tilstødende rum mod støv og skader under arbejdet."),
@@ -174,11 +174,11 @@ export const DEMO_QUOTES: DemoQuote[] = [
     },
   },
   {
-    slug: "nordvest",
-    keywords: ["nordvest"],
-    fileName: "nordvest-badevaerelser.pdf",
+    slug: "eksempel-bad",
+    keywords: ["eksempel-bad"],
+    fileName: "eksempel-bad-badevaerelse.pdf",
     projectName: "Nyt badeværelse",
-    contractorAddress: "Håndværkervej 3, 2400 København NV",
+    contractorAddress: "Eksempelvej 2, 2400 København NV",
     customer: "Familien Jensen, Søndergade 8, 4000 Roskilde",
     pdfTerms: [
       "Fast pris. Prisen reguleres ikke, medmindre kunden ønsker ændringer.",
@@ -189,14 +189,14 @@ export const DEMO_QUOTES: DemoQuote[] = [
       "Oprydning og bortskaffelse er inkluderet. Tilbuddet gælder i 30 dage.",
     ],
     raw: {
-      contractor: { name: "Nordvest Badeværelser A/S", cvr: "41 87 22 09", phone: "38 10 20 30", email: "kontakt@nordvestbad.example", address: "Håndværkervej 3, 2400 København NV" },
+      contractor: { name: "Eksempel Bad A/S", cvr: "87 65 43 21", phone: null, email: "kontakt@eksempel-bad.example", address: "Eksempelvej 2, 2400 København NV" },
       title: "Totalrenovering af badeværelse, 6 m²",
       quoteDate: "2026-09-05",
       validUntil: "2026-10-05",
       priceType: "fast_pris",
       totals: { exclVat: 129800, vat: 32450, inclVat: 162250 },
       summary:
-        "Nordvest Badeværelser tilbyder at renovere badeværelset til en fast pris på 162.250 kr. inkl. moms. Tilbuddet er meget grundigt: hver post er beskrevet med mængder og materialer, og der er en klar betalingsplan i tre rater. Oprydning, bortskaffelse og garanti er med, og firmaet er medlem af Byggeriets Ankenævn. Det eneste, der er lidt uklart, er hvor meget af den eksisterende el-installation der skal tilpasses.",
+        "Eksempel Bad tilbyder at renovere badeværelset til en fast pris på 162.250 kr. inkl. moms. Tilbuddet er meget grundigt: hver post er beskrevet med mængder og materialer, og der er en klar betalingsplan i tre rater. Oprydning, bortskaffelse og garanti er med, og firmaet er medlem af Byggeriets Ankenævn. Det eneste, der er lidt uklart, er hvor meget af den eksisterende el-installation der skal tilpasses.",
       lineItems: [
         li("Nedrivning af eksisterende bad inkl. fliser og inventar", "Arbejdsløn", 12400, "clear", "Det gamle badeværelse fjernes helt, så der er klar til nyt."),
         li("Container 10 m³ og bortskaffelse af byggeaffald", "Bortskaffelse", 4600, "clear", "Leje af container og aflevering af affald på genbrugsplads."),
@@ -278,8 +278,8 @@ export const DEMO_QUOTES: DemoQuote[] = [
   },
   {
     slug: "kbh",
-    keywords: ["kbh", "totalbyg"],
-    fileName: "kbh-totalbyg.pdf",
+    keywords: ["eksempel-byg", "totalbyg"],
+    fileName: "eksempel-byg.pdf",
     projectName: "Nyt badeværelse",
     contractorAddress: "København",
     customer: "Familien Jensen",
@@ -289,14 +289,14 @@ export const DEMO_QUOTES: DemoQuote[] = [
       "Tilbuddet gælder 8 dage. Alle priser er ekskl. moms.",
     ],
     raw: {
-      contractor: { name: "KBH Totalbyg", cvr: null, phone: "20 30 40 50", email: null, address: "København" },
+      contractor: { name: "Eksempel Byg", cvr: null, phone: null, email: null, address: "København" },
       title: "Badeværelse – totalpakke",
       quoteDate: "2026-09-08",
       validUntil: "2026-09-16",
       priceType: "uklart",
       totals: { exclVat: 98000, vat: 24500, inclVat: 122500 },
       summary:
-        "KBH Totalbyg er billigst med 122.500 kr. inkl. moms, men tilbuddet består kun af tre samleposter uden beskrivelse. Der er intet CVR-nummer, og halvdelen af beløbet skal betales, før arbejdet går i gang. Det er uklart, om prisen er fast, og der står intet om materialer, garanti eller hvad der sker ved ekstraarbejde. Den lave pris kan derfor ende højere, og du har få muligheder, hvis noget går galt.",
+        "Eksempel Byg er billigst med 122.500 kr. inkl. moms, men tilbuddet består kun af tre samleposter uden beskrivelse. Der er intet CVR-nummer, og halvdelen af beløbet skal betales, før arbejdet går i gang. Det er uklart, om prisen er fast, og der står intet om materialer, garanti eller hvad der sker ved ekstraarbejde. Den lave pris kan derfor ende højere, og du har få muligheder, hvis noget går galt.",
       lineItems: [
         li("Totalrenovering af badeværelse", "Arbejdsløn", 68000, "unclear", "Én samlet post for hele arbejdet. Der står ikke, hvad der er med – fx VVS, el, fliser eller membran.", { note: "Ingen specifikation" }),
         li("Materialer", "Materialer", 24000, "unclear", "Der står ikke, hvilke materialer eller produkter du får.", { note: "Ingen specifikation" }),
@@ -389,10 +389,10 @@ export const DEMO_QUOTES: DemoQuote[] = [
   },
   {
     slug: "lysluft",
-    keywords: ["lys", "luft", "vindue"],
-    fileName: "lys-og-luft-vinduer.pdf",
+    keywords: ["eksempel-vinduer", "vindue"],
+    fileName: "eksempel-vinduer.pdf",
     projectName: "Nye vinduer",
-    contractorAddress: "Vestergade 51, 8000 Aarhus C",
+    contractorAddress: "Eksempelvej 3, 8000 Aarhus C",
     customer: "Familien Jensen, Søndergade 8, 4000 Roskilde",
     pdfTerms: [
       "Pris for vinduer og montering er bindende.",
@@ -402,14 +402,14 @@ export const DEMO_QUOTES: DemoQuote[] = [
       "10 års producentgaranti på vinduer. 5 års garanti på montering. Tilbuddet gælder 30 dage.",
     ],
     raw: {
-      contractor: { name: "Lys & Luft Vinduer ApS", cvr: "37 55 10 92", phone: "86 40 50 60", email: "salg@lysogluft.example", address: "Vestergade 51, 8000 Aarhus C" },
+      contractor: { name: "Eksempel Vinduer ApS", cvr: "11 11 11 11", phone: null, email: "salg@eksempel-vinduer.example", address: "Eksempelvej 3, 8000 Aarhus C" },
       title: "Udskiftning af 8 vinduer",
       quoteDate: "2026-08-28",
       validUntil: "2026-09-27",
       priceType: "tilbud",
       totals: { exclVat: 123200, vat: 30800, inclVat: 154000 },
       summary:
-        "Lys & Luft tilbyder at udskifte 8 vinduer for 154.000 kr. inkl. moms. Vinduer, montering og bortskaffelse er tydeligt beskrevet med stykpriser, og der er god garanti. Den svage plet er murværksreparationen, som afregnes efter regning, og der står ingen timepris. Maling af lysninger er heller ikke nævnt.",
+        "Eksempel Vinduer tilbyder at udskifte 8 vinduer for 154.000 kr. inkl. moms. Vinduer, montering og bortskaffelse er tydeligt beskrevet med stykpriser, og der er god garanti. Den svage plet er murværksreparationen, som afregnes efter regning, og der står ingen timepris. Maling af lysninger er heller ikke nævnt.",
       lineItems: [
         li("Velfac 200 Energy, 3-lags, træ/alu, hvid", "Materialer", 78800, "clear", "Selve vinduerne. Mærke, type og antal er angivet.", { quantity: 8, unit: "stk.", unitPrice: 9850 }),
         li("Montering af vinduer", "Arbejdsløn", 19200, "clear", "Isætning, justering og fastgørelse.", { quantity: 8, unit: "stk.", unitPrice: 2400 }),

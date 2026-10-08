@@ -8,7 +8,9 @@ import { PRO_PRICE_DKK, SINGLE_PRICE_DKK, getUsage } from "@/lib/plans";
 import { getDict, getI18n } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
 import { INTL_LOCALE } from "@/i18n/config";
-import { isStripeEnabled } from "@/lib/billing";
+import { isStripeEnabled, unusedSinglePurchases, withdrawalQuote } from "@/lib/billing";
+import { WITHDRAWAL_DAYS } from "@/lib/company";
+import { WithdrawButton } from "@/components/WithdrawButton";
 import { cn, formatDate, formatKr } from "@/lib/format";
 import { CheckoutButton } from "@/components/CheckoutButton";
 import { AccountSettings } from "@/components/AccountSettings";
@@ -33,6 +35,7 @@ export default async function AccountPage({
     where: eq(payments.userId, user.id),
     orderBy: [desc(payments.createdAt)],
   });
+  const unused = unusedSinglePurchases(user, history);
   const upgrade = sp.upgrade;
   const quoteId = sp.quote;
   const quote = quoteId
@@ -189,19 +192,45 @@ export default async function AccountPage({
         {history.length === 0 ? (
           <p className="card mt-4 p-5 text-sm text-ink-muted">{t.noPayments}</p>
         ) : (
+          <>
           <div className="card mt-4 divide-y divide-line">
-            {history.map((p) => (
-              <div key={p.id} className="flex items-center justify-between gap-4 p-4">
-                <div className="min-w-0">
-                  <p className="font-medium">{p.kind === "PRO_MONTHLY" ? t.payPro : t.paySingle}</p>
-                  <p className="text-xs text-ink-muted">
-                    {date(p.createdAt)} · {p.provider === "simulated" ? t.payTest : t.payStripe}
-                  </p>
+            {history.map((p) => {
+              const w = withdrawalQuote(p, unused);
+              const withinPeriod = !p.renewal && !p.refundedAt && Date.now() - p.createdAt.getTime() <= WITHDRAWAL_DAYS * 86400000;
+              return (
+                <div key={p.id} className="flex items-start justify-between gap-4 p-4">
+                  <div className="min-w-0">
+                    <p className="font-medium">{p.kind === "PRO_MONTHLY" ? t.payPro : t.paySingle}</p>
+                    <p className="text-xs text-ink-muted">
+                      {date(p.createdAt)} · {p.provider === "simulated" ? t.payTest : t.payStripe}
+                    </p>
+                    {p.refundedAt && (
+                      <p className="mt-1 text-xs font-medium text-brand-700">
+                        {fmt(t.refunded, { amount: ((p.refundedOere ?? 0) / 100).toLocaleString(intl, { maximumFractionDigits: 2 }) })}
+                      </p>
+                    )}
+                    {withinPeriod && "refundOere" in w && (
+                      <>
+                        <p className="mt-1 text-xs text-ink-muted">
+                          {fmt(t.withdrawUntil, { date: date(new Date(p.createdAt.getTime() + WITHDRAWAL_DAYS * 86400000)) })}
+                        </p>
+                        <WithdrawButton
+                          paymentId={p.id}
+                          amount={(w.refundOere / 100).toLocaleString(intl, { maximumFractionDigits: 2 })}
+                        />
+                      </>
+                    )}
+                    {withinPeriod && "reason" in w && w.reason === "withdrawUsed" && (
+                      <p className="mt-1 text-xs text-ink-muted">{t.withdrawUsed}</p>
+                    )}
+                  </div>
+                  <p className="num shrink-0 font-semibold">{formatKr(p.amountDkk)}</p>
                 </div>
-                <p className="num shrink-0 font-semibold">{formatKr(p.amountDkk)}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
+          <p className="mt-3 text-xs text-ink-muted">{t.withdrawText}</p>
+          </>
         )}
       </section>
       <AccountSettings postalCode={user.postalCode ?? ""} />
