@@ -25,7 +25,7 @@ export const nb: Dict = {
       "Denne siden finnes bare på dansk, fordi det er den juridisk bindende versjonen.",
   },
   meta: {
-    title: "FixFlow – forstå tilbudet fra håndverkeren",
+    title: "Merova – forstå tilbudet fra håndverkeren",
     description:
       "Last opp tilbudet fra håndverkeren og få det forklart: skjulte kostnader, uklare poster, danske regler og spørsmålene du bør stille før du skriver under.",
   },
@@ -37,7 +37,7 @@ export const nb: Dict = {
     tryFree: "Prøv gratis",
   },
   footer: {
-    tagline: "Trygghet når du bruker mye penger. FixFlow forklarer håndverkertilbud etter danske regler.",
+    tagline: "Trygghet når du bruker mye penger. Merova forklarer håndverkertilbud etter danske regler.",
     pricing: "Priser",
     login: "Logg inn",
     signup: "Opprett konto",
@@ -81,10 +81,10 @@ export const nb: Dict = {
       { title: "Vi går gjennom det", text: "Hver post forklares, uklare punkter markeres, og du får en tilbudsscore fra 0 til 100." },
       { title: "Still de riktige spørsmålene", text: "Få konkrete spørsmål og en ferdig melding du kan sende til håndverkeren." },
     ],
-    whyEyebrow: "Hvorfor FixFlow",
+    whyEyebrow: "Hvorfor Merova",
     whyTitle: "Vi selger ikke AI. Vi selger trygghet.",
     whyText:
-      "Et nytt bad eller nye vinduer koster ofte mer enn en bil. Du skal ikke måtte være ekspert for å forstå hva du sier ja til. De fleste håndverkere er seriøse – FixFlow hjelper dere å være enige om det samme fra start.",
+      "Et nytt bad eller nye vinduer koster ofte mer enn en bil. Du skal ikke måtte være ekspert for å forstå hva du sier ja til. De fleste håndverkere er seriøse – Merova hjelper dere å være enige om det samme fra start.",
     features: [
       { title: "Tilbudsscore", text: "Ett tall fra 0–100 som viser hvor oversiktlig tilbudet er – beregnet etter faste regler." },
       { title: "Skjulte kostnader", text: "Vi finner «etter regning», «diverse» og manglende poster som kan bli til ekstraregninger." },
@@ -147,19 +147,19 @@ export const nb: Dict = {
   },
   faq: [
     {
-      q: "Hvordan fungerer FixFlow?",
+      q: "Hvordan fungerer Merova?",
       a: "Du laster opp tilbudet som PDF eller bilde. Vi leser det, forklarer hver post, finner uklare punkter og mulige ekstrakostnader, sjekker danske regler og gir deg konkrete spørsmål du kan stille håndverkeren.",
     },
     {
-      q: "Er FixFlow imot håndverkere?",
-      a: "Nei. De fleste håndverkere er seriøse og dyktige. Et uklart tilbud skyldes oftest travelhet – ikke vond vilje. FixFlow hjelper dere å bli enige om det samme før arbeidet starter.",
+      q: "Er Merova imot håndverkere?",
+      a: "Nei. De fleste håndverkere er seriøse og dyktige. Et uklart tilbud skyldes oftest travelhet – ikke vond vilje. Merova hjelper dere å bli enige om det samme før arbeidet starter.",
     },
     {
       q: "Kan jeg stole på analysen?",
       a: "Analysen er en hjelp til å stille de riktige spørsmålene – ikke juridisk eller teknisk rådgivning. Tilbudsscoren beregnes etter faste regler, så den er lik for alle tilbud. Ved store eller kompliserte prosjekter anbefaler vi alltid å snakke med en byggrådgiver.",
     },
     {
-      q: "Kan jeg bruke FixFlow på et annet språk?",
+      q: "Kan jeg bruke Merova på et annet språk?",
       a: "Ja. Velg språk øverst på siden. Analysen skrives på ditt språk, og tilbud på for eksempel svensk, tysk eller polsk blir også forklart. Meldinger til håndverkeren kan du få på dansk eller ditt eget språk.",
     },
     {
@@ -197,7 +197,7 @@ export const nb: Dict = {
     demoEmail: "E-post",
     demoPassword: "Passord",
     sideQuote: "«Vi var like ved å skrive under på 160 000 kr. Etterpå visste vi nøyaktig hva vi skulle spørre om – og fikk en fastpris.»",
-    sideCaption: "Eksempel på et typisk forløp med FixFlow",
+    sideCaption: "Eksempel på et typisk forløp med Merova",
     sideBullets: [
       "Hver post forklart på ditt eget språk",
       "Uklare punkter og ekstrakostnader markert",
@@ -384,7 +384,7 @@ export const nb: Dict = {
     messageLocked: "Få en ferdig, høflig melding til håndverkeren med ett klikk når du låser opp analysen.",
     unlockMessages: "Lås opp meldinger",
     disclaimer:
-      "Analysen er veiledende og bygger på det som står i det opplastede dokumentet. Tilbudsscoren er beregnet etter faste regler og sier noe om hvor tydelig tilbudet er – ikke om håndverkerens faglige kvalitet. Beløp for mulige ekstrakostnader og prisnivå er anslag. FixFlow erstatter ikke juridisk eller byggteknisk rådgivning.",
+      "Analysen er veiledende og bygger på det som står i det opplastede dokumentet. Tilbudsscoren er beregnet etter faste regler og sier noe om hvor tydelig tilbudet er – ikke om håndverkerens faglige kvalitet. Beløp for mulige ekstrakostnader og prisnivå er anslag. Merova erstatter ikke juridisk eller byggteknisk rådgivning.",
     suggestionStart: "Når kan dere starte, og når er dere ferdige?",
     suggestionFixed: "Kan prisen gjøres om til fastpris?",
     analysisLanguageNote: "Denne analysen er skrevet på {language}. Nye analyser skrives på språket du har valgt.",
@@ -548,8 +548,8 @@ export const nb: Dict = {
     approx: "ca. ",
     since: "siden {year}",
     requestTitle: "Be om tilbud",
-    requestIntroSelected: "Send den samme meldingen til de {n} valgte firmaene. Da får du tilbud som er enkle å sammenligne – og som scorer høyt i FixFlow.",
-    requestIntro: "Send den samme meldingen til firmaene du velger. Da får du tilbud som er enkle å sammenligne – og som scorer høyt i FixFlow.",
+    requestIntroSelected: "Send den samme meldingen til de {n} valgte firmaene. Da får du tilbud som er enkle å sammenligne – og som scorer høyt i Merova.",
+    requestIntro: "Send den samme meldingen til firmaene du velger. Da får du tilbud som er enkle å sammenligne – og som scorer høyt i Merova.",
     project: "Jobben",
     projectPlaceholder: "F.eks. Totalrenovering av bad på ca. 6 m² i enebolig fra 1975. Nye fliser, gulvvarme, vegghengt toalett.",
     when: "Når",

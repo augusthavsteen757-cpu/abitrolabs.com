@@ -122,7 +122,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <div className="mt-8 rounded-2xl border border-dashed border-brand-300 bg-brand-50/60 p-4 text-sm">
           <p className="font-semibold text-brand-800">{a.demoTitle}</p>
           <p className="mt-1 text-ink-soft">
-            {a.demoEmail}: <span className="font-mono text-ink">demo@fixflow.dk</span>
+            {a.demoEmail}: <span className="font-mono text-ink">demo@merova.dk</span>
             <br />
             {a.demoPassword}: <span className="font-mono text-ink">demo1234</span>
           </p>

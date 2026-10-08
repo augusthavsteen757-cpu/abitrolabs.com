@@ -21,7 +21,7 @@ export const pl: Dict = {
       "Ta strona jest dostępna tylko po duńsku, ponieważ to wersja duńska jest prawnie wiążąca.",
   },
   meta: {
-    title: "FixFlow – zrozum wycenę od wykonawcy",
+    title: "Merova – zrozum wycenę od wykonawcy",
     description:
       "Wgraj wycenę od wykonawcy i poznaj jej znaczenie: ukryte koszty, niejasne pozycje, duńskie przepisy i pytania, które warto zadać przed podpisaniem.",
   },
@@ -33,7 +33,7 @@ export const pl: Dict = {
     tryFree: "Wypróbuj za darmo",
   },
   footer: {
-    tagline: "Spokój, gdy wydajesz duże pieniądze. FixFlow wyjaśnia wyceny wykonawców według duńskich przepisów.",
+    tagline: "Spokój, gdy wydajesz duże pieniądze. Merova wyjaśnia wyceny wykonawców według duńskich przepisów.",
     pricing: "Cennik",
     login: "Zaloguj się",
     signup: "Załóż konto",
@@ -77,10 +77,10 @@ export const pl: Dict = {
       { title: "My ją sprawdzamy", text: "Wyjaśniamy każdą pozycję, zaznaczamy niejasności i podajemy ocenę wyceny od 0 do 100." },
       { title: "Zadaj właściwe pytania", text: "Otrzymasz konkretne pytania i gotową wiadomość do wysłania wykonawcy." },
     ],
-    whyEyebrow: "Dlaczego FixFlow",
+    whyEyebrow: "Dlaczego Merova",
     whyTitle: "Nie sprzedajemy AI. Sprzedajemy spokój.",
     whyText:
-      "Łazienka czy nowe okna często kosztują więcej niż samochód. Nie musisz być ekspertem, by rozumieć, na co się zgadzasz. Większość wykonawców to rzetelni fachowcy – FixFlow pomaga wam od początku rozumieć umowę tak samo.",
+      "Łazienka czy nowe okna często kosztują więcej niż samochód. Nie musisz być ekspertem, by rozumieć, na co się zgadzasz. Większość wykonawców to rzetelni fachowcy – Merova pomaga wam od początku rozumieć umowę tak samo.",
     features: [
       { title: "Ocena wyceny", text: "Jedna liczba od 0 do 100 pokazująca, jak przejrzysta jest wycena – liczona według stałych zasad." },
       { title: "Ukryte koszty", text: "Wyłapujemy „wg rzeczywistych kosztów”, „różne” i brakujące pozycje, które mogą skończyć się dopłatami." },
@@ -143,19 +143,19 @@ export const pl: Dict = {
   },
   faq: [
     {
-      q: "Jak działa FixFlow?",
+      q: "Jak działa Merova?",
       a: "Wgrywasz wycenę jako PDF lub zdjęcie. Odczytujemy ją, wyjaśniamy każdą pozycję, wskazujemy niejasności i możliwe dodatkowe koszty, sprawdzamy duńskie przepisy i podajemy konkretne pytania, które możesz zadać wykonawcy.",
     },
     {
-      q: "Czy FixFlow jest przeciwko wykonawcom?",
-      a: "Nie. Większość wykonawców to rzetelni i kompetentni fachowcy. Niejasna wycena wynika zwykle z pośpiechu – nie ze złej woli. FixFlow pomaga wam ustalić to samo, zanim ruszą prace.",
+      q: "Czy Merova jest przeciwko wykonawcom?",
+      a: "Nie. Większość wykonawców to rzetelni i kompetentni fachowcy. Niejasna wycena wynika zwykle z pośpiechu – nie ze złej woli. Merova pomaga wam ustalić to samo, zanim ruszą prace.",
     },
     {
       q: "Czy mogę ufać analizie?",
       a: "Analiza pomaga zadać właściwe pytania – nie jest poradą prawną ani techniczną. Ocena wyceny jest liczona według stałych zasad, więc jest taka sama dla wszystkich wycen. Przy dużych lub skomplikowanych projektach zawsze zalecamy rozmowę z doradcą budowlanym.",
     },
     {
-      q: "Czy mogę używać FixFlow w innym języku?",
+      q: "Czy mogę używać Merova w innym języku?",
       a: "Tak. Wybierz język u góry strony. Analiza powstaje w Twoim języku, a wyceny np. po szwedzku, niemiecku czy polsku też zostaną wyjaśnione. Wiadomości do wykonawcy możesz otrzymać po duńsku lub w swoim języku.",
     },
     {
@@ -193,7 +193,7 @@ export const pl: Dict = {
     demoEmail: "E-mail",
     demoPassword: "Hasło",
     sideQuote: "„Prawie podpisaliśmy umowę na 160 000 kr. Potem wiedzieliśmy dokładnie, o co zapytać – i dostaliśmy cenę stałą.”",
-    sideCaption: "Przykład typowego przebiegu z FixFlow",
+    sideCaption: "Przykład typowego przebiegu z Merova",
     sideBullets: [
       "Każda pozycja wyjaśniona w Twoim języku",
       "Niejasności i dodatkowe koszty zaznaczone",
@@ -380,7 +380,7 @@ export const pl: Dict = {
     messageLocked: "Po odblokowaniu analizy otrzymasz jednym kliknięciem gotową, uprzejmą wiadomość do wykonawcy.",
     unlockMessages: "Odblokuj wiadomości",
     disclaimer:
-      "Analiza ma charakter orientacyjny i opiera się na treści wgranego dokumentu. Ocena wyceny jest liczona według stałych zasad i mówi o tym, jak przejrzysta jest wycena – nie o jakości pracy wykonawcy. Kwoty możliwych dodatkowych kosztów i poziom cen to szacunki. FixFlow nie zastępuje porady prawnej ani budowlano-technicznej.",
+      "Analiza ma charakter orientacyjny i opiera się na treści wgranego dokumentu. Ocena wyceny jest liczona według stałych zasad i mówi o tym, jak przejrzysta jest wycena – nie o jakości pracy wykonawcy. Kwoty możliwych dodatkowych kosztów i poziom cen to szacunki. Merova nie zastępuje porady prawnej ani budowlano-technicznej.",
     suggestionStart: "Kiedy mogą Państwo zacząć i kiedy skończą?",
     suggestionFixed: "Czy cena może być ceną stałą?",
     analysisLanguageNote: "Ta analiza jest napisana w języku: {language}. Nowe analizy powstają w wybranym przez Ciebie języku.",
@@ -544,8 +544,8 @@ export const pl: Dict = {
     approx: "ok. ",
     since: "od {year}",
     requestTitle: "Poproś o wycenę",
-    requestIntroSelected: "Wyślij tę samą wiadomość do wybranych firm ({n}). Otrzymasz wyceny łatwe do porównania – i wysoko oceniane w FixFlow.",
-    requestIntro: "Wyślij tę samą wiadomość do wybranych firm. Otrzymasz wyceny łatwe do porównania – i wysoko oceniane w FixFlow.",
+    requestIntroSelected: "Wyślij tę samą wiadomość do wybranych firm ({n}). Otrzymasz wyceny łatwe do porównania – i wysoko oceniane w Merova.",
+    requestIntro: "Wyślij tę samą wiadomość do wybranych firm. Otrzymasz wyceny łatwe do porównania – i wysoko oceniane w Merova.",
     project: "Zlecenie",
     projectPlaceholder: "Np. Kompletny remont łazienki ok. 6 m² w domu jednorodzinnym z 1975 r. Nowe płytki, ogrzewanie podłogowe, WC podwieszane.",
     when: "Kiedy",

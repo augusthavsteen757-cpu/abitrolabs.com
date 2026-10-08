@@ -25,7 +25,7 @@ export const en: Dict = {
       "This page is only available in Danish, because the Danish version is the legally binding one.",
   },
   meta: {
-    title: "FixFlow – understand your contractor’s quote",
+    title: "Merova – understand your contractor’s quote",
     description:
       "Upload your contractor’s quote and get it explained: hidden costs, unclear items, Danish rules and the questions to ask before you sign.",
   },
@@ -37,7 +37,7 @@ export const en: Dict = {
     tryFree: "Try for free",
   },
   footer: {
-    tagline: "Peace of mind when you’re spending a lot. FixFlow explains contractor quotes according to Danish rules.",
+    tagline: "Peace of mind when you’re spending a lot. Merova explains contractor quotes according to Danish rules.",
     pricing: "Pricing",
     login: "Log in",
     signup: "Create account",
@@ -81,10 +81,10 @@ export const en: Dict = {
       { title: "We go through it", text: "Every item is explained, unclear points are flagged, and you get a quote score from 0 to 100." },
       { title: "Ask the right questions", text: "Get specific questions and a ready-made message you can send to the contractor." },
     ],
-    whyEyebrow: "Why FixFlow",
+    whyEyebrow: "Why Merova",
     whyTitle: "We don’t sell AI. We sell peace of mind.",
     whyText:
-      "A bathroom or new windows often cost more than a car. You shouldn’t need to be an expert to understand what you’re agreeing to. Most contractors are trustworthy – FixFlow helps you both agree on the same thing from the start.",
+      "A bathroom or new windows often cost more than a car. You shouldn’t need to be an expert to understand what you’re agreeing to. Most contractors are trustworthy – Merova helps you both agree on the same thing from the start.",
     features: [
       { title: "Quote score", text: "One number from 0–100 showing how transparent the quote is – calculated using fixed rules." },
       { title: "Hidden costs", text: "We spot ‘charged as used’, ‘sundries’ and missing items that could turn into extra bills." },
@@ -147,19 +147,19 @@ export const en: Dict = {
   },
   faq: [
     {
-      q: "How does FixFlow work?",
+      q: "How does Merova work?",
       a: "You upload your quote as a PDF or photo. We read it, explain each item, find unclear points and possible extra costs, check Danish rules and give you specific questions to ask the contractor.",
     },
     {
-      q: "Is FixFlow against contractors?",
-      a: "No. Most contractors are trustworthy and skilled. An unclear quote is usually down to a busy schedule – not bad intentions. FixFlow helps you agree on the same thing before work begins.",
+      q: "Is Merova against contractors?",
+      a: "No. Most contractors are trustworthy and skilled. An unclear quote is usually down to a busy schedule – not bad intentions. Merova helps you agree on the same thing before work begins.",
     },
     {
       q: "Can I trust the analysis?",
       a: "The analysis helps you ask the right questions – it isn’t legal or technical advice. The quote score is calculated using fixed rules, so it’s the same for every quote. For large or complex projects, we always recommend speaking to a building consultant.",
     },
     {
-      q: "Can I use FixFlow in another language?",
+      q: "Can I use Merova in another language?",
       a: "Yes. Choose your language at the top of the page. The analysis is written in your language, and quotes in, say, Swedish, German or Polish are explained too. Messages to the contractor can be in Danish or your own language.",
     },
     {
@@ -197,7 +197,7 @@ export const en: Dict = {
     demoEmail: "Email",
     demoPassword: "Password",
     sideQuote: "“We were just about to sign for 160,000 kr. Afterwards we knew exactly what to ask – and got a fixed price.”",
-    sideCaption: "Example of a typical journey with FixFlow",
+    sideCaption: "Example of a typical journey with Merova",
     sideBullets: [
       "Every item explained in your own language",
       "Unclear points and extra costs flagged",
@@ -384,7 +384,7 @@ export const en: Dict = {
     messageLocked: "Get a ready-made, polite message for the contractor in one click when you unlock the analysis.",
     unlockMessages: "Unlock messages",
     disclaimer:
-      "The analysis is for guidance only and is based on what’s in the uploaded document. The quote score is calculated using fixed rules and reflects how clear the quote is – not the contractor’s workmanship. Amounts for possible extra costs and price level are estimates. FixFlow doesn’t replace legal or building advice.",
+      "The analysis is for guidance only and is based on what’s in the uploaded document. The quote score is calculated using fixed rules and reflects how clear the quote is – not the contractor’s workmanship. Amounts for possible extra costs and price level are estimates. Merova doesn’t replace legal or building advice.",
     suggestionStart: "When can you start, and when will you be finished?",
     suggestionFixed: "Can the price be made a fixed price?",
     analysisLanguageNote: "This analysis is written in {language}. New analyses are written in your chosen language.",
@@ -548,8 +548,8 @@ export const en: Dict = {
     approx: "approx. ",
     since: "since {year}",
     requestTitle: "Request quotes",
-    requestIntroSelected: "Send the same message to the {n} selected companies. You’ll get quotes that are easy to compare – and that score well in FixFlow.",
-    requestIntro: "Send the same message to the companies you choose. You’ll get quotes that are easy to compare – and that score well in FixFlow.",
+    requestIntroSelected: "Send the same message to the {n} selected companies. You’ll get quotes that are easy to compare – and that score well in Merova.",
+    requestIntro: "Send the same message to the companies you choose. You’ll get quotes that are easy to compare – and that score well in Merova.",
     project: "The job",
     projectPlaceholder: "E.g. Full renovation of a bathroom of approx. 6 m² in a detached house from 1975. New tiles, underfloor heating, wall-hung toilet.",
     when: "When",

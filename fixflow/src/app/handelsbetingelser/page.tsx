@@ -11,12 +11,12 @@ export default function TermsPage() {
     <LegalPage title="Handelsbetingelser">
       <h2>Hvem er vi?</h2>
       <p>
-        FixFlow drives af {COMPANY.name}, CVR {COMPANY.cvr}, {COMPANY.address}. E-mail: {COMPANY.email}.
+        Merova drives af {COMPANY.name}, CVR {COMPANY.cvr}, {COMPANY.address}. E-mail: {COMPANY.email}.
       </p>
 
-      <h2>Hvad er FixFlow?</h2>
+      <h2>Hvad er Merova?</h2>
       <p>
-        FixFlow er en digital tjeneste, der forklarer håndværkertilbud, peger på uklare punkter og mulige ekstraudgifter
+        Merova er en digital tjeneste, der forklarer håndværkertilbud, peger på uklare punkter og mulige ekstraudgifter
         og hjælper dig med at stille spørgsmål. Analysen laves automatisk med kunstig intelligens og faste regler.
       </p>
       <p>

@@ -25,7 +25,7 @@ export const ro: Dict = {
       "Această pagină există doar în daneză, deoarece aceasta este versiunea cu valoare juridică.",
   },
   meta: {
-    title: "FixFlow – înțelege oferta meșterului",
+    title: "Merova – înțelege oferta meșterului",
     description:
       "Încarcă oferta de la meșter și primește explicații: costuri ascunse, poziții neclare, reguli daneze și întrebările pe care să le pui înainte să semnezi.",
   },
@@ -37,7 +37,7 @@ export const ro: Dict = {
     tryFree: "Încearcă gratuit",
   },
   footer: {
-    tagline: "Liniște atunci când cheltui mulți bani. FixFlow explică ofertele meșterilor conform regulilor daneze.",
+    tagline: "Liniște atunci când cheltui mulți bani. Merova explică ofertele meșterilor conform regulilor daneze.",
     pricing: "Prețuri",
     login: "Autentificare",
     signup: "Creează cont",
@@ -81,10 +81,10 @@ export const ro: Dict = {
       { title: "O analizăm", text: "Fiecare poziție e explicată, punctele neclare sunt marcate și primești un Scor al ofertei de la 0 la 100." },
       { title: "Pune întrebările potrivite", text: "Primești întrebări concrete și un mesaj gata de trimis meșterului." },
     ],
-    whyEyebrow: "De ce FixFlow",
+    whyEyebrow: "De ce Merova",
     whyTitle: "Nu vindem AI. Vindem liniște.",
     whyText:
-      "O baie sau ferestre noi costă adesea mai mult decât o mașină. Nu trebuie să fii expert ca să înțelegi la ce spui da. Majoritatea meșterilor sunt serioși – FixFlow vă ajută să fiți de acord asupra acelorași lucruri de la început.",
+      "O baie sau ferestre noi costă adesea mai mult decât o mașină. Nu trebuie să fii expert ca să înțelegi la ce spui da. Majoritatea meșterilor sunt serioși – Merova vă ajută să fiți de acord asupra acelorași lucruri de la început.",
     features: [
       { title: "Scorul ofertei", text: "Un număr de la 0 la 100 care arată cât de transparentă e oferta – calculat după reguli fixe." },
       { title: "Costuri ascunse", text: "Găsim „în regie”, „diverse” și poziții lipsă care pot deveni facturi în plus." },
@@ -147,19 +147,19 @@ export const ro: Dict = {
   },
   faq: [
     {
-      q: "Cum funcționează FixFlow?",
+      q: "Cum funcționează Merova?",
       a: "Încarci oferta ca PDF sau fotografie. O citim, explicăm fiecare poziție, găsim punctele neclare și posibilele costuri suplimentare, verificăm regulile daneze și îți dăm întrebări concrete pe care să le pui meșterului.",
     },
     {
-      q: "Este FixFlow împotriva meșterilor?",
-      a: "Nu. Majoritatea meșterilor sunt serioși și pricepuți. O ofertă neclară apare de obicei din grabă – nu din rea-voință. FixFlow vă ajută să fiți de acord asupra acelorași lucruri înainte să înceapă lucrarea.",
+      q: "Este Merova împotriva meșterilor?",
+      a: "Nu. Majoritatea meșterilor sunt serioși și pricepuți. O ofertă neclară apare de obicei din grabă – nu din rea-voință. Merova vă ajută să fiți de acord asupra acelorași lucruri înainte să înceapă lucrarea.",
     },
     {
       q: "Mă pot baza pe analiză?",
       a: "Analiza te ajută să pui întrebările potrivite – nu este consultanță juridică sau tehnică. Scorul ofertei se calculează după reguli fixe, deci e la fel pentru toate ofertele. La proiecte mari sau complicate recomandăm mereu să vorbești cu un consultant în construcții.",
     },
     {
-      q: "Pot folosi FixFlow în altă limbă?",
+      q: "Pot folosi Merova în altă limbă?",
       a: "Da. Alege limba din partea de sus a paginii. Analiza este scrisă în limba ta, iar ofertele în, de exemplu, suedeză, germană sau poloneză sunt explicate și ele. Mesajele către meșter le poți primi în daneză sau în limba ta.",
     },
     {
@@ -197,7 +197,7 @@ export const ro: Dict = {
     demoEmail: "E-mail",
     demoPassword: "Parolă",
     sideQuote: "„Eram cât pe ce să semnăm pentru 160.000 kr. După aceea am știut exact ce să întrebăm – și am obținut un preț fix.”",
-    sideCaption: "Exemplu de parcurs tipic cu FixFlow",
+    sideCaption: "Exemplu de parcurs tipic cu Merova",
     sideBullets: [
       "Fiecare poziție explicată în limba ta",
       "Puncte neclare și costuri suplimentare marcate",
@@ -384,7 +384,7 @@ export const ro: Dict = {
     messageLocked: "Primește un mesaj politicos, gata de trimis meșterului, dintr-un clic, după ce deblochezi analiza.",
     unlockMessages: "Deblochează mesajele",
     disclaimer:
-      "Analiza are caracter orientativ și se bazează pe conținutul documentului încărcat. Scorul ofertei este calculat după reguli fixe și arată cât de clară este oferta – nu calitatea profesională a meșterului. Sumele pentru posibilele costuri suplimentare și nivelul de preț sunt estimări. FixFlow nu înlocuiește consultanța juridică sau tehnică în construcții.",
+      "Analiza are caracter orientativ și se bazează pe conținutul documentului încărcat. Scorul ofertei este calculat după reguli fixe și arată cât de clară este oferta – nu calitatea profesională a meșterului. Sumele pentru posibilele costuri suplimentare și nivelul de preț sunt estimări. Merova nu înlocuiește consultanța juridică sau tehnică în construcții.",
     suggestionStart: "Când puteți începe și când terminați?",
     suggestionFixed: "Se poate face prețul ca preț fix?",
     analysisLanguageNote: "Această analiză este scrisă în {language}. Analizele noi sunt scrise în limba aleasă de tine.",
@@ -548,8 +548,8 @@ export const ro: Dict = {
     approx: "cca ",
     since: "din {year}",
     requestTitle: "Cere ofertă",
-    requestIntroSelected: "Trimite același mesaj celor {n} firme alese. Așa primești oferte ușor de comparat – și care obțin scor mare în FixFlow.",
-    requestIntro: "Trimite același mesaj firmelor pe care le alegi. Așa primești oferte ușor de comparat – și care obțin scor mare în FixFlow.",
+    requestIntroSelected: "Trimite același mesaj celor {n} firme alese. Așa primești oferte ușor de comparat – și care obțin scor mare în Merova.",
+    requestIntro: "Trimite același mesaj firmelor pe care le alegi. Așa primești oferte ușor de comparat – și care obțin scor mare în Merova.",
     project: "Lucrarea",
     projectPlaceholder: "Ex.: Renovare completă a unei băi de cca 6 m² într-o casă din 1975. Faianță nouă, încălzire în pardoseală, toaletă suspendată.",
     when: "Când",

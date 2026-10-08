@@ -25,7 +25,7 @@ export const de: Dict = {
       "Diese Seite gibt es nur auf Dänisch, da die dänische Fassung die rechtlich verbindliche Version ist.",
   },
   meta: {
-    title: "FixFlow – verstehe dein Handwerkerangebot",
+    title: "Merova – verstehe dein Handwerkerangebot",
     description:
       "Lade dein Handwerkerangebot hoch und lass es dir erklären: versteckte Kosten, unklare Posten, dänische Vorschriften und die Fragen, die du vor der Unterschrift stellen solltest.",
   },
@@ -37,7 +37,7 @@ export const de: Dict = {
     tryFree: "Kostenlos testen",
   },
   footer: {
-    tagline: "Sicherheit, wenn es um viel Geld geht. FixFlow erklärt Handwerkerangebote nach dänischen Regeln.",
+    tagline: "Sicherheit, wenn es um viel Geld geht. Merova erklärt Handwerkerangebote nach dänischen Regeln.",
     pricing: "Preise",
     login: "Anmelden",
     signup: "Konto erstellen",
@@ -81,10 +81,10 @@ export const de: Dict = {
       { title: "Wir prüfen es", text: "Jeder Posten wird erklärt, Unklares markiert, und du bekommst einen Angebots-Score von 0 bis 100." },
       { title: "Die richtigen Fragen stellen", text: "Erhalte konkrete Fragen und eine fertige Nachricht, die du an den Handwerker schicken kannst." },
     ],
-    whyEyebrow: "Warum FixFlow",
+    whyEyebrow: "Warum Merova",
     whyTitle: "Wir verkaufen keine KI. Wir verkaufen Sicherheit.",
     whyText:
-      "Ein neues Bad oder neue Fenster kosten oft mehr als ein Auto. Du musst kein Experte sein, um zu verstehen, wozu du Ja sagst. Die meisten Handwerker sind seriös – FixFlow hilft euch, von Anfang an vom Gleichen zu sprechen.",
+      "Ein neues Bad oder neue Fenster kosten oft mehr als ein Auto. Du musst kein Experte sein, um zu verstehen, wozu du Ja sagst. Die meisten Handwerker sind seriös – Merova hilft euch, von Anfang an vom Gleichen zu sprechen.",
     features: [
       { title: "Angebots-Score", text: "Eine Zahl von 0–100, die zeigt, wie transparent das Angebot ist – nach festen Regeln berechnet." },
       { title: "Versteckte Kosten", text: "Wir finden „nach Aufwand“, „Sonstiges“ und fehlende Posten, die zu Nachforderungen führen können." },
@@ -147,19 +147,19 @@ export const de: Dict = {
   },
   faq: [
     {
-      q: "Wie funktioniert FixFlow?",
+      q: "Wie funktioniert Merova?",
       a: "Du lädst dein Angebot als PDF oder Foto hoch. Wir lesen es, erklären jeden Posten, finden unklare Punkte und mögliche Zusatzkosten, prüfen dänische Vorschriften und geben dir konkrete Fragen, die du dem Handwerker stellen kannst.",
     },
     {
-      q: "Ist FixFlow gegen Handwerker?",
-      a: "Nein. Die meisten Handwerker sind seriös und kompetent. Ein unklares Angebot liegt meist an Zeitdruck – nicht an böser Absicht. FixFlow hilft euch, euch einig zu sein, bevor die Arbeit beginnt.",
+      q: "Ist Merova gegen Handwerker?",
+      a: "Nein. Die meisten Handwerker sind seriös und kompetent. Ein unklares Angebot liegt meist an Zeitdruck – nicht an böser Absicht. Merova hilft euch, euch einig zu sein, bevor die Arbeit beginnt.",
     },
     {
       q: "Kann ich mich auf die Analyse verlassen?",
       a: "Die Analyse hilft dir, die richtigen Fragen zu stellen – sie ist keine rechtliche oder technische Beratung. Der Angebots-Score wird nach festen Regeln berechnet und ist daher für alle Angebote gleich. Bei großen oder komplizierten Projekten empfehlen wir immer, mit einem Bauberater zu sprechen.",
     },
     {
-      q: "Kann ich FixFlow in einer anderen Sprache nutzen?",
+      q: "Kann ich Merova in einer anderen Sprache nutzen?",
       a: "Ja. Wähle die Sprache oben auf der Seite. Die Analyse wird in deiner Sprache geschrieben, und auch Angebote z. B. auf Schwedisch, Deutsch oder Polnisch werden erklärt. Nachrichten an den Handwerker bekommst du auf Dänisch oder in deiner Sprache.",
     },
     {
@@ -197,7 +197,7 @@ export const de: Dict = {
     demoEmail: "E-Mail",
     demoPassword: "Passwort",
     sideQuote: "„Wir hätten fast für 160.000 kr. unterschrieben. Danach wussten wir genau, was wir fragen mussten – und haben einen Festpreis bekommen.“",
-    sideCaption: "Beispiel für einen typischen Ablauf mit FixFlow",
+    sideCaption: "Beispiel für einen typischen Ablauf mit Merova",
     sideBullets: [
       "Jeder Posten in deiner Sprache erklärt",
       "Unklare Punkte und Zusatzkosten markiert",
@@ -384,7 +384,7 @@ export const de: Dict = {
     messageLocked: "Erhalte mit einem Klick eine fertige, höfliche Nachricht an den Handwerker, sobald du die Analyse freischaltest.",
     unlockMessages: "Nachrichten freischalten",
     disclaimer:
-      "Die Analyse dient zur Orientierung und basiert auf dem Inhalt des hochgeladenen Dokuments. Der Angebots-Score wird nach festen Regeln berechnet und sagt etwas darüber aus, wie klar das Angebot ist – nicht über die fachliche Qualität des Handwerkers. Beträge für mögliche Zusatzkosten und das Preisniveau sind Schätzungen. FixFlow ersetzt keine rechtliche oder bautechnische Beratung.",
+      "Die Analyse dient zur Orientierung und basiert auf dem Inhalt des hochgeladenen Dokuments. Der Angebots-Score wird nach festen Regeln berechnet und sagt etwas darüber aus, wie klar das Angebot ist – nicht über die fachliche Qualität des Handwerkers. Beträge für mögliche Zusatzkosten und das Preisniveau sind Schätzungen. Merova ersetzt keine rechtliche oder bautechnische Beratung.",
     suggestionStart: "Wann können Sie anfangen, und wann sind Sie fertig?",
     suggestionFixed: "Ist ein Festpreis möglich?",
     analysisLanguageNote: "Diese Analyse ist auf {language} verfasst. Neue Analysen werden in deiner gewählten Sprache geschrieben.",
@@ -548,8 +548,8 @@ export const de: Dict = {
     approx: "ca. ",
     since: "seit {year}",
     requestTitle: "Angebot anfragen",
-    requestIntroSelected: "Sende dieselbe Nachricht an die {n} gewählten Firmen. So erhältst du Angebote, die leicht zu vergleichen sind – und in FixFlow gut abschneiden.",
-    requestIntro: "Sende dieselbe Nachricht an die Firmen, die du auswählst. So erhältst du Angebote, die leicht zu vergleichen sind – und in FixFlow gut abschneiden.",
+    requestIntroSelected: "Sende dieselbe Nachricht an die {n} gewählten Firmen. So erhältst du Angebote, die leicht zu vergleichen sind – und in Merova gut abschneiden.",
+    requestIntro: "Sende dieselbe Nachricht an die Firmen, die du auswählst. So erhältst du Angebote, die leicht zu vergleichen sind – und in Merova gut abschneiden.",
     project: "Der Auftrag",
     projectPlaceholder: "z. B. Komplettsanierung eines ca. 6 m² großen Bads in einem Einfamilienhaus von 1975. Neue Fliesen, Fußbodenheizung, Hänge-WC.",
     when: "Wann",

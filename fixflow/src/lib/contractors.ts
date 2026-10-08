@@ -10,7 +10,7 @@ import { distanceKm, isPostalCode, locatePostalCode, type Place } from "./geo";
  * clearly marked FICTIONAL demo firms, so the feature can be tried end-to-end.
  *
  * We deliberately do NOT claim which firm is "best": a register can't tell quality. Firms are
- * sorted by distance; the user then asks for quotes and FixFlow compares the quotes themselves.
+ * sorted by distance; the user then asks for quotes and Merova compares the quotes themselves.
  */
 
 export const TRADES = {

@@ -9,7 +9,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage title="Privatlivspolitik">
       <p>
-        Her kan du læse, hvilke oplysninger FixFlow behandler om dig, hvorfor, og hvilke rettigheder du har. Vi indsamler
+        Her kan du læse, hvilke oplysninger Merova behandler om dig, hvorfor, og hvilke rettigheder du har. Vi indsamler
         kun det, der er nødvendigt for at levere tjenesten.
       </p>
 

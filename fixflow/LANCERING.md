@@ -1,4 +1,4 @@
-# Sådan lancerer du FixFlow
+# Sådan lancerer du Merova
 
 En trin-for-trin-plan fra "appen virker på min computer" til "kunder kan betale". Punkterne er i den rækkefølge, de giver mening.
 
@@ -13,7 +13,7 @@ En trin-for-trin-plan fra "appen virker på min computer" til "kunder kan betale
 - [ ] **Digitalt bogføringssystem**: bogføringsloven kræver et registreret system (fx Dinero, Billy, e-conomic). Forbind det med Stripe.
 - [ ] **Erhvervsbank-konto** til Stripe-udbetalinger.
 - [ ] **Forsikring**: overvej en erhvervsansvars- og *professionel ansvarsforsikring* – du giver vejledning om store køb. Spørg også om cyberforsikring.
-- [ ] **Varemærke**: tjek at "FixFlow" ikke er taget i Danmark/EU ([dkpto.dk](https://www.dkpto.dk), [euipo.europa.eu](https://euipo.europa.eu)), og køb domænet.
+- [ ] **Varemærke**: tjek at "Merova" ikke er taget i Danmark/EU ([dkpto.dk](https://www.dkpto.dk), [euipo.europa.eu](https://euipo.europa.eu)), og køb domænet.
 
 ## 2. Jura i appen (uge 1–2)
 
@@ -36,8 +36,8 @@ Du skal selv:
 - [ ] **Fortegnelse over behandlingsaktiviteter** (GDPR art. 30) – et simpelt dokument. Datatilsynet har skabeloner.
 - [ ] **Procedure ved databrud**: hvem gør hvad, og anmeldelse til Datatilsynet inden for 72 timer.
 - [ ] **Markedsføring**: priser skal altid vises inkl. moms (det gør appen). Send aldrig nyhedsbreve uden samtykke (markedsføringslovens § 10). Påstande som "spar 20.000 kr." skal kunne dokumenteres.
-- [ ] **Håndværkere**: FixFlow viser offentlige CVR-oplysninger og anbefaler ikke bestemte firmaer – hold det sådan. Skriv aldrig negativt om navngivne firmaer i markedsføring.
-- [ ] **AI-forordningen (EU AI Act)**: FixFlow er ikke højrisiko, men brugerne skal vide, at analysen laves med AI – det står i handelsbetingelserne. Nævn det også på forsiden/FAQ.
+- [ ] **Håndværkere**: Merova viser offentlige CVR-oplysninger og anbefaler ikke bestemte firmaer – hold det sådan. Skriv aldrig negativt om navngivne firmaer i markedsføring.
+- [ ] **AI-forordningen (EU AI Act)**: Merova er ikke højrisiko, men brugerne skal vide, at analysen laves med AI – det står i handelsbetingelserne. Nævn det også på forsiden/FAQ.
 
 ## 3. Rigtig AI-analyse (uge 2)
 
@@ -56,7 +56,7 @@ Du skal selv:
 
 - [ ] Søg om gratis adgang til **CVR-registrets system-til-system-søgning** hos Erhvervsstyrelsen (søg "CVR system til system adgang" på virk.dk). Du får brugernavn og adgangskode → `CVR_ES_USER` og `CVR_ES_PASSWORD`.
 - [ ] Test søgningen og tjek branchekoderne i `src/lib/contractors.ts` mod Danmarks Statistiks DB07-liste.
-- [ ] Respektér **reklamebeskyttelse** i CVR: FixFlow kontakter aldrig firmaer selv – det er brugeren, der sender sin egen tilbudsanmodning. Bliv ved med det.
+- [ ] Respektér **reklamebeskyttelse** i CVR: Merova kontakter aldrig firmaer selv – det er brugeren, der sender sin egen tilbudsanmodning. Bliv ved med det.
 - [ ] Valgfrit: sæt `GEO_API_URL` til en officiel adresse-API for præcise afstande (ellers bruges omtrentlige bymidter).
 
 ## 6. Drift og sikkerhed (uge 3)

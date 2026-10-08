@@ -38,7 +38,7 @@ function wrap(text: string, font: PDFFont, size: number, width: number): string[
 async function renderPdf(q: DemoQuote): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.setTitle(`${q.raw.title} – ${q.raw.contractor.name} (FIKTIVT EKSEMPEL)`);
-  doc.setAuthor("FixFlow demo");
+  doc.setAuthor("Merova demo");
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const ink = rgb(0.08, 0.13, 0.11);
@@ -72,7 +72,7 @@ async function renderPdf(q: DemoQuote): Promise<Uint8Array> {
     .filter(Boolean)
     .join("  ·  ");
   page.drawText(contact, { x: L, y, size: 9, font, color: muted });
-  page.drawText("FIKTIVT EKSEMPEL – til test af FixFlow", { x: R - font.widthOfTextAtSize("FIKTIVT EKSEMPEL – til test af FixFlow", 8), y: 800, size: 8, font, color: rgb(0.8, 0.2, 0.2) });
+  page.drawText("FIKTIVT EKSEMPEL – til test af Merova", { x: R - font.widthOfTextAtSize("FIKTIVT EKSEMPEL – til test af Merova", 8), y: 800, size: 8, font, color: rgb(0.8, 0.2, 0.2) });
 
   y -= 40;
   const docType = q.raw.priceType === "overslag" ? "OVERSLAG" : "TILBUD";
@@ -154,7 +154,7 @@ async function main() {
   }
 
   await db.delete(rateLimits); // fresh counters for local testing
-  const email = "demo@fixflow.dk";
+  const email = "demo@merova.dk";
   // Remove any previous demo user explicitly (don't rely on SQLite's foreign_keys pragma).
   const old = await db.query.users.findFirst({ where: eq(users.email, email) });
   if (old) {
