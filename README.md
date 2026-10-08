@@ -16,6 +16,6 @@ Local preview: `npx serve .` and open http://localhost:3000.
 
 Images are still loaded from `framerusercontent.com`. If you cancel Framer, download them into an `assets/` folder and update the URLs.
 
-## Budsyn
+## Klardal
 
-The `fixflow/` folder contains Budsyn, a separate Next.js app (Danish SaaS for understanding contractor quotes). It is independent of the static site above – see `fixflow/README.md`. When deploying it on Vercel, create a separate project with **Root Directory = `fixflow`**.
+The `fixflow/` folder contains Klardal, a separate Next.js app (Danish SaaS for understanding contractor quotes). It is independent of the static site above – see `fixflow/README.md`. When deploying it on Vercel, create a separate project with **Root Directory = `fixflow`**.

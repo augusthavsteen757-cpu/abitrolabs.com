@@ -236,7 +236,7 @@ async function sendOrderConfirmation(userId: string, p: Payment) {
   const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
   if (!user) return;
   const pro = p.kind === "PRO_MONTHLY";
-  const product = pro ? "Budsyn Pro – 1 måned" : "Budsyn engangskøb – 1 komplet analyse";
+  const product = pro ? "Klardal Pro – 1 måned" : "Klardal engangskøb – 1 komplet analyse";
   const lines = [
     `Hej ${user.name}`,
     "",
@@ -268,7 +268,7 @@ async function sendOrderConfirmation(userId: string, p: Payment) {
   await sendEmail({
     to: user.email,
     toName: user.name,
-    subject: p.renewal ? `Kvittering: Budsyn Pro er fornyet` : `Ordrebekræftelse: ${product}`,
+    subject: p.renewal ? `Kvittering: Klardal Pro er fornyet` : `Ordrebekræftelse: ${product}`,
     text: lines.join("\n"),
   });
 }

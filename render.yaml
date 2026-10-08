@@ -1,4 +1,4 @@
-# Render Blueprint for the Budsyn app in ./fixflow (the static abitrolabs.com site is unaffected).
+# Render Blueprint for the Klardal app in ./fixflow (the static abitrolabs.com site is unaffected).
 # Free plan: no permanent disk, so the database lives in Turso and uploaded files are stored in it.
 services:
   - type: web

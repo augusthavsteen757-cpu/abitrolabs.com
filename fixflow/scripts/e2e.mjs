@@ -161,7 +161,7 @@ try {
   /* ---------------- 2. Demo user: compare + ask contractor ---------------- */
   const demo = await newPage();
   await demo.goto(`${BASE}/login`);
-  await demo.fill("#email", "demo@budsyn.dk");
+  await demo.fill("#email", "demo@klardal.dk");
   await demo.fill("#password", "demo1234");
   await demo.click("button[type=submit]");
   await demo.waitForURL(`${BASE}/dashboard`);
@@ -229,7 +229,7 @@ try {
     await noOverflow(mobile, r);
   }
   await mobile.goto(`${BASE}/login`);
-  await mobile.fill("#email", "demo@budsyn.dk");
+  await mobile.fill("#email", "demo@klardal.dk");
   await mobile.fill("#password", "demo1234");
   await mobile.click("button[type=submit]");
   await mobile.waitForURL(`${BASE}/dashboard`);
@@ -268,7 +268,7 @@ try {
   const LOCALES = ["en", "sv", "nb", "de", "pl", "uk", "ro"];
   const langPage = await newPage(390, 844);
   await langPage.goto(`${BASE}/login`);
-  await langPage.fill("#email", "demo@budsyn.dk");
+  await langPage.fill("#email", "demo@klardal.dk");
   await langPage.fill("#password", "demo1234");
   await langPage.click("button[type=submit]");
   await langPage.waitForURL(`${BASE}/dashboard`);

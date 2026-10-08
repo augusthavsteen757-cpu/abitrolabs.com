@@ -1,4 +1,4 @@
-# Sådan lancerer du Budsyn
+# Sådan lancerer du Klardal
 
 En trin-for-trin-plan fra "appen virker på min computer" til "kunder kan betale". Punkterne er i den rækkefølge, de giver mening.
 
@@ -13,7 +13,7 @@ En trin-for-trin-plan fra "appen virker på min computer" til "kunder kan betale
 - [ ] **Digitalt bogføringssystem**: bogføringsloven kræver et registreret system (fx Dinero, Billy, e-conomic). Forbind det med Stripe.
 - [ ] **Erhvervsbank-konto** til Stripe-udbetalinger.
 - [ ] **Forsikring**: overvej en erhvervsansvars- og *professionel ansvarsforsikring* – du giver vejledning om store køb. Spørg også om cyberforsikring.
-- [ ] **Varemærke**: tjek at "Budsyn" ikke er taget i Danmark/EU ([dkpto.dk](https://www.dkpto.dk), [euipo.europa.eu](https://euipo.europa.eu)), og køb domænet.
+- [ ] **Varemærke**: søg på "Klardal" og lignende "Klar"-mærker i [TMview](https://www.tmdn.org/tmview), [DKPTO](https://www.dkpto.dk), [PRV](https://www.prv.se) og [Patentstyret](https://search.patentstyret.no) (klasse 9, 35, 36, 37, 42). Vær særligt opmærksom på vinduesfirmaet KLAR (Klarvinduer) og appen KlarPris. Få en varemærkeadvokat til at vurdere det, og køb klardal.dk, .com og .app.
 
 ## 2. Jura i appen (uge 1–2)
 
@@ -39,12 +39,12 @@ Du skal selv:
   - **Anthropic** – betalt API-konto under de kommercielle vilkår (indeholder DPA). Tjek kontraktpart, hvor længe data gemmes, og at de ikke bruges til træning – og ret privatlivspolitikken, hvis noget afviger.
   - Tjek for hver af dem, om de er certificeret under EU-US Data Privacy Framework.
   - Stripe er selvstændig dataansvarlig for kortbetalingen.
-- [ ] **Advokat**: få bekræftet paragrafhenvisningerne, fortrydelsesknappen (EU-direktiv 2023/2673), ansvarsafsnittet og at Stripes betalingsknap er tydelig nok (Budsyn sætter teksten "Du forpligter dig til at betale …" over knappen).
+- [ ] **Advokat**: få bekræftet paragrafhenvisningerne, fortrydelsesknappen (EU-direktiv 2023/2673), ansvarsafsnittet og at Stripes betalingsknap er tydelig nok (Klardal sætter teksten "Du forpligter dig til at betale …" over knappen).
 - [ ] **Fortegnelse over behandlingsaktiviteter** (GDPR art. 30) – et simpelt dokument. Datatilsynet har skabeloner.
 - [ ] **Procedure ved databrud**: hvem gør hvad, og anmeldelse til Datatilsynet inden for 72 timer.
 - [ ] **Markedsføring**: priser skal altid vises inkl. moms (det gør appen). Send aldrig nyhedsbreve uden samtykke (markedsføringslovens § 10). Påstande som "spar 20.000 kr." skal kunne dokumenteres.
-- [ ] **Håndværkere**: Budsyn viser offentlige CVR-oplysninger og anbefaler ikke bestemte firmaer – hold det sådan. Skriv aldrig negativt om navngivne firmaer i markedsføring.
-- [ ] **AI-forordningen (EU AI Act)**: Budsyn er ikke højrisiko. Brugerne får at vide, at analysen og beskederne laves med AI – hold det sådan i al markedsføring.
+- [ ] **Håndværkere**: Klardal viser offentlige CVR-oplysninger og anbefaler ikke bestemte firmaer – hold det sådan. Skriv aldrig negativt om navngivne firmaer i markedsføring.
+- [ ] **AI-forordningen (EU AI Act)**: Klardal er ikke højrisiko. Brugerne får at vide, at analysen og beskederne laves med AI – hold det sådan i al markedsføring.
 
 ## 3. Rigtig AI-analyse (uge 2)
 
@@ -63,7 +63,7 @@ Du skal selv:
 
 - [ ] Søg om gratis adgang til **CVR-registrets system-til-system-søgning** hos Erhvervsstyrelsen (søg "CVR system til system adgang" på virk.dk). Du får brugernavn og adgangskode → `CVR_ES_USER` og `CVR_ES_PASSWORD`.
 - [ ] Test søgningen og tjek branchekoderne i `src/lib/contractors.ts` mod Danmarks Statistiks DB07-liste.
-- [ ] Respektér **reklamebeskyttelse** i CVR: Budsyn kontakter aldrig firmaer selv – det er brugeren, der sender sin egen tilbudsanmodning. Bliv ved med det.
+- [ ] Respektér **reklamebeskyttelse** i CVR: Klardal kontakter aldrig firmaer selv – det er brugeren, der sender sin egen tilbudsanmodning. Bliv ved med det.
 - [ ] Valgfrit: sæt `GEO_API_URL` til en officiel adresse-API for præcise afstande (ellers bruges omtrentlige bymidter).
 
 ## 6. Drift og sikkerhed (uge 3)

@@ -31,7 +31,7 @@ export const da = {
     ],
   },
   meta: {
-    title: "Budsyn – forstå dit håndværkertilbud",
+    title: "Klardal – forstå dit håndværkertilbud",
     description:
       "Upload dit håndværkertilbud og få det forklaret: skjulte udgifter, uklare poster, danske regler og de spørgsmål, du bør stille, før du skriver under.",
   },
@@ -43,7 +43,7 @@ export const da = {
     tryFree: "Prøv gratis",
   },
   footer: {
-    tagline: "Tryghed, når du bruger mange penge. Budsyn forklarer håndværkertilbud efter danske regler.",
+    tagline: "Tryghed, når du bruger mange penge. Klardal forklarer håndværkertilbud efter danske regler.",
     pricing: "Priser",
     login: "Log ind",
     signup: "Opret konto",
@@ -89,10 +89,10 @@ export const da = {
       { title: "AI gennemgår det", text: "Vores AI læser tilbuddet, forklarer posterne og markerer uklare punkter. Tilbudsscoren fra 0 til 100 beregnes derefter efter faste regler." },
       { title: "Stil de rigtige spørgsmål", text: "Få konkrete spørgsmål og en færdig besked, du kan sende til håndværkeren." },
     ],
-    whyEyebrow: "Hvorfor Budsyn",
+    whyEyebrow: "Hvorfor Klardal",
     whyTitle: "Teknologien er AI. Det, du får, er tryghed.",
     whyText:
-      "Et badeværelse eller nye vinduer koster ofte mere end en bil. Du skal ikke være ekspert for at forstå, hvad du siger ja til. De fleste håndværkere er seriøse – Budsyn hjælper jer med at blive enige om det samme fra start.",
+      "Et badeværelse eller nye vinduer koster ofte mere end en bil. Du skal ikke være ekspert for at forstå, hvad du siger ja til. De fleste håndværkere er seriøse – Klardal hjælper jer med at blive enige om det samme fra start.",
     features: [
       { title: "Tilbudsscore", text: "Ét tal fra 0–100, der viser hvor gennemsigtigt tilbuddet er – beregnet efter faste regler ud fra AI'ens gennemgang." },
       { title: "Skjulte udgifter", text: "Vi finder “efter regning”, “diverse” og manglende poster, der kan blive til ekstraregninger." },
@@ -155,19 +155,19 @@ export const da = {
   },
   faq: [
     {
-      q: "Hvordan virker Budsyn?",
+      q: "Hvordan virker Klardal?",
       a: "Du uploader dit tilbud som PDF eller foto. Vores AI læser det, forklarer hver post, finder uklare punkter og mulige ekstraudgifter, gennemgår hvad tilbuddet siger om danske regler og giver dig konkrete spørgsmål, du kan stille håndværkeren.",
     },
     {
-      q: "Er Budsyn imod håndværkere?",
-      a: "Nej. De fleste håndværkere er seriøse og dygtige. Et uklart tilbud skyldes oftest travlhed – ikke ond vilje. Budsyn hjælper jer med at blive enige om det samme, før arbejdet går i gang.",
+      q: "Er Klardal imod håndværkere?",
+      a: "Nej. De fleste håndværkere er seriøse og dygtige. Et uklart tilbud skyldes oftest travlhed – ikke ond vilje. Klardal hjælper jer med at blive enige om det samme, før arbejdet går i gang.",
     },
     {
       q: "Kan jeg stole på analysen?",
       a: "Analysen er en hjælp til at stille de rigtige spørgsmål – ikke juridisk eller teknisk rådgivning. Analysen laves af AI og kan indeholde fejl. Tilbudsscoren regnes ud efter faste regler på grundlag af AI'ens gennemgang af tilbuddet. Ved store eller komplicerede projekter anbefaler vi altid at tale med en byggerådgiver.",
     },
     {
-      q: "Kan jeg bruge Budsyn på et andet sprog?",
+      q: "Kan jeg bruge Klardal på et andet sprog?",
       a: "Ja. Vælg sprog øverst på siden. Analysen skrives på dit sprog, og tilbud på fx svensk, tysk eller polsk bliver også forklaret. Beskeder til håndværkeren kan du få på dansk eller dit eget sprog.",
     },
     {
@@ -396,7 +396,7 @@ export const da = {
     messageLocked: "Få en færdig, høflig besked til håndværkeren med ét klik, når du låser analysen op.",
     unlockMessages: "Lås op for beskeder",
     disclaimer:
-      "Analysen er lavet af AI, er vejledende og bygger kun på det, der står i det uploadede dokument. Den kan indeholde fejl. Tilbudsscoren er beregnet efter faste regler ud fra AI'ens gennemgang og siger noget om, hvor tydeligt tilbuddet er – ikke om håndværkerens faglige kvalitet. Beløb for mulige ekstraudgifter og prisniveau er skøn. Budsyn erstatter ikke juridisk eller byggeteknisk rådgivning.",
+      "Analysen er lavet af AI, er vejledende og bygger kun på det, der står i det uploadede dokument. Den kan indeholde fejl. Tilbudsscoren er beregnet efter faste regler ud fra AI'ens gennemgang og siger noget om, hvor tydeligt tilbuddet er – ikke om håndværkerens faglige kvalitet. Beløb for mulige ekstraudgifter og prisniveau er skøn. Klardal erstatter ikke juridisk eller byggeteknisk rådgivning.",
     suggestionStart: "Hvornår kan I starte, og hvornår er I færdige?",
     suggestionFixed: "Kan prisen laves som fast pris?",
     analysisLanguageNote: "Denne analyse er skrevet på {language}. Nye analyser skrives på dit valgte sprog.",
@@ -561,8 +561,8 @@ export const da = {
     approx: "ca. ",
     since: "siden {year}",
     requestTitle: "Bed om tilbud",
-    requestIntroSelected: "Send den samme besked til de {n} valgte firmaer. Så får du tilbud, der er nemme at sammenligne – og som scorer højt i Budsyn.",
-    requestIntro: "Send den samme besked til de firmaer, du vælger. Så får du tilbud, der er nemme at sammenligne – og som scorer højt i Budsyn.",
+    requestIntroSelected: "Send den samme besked til de {n} valgte firmaer. Så får du tilbud, der er nemme at sammenligne – og som scorer højt i Klardal.",
+    requestIntro: "Send den samme besked til de firmaer, du vælger. Så får du tilbud, der er nemme at sammenligne – og som scorer højt i Klardal.",
     project: "Opgaven",
     projectPlaceholder: "Fx Totalrenovering af badeværelse på ca. 6 m² i parcelhus fra 1975. Nye fliser, gulvvarme, væghængt toilet.",
     when: "Hvornår",

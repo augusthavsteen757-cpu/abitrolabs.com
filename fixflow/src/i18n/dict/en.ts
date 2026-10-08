@@ -33,7 +33,7 @@ export const en: Dict = {
     ],
   },
   meta: {
-    title: "Budsyn – understand your contractor’s quote",
+    title: "Klardal – understand your contractor’s quote",
     description:
       "Upload your contractor’s quote and get it explained: hidden costs, unclear items, Danish rules and the questions to ask before you sign.",
   },
@@ -45,7 +45,7 @@ export const en: Dict = {
     tryFree: "Try for free",
   },
   footer: {
-    tagline: "Peace of mind when you’re spending a lot. Budsyn explains contractor quotes according to Danish rules.",
+    tagline: "Peace of mind when you’re spending a lot. Klardal explains contractor quotes according to Danish rules.",
     pricing: "Pricing",
     login: "Log in",
     signup: "Create account",
@@ -91,10 +91,10 @@ export const en: Dict = {
       { title: "AI goes through it", text: "Our AI reads the quote, explains the items and flags unclear points. The quote score from 0 to 100 is then calculated using fixed rules." },
       { title: "Ask the right questions", text: "Get specific questions and a ready-made message you can send to the contractor." },
     ],
-    whyEyebrow: "Why Budsyn",
+    whyEyebrow: "Why Klardal",
     whyTitle: "The technology is AI. What you get is peace of mind.",
     whyText:
-      "A bathroom or new windows often cost more than a car. You shouldn’t need to be an expert to understand what you’re agreeing to. Most contractors are trustworthy – Budsyn helps you both agree on the same thing from the start.",
+      "A bathroom or new windows often cost more than a car. You shouldn’t need to be an expert to understand what you’re agreeing to. Most contractors are trustworthy – Klardal helps you both agree on the same thing from the start.",
     features: [
       { title: "Quote score", text: "One number from 0–100 showing how transparent the quote is – calculated using fixed rules based on the AI’s review." },
       { title: "Hidden costs", text: "We spot ‘charged as used’, ‘sundries’ and missing items that could turn into extra bills." },
@@ -157,19 +157,19 @@ export const en: Dict = {
   },
   faq: [
     {
-      q: "How does Budsyn work?",
+      q: "How does Klardal work?",
       a: "You upload your quote as a PDF or photo. Our AI reads it, explains each item, finds unclear points and possible extra costs, reviews what the quote says about Danish rules and gives give you specific questions to ask the contractor.",
     },
     {
-      q: "Is Budsyn against contractors?",
-      a: "No. Most contractors are trustworthy and skilled. An unclear quote is usually down to a busy schedule – not bad intentions. Budsyn helps you agree on the same thing before work begins.",
+      q: "Is Klardal against contractors?",
+      a: "No. Most contractors are trustworthy and skilled. An unclear quote is usually down to a busy schedule – not bad intentions. Klardal helps you agree on the same thing before work begins.",
     },
     {
       q: "Can I trust the analysis?",
       a: "The analysis helps you ask the right questions – it isn’t legal or technical advice. The analysis is produced by AI and may contain errors. The quote score is calculated using fixed rules based on the AI’s review of the quote. For large or complex projects, we always recommend speaking to a building consultant.",
     },
     {
-      q: "Can I use Budsyn in another language?",
+      q: "Can I use Klardal in another language?",
       a: "Yes. Choose your language at the top of the page. The analysis is written in your language, and quotes in, say, Swedish, German or Polish are explained too. Messages to the contractor can be in Danish or your own language.",
     },
     {
@@ -398,7 +398,7 @@ export const en: Dict = {
     messageLocked: "Get a ready-made, polite message for the contractor in one click when you unlock the analysis.",
     unlockMessages: "Unlock messages",
     disclaimer:
-      "The analysis is produced by AI, is for guidance only and is based solely on what’s in the uploaded document. It may contain errors. The quote score is calculated using fixed rules based on the AI’s review and reflects how clear the quote is – not the contractor’s workmanship. Amounts for possible extra costs and price level are estimates. Budsyn doesn’t replace legal or building advice.",
+      "The analysis is produced by AI, is for guidance only and is based solely on what’s in the uploaded document. It may contain errors. The quote score is calculated using fixed rules based on the AI’s review and reflects how clear the quote is – not the contractor’s workmanship. Amounts for possible extra costs and price level are estimates. Klardal doesn’t replace legal or building advice.",
     suggestionStart: "When can you start, and when will you be finished?",
     suggestionFixed: "Can the price be made a fixed price?",
     analysisLanguageNote: "This analysis is written in {language}. New analyses are written in your chosen language.",
@@ -563,8 +563,8 @@ export const en: Dict = {
     approx: "approx. ",
     since: "since {year}",
     requestTitle: "Request quotes",
-    requestIntroSelected: "Send the same message to the {n} selected companies. You’ll get quotes that are easy to compare – and that score well in Budsyn.",
-    requestIntro: "Send the same message to the companies you choose. You’ll get quotes that are easy to compare – and that score well in Budsyn.",
+    requestIntroSelected: "Send the same message to the {n} selected companies. You’ll get quotes that are easy to compare – and that score well in Klardal.",
+    requestIntro: "Send the same message to the companies you choose. You’ll get quotes that are easy to compare – and that score well in Klardal.",
     project: "The job",
     projectPlaceholder: "E.g. Full renovation of a bathroom of approx. 6 m² in a detached house from 1975. New tiles, underfloor heating, wall-hung toilet.",
     when: "When",
