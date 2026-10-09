@@ -6,6 +6,17 @@ import * as schema from "./schema";
 
 const url = process.env.DATABASE_URL || "file:./data/fixflow.db";
 
+// On hosts without a persistent disk a local SQLite file is wiped on every restart – refuse to start
+// instead of silently losing all users and quotes (set ALLOW_LOCAL_DB=1 for Docker with a volume or tests).
+if (
+  process.env.NODE_ENV === "production" &&
+  process.env.NEXT_PHASE !== "phase-production-build" &&
+  url.startsWith("file:") &&
+  process.env.ALLOW_LOCAL_DB !== "1"
+) {
+  throw new Error("DATABASE_URL points to a local file in production. Set a Turso URL, or ALLOW_LOCAL_DB=1 if the file is on a persistent volume.");
+}
+
 function makeClient(): Client {
   if (url.startsWith("file:")) {
     const filePath = url.slice("file:".length);

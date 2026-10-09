@@ -9,6 +9,35 @@ import type { Dict } from "@/i18n/dict/da";
 
 const ACCEPT = "application/pdf,image/jpeg,image/png,image/webp";
 const MAX = 10 * 1024 * 1024;
+/** The AI reads images up to ~2.5k px; bigger phone photos only cost upload time and can exceed its 5 MB limit. */
+const MAX_EDGE = 2576;
+
+/** Shrinks large photos in the browser (JPEG, max 2576 px) before upload. Returns the original if not needed. */
+async function shrinkImage(file: File): Promise<File> {
+  if (!file.type.startsWith("image/")) return file;
+  try {
+    const bmp = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_EDGE / Math.max(bmp.width, bmp.height));
+    if (scale === 1 && file.size <= 4 * 1024 * 1024) {
+      bmp.close();
+      return file;
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bmp.width * scale);
+    canvas.height = Math.round(bmp.height * scale);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+    bmp.close();
+    const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, "image/jpeg", 0.85));
+    if (!blob) return file;
+    return new File([blob], file.name.replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" });
+  } catch {
+    return file;
+  }
+}
 function validate(file: File, t: Dict["upload"]): string | null {
   const okExt = /\.(pdf|jpe?g|png|webp)$/i.test(file.name);
   if (!ACCEPT.split(",").includes(file.type) && !(file.type === "" && okExt)) return t.errType;
@@ -61,18 +90,25 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
     setBusy(true);
     setError(null);
     const fd = new FormData();
-    fd.append("file", file);
+    fd.append("file", await shrinkImage(file));
     fd.append("projectName", project.trim());
+    let res: Response;
     try {
-      const res = await fetch("/api/quotes", { method: "POST", body: fd });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json.error || t.errFailed);
-      setStep(STEPS.length);
-      window.location.assign(`/dashboard/tilbud/${json.quote.id}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t.errFailed);
-      setBusy(false);
+      res = await fetch("/api/quotes", { method: "POST", body: fd });
+    } catch {
+      // The connection dropped (e.g. the phone locked). The analysis may still finish on the server,
+      // so send the user to their quotes instead of letting them upload – and pay – twice.
+      window.location.assign("/dashboard?afbrudt=1");
+      return;
     }
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.quote?.id) {
+      setError(json.error || t.errFailed);
+      setBusy(false);
+      return;
+    }
+    setStep(STEPS.length);
+    window.location.assign(`/dashboard/tilbud/${json.quote.id}`);
   }
 
   if (busy) {

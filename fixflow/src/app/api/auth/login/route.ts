@@ -16,7 +16,9 @@ export const POST = handle(async (req: Request) => {
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return jsonError(da.errors.enterLogin);
   // Limit guesses per account too, so a single account can't be brute-forced from many IPs.
-  await rateLimit(`login-email:${parsed.data.email}`, 10, 15 * 60);
+  // Per email *and* IP, so a stranger can't lock the owner out; plus a looser per-email cap against spraying.
+  await rateLimit(`login-email-ip:${parsed.data.email}:${ip}`, 10, 15 * 60);
+  await rateLimit(`login-email:${parsed.data.email}`, 50, 15 * 60);
 
   const user = await db.query.users.findFirst({ where: eq(users.email, parsed.data.email) });
   const ok = await checkPassword(parsed.data.password, user?.passwordHash);

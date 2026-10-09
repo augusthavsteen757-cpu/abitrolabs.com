@@ -271,6 +271,42 @@ try {
   assert((await mobile.locator("h1").count()) > 0, "demo quote still exists after intruder attempts");
   log("another user cannot read, change, unlock, report or delete someone else's quote");
 
+  // Two uploads at the same time with one analysis left: one succeeds, the other is refused cleanly.
+  const race = await intruder.evaluate(async () => {
+    const pdf = await (await fetch("/api/quotes")).json();
+    const make = async () => {
+      const fd = new FormData();
+      fd.append("file", new Blob(["%PDF-1.4\n1 0 obj << /Type /Page >> endobj\n%%EOF"], { type: "application/pdf" }), "tilbud.pdf");
+      return (await fetch("/api/quotes", { method: "POST", body: fd })).status;
+    };
+    const statuses = await Promise.all([make(), make(), make()]);
+    const list = await (await fetch("/api/quotes")).json();
+    return { statuses, before: pdf.quotes.length, states: list.quotes.map((q) => q.status) };
+  });
+  assert(race.statuses.filter((s) => s === 201).length === 1, `exactly one parallel upload accepted (${race.statuses})`);
+  assert(!race.states.some((st) => st === "PENDING" || st === "ANALYZING"), `no stuck quotes after parallel uploads (${race.states})`);
+  log("parallel uploads never charge twice or leave stuck quotes");
+
+  // Open redirect: a crafted ?next= must not send a freshly logged-in user to another site.
+  await intruder.context().clearCookies();
+  await intruder.goto(`${BASE}/login?next=${encodeURIComponent("/\\evil.example")}`);
+  await intruder.fill("#email", "demo@klardal.dk");
+  await intruder.fill("#password", "demo1234");
+  await intruder.click("button[type=submit]");
+  await intruder.waitForURL((u) => u.origin === new URL(BASE).origin && u.pathname.startsWith("/dashboard"));
+  log("login ignores a crafted redirect to another site");
+
+  // Forgot password: page works and an invalid reset link gives a clear error.
+  await intruder.goto(`${BASE}/glemt-adgangskode`);
+  await intruder.fill("#email", "findes.ikke@eksempel.dk");
+  await intruder.getByRole("button", { name: "Send link" }).click();
+  await intruder.getByRole("status").waitFor();
+  await intruder.goto(`${BASE}/nulstil?token=ugyldig-token-ugyldig-token`);
+  await intruder.fill("#password", "Ny-Adgangskode-2026");
+  await intruder.getByRole("button", { name: "Gem ny adgangskode" }).click();
+  await intruder.getByText("Linket er ugyldigt eller udløbet").waitFor();
+  log("forgot/reset password flow handles unknown e-mails and invalid links");
+
   await mobile.goto(`${BASE}/`);
   await shot(mobile, "mobile-landing");
   await mobile.goto(`${BASE}${quoteHref}`);
@@ -319,7 +355,7 @@ try {
   log(`all pages render in ${LOCALES.length} more languages without overflow at 390px`);
 
   // Expected: the 404 page logs a 404 resource, and the weak-password test gets a deliberate 400.
-  const relevant = errors.filter((e) => !e.includes("/findes-ikke") && !(e.includes("/opret") && e.includes("status of 400")) && !(e.includes("/login") && e.includes("status of 401")) && !(e.includes("status of 404") || e.includes("status of 402")));
+  const relevant = errors.filter((e) => !e.includes("/findes-ikke") && !(e.includes("/opret") && e.includes("status of 400")) && !(e.includes("/login") && e.includes("status of 401")) && !(e.includes("status of 404") || e.includes("status of 402")) && !(e.includes("/nulstil") && e.includes("status of 400")));
   if (relevant.length) {
     console.error("\nConsole errors:\n" + relevant.join("\n"));
     process.exitCode = 1;

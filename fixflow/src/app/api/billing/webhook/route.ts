@@ -14,6 +14,7 @@ type StripeObject = {
   subscription?: string | null;
   payment_intent?: string | null;
   billing_reason?: string | null;
+  payment_status?: string | null;
   metadata?: Record<string, string>;
   parent?: { subscription_details?: { subscription?: string | null } | null } | null;
 };
@@ -29,7 +30,9 @@ export async function POST(req: Request) {
   if (event.type === "checkout.session.completed") {
     const kind = o.metadata?.kind as CheckoutKind | undefined;
     const userId = o.metadata?.userId;
-    if (userId && (kind === "PRO_MONTHLY" || kind === "SINGLE")) {
+    // Delayed payment methods complete the session before the money arrives – only grant when paid.
+    const paid = o.payment_status === "paid" || o.payment_status === "no_payment_required";
+    if (userId && paid && (kind === "PRO_MONTHLY" || kind === "SINGLE")) {
       await fulfill({
         userId,
         kind,

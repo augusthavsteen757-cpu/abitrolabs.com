@@ -1,32 +1,42 @@
 import "server-only";
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, eq, gt, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { users, type User } from "@/db/schema";
 import { currentPeriod, planLimit } from "./plans";
 
 export type QuotaSource = "plan" | "credit";
 
-/** Consumes one analysis: plan quota first, then extra credits. Returns null if none left. */
+/**
+ * Consumes one analysis: plan quota first, then extra credits. Returns null if none left.
+ * Each step is a single conditional UPDATE, so parallel uploads can never over- or under-charge.
+ */
 export async function consumeAnalysis(user: User): Promise<QuotaSource | null> {
   const limit = planLimit(user);
-  const p = user.plan === "PRO" ? currentPeriod(user) : { periodStart: user.periodStart, periodUsed: user.periodUsed };
 
-  if (p.periodUsed < limit) {
-    // Optimistic check on the stored value guards against double-submits.
-    const res = await db
-      .update(users)
-      .set({ periodStart: p.periodStart, periodUsed: p.periodUsed + 1 })
-      .where(and(eq(users.id, user.id), eq(users.periodUsed, user.periodUsed)))
-      .returning({ id: users.id });
-    if (res.length) return "plan";
+  if (user.plan === "PRO") {
+    // Roll an expired Pro period over first – guarded on the old start, so only one request does it.
+    const p = currentPeriod(user);
+    if (p.periodStart.getTime() !== user.periodStart.getTime()) {
+      await db
+        .update(users)
+        .set({ periodStart: p.periodStart, periodUsed: 0 })
+        .where(and(eq(users.id, user.id), eq(users.periodStart, user.periodStart)));
+    }
   }
 
-  const res = await db
+  const plan = await db
+    .update(users)
+    .set({ periodUsed: sql`${users.periodUsed} + 1` })
+    .where(and(eq(users.id, user.id), lt(users.periodUsed, limit)))
+    .returning({ id: users.id });
+  if (plan.length) return "plan";
+
+  const credit = await db
     .update(users)
     .set({ extraCredits: sql`${users.extraCredits} - 1` })
     .where(and(eq(users.id, user.id), gt(users.extraCredits, 0)))
     .returning({ id: users.id });
-  return res.length ? "credit" : null;
+  return credit.length ? "credit" : null;
 }
 
 export async function refundAnalysis(userId: string, source: QuotaSource) {

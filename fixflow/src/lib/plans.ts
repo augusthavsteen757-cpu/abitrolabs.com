@@ -8,7 +8,7 @@ export const PERIOD_DAYS = 30;
 
 /** Free beta: everyone gets the full analysis, a fixed number of analyses per person, and nothing can be bought. */
 export const isBeta = () => process.env.BETA_FREE === "1";
-export const BETA_ANALYSES_TOTAL = Number(process.env.BETA_ANALYSES || 5);
+export const BETA_ANALYSES_TOTAL = Number.parseInt(process.env.BETA_ANALYSES ?? "", 10) || 5;
 
 
 const PERIOD_MS = PERIOD_DAYS * 24 * 60 * 60 * 1000;

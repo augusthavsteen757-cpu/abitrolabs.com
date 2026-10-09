@@ -6,8 +6,17 @@ import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useI18n } from "@/i18n/client";
 
+/** Only same-site paths – "/\\evil.com" and "//evil.com" would otherwise send users to another site. */
 function safeNext(next: string | null) {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+  if (!next || !next.startsWith("/") || next.includes("\\")) return null;
+  try {
+    // Resolve against a fixed placeholder origin (also works during server rendering).
+    const base = "https://klardal.invalid";
+    const u = new URL(next, base);
+    return u.origin === base ? u.pathname + u.search : null;
+  } catch {
+    return null;
+  }
 }
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
@@ -89,6 +98,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             className="input"
             placeholder={isSignup ? a.passwordNew : "••••••••"}
           />
+          {!isSignup && (
+            <p className="mt-1.5 text-right text-sm">
+              <Link href="/glemt-adgangskode" className="text-brand-700 hover:underline">{a.forgotLink}</Link>
+            </p>
+          )}
         </div>
         {isSignup && (
           <label className="flex cursor-pointer gap-2.5 text-sm text-ink-soft">

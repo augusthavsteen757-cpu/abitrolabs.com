@@ -50,7 +50,10 @@ export const POST = handle(async (req: Request) => {
     return NextResponse.json({ url });
   }
 
-  // Test mode: simulate a successful payment right away.
+  // Test mode: simulate a successful payment right away – never in production unless explicitly allowed.
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_SIMULATED_PAYMENTS !== "1") {
+    return jsonError(da.errors.paymentsOffline, 503);
+  }
   await fulfill({
     userId: user.id,
     kind,

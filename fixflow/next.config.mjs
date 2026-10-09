@@ -32,6 +32,8 @@ const securityHeaders = [
 const nextConfig = {
   output: "standalone",
   poweredByHeader: false,
+  // Our file limit is 10 MB; leave room for the multipart overhead so such files get our own error message.
+  experimental: { middlewareClientMaxBodySize: "12mb" },
   serverExternalPackages: ["@libsql/client", "libsql", "bcryptjs"],
   async headers() {
     return [

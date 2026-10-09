@@ -1,8 +1,14 @@
 import { deleteInactiveAccounts } from "./account";
+import { recoverStaleAnalyses } from "./quotes";
 
-/** Daily background jobs. */
+/** Background jobs: refund analyses that died with a server (every 5 min), delete inactive accounts (daily). */
 export function scheduleMaintenance() {
-  const run = () => deleteInactiveAccounts().catch((err) => console.error("Inactive-account cleanup failed", err));
-  setTimeout(run, 60_000).unref?.();
-  setInterval(run, 24 * 60 * 60 * 1000).unref?.();
+  const recover = () => recoverStaleAnalyses().catch((err) => console.error("Stale-analysis recovery failed", err));
+  const cleanup = () => deleteInactiveAccounts().catch((err) => console.error("Inactive-account cleanup failed", err));
+  setTimeout(() => {
+    void recover();
+    void cleanup();
+  }, 60_000).unref?.();
+  setInterval(recover, 5 * 60 * 1000).unref?.();
+  setInterval(cleanup, 24 * 60 * 60 * 1000).unref?.();
 }

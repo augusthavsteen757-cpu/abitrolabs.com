@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, inArray, isNull, lt, or } from "drizzle-orm";
 import { db } from "@/db";
-import { analysisReports, contractorMessages, payments, quotes, users, type User } from "@/db/schema";
+import { analysisReports, contractorMessages, passwordResets, payments, quotes, users, type User } from "@/db/schema";
 import { deleteStoredFile } from "./storage";
 import { cancelPro } from "./billing";
 
@@ -10,7 +10,10 @@ export const INACTIVE_DELETE_MS = 3 * 365 * 24 * 60 * 60 * 1000;
 
 /** GDPR art. 17: deletes the account, all quotes, files and messages. Payments are kept without name/e-mail for bookkeeping. */
 export async function deleteAccountData(user: User) {
-  if (user.plan === "PRO") await cancelPro(user, { immediately: true });
+  if (user.plan === "PRO") {
+    // A Stripe hiccup (e.g. subscription already gone) must never block a GDPR deletion.
+    await cancelPro(user, { immediately: true }).catch((err) => console.error(JSON.stringify({ event: "cancel_on_delete_failed", message: String(err).slice(0, 200) })));
+  }
   const qs = await db.query.quotes.findMany({ where: eq(quotes.userId, user.id) });
   if (qs.length) {
     const ids = qs.map((q) => q.id);
@@ -20,6 +23,7 @@ export async function deleteAccountData(user: User) {
   for (const q of qs) await deleteStoredFile(q.fileKey);
   await db.delete(quotes).where(eq(quotes.userId, user.id));
   await db.update(payments).set({ userId: null }).where(eq(payments.userId, user.id));
+  await db.delete(passwordResets).where(eq(passwordResets.userId, user.id));
   await db.delete(users).where(eq(users.id, user.id));
 }
 

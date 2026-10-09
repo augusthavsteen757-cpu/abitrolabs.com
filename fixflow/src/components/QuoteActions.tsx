@@ -38,8 +38,8 @@ export function DeleteQuoteButton({ id }: { id: string }) {
   async function del() {
     if (!window.confirm(d.actions.deleteConfirm)) return;
     setBusy(true);
-    const res = await fetch(`/api/quotes/${id}`, { method: "DELETE" });
-    if (res.ok) {
+    const res = await fetch(`/api/quotes/${id}`, { method: "DELETE" }).catch(() => null);
+    if (res?.ok) {
       window.location.assign("/dashboard");
     } else {
       setBusy(false);
@@ -61,9 +61,13 @@ export function RetryButton({ id }: { id: string }) {
   async function retry() {
     setBusy(true);
     setError(null);
-    const res = await fetch(`/api/quotes/${id}`, { method: "POST" });
-    const json = await res.json().catch(() => ({}));
-    if (!res.ok) setError(json.error || d.actions.retryFailed);
+    try {
+      const res = await fetch(`/api/quotes/${id}`, { method: "POST" });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) setError(json.error || d.actions.retryFailed);
+    } catch {
+      setError(d.common.noConnection);
+    }
     setBusy(false);
     router.refresh();
   }
@@ -86,9 +90,9 @@ export function UnlockWithCreditButton({ id, credits }: { id: string; credits: n
   async function unlock() {
     setBusy(true);
     setError(null);
-    const res = await fetch(`/api/quotes/${id}/unlock`, { method: "POST" });
-    const json = await res.json().catch(() => ({}));
-    if (!res.ok) {
+    const res = await fetch(`/api/quotes/${id}/unlock`, { method: "POST" }).catch(() => null);
+    const json = res ? await res.json().catch(() => ({})) : { error: d.common.noConnection };
+    if (!res?.ok) {
       setError(json.error || d.unlockCredit.failed);
       setBusy(false);
       return;

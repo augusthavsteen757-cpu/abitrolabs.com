@@ -26,7 +26,8 @@ function greeting(d: Dict) {
   return d.dashboard.evening;
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ afbrudt?: string }> }) {
+  const sp = await searchParams;
   const user = await requireUser();
   const { locale, d } = await getI18n();
   const t = d.dashboard;
@@ -61,6 +62,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="animate-fade-up">
+      {sp.afbrudt && (
+        <p role="status" className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {d.upload.connectionLost}
+        </p>
+      )}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm text-ink-muted">{greeting(d)}, {user.name.split(" ")[0]}</p>

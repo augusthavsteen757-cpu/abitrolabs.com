@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, index, blob, primaryKey } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real, index, uniqueIndex, blob, primaryKey } from "drizzle-orm/sqlite-core";
 import { randomBytes } from "crypto";
 
 export const newId = () => randomBytes(12).toString("base64url");
@@ -45,6 +45,8 @@ export const quotes = sqliteTable(
     analysisJson: text("analysis_json"),
     unlocked: integer("unlocked", { mode: "boolean" }).notNull().default(false),
     /** Which AI model made the analysis and what it used (for cost tracking and spotting model drift). */
+    /** Which quota paid for the running analysis – lets a crashed analysis be refunded later. */
+    chargedSource: text("charged_source", { enum: ["plan", "credit"] }),
     aiModel: text("ai_model"),
     aiInputTokens: integer("ai_input_tokens"),
     aiOutputTokens: integer("ai_output_tokens"),
@@ -54,6 +56,16 @@ export const quotes = sqliteTable(
   },
   (t) => [index("quotes_user_idx").on(t.userId)],
 );
+
+/** Single-use password reset tokens (only a SHA-256 hash is stored). */
+export const passwordResets = sqliteTable("password_resets", {
+  tokenHash: text("token_hash").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+  usedAt: integer("used_at", { mode: "timestamp_ms" }),
+});
 
 /** "Rapportér fejl i analysen" – human oversight of AI output. */
 export const analysisReports = sqliteTable(
@@ -105,7 +117,7 @@ export const payments = sqliteTable(
     refundedOere: integer("refunded_oere"),
     createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
   },
-  (t) => [index("payments_user_idx").on(t.userId)],
+  (t) => [index("payments_user_idx").on(t.userId), uniqueIndex("payments_reference_idx").on(t.reference)],
 );
 
 /** Fixed-window rate limit counters (works across server instances because it lives in the database). */

@@ -21,7 +21,7 @@ const FALLBACK_MODELS = () =>
 
 let client: Anthropic | null = null;
 function getClient() {
-  if (!client) client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 110_000, maxRetries: 2 });
+  if (!client) client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 90_000, maxRetries: 1 });
   return client;
 }
 

@@ -6,11 +6,18 @@ import { db } from "@/db";
 import { rateLimits } from "@/db/schema";
 import { HttpError } from "./auth";
 
-/** Best-effort client IP. Behind a proxy, make sure it sets X-Forwarded-For (Vercel, Caddy and nginx do). */
+/**
+ * Client IP for rate limiting. The left-most X-Forwarded-For entry is set by the client and can be forged,
+ * so we prefer headers our edge proxy overwrites (Cloudflare in front of Render), then the right-most
+ * X-Forwarded-For entry, which our own proxy appended.
+ */
 export async function clientIp(): Promise<string> {
   const h = await headers();
-  const fwd = h.get("x-forwarded-for");
-  return (fwd?.split(",")[0] || h.get("x-real-ip") || "unknown").trim().slice(0, 64);
+  const trusted = process.env.TRUSTED_IP_HEADER;
+  const fromTrusted = trusted ? h.get(trusted) : null;
+  const fwd = h.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean);
+  const ip = fromTrusted || h.get("cf-connecting-ip") || h.get("true-client-ip") || fwd?.at(-1) || h.get("x-real-ip") || "unknown";
+  return ip.trim().slice(0, 64);
 }
 
 let lastCleanup = 0;
