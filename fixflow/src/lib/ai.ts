@@ -11,7 +11,7 @@ import { fmt } from "@/i18n/fmt";
 
 export const isDemoMode = () => !process.env.ANTHROPIC_API_KEY;
 
-const MODEL = () => process.env.ANTHROPIC_MODEL || "claude-sonnet-4-5";
+const MODEL = () => process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
 
 let client: Anthropic | null = null;
 function getClient() {
@@ -234,6 +234,8 @@ export async function analyzeQuote(
     getClient().messages.create({
       model,
       max_tokens: 16000,
+      // Medium effort: thorough enough for a quote review, without long (and costly) deliberation.
+      output_config: { effort: "medium" },
       system: SYSTEM_PROMPT + outputLanguageNote(locale),
       tools: [ANALYSIS_TOOL],
       tool_choice: forceTool ? { type: "tool", name: ANALYSIS_TOOL.name } : { type: "auto" },
@@ -320,7 +322,8 @@ export async function draftMessage(
   try {
     const response = await getClient().messages.create({
       model: MODEL(),
-      max_tokens: 2000,
+      max_tokens: 4000,
+      output_config: { effort: "low" },
       system:
         `Du skriver korte, høflige beskeder (e-mail/sms) fra en dansk boligejer til en håndværker om et modtaget tilbud. Skriv kun selve beskeden – ingen emnelinje, ingen forklaring, ingen pladsholdere i firkantede parenteser ud over kundens navn. Henvis konkret til poster og beløb fra tilbuddet. Max ca. 150 ord. Skriv beskeden på ${AI_LANGUAGE[locale]}.`,
       messages: [

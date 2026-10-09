@@ -42,7 +42,7 @@ Demo-brugeren har Pro og tre badeværelsestilbud i projektet "Nyt badeværelse" 
 
 Er `ANTHROPIC_API_KEY` tom, kører appen i **demo-tilstand**: uploads giver realistiske danske eksempel-analyser (valgt ud fra filnavnet – fx "hansen", "nordvest", "kbh", "vindue" – ellers deterministisk ud fra et hash), med ca. 1,8 sekunders kunstig ventetid. Beskedgeneratoren bruger skabeloner. Der vises et gult banner i dashboardet.
 
-Rigtige analyser: sæt `ANTHROPIC_API_KEY` i `.env`. Modellen styres med `ANTHROPIC_MODEL` (standard `claude-sonnet-4-5`).
+Rigtige analyser: sæt `ANTHROPIC_API_KEY` i `.env`. Modellen styres med `ANTHROPIC_MODEL` (standard `claude-sonnet-5-5`).
 
 ### Eksempel-tilbud
 
