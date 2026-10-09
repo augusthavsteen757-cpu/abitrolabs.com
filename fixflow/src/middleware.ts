@@ -2,8 +2,19 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
+/** Extra domains that should always land on the main domain (e.g. klardal.dk → klardal.com). */
+const REDIRECT_HOSTS = new Set(
+  (process.env.REDIRECT_HOSTS ?? "klardal.dk,www.klardal.dk").split(",").map((h) => h.trim().toLowerCase()).filter(Boolean),
+);
+const MAIN_URL = process.env.APP_URL || "https://klardal.com";
+
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  const host = (req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "").split(":")[0].toLowerCase();
+  if (REDIRECT_HOSTS.has(host)) {
+    return NextResponse.redirect(new URL(pathname + req.nextUrl.search, MAIN_URL), 301);
+  }
 
   // CSRF protection: state-changing API calls must come from our own pages.
   // (The session cookie is also SameSite=Lax.) Stripe's webhook is server-to-server and signed instead.
@@ -30,4 +41,5 @@ export function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { matcher: ["/dashboard/:path*", "/api/:path*"] };
+// Every page (for the domain redirect) – but not Next's static assets.
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] };
