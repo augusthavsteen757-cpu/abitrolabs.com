@@ -553,6 +553,8 @@ export const de: Dict = {
     },
   },
   find: {
+    soonTitle: "Bald verfügbar",
+    soonText: "Bald kannst du echte Handwerker in deiner Nähe finden und sie mit einer Nachricht um Angebote bitten. Wir warten noch auf den Zugang zum dänischen Unternehmensregister (CVR). Bis dahin kannst du Angebote, die du schon hast, hochladen, analysieren und vergleichen lassen.",
     metaTitle: "Handwerker finden",
     title: "Handwerker in deiner Nähe finden",
     intro: "Finde Firmen in der Nähe, bitte sie mit einer einzigen Nachricht um ein Angebot – und vergleiche die Angebote danach hier. Wir bewerten die Firmen nicht nach Qualität; das beste Angebot findest du, wenn die Angebote nebeneinander liegen.",

@@ -43,6 +43,8 @@ export type ContractorResult = {
 };
 
 export const isCvrEnabled = () => !!(process.env.CVR_ES_USER && process.env.CVR_ES_PASSWORD);
+/** Without CVR access the live beta shows "coming soon" instead of fictional demo firms. */
+export const isFindAvailable = () => isCvrEnabled() || process.env.BETA_FREE !== "1";
 
 export async function findContractors(trade: TradeKey, postalCode: string, radiusKm: number) {
   const origin = await locatePostalCode(postalCode);

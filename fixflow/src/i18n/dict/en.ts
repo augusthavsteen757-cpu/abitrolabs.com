@@ -553,6 +553,8 @@ export const en: Dict = {
     },
   },
   find: {
+    soonTitle: "Coming soon",
+    soonText: "Soon you will be able to find real contractors near you and ask them for quotes with one message. We are waiting for access to the Danish company register (CVR). Until then, you can upload quotes you already have and get them analysed and compared.",
     metaTitle: "Find contractors",
     title: "Find contractors near you",
     intro: "Find local companies, ask them for a quote with one message – and compare the quotes here afterwards. We don’t rank companies by quality; you’ll find the best quote when they’re side by side.",

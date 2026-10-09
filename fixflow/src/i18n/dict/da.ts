@@ -551,6 +551,8 @@ export const da = {
     },
   },
   find: {
+    soonTitle: "Kommer snart",
+    soonText: "Snart kan du finde rigtige håndværkere i nærheden og bede dem om tilbud med én besked. Vi venter på adgang til CVR-registret. Indtil da kan du uploade tilbud, du allerede har fået, og få dem analyseret og sammenlignet.",
     metaTitle: "Find håndværkere",
     title: "Find håndværkere tæt på dig",
     intro: "Find firmaer i nærheden, bed dem om et tilbud med én besked – og sammenlign tilbuddene her bagefter. Vi rangerer ikke firmaerne efter kvalitet; det bedste tilbud finder du, når tilbuddene ligger side om side.",

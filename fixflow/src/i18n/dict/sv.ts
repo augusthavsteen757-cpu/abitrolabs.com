@@ -553,6 +553,8 @@ export const sv: Dict = {
     },
   },
   find: {
+    soonTitle: "Kommer snart",
+    soonText: "Snart kan du hitta riktiga hantverkare i närheten och be dem om offerter med ett enda meddelande. Vi väntar på åtkomst till det danska företagsregistret (CVR). Tills dess kan du ladda upp offerter du redan har fått och få dem analyserade och jämförda.",
     metaTitle: "Hitta hantverkare",
     title: "Hitta hantverkare nära dig",
     intro: "Hitta företag i närheten, be dem om en offert med ett enda meddelande – och jämför offerterna här efteråt. Vi rangordnar inte företagen efter kvalitet; den bästa offerten hittar du när offerterna ligger sida vid sida.",

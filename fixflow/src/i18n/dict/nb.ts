@@ -553,6 +553,8 @@ export const nb: Dict = {
     },
   },
   find: {
+    soonTitle: "Kommer snart",
+    soonText: "Snart kan du finne ekte håndverkere i nærheten og be dem om tilbud med én melding. Vi venter på tilgang til det danske foretaksregisteret (CVR). Inntil da kan du laste opp tilbud du allerede har fått, og få dem analysert og sammenlignet.",
     metaTitle: "Finn håndverkere",
     title: "Finn håndverkere nær deg",
     intro: "Finn firmaer i nærheten, be dem om tilbud med én melding – og sammenlign tilbudene her etterpå. Vi rangerer ikke firmaene etter kvalitet; det beste tilbudet finner du når tilbudene ligger side om side.",

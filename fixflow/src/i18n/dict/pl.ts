@@ -549,6 +549,8 @@ export const pl: Dict = {
     },
   },
   find: {
+    soonTitle: "Wkrótce",
+    soonText: "Wkrótce znajdziesz prawdziwych wykonawców w pobliżu i poprosisz ich o wycenę jedną wiadomością. Czekamy na dostęp do duńskiego rejestru firm (CVR). Do tego czasu możesz przesłać wyceny, które już masz, i otrzymać ich analizę oraz porównanie.",
     metaTitle: "Znajdź wykonawców",
     title: "Znajdź wykonawców w pobliżu",
     intro: "Znajdź firmy w okolicy, poproś je o wycenę jedną wiadomością – a potem porównaj wyceny tutaj. Nie oceniamy firm pod względem jakości; najlepszą wycenę znajdziesz, gdy zobaczysz je obok siebie.",

@@ -553,6 +553,8 @@ export const ro: Dict = {
     },
   },
   find: {
+    soonTitle: "În curând",
+    soonText: "În curând vei putea găsi meseriași reali în apropiere și le vei putea cere oferte cu un singur mesaj. Așteptăm accesul la registrul danez al companiilor (CVR). Până atunci, poți încărca ofertele pe care le ai deja și le poți analiza și compara.",
     metaTitle: "Găsește meșteri",
     title: "Găsește meșteri în apropiere",
     intro: "Găsește firme din apropiere, cere-le ofertă cu un singur mesaj – și compară apoi ofertele aici. Nu clasificăm firmele după calitate; cea mai bună ofertă o găsești când ofertele stau una lângă alta.",

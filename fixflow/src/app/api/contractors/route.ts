@@ -7,7 +7,7 @@ import { users } from "@/db/schema";
 import { requireApiUser } from "@/lib/auth";
 import { handle, jsonError } from "@/lib/api";
 import { rateLimit } from "@/lib/rate-limit";
-import { TRADES, findContractors, type TradeKey } from "@/lib/contractors";
+import { TRADES, findContractors, isFindAvailable, type TradeKey } from "@/lib/contractors";
 
 export const runtime = "nodejs";
 
@@ -19,6 +19,7 @@ const schema = z.object({
 
 export const GET = handle(async (req: Request) => {
   const user = await requireApiUser();
+  if (!isFindAvailable()) return jsonError(da.errors.findFailed, 503);
   await rateLimit(`find:${user.id}`, 40, 60 * 60);
   const params = Object.fromEntries(new URL(req.url).searchParams);
   const parsed = schema.safeParse(params);
