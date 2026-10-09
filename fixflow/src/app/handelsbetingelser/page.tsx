@@ -13,8 +13,8 @@ export default function TermsPage() {
     <LegalPage title="Handelsbetingelser">
       <h2>Hvem er vi?</h2>
       <p>
-        Klardal drives af {COMPANY.name}, CVR {COMPANY.cvr}, {COMPANY.address}. E-mail: {COMPANY.email}. Telefon:{" "}
-        {COMPANY.phone}. E-mailadressen er også vores kontaktpunkt for myndigheder og brugere efter EU&apos;s forordning
+        Klardal drives af {COMPANY.name}, CVR {COMPANY.cvr}, {COMPANY.address}. E-mail: {COMPANY.email}.
+        {COMPANY.phone && ` Telefon: ${COMPANY.phone}.`} E-mailadressen er også vores kontaktpunkt for myndigheder og brugere efter EU&apos;s forordning
         om digitale tjenester.
       </p>
 

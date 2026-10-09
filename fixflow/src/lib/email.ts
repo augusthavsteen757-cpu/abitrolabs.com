@@ -8,7 +8,7 @@ import { COMPANY } from "./company";
 export const isEmailEnabled = () => !!process.env.BREVO_API_KEY;
 
 export async function sendEmail(opts: { to: string; toName?: string; subject: string; text: string }) {
-  const footer = `\n\n—\n${COMPANY.name} · CVR ${COMPANY.cvr}\n${COMPANY.address}\n${COMPANY.email} · ${COMPANY.phone}`;
+  const footer = `\n\n—\n${COMPANY.name} · CVR ${COMPANY.cvr}\n${COMPANY.address}\n${COMPANY.email}${COMPANY.phone ? ` · ${COMPANY.phone}` : ""}`;
   const text = opts.text + footer;
   if (!isEmailEnabled()) {
     console.info(`[email:not-sent] to=${opts.to.replace(/(.).*@/, "$1***@")} subject="${opts.subject}"`);

@@ -4,7 +4,8 @@ export const COMPANY = {
   cvr: process.env.COMPANY_CVR || "[CVR-nummer]",
   address: process.env.COMPANY_ADDRESS || "[Adresse, postnummer og by]",
   email: process.env.CONTACT_EMAIL || "[kontakt@e-mail.dk]",
-  phone: process.env.COMPANY_PHONE || "[Telefonnummer]",
+  /** Optional during the free beta (no sales); required before taking payments. */
+  phone: process.env.COMPANY_PHONE || "",
 };
 
 export const isCompanyConfigured = () =>
@@ -13,7 +14,7 @@ export const isCompanyConfigured = () =>
     process.env.COMPANY_CVR &&
     process.env.COMPANY_ADDRESS &&
     process.env.CONTACT_EMAIL &&
-    process.env.COMPANY_PHONE
+    (process.env.COMPANY_PHONE || process.env.BETA_FREE === "1")
   );
 
 export const LEGAL_UPDATED = "8. oktober 2026";

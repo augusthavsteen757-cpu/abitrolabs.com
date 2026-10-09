@@ -18,7 +18,7 @@ export default function PrivacyPage() {
 
       <h2>Dataansvarlig</h2>
       <p>
-        {COMPANY.name}, CVR {COMPANY.cvr}, {COMPANY.address}. E-mail: {COMPANY.email}. Telefon: {COMPANY.phone}.
+        {COMPANY.name}, CVR {COMPANY.cvr}, {COMPANY.address}. E-mail: {COMPANY.email}.{COMPANY.phone && ` Telefon: ${COMPANY.phone}.`}
       </p>
 
       <h2>Hvilke oplysninger behandler vi?</h2>
