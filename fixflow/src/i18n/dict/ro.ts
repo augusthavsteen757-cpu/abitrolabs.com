@@ -237,6 +237,16 @@ export const ro: Dict = {
     remainingOne: "{n} analiză rămasă",
     remainingOther: "{n} analize rămase",
   },
+  beta: {
+    badge: "Beta gratuită",
+    title: "Gratuit în perioada beta",
+    text: "În acest moment Klardal este gratuit: primești analiza completă pentru până la {n} oferte. Nu ai nimic de plătit și nu ai nevoie de card de credit.",
+    later: "Te anunțăm din timp înainte să se încheie perioada beta. După aceea, Pro va costa 49 kr./lună, iar o singură analiză 99 kr. – doar dacă alegi tu să cumperi.",
+    cta: "Creează cont gratuit",
+    usedUpTitle: "Ai folosit cele {n} analize gratuite",
+    usedUpText: "Mulțumim că testezi Klardal! În perioada beta, fiecare persoană poate primi {n} analize. Scrie-ne dacă ai nevoie de mai multe.",
+    accountText: "Faci parte din perioada beta. Totul este gratuit și momentan nu se poate cumpăra nimic.",
+  },
   demoBanner: {
     title: "Mod demo:",
     text: "Nu este configurată nicio cheie AI, așa că încărcările primesc analize-exemplu realiste (în daneză) în loc de o analiză reală a fișierului tău.",

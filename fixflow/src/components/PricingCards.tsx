@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
-import { PRO_PRICE_DKK, SINGLE_PRICE_DKK } from "@/lib/plans";
+import { PRO_PRICE_DKK, SINGLE_PRICE_DKK, isBeta } from "@/lib/plans";
+import { BetaNotice } from "./BetaNotice";
 import { cn } from "@/lib/format";
 import { getDict } from "@/i18n/server";
 
 export async function PricingCards() {
+  if (isBeta()) return <BetaNotice />;
   const d = await getDict();
   const cards = [
     { key: "FREE", plan: d.plans.free, price: "0 kr.", period: "", href: "/opret", highlight: false },

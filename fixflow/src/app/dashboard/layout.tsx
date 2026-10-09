@@ -1,6 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { getUsage } from "@/lib/plans";
+import { getUsage, isBeta } from "@/lib/plans";
 import { isDemoMode } from "@/lib/ai";
 import { DashboardNav } from "@/components/DashboardNav";
 import { getDict } from "@/i18n/server";
@@ -21,6 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         limit={usage.limit}
         remaining={usage.remaining}
         credits={usage.credits}
+        beta={isBeta()}
       />
       <div className="lg:pl-64">
         {isDemoMode() && (

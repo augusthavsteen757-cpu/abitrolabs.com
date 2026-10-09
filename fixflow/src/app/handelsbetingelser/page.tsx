@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { COMPANY, WITHDRAWAL_DAYS } from "@/lib/company";
-import { PRO_ANALYSES_PER_PERIOD, PRO_PRICE_DKK, SINGLE_PRICE_DKK } from "@/lib/plans";
+import { BETA_ANALYSES_TOTAL, PRO_ANALYSES_PER_PERIOD, PRO_PRICE_DKK, SINGLE_PRICE_DKK, isBeta } from "@/lib/plans";
 
 export const metadata: Metadata = { title: "Handelsbetingelser" };
 export const dynamic = "force-dynamic";
@@ -40,6 +40,18 @@ export default function TermsPage() {
 
       <h2>Hvem kan bruge Klardal?</h2>
       <p>Du skal være mindst 18 år for at oprette en konto og købe. Tjenesten er til privatpersoner (forbrugere).</p>
+
+      {isBeta() && (
+        <>
+          <h2>Gratis betaperiode</h2>
+          <p>
+            Klardal er lige nu i en gratis betaperiode. Du får hele analysen af op til {BETA_ANALYSES_TOTAL} tilbud uden
+            betaling, og der kan ikke købes noget. Vi giver dig besked på e-mail i god tid, før betaperioden slutter.
+            Betalte abonnementer starter aldrig automatisk – du skal selv vælge at købe. Priserne nedenfor gælder først
+            efter betaperioden.
+          </p>
+        </>
+      )}
 
       <h2>Priser og betaling</h2>
       <ul>

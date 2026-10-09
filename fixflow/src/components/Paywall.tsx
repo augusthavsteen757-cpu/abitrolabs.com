@@ -3,7 +3,8 @@ import { Lock, Sparkles } from "lucide-react";
 import { CheckoutButton } from "./CheckoutButton";
 import { getDict } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
-import { PRO_PRICE_DKK, SINGLE_PRICE_DKK } from "@/lib/plans";
+import { PRO_PRICE_DKK, SINGLE_PRICE_DKK, isBeta } from "@/lib/plans";
+import { BetaNotice } from "./BetaNotice";
 
 type Props = {
   title: string;
@@ -15,6 +16,8 @@ type Props = {
 };
 
 export async function Paywall({ title, text, quoteId, showSingle = true, compact = false }: Props) {
+  // In the free beta nothing is locked – the only limit is the number of analyses.
+  if (isBeta()) return <BetaNotice cta={false} usedUp />;
   const d = await getDict();
   const t = d.paywall;
   return (

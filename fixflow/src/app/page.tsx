@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { MarketingFooter, MarketingHeader } from "@/components/MarketingShell";
 import { PricingCards } from "@/components/PricingCards";
+import { isBeta } from "@/lib/plans";
 import { Faq } from "@/components/Faq";
 import { ScoreRing } from "@/components/ScoreRing";
 import { getCurrentUser } from "@/lib/auth";
@@ -181,7 +182,7 @@ export default async function HomePage() {
             <div className="max-w-2xl">
               <p className="eyebrow">{h.pricingEyebrow}</p>
               <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">{h.pricingTitle}</h2>
-              <p className="mt-4 text-lg text-ink-soft">{h.pricingText}</p>
+              {!isBeta() && <p className="mt-4 text-lg text-ink-soft">{h.pricingText}</p>}
             </div>
             <div className="mt-10">
               <PricingCards />

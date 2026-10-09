@@ -7,6 +7,7 @@ import { handle, jsonError } from "@/lib/api";
 import { rateLimit } from "@/lib/rate-limit";
 import { resumePro, cancelPro, createStripeCheckout, fulfill, isStripeEnabled } from "@/lib/billing";
 import { isDemoMode } from "@/lib/ai";
+import { isBeta } from "@/lib/plans";
 import { getDict } from "@/i18n/server";
 
 const schema = z.object({
@@ -20,6 +21,7 @@ export const POST = handle(async (req: Request) => {
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return jsonError(da.errors.invalidPurchase);
   const { kind } = parsed.data;
+  if (isBeta()) return jsonError(da.errors.paymentsOffline, 503);
   const quoteId = parsed.data.quoteId || null;
 
   if (kind === "CANCEL") {

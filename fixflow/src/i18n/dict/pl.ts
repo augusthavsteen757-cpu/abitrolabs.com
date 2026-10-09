@@ -233,6 +233,16 @@ export const pl: Dict = {
     remainingOne: "Pozostała {n} analiza",
     remainingOther: "Pozostało analiz: {n}",
   },
+  beta: {
+    badge: "Darmowa beta",
+    title: "Bezpłatnie w okresie beta",
+    text: "Obecnie Klardal jest bezpłatny: otrzymujesz pełną analizę maksymalnie {n} wycen. Nic nie płacisz i nie potrzebujesz karty kredytowej.",
+    later: "Poinformujemy Cię z wyprzedzeniem, zanim okres beta się zakończy. Potem Pro będzie kosztować 49 kr./mies., a pojedyncza analiza 99 kr. – tylko jeśli sam zdecydujesz się na zakup.",
+    cta: "Załóż darmowe konto",
+    usedUpTitle: "Wykorzystałeś swoje {n} darmowe analizy",
+    usedUpText: "Dziękujemy za testowanie Klardal! W okresie beta każda osoba może otrzymać {n} analiz. Napisz do nas, jeśli potrzebujesz więcej.",
+    accountText: "Uczestniczysz w okresie beta. Wszystko jest bezpłatne i obecnie nic nie można kupić.",
+  },
   demoBanner: {
     title: "Tryb demo:",
     text: "Nie skonfigurowano klucza AI, więc wgrane pliki otrzymują realistyczne przykładowe analizy (po duńsku) zamiast prawdziwej analizy Twojego pliku.",

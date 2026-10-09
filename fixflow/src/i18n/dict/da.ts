@@ -235,6 +235,16 @@ export const da = {
     remainingOne: "{n} analyse tilbage",
     remainingOther: "{n} analyser tilbage",
   },
+  beta: {
+    badge: "Gratis beta",
+    title: "Gratis i betaperioden",
+    text: "Lige nu er Klardal gratis: du får hele analysen af op til {n} tilbud. Der er intet at betale, og du skal ikke bruge kreditkort.",
+    later: "Når betaperioden slutter, får du besked i god tid. Herefter vil Pro koste 49 kr./md. og en enkelt analyse 99 kr. – kun hvis du selv vælger at købe.",
+    cta: "Opret gratis konto",
+    usedUpTitle: "Du har brugt dine {n} gratis analyser",
+    usedUpText: "Tak fordi du tester Klardal! I betaperioden kan hver person få {n} analyser. Skriv til os, hvis du har brug for flere.",
+    accountText: "Du er med i betaperioden. Alt er gratis, og der kan ikke købes noget lige nu.",
+  },
   demoBanner: {
     title: "Demo-tilstand:",
     text: "Der er ingen AI-nøgle sat op, så uploads får realistiske eksempel-analyser (på dansk) i stedet for en rigtig gennemgang af din fil.",

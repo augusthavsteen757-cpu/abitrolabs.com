@@ -27,9 +27,9 @@ function isActive(pathname: string, href: string, exact?: boolean) {
   return pathname.startsWith(href);
 }
 
-type Props = { name: string; email: string; plan: "FREE" | "PRO"; used: number; limit: number; remaining: number; credits: number };
+type Props = { name: string; email: string; plan: "FREE" | "PRO"; used: number; limit: number; remaining: number; credits: number; beta?: boolean };
 
-export function DashboardNav({ name, email, plan, used, limit, remaining, credits }: Props) {
+export function DashboardNav({ name, email, plan, used, limit, remaining, credits, beta = false }: Props) {
   const pathname = usePathname();
   const { d } = useI18n();
   const NAV = navItems(d);
@@ -70,14 +70,14 @@ export function DashboardNav({ name, email, plan, used, limit, remaining, credit
         </nav>
         <div className="mx-3 mb-3 rounded-2xl border border-line bg-paper p-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold">{plan === "PRO" ? d.nav.pro : d.nav.free}</span>
+            <span className="font-semibold">{plan === "PRO" ? d.nav.pro : beta ? d.beta.badge : d.nav.free}</span>
             <span className="num text-ink-muted">{fmt(d.nav.used, { used, limit })}</span>
           </div>
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line">
             <div className={cn("h-full rounded-full", pct >= 100 ? "bg-amber-500" : "bg-brand-500")} style={{ width: `${pct}%` }} />
           </div>
           {credits > 0 && <p className="mt-2 text-xs text-ink-muted">{fmt(d.nav.extraCredits, { n: credits })}</p>}
-          {plan === "FREE" && (
+          {plan === "FREE" && !beta && (
             <Link href="/dashboard/konto?upgrade=pro" className="mt-3 block text-xs font-semibold text-brand-700 hover:underline">
               {d.nav.upgrade}
             </Link>

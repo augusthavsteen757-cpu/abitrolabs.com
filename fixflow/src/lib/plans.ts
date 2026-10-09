@@ -6,6 +6,10 @@ export const PRO_ANALYSES_PER_PERIOD = 10;
 export const FREE_ANALYSES_TOTAL = 1;
 export const PERIOD_DAYS = 30;
 
+/** Free beta: everyone gets the full analysis, a fixed number of analyses per person, and nothing can be bought. */
+export const isBeta = () => process.env.BETA_FREE === "1";
+export const BETA_ANALYSES_TOTAL = Number(process.env.BETA_ANALYSES || 5);
+
 
 const PERIOD_MS = PERIOD_DAYS * 24 * 60 * 60 * 1000;
 
@@ -22,7 +26,8 @@ export function currentPeriod(user: Pick<User, "periodStart" | "periodUsed">, no
 }
 
 export function planLimit(user: Pick<User, "plan">) {
-  return user.plan === "PRO" ? PRO_ANALYSES_PER_PERIOD : FREE_ANALYSES_TOTAL;
+  if (user.plan === "PRO") return PRO_ANALYSES_PER_PERIOD;
+  return isBeta() ? BETA_ANALYSES_TOTAL : FREE_ANALYSES_TOTAL;
 }
 
 export type Usage = {
@@ -55,9 +60,9 @@ export function getUsage(user: User, now = new Date()): Usage {
 }
 
 export function canCompare(user: Pick<User, "plan">) {
-  return user.plan === "PRO";
+  return isBeta() || user.plan === "PRO";
 }
 
 export function hasFullAccess(user: Pick<User, "plan">, quote: { unlocked: boolean }) {
-  return user.plan === "PRO" || quote.unlocked;
+  return isBeta() || user.plan === "PRO" || quote.unlocked;
 }

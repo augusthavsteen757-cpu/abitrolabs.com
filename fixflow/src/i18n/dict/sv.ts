@@ -237,6 +237,16 @@ export const sv: Dict = {
     remainingOne: "{n} analys kvar",
     remainingOther: "{n} analyser kvar",
   },
+  beta: {
+    badge: "Gratis beta",
+    title: "Gratis under betaperioden",
+    text: "Just nu är Klardal gratis: du får hela analysen av upp till {n} offerter. Det finns inget att betala och du behöver inget kreditkort.",
+    later: "Vi meddelar dig i god tid innan betaperioden slutar. Därefter kostar Pro 49 kr./mån. och en enskild analys 99 kr. – bara om du själv väljer att köpa.",
+    cta: "Skapa gratis konto",
+    usedUpTitle: "Du har använt dina {n} gratis analyser",
+    usedUpText: "Tack för att du testar Klardal! Under betaperioden kan varje person få {n} analyser. Skriv till oss om du behöver fler.",
+    accountText: "Du är med i betaperioden. Allt är gratis och inget kan köpas just nu.",
+  },
   demoBanner: {
     title: "Demoläge:",
     text: "Ingen AI-nyckel är inställd, så uppladdningar får realistiska exempelanalyser (på danska) i stället för en riktig genomgång av din fil.",

@@ -4,7 +4,7 @@ import { Check, Sparkles, FlaskConical, Receipt, CheckCircle2 } from "lucide-rea
 import { db } from "@/db";
 import { payments, quotes } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
-import { PRO_PRICE_DKK, SINGLE_PRICE_DKK, getUsage } from "@/lib/plans";
+import { PRO_PRICE_DKK, SINGLE_PRICE_DKK, getUsage, isBeta } from "@/lib/plans";
 import { getDict, getI18n } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
 import { INTL_LOCALE } from "@/i18n/config";
@@ -41,7 +41,8 @@ export default async function AccountPage({
   const quote = quoteId
     ? await db.query.quotes.findFirst({ where: and(eq(quotes.id, quoteId), eq(quotes.userId, user.id)) })
     : null;
-  const simulated = !isStripeEnabled();
+  const beta = isBeta();
+  const simulated = !isStripeEnabled() && !beta;
   const isPro = user.plan === "PRO";
 
   return (
@@ -73,7 +74,7 @@ export default async function AccountPage({
             <p className="text-sm text-ink-muted">{t.yourPlan}</p>
             <p className="mt-1 flex items-center gap-2 font-display text-2xl font-semibold">
               {isPro && <Sparkles className="h-5 w-5 text-brand-500" />}
-              {isPro ? d.nav.pro : d.nav.free}
+              {isPro ? d.nav.pro : beta ? d.beta.badge : d.nav.free}
             </p>
             <p className="mt-1 text-sm text-ink-soft">
               {isPro
@@ -95,6 +96,10 @@ export default async function AccountPage({
         </div>
       </section>
 
+      {beta ? (
+        <p className="mt-6 rounded-xl bg-brand-50 px-4 py-3 text-sm text-brand-800">{d.beta.accountText}</p>
+      ) : (
+        <>
       {quote && (
         <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
           {fmt(t.unlockFor, { title: quote.title || quote.fileName })}
@@ -183,6 +188,8 @@ export default async function AccountPage({
           </div>
         </section>
       </div>
+        </>
+      )}
 
       {/* History */}
       <section className="mt-10">
