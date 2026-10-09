@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, inArray, isNull, lt, or } from "drizzle-orm";
 import { db } from "@/db";
-import { contractorMessages, payments, quotes, users, type User } from "@/db/schema";
+import { analysisReports, contractorMessages, payments, quotes, users, type User } from "@/db/schema";
 import { deleteStoredFile } from "./storage";
 import { cancelPro } from "./billing";
 
@@ -12,7 +12,11 @@ export const INACTIVE_DELETE_MS = 3 * 365 * 24 * 60 * 60 * 1000;
 export async function deleteAccountData(user: User) {
   if (user.plan === "PRO") await cancelPro(user, { immediately: true });
   const qs = await db.query.quotes.findMany({ where: eq(quotes.userId, user.id) });
-  if (qs.length) await db.delete(contractorMessages).where(inArray(contractorMessages.quoteId, qs.map((q) => q.id)));
+  if (qs.length) {
+    const ids = qs.map((q) => q.id);
+    await db.delete(contractorMessages).where(inArray(contractorMessages.quoteId, ids));
+    await db.delete(analysisReports).where(inArray(analysisReports.quoteId, ids));
+  }
   for (const q of qs) await deleteStoredFile(q.fileKey);
   await db.delete(quotes).where(eq(quotes.userId, user.id));
   await db.update(payments).set({ userId: null }).where(eq(payments.userId, user.id));

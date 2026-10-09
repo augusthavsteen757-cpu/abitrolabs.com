@@ -44,10 +44,29 @@ export const quotes = sqliteTable(
     score: integer("score"),
     analysisJson: text("analysis_json"),
     unlocked: integer("unlocked", { mode: "boolean" }).notNull().default(false),
+    /** Which AI model made the analysis and what it used (for cost tracking and spotting model drift). */
+    aiModel: text("ai_model"),
+    aiInputTokens: integer("ai_input_tokens"),
+    aiOutputTokens: integer("ai_output_tokens"),
+    aiMs: integer("ai_ms"),
     createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
     updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
   },
   (t) => [index("quotes_user_idx").on(t.userId)],
+);
+
+/** "Rapportér fejl i analysen" – human oversight of AI output. */
+export const analysisReports = sqliteTable(
+  "analysis_reports",
+  {
+    id: text("id").primaryKey().$defaultFn(newId),
+    quoteId: text("quote_id")
+      .notNull()
+      .references(() => quotes.id, { onDelete: "cascade" }),
+    message: text("message").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+  },
+  (t) => [index("reports_quote_idx").on(t.quoteId)],
 );
 
 export const contractorMessages = sqliteTable(

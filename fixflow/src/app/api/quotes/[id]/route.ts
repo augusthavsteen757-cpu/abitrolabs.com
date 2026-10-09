@@ -3,7 +3,7 @@ import { da } from "@/i18n/dict/da";
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { contractorMessages, quotes, users } from "@/db/schema";
+import { analysisReports, contractorMessages, quotes, users } from "@/db/schema";
 import { requireApiUser } from "@/lib/auth";
 import { handle, jsonError } from "@/lib/api";
 import { getQuote, publicQuote, runAnalysis } from "@/lib/quotes";
@@ -42,6 +42,7 @@ export const DELETE = handle(async (_req: Request, { params }: Ctx) => {
   const quote = await getQuote(user.id, id);
   if (!quote) return jsonError(da.errors.quoteNotFound, 404);
   await db.delete(contractorMessages).where(eq(contractorMessages.quoteId, quote.id));
+  await db.delete(analysisReports).where(eq(analysisReports.quoteId, quote.id));
   await db.delete(quotes).where(eq(quotes.id, quote.id));
   await deleteStoredFile(quote.fileKey);
   return NextResponse.json({ ok: true });

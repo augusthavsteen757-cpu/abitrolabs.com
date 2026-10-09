@@ -34,6 +34,7 @@ import { SEVERITY, SeverityBadge } from "@/components/Severity";
 import { CopyButton, DeleteQuoteButton, RetryButton, UnlockWithCreditButton } from "@/components/QuoteActions";
 import { MessageComposer } from "@/components/MessageComposer";
 import { Paywall } from "@/components/Paywall";
+import { ReportAnalysis } from "@/components/ReportAnalysis";
 import { Locked } from "@/components/Locked";
 import { getDict, getI18n } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
@@ -127,6 +128,18 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
   const score = computeScore(analysis, d.score);
   const color = scoreColor(score.total);
   const sourceLanguage = languageDisplayName(view.language, intl);
+  // Honest uncertainty: what the AI couldn't read, and where Klardal's own cross-checks disagree with it.
+  const dc = view.documentCheck;
+  const q = view.quality;
+  const qualityNotes = [
+    dc?.readability === "poor" ? t.qualityPoor : dc?.readability === "partial" ? t.qualityPartial : null,
+    dc?.unreadableNote && dc.readability !== "good" ? fmt(t.qualityUnreadable, { note: dc.unreadableNote }) : null,
+    q?.itemsMismatch && q.statedExclVat != null ? fmt(t.qualityMismatch, { items: money(q.itemsSum), total: money(q.statedExclVat) }) : null,
+    q?.vatMismatch ? t.qualityVat : null,
+    !view.demo && dc?.vatStated === "unclear" ? t.qualityVatUnclear : null,
+    q?.implausibleAmounts ? t.qualityImplausible : null,
+    dc?.suspiciousInstructions ? t.qualityInjection : null,
+  ].filter((x): x is string => !!x);
   const writtenIn = view.outputLocale && view.outputLocale !== locale ? languageDisplayName(view.outputLocale, intl) : null;
   const priceTypeBadge =
     analysis.priceType === "fast_pris"
@@ -226,6 +239,16 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
               </p>
             )}
             <p className="mt-3 leading-relaxed text-ink-soft">{analysis.summary}</p>
+            {qualityNotes.length > 0 && (
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" data-testid="quality-notes">
+                <p className="font-semibold">{t.qualityTitle}</p>
+                <ul className="mt-1.5 list-disc space-y-1 pl-5">
+                  {qualityNotes.map((n) => (
+                    <li key={n}>{n}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <dl className="mt-6 grid gap-3 sm:grid-cols-3">
               <div className="rounded-xl bg-paper p-4">
                 <dt className="text-xs text-ink-muted">{t.priceIncl}</dt>
@@ -516,6 +539,11 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
       <p className="mt-14 border-t border-line pt-6 text-xs leading-relaxed text-ink-muted">
         {t.disclaimer}
       </p>
+      {!view.demo && (
+        <div className="mt-3">
+          <ReportAnalysis quoteId={quote.id} />
+        </div>
+      )}
     </div>
   );
 }

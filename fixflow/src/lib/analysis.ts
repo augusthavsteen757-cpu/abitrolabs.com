@@ -195,13 +195,49 @@ export const rawAnalysisSchema = z.object({
   priceLevel: z
     .object({ level: z.enum(["lav", "normal", "hoej", "ukendt"]).catch("ukendt"), explanation: z.string().catch("") })
     .catch({ level: "ukendt" as const, explanation: "" }),
+  /** The model's own account of how sure it is (honest uncertainty instead of guessing). */
+  documentCheck: z
+    .object({
+      isQuote: z.boolean().catch(true),
+      readability: z.enum(["good", "partial", "poor"]).catch("good"),
+      unreadableNote: str,
+      suspiciousInstructions: z.boolean().catch(false),
+      vatStated: z.enum(["incl", "excl", "both", "unclear"]).catch("unclear"),
+    })
+    .catch({ isQuote: true, readability: "good" as const, unreadableNote: null, suspiciousInstructions: false, vatStated: "unclear" as const }),
 });
+
+/** Deterministic cross-checks of the AI's numbers – catches misreadings the model can't see itself. */
+export type QualityChecks = {
+  /** Sum of line items (excl. VAT). */
+  itemsSum: number;
+  /** The total excl. VAT that the document states, if it states one. */
+  statedExclVat: number | null;
+  /** Line items don't add up to the stated total (more than 2 % apart). */
+  itemsMismatch: boolean;
+  /** Stated excl. VAT + VAT ≠ stated incl. VAT, or VAT isn't ~25 % for a Danish quote. */
+  vatMismatch: boolean;
+  /** Totals were partly calculated by Klardal because the document didn't state them. */
+  totalsDerived: boolean;
+  /** Some line items or totals are negative or implausibly large. */
+  implausibleAmounts: boolean;
+};
+
+const EMPTY_QUALITY: QualityChecks = {
+  itemsSum: 0,
+  statedExclVat: null,
+  itemsMismatch: false,
+  vatMismatch: false,
+  totalsDerived: false,
+  implausibleAmounts: false,
+};
 
 export type ScoreBreakdownItem = { key: string; label: string; points: number; max: number; hint: string };
 export type ScoreResult = { total: number; label: string; breakdown: ScoreBreakdownItem[] };
 
 export type QuoteAnalysis = Omit<z.infer<typeof rawAnalysisSchema>, "totals"> & {
   totals: { exclVat: number; vat: number; inclVat: number };
+  quality: QualityChecks;
   score: ScoreResult;
   demo?: boolean;
 };
@@ -214,6 +250,23 @@ export function normalizeAnalysis(raw: unknown): Omit<QuoteAnalysis, "score"> {
 
   let { exclVat, vat, inclVat } = a.totals;
   const sumItems = a.lineItems.reduce((s, i) => s + i.amount, 0);
+  const stated = a.totals;
+  const near = (x: number, y: number, tol: number) => Math.abs(x - y) <= Math.max(1, Math.abs(y) * tol);
+  const statedExclVat = stated.exclVat ?? (stated.inclVat != null && a.documentCheck.vatStated === "excl" ? stated.inclVat : null);
+  const quality: QualityChecks = {
+    itemsSum: round(sumItems),
+    statedExclVat: stated.exclVat,
+    itemsMismatch:
+      statedExclVat != null && sumItems > 0 && !near(sumItems, statedExclVat, 0.02) &&
+      // Items may have been read incl. VAT when the quote only states incl. VAT prices.
+      !(stated.inclVat != null && near(sumItems, stated.inclVat, 0.02)),
+    vatMismatch:
+      (stated.exclVat != null && stated.vat != null && stated.inclVat != null && !near(stated.exclVat + stated.vat, stated.inclVat, 0.01)) ||
+      (a.currency === "DKK" && stated.exclVat != null && stated.vat != null && stated.exclVat > 0 && !near(stated.vat / stated.exclVat, 0.25, 0.04)),
+    totalsDerived: stated.exclVat == null || stated.inclVat == null,
+    implausibleAmounts:
+      a.lineItems.some((i) => i.amount < 0 || i.amount > 50_000_000) || [exclVat, vat, inclVat].some((v) => v != null && (v < 0 || v > 50_000_000)),
+  };
   if (exclVat == null && inclVat != null) exclVat = inclVat / 1.25;
   if (exclVat == null && vat != null) exclVat = vat * 4;
   if (exclVat == null) exclVat = sumItems;
@@ -244,6 +297,7 @@ export function normalizeAnalysis(raw: unknown): Omit<QuoteAnalysis, "score"> {
     checks,
     flags,
     extraCostRisk: { ...a.extraCostRisk, min, max },
+    quality,
   };
 }
 
@@ -259,6 +313,8 @@ export function parseStoredAnalysis(json: string | null): QuoteAnalysis | null {
       language: languageCode(a.language),
       outputLocale: a.outputLocale ?? "da",
       priceLevel: a.priceLevel ?? { level: "ukendt", explanation: "" },
+      documentCheck: a.documentCheck ?? { isQuote: true, readability: "good", unreadableNote: null, suspiciousInstructions: false, vatStated: "unclear" },
+      quality: a.quality ?? EMPTY_QUALITY,
     };
   } catch {
     return null;

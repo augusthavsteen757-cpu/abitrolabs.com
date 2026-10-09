@@ -240,6 +240,37 @@ try {
     await mobile.waitForLoadState("networkidle");
     await noOverflow(mobile, r);
   }
+  /* ---------------- Data isolation: another user can never reach the demo user's quote ---------------- */
+  const otherQuoteId = quoteHref.split("/").pop();
+  const intruder = await newPage();
+  await intruder.goto(`${BASE}/opret`);
+  await intruder.fill("#name", "Anden Bruger");
+  await intruder.fill("#email", `intruder${Date.now()}@eksempel.dk`);
+  await intruder.fill("#password", "Anden-Bruger-Kode-77");
+  await intruder.check("input[name=acceptTerms]");
+  await intruder.click("button[type=submit]");
+  await intruder.waitForURL(`${BASE}/dashboard`);
+  const probes = await intruder.evaluate(async (id) => {
+    const j = { "content-type": "application/json" };
+    const r = async (url, init) => (await fetch(url, init)).status;
+    return {
+      get: await r(`/api/quotes/${id}`),
+      file: await r(`/api/quotes/${id}/file`),
+      retry: await r(`/api/quotes/${id}`, { method: "POST" }),
+      message: await r(`/api/quotes/${id}/message`, { method: "POST", headers: j, body: JSON.stringify({ topic: "hej med dig" }) }),
+      report: await r(`/api/quotes/${id}/report`, { method: "POST", headers: j, body: JSON.stringify({ message: "test test" }) }),
+      unlock: await r(`/api/quotes/${id}/unlock`, { method: "POST" }),
+      del: await r(`/api/quotes/${id}`, { method: "DELETE" }),
+    };
+  }, otherQuoteId);
+  for (const [k, v] of Object.entries(probes)) assert(v === 404 || v === 403 || v === 402, `intruder ${k} must be denied, got ${v}`);
+  const page404 = await intruder.goto(`${BASE}${quoteHref}`);
+  assert(page404.status() === 404, "quote page of another user is 404");
+  await mobile.goto(`${BASE}${quoteHref}`);
+  await mobile.waitForLoadState("networkidle");
+  assert((await mobile.locator("h1").count()) > 0, "demo quote still exists after intruder attempts");
+  log("another user cannot read, change, unlock, report or delete someone else's quote");
+
   await mobile.goto(`${BASE}/`);
   await shot(mobile, "mobile-landing");
   await mobile.goto(`${BASE}${quoteHref}`);
@@ -288,7 +319,7 @@ try {
   log(`all pages render in ${LOCALES.length} more languages without overflow at 390px`);
 
   // Expected: the 404 page logs a 404 resource, and the weak-password test gets a deliberate 400.
-  const relevant = errors.filter((e) => !e.includes("/findes-ikke") && !(e.includes("/opret") && e.includes("status of 400")) && !(e.includes("/login") && e.includes("status of 401")));
+  const relevant = errors.filter((e) => !e.includes("/findes-ikke") && !(e.includes("/opret") && e.includes("status of 400")) && !(e.includes("/login") && e.includes("status of 401")) && !(e.includes("status of 404") || e.includes("status of 402")));
   if (relevant.length) {
     console.error("\nConsole errors:\n" + relevant.join("\n"));
     process.exitCode = 1;

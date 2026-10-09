@@ -39,7 +39,7 @@ export async function runAnalysis(user: User, quote: Quote, locale: Locale = DEF
 
   try {
     const data = await readStoredFile(quote.fileKey);
-    const analysis = await analyzeQuote(data, quote.mimeType, quote.fileName, locale);
+    const { analysis, meta } = await analyzeQuote(data, quote.mimeType, quote.fileName, locale);
     const unlocked = quote.unlocked || user.plan === "PRO" || source === "credit";
     const [updated] = await db
       .update(quotes)
@@ -52,6 +52,10 @@ export async function runAnalysis(user: User, quote: Quote, locale: Locale = DEF
         totalInclVat: analysis.totals.inclVat,
         score: analysis.score.total,
         unlocked,
+        aiModel: meta?.model ?? null,
+        aiInputTokens: meta?.inputTokens ?? null,
+        aiOutputTokens: meta?.outputTokens ?? null,
+        aiMs: meta?.ms ?? null,
         updatedAt: new Date(),
       })
       .where(eq(quotes.id, quote.id))
@@ -80,6 +84,6 @@ export function publicQuote(user: User, quote: Quote) {
   let safe: QuoteAnalysis | null = analysis;
   let lock: LockInfo | null = null;
   if (analysis && !full) ({ analysis: safe, lock } = redactForFree(analysis));
-  const { analysisJson: _omit, fileKey: _key, ...rest } = quote;
+  const { analysisJson: _omit, fileKey: _key, aiModel: _m, aiInputTokens: _i, aiOutputTokens: _o, aiMs: _ms, ...rest } = quote;
   return { ...rest, analysis: safe, fullAccess: full, lock };
 }
