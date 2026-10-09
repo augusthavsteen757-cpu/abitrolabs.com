@@ -11,7 +11,8 @@ import { HttpError } from "./auth";
 import { da } from "@/i18n/dict/da";
 
 const DAY = 24 * 60 * 60 * 1000;
-const appUrl = () => process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+// Read at runtime (NEXT_PUBLIC_* would be frozen into the build).
+const appUrl = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export type CheckoutKind = "PRO_MONTHLY" | "SINGLE";
 

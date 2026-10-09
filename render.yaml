@@ -25,7 +25,7 @@ services:
         value: db
       - key: ANTHROPIC_API_KEY
         sync: false
-      - key: NEXT_PUBLIC_APP_URL
+      - key: APP_URL
         sync: false
       - key: COMPANY_NAME
         sync: false
