@@ -72,7 +72,7 @@ Alle firmanavne, CVR-numre og kontaktoplysninger er opdigtede.
 | `npm run setup`      | `db:push` + `db:seed`                                       |
 | `npm run test:e2e`   | Playwright-gennemgang af hovedflowene (kræver kørende app)  |
 
-`test:e2e` forventer en kørende app i demo-tilstand med seed-data, startet med `ALLOW_LOCAL_DB=1 ALLOW_SIMULATED_PAYMENTS=1 npm start`: `BASE_URL=http://localhost:3000 CHROMIUM_PATH=/sti/til/chrome npm run test:e2e`.
+`test:e2e` forventer en kørende app i demo-tilstand med seed-data, startet med `ALLOW_LOCAL_DB=1 ALLOW_SIMULATED_PAYMENTS=1 ALLOW_DEMO_MODE=1 npm start`: `BASE_URL=http://localhost:3000 CHROMIUM_PATH=/sti/til/chrome npm run test:e2e`.
 
 **AI-regressionstest:** `BASE_URL=https://klardal.com node eval/run-eval.mjs` uploader fire fiktive testdokumenter (i `eval/fixtures/`) til en kørende app med rigtig AI-nøgle og tjekker, at analysen stadig fanger det, den skal (overslag, "efter regning", forudbetaling, moms, ikke-tilbud, prompt injection, sum der ikke stemmer). Kør den efter ændringer i model, prompt eller SDK – og en gang imellem, fordi AI-modeller kan ændre adfærd. Koster ca. 3 kr. pr. kørsel. Den tester signup → upload → analyse → betalingsmur → engangskøb → oplåsning → sletning, demo-login → sammenligning → "Spørg håndværkeren" → besked → konto, og at ingen sider scroller vandret ved 390 px, samt at der ingen konsolfejl er.
 
@@ -185,6 +185,7 @@ Demo-data indlæses ikke automatisk i containeren. Vil du have demo-brugeren med
 
 ## Drift og robusthed
 
+- **AI-nøgle:** i produktion laves der aldrig eksempel-analyser. Mangler `ANTHROPIC_API_KEY`, fejler analyser med en tydelig besked (ingen trækning), og `/api/health` svarer 503. Kun en testside må sætte `ALLOW_DEMO_MODE=1`. Testes med `scripts/no-ai-key.mjs`.
 - **Database:** i produktion nægter appen at starte med en lokal SQLite-fil (den ville blive slettet ved hver genstart på Render). Brug Turso, eller sæt `ALLOW_LOCAL_DB=1`, hvis filen ligger på en vedvarende disk (Docker-volumen, Railway).
 - **Betaling:** simulerede betalinger er slået fra i produktion. Sæt kun `ALLOW_SIMULATED_PAYMENTS=1` i test.
 - **AI-budget:** `AI_DAILY_LIMIT` (standard 300) begrænser antallet af analyser pr. døgn på tværs af alle brugere.

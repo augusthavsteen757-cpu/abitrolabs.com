@@ -97,40 +97,40 @@ export function DashboardNav({ name, email, plan, used, limit, remaining, credit
         </div>
       </aside>
 
-      {/* Mobile top bar */}
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-paper/90 px-4 backdrop-blur lg:hidden">
-        <Logo href="/dashboard" />
-        <div className="flex items-center gap-1.5">
-          <LanguageSwitcher compact />
-          <Link href="/dashboard/konto" className="badge bg-white text-ink-soft ring-1 ring-line">
-            {plural(remaining, d.nav.remainingOne, d.nav.remainingOther)}
-          </Link>
-          <button onClick={logout} className="rounded-lg p-2 text-ink-muted hover:bg-black/5" aria-label={d.nav.logout}>
-            <LogOut className="h-4 w-4" />
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile bottom tabs */}
-      <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
-        aria-label={d.nav.mainMenu}
-      >
-        {NAV.map((n) => {
-          const active = isActive(pathname, n.href, n.exact);
-          return (
-            <Link
-              key={n.href}
-              href={n.href}
-              aria-current={active ? "page" : undefined}
-              className={cn("flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium", active ? "text-brand-700" : "text-ink-muted")}
-            >
-              <n.icon className="h-5 w-5" />
-              {n.short ?? n.label}
+      {/* Mobile: logo bar + main menu, both at the top */}
+      <div className="sticky top-0 z-30 border-b border-line bg-paper/95 backdrop-blur lg:hidden">
+        <header className="flex h-14 items-center justify-between px-4">
+          <Logo href="/dashboard" />
+          <div className="flex items-center gap-1.5">
+            <LanguageSwitcher compact />
+            <Link href="/dashboard/konto" className="badge bg-white text-ink-soft ring-1 ring-line">
+              {plural(remaining, d.nav.remainingOne, d.nav.remainingOther)}
             </Link>
-          );
-        })}
-      </nav>
+            <button onClick={logout} className="rounded-lg p-2 text-ink-muted hover:bg-black/5" aria-label={d.nav.logout}>
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        </header>
+        <nav className="grid grid-cols-5 px-1" aria-label={d.nav.mainMenu}>
+          {NAV.map((n) => {
+            const active = isActive(pathname, n.href, n.exact);
+            return (
+              <Link
+                key={n.href}
+                href={n.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "flex flex-col items-center gap-1 border-b-2 pb-2 pt-1 text-[11px] font-medium",
+                  active ? "border-brand-700 text-brand-700" : "border-transparent text-ink-muted",
+                )}
+              >
+                <n.icon className="h-5 w-5" />
+                {n.short ?? n.label}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
     </>
   );
 }

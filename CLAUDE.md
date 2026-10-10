@@ -5,8 +5,9 @@ Ejeren (August) vil have, at alt er **meget sikkert og grundigt testet**. Det g�
 ## Test – altid, og på alle måder
 - Kør **alle** testsæt efter hver ændring, før der committes og deployes:
   - `npx tsc --noEmit` og `npm run build` (i `fixflow/`)
-  - Hele e2e-testen: start appen med `ALLOW_LOCAL_DB=1 ALLOW_SIMULATED_PAYMENTS=1 npm start` efter `npm run db:push && npm run db:seed`, og kør `BASE_URL=http://localhost:3000 CHROMIUM_PATH=/opt/pw-browsers/chromium node scripts/e2e.mjs`
-  - Beta-tilstanden (som er den, der kører live): start med `BETA_FREE=1 ALLOW_LOCAL_DB=1 npm start` og test den
+  - Hele e2e-testen: start appen med `ALLOW_LOCAL_DB=1 ALLOW_SIMULATED_PAYMENTS=1 ALLOW_DEMO_MODE=1 npm start` efter `npm run db:push && npm run db:seed`, og kør `BASE_URL=http://localhost:3000 CHROMIUM_PATH=/opt/pw-browsers/chromium node scripts/e2e.mjs`
+  - Beta-tilstanden (som er den, der kører live): start med `BETA_FREE=1 ALLOW_LOCAL_DB=1 ALLOW_DEMO_MODE=1 npm start` og test den
+  - Uden AI-nøgle i drift må der aldrig vises eksempel-analyser: start `ALLOW_LOCAL_DB=1 npm start` (uden nøgle og uden ALLOW_DEMO_MODE) og kør `BASE_URL=http://localhost:3000 node scripts/no-ai-key.mjs`
   - Den read-only smoke-test mod en produktionslignende build: `BASE_URL=... node scripts/smoke.mjs`
   - Ved ændringer i AI-prompt, model eller SDK: `node eval/run-eval.mjs` mod en app med rigtig nøgle
 - Skriv nye tests for ny funktionalitet og for hver fejl, der rettes.

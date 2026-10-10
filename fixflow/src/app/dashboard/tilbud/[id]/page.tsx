@@ -242,6 +242,13 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         </div>
       </header>
 
+      {analysis.demo && (
+        <div className="mt-5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900" data-testid="demo-notice">
+          <p className="font-semibold">{t.demoNoticeTitle}</p>
+          <p className="mt-0.5">{t.demoNoticeText}</p>
+        </div>
+      )}
+
       {/* Verdict: the three numbers that matter */}
       <section className="card mt-6 p-5 sm:p-6" aria-label={t.scoreTitle}>
         <div className="flex items-center gap-5">

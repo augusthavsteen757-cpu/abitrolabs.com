@@ -83,6 +83,8 @@ try {
   await page.waitForURL(/\/dashboard\/tilbud\//, { timeout: 60_000 });
   await page.getByRole("heading", { name: "Renovering af badeværelse" }).waitFor();
   await page.getByText("Det skal du være opmærksom på").waitFor();
+  // Demo analyses must never pass for a real review of the user's quote.
+  await page.locator("[data-testid=demo-notice]").getByText("Eksempel – ikke en analyse af dit tilbud").waitFor();
   const quoteUrl = page.url();
   log("upload → analysis page renders");
 

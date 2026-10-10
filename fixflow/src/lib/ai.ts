@@ -9,7 +9,14 @@ import { AI_LANGUAGE, DEFAULT_LOCALE, type Locale } from "@/i18n/config";
 import { DICTS } from "@/i18n/dict";
 import { fmt } from "@/i18n/fmt";
 
-export const isDemoMode = () => !process.env.ANTHROPIC_API_KEY;
+/**
+ * Demo mode (hand-written example analyses, no AI) is only for local development and explicit preview
+ * sites. In production a missing key must fail loudly – never show an example as if it were the user's quote.
+ */
+export const isDemoMode = () =>
+  !process.env.ANTHROPIC_API_KEY && (process.env.NODE_ENV !== "production" || process.env.ALLOW_DEMO_MODE === "1");
+/** True when the app can't analyse at all: production without a key and without an explicit demo opt-in. */
+export const isAiMissing = () => !process.env.ANTHROPIC_API_KEY && !isDemoMode();
 
 const MODEL = () => process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
 /** Tried in order if the main model is unavailable, overloaded or not enabled on the account. */
@@ -259,6 +266,10 @@ export async function analyzeQuote(
     await new Promise((r) => setTimeout(r, 1800));
     return { analysis: finalize(pickDemoQuote(fileName).raw, true), meta: null };
   }
+  if (isAiMissing()) {
+    console.error(JSON.stringify({ event: "analysis", outcome: "no_api_key" }));
+    throw new AnalysisError(da.errors.aiUnavailable);
+  }
 
   const request = (model: string, forceTool: boolean) =>
     getClient().messages.create({
@@ -395,7 +406,8 @@ export async function draftMessage(
   customerName: string,
   locale: Locale = DEFAULT_LOCALE,
 ) {
-  if (isDemoMode()) {
+  if (isDemoMode() || isAiMissing()) {
+    // The template is built from the real analysis, so it is safe to use without AI.
     await new Promise((r) => setTimeout(r, 700));
     return templateMessage(analysis, topic, tone, customerName, locale);
   }
