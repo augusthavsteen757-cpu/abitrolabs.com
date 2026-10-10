@@ -185,6 +185,8 @@ try {
   const countText = await demo.getByText(/Dine beskeder \(\d+\)/).textContent();
   const before = Number(countText.match(/\d+/)[0]);
   const flagTitle = "El-arbejdet afregnes efter forbrug";
+  // Only the 3 most important findings are open; the rest sit behind "Vis alle N punkter".
+  if (!(await demo.locator("article", { hasText: flagTitle }).isVisible())) await demo.getByText(/Vis alle \d+ punkter/).click();
   await demo
     .locator("article", { hasText: flagTitle })
     .getByRole("link", { name: "Spørg håndværkeren" })

@@ -13,7 +13,7 @@ export function QuoteCard({ quote, locked, d, intlLocale }: { quote: Quote; lock
       className="card group flex items-center gap-4 p-4 transition-shadow hover:shadow-lift sm:p-5"
     >
       {quote.status === "DONE" && quote.score != null ? (
-        <ScoreRing score={quote.score} size={56} />
+        <ScoreRing score={quote.score} size={56} srText={d.quote.scoreAria.replace("{score}", String(quote.score))} />
       ) : quote.status === "FAILED" ? (
         <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
           <XCircle className="h-6 w-6" />

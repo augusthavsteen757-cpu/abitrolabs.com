@@ -11,11 +11,14 @@ export function ScoreRing({
   score,
   size = 132,
   label,
+  srText,
   className,
 }: {
   score: number;
   size?: number;
   label?: string;
+  /** Screen-reader text, e.g. "Tilbudsscore 36 ud af 100" in the viewer's language. */
+  srText?: string;
   className?: string;
 }) {
   const stroke = Math.max(6, Math.round(size / 13));
@@ -49,7 +52,7 @@ export function ScoreRing({
           </span>
         )}
       </div>
-      <span className="sr-only">Tilbudsscore {score} ud af 100{label ? `, ${label}` : ""}</span>
+      {srText && <span className="sr-only">{srText}{label ? `, ${label}` : ""}</span>}
     </div>
   );
 }
