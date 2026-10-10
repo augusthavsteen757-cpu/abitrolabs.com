@@ -35,6 +35,21 @@ ok(/Disallow: \/dashboard/.test(robots) && /Sitemap: https?:\/\//.test(robots), 
 const sitemap = await get("/sitemap.xml");
 ok(sitemap.status === 200 && (await sitemap.text()).includes("<urlset"), "sitemap.xml is valid");
 
+// Icons and structured data Google uses for the favicon and site name in search results.
+for (const [p, type] of [["/favicon.ico", "image/"], ["/icon.svg", "image/svg"], ["/apple-icon.png", "image/png"], ["/logo.png", "image/png"]]) {
+  const r = await get(p);
+  ok(r.status === 200 && (r.headers.get("content-type") ?? "").startsWith(type), `${p} served as ${type}* (${r.status})`);
+}
+const homeHtml = await (await get("/")).text();
+ok(/<link rel="icon" href="\/favicon\.ico/.test(homeHtml) && /rel="icon" href="\/icon\.svg/.test(homeHtml), "home page links favicon.ico and icon.svg");
+const ld = homeHtml.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)?.[1];
+let ldOk = false;
+try {
+  const g = JSON.parse(ld)["@graph"];
+  ldOk = g.some((n) => n["@type"] === "WebSite" && n.name === "Klardal") && g.some((n) => n["@type"] === "Organization" && /\/logo\.png$/.test(n.logo));
+} catch {}
+ok(ldOk, "home page has WebSite + Organization structured data (site name and logo)");
+
 const health = await get("/api/health");
 ok(health.status === 200, `health check → 200 (${health.status})`);
 

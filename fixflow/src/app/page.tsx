@@ -26,6 +26,18 @@ import type { Dict } from "@/i18n/dict";
 
 export const dynamic = "force-dynamic";
 
+// Tells Google the site name and logo shown next to search results (static values only – no user input).
+function siteJsonLd() {
+  const url = `${(process.env.APP_URL || "https://klardal.com").replace(/\/$/, "")}/`;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "WebSite", "@id": `${url}#website`, name: "Klardal", alternateName: "klardal.com", url },
+      { "@type": "Organization", "@id": `${url}#organization`, name: "Klardal", url, logo: `${url}logo.png` },
+    ],
+  };
+}
+
 function HeroMock({ d }: { d: Dict }) {
   const m = d.home.mock;
   const colors = ["bg-red-500", "bg-red-500", "bg-amber-500"];
@@ -83,6 +95,7 @@ export default async function HomePage() {
   const h = d.home;
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd()) }} />
       <MarketingHeader loggedIn={!!user} />
       <main>
         {/* Hero */}
