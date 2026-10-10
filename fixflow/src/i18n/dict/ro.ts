@@ -66,7 +66,6 @@ export const ro: Dict = {
       example: "Exemplu – firmă fictivă",
       job: "Renovare baie",
       priceType: "Estimare",
-      scoreLabel: "Foarte neclar",
       price: "Preț cu TVA",
       extra: "Poate costa mai mult cu",
       flags: [
@@ -484,7 +483,7 @@ export const ro: Dict = {
     },
   },
   score: {
-    labels: { transparent: "Foarte clară", fair: "Destul de clară", unclear: "Neclară", veryUnclear: "Foarte neclară" },
+    labels: { transparent: "Limpede", fair: "Destul de limpede", unclear: "Neclară", veryUnclear: "Foarte neclară" },
     spec: "Sunt pozițiile descrise?",
     complete: "Sunt lucrurile importante în ofertă?",
     terms: "Preț și condiții",

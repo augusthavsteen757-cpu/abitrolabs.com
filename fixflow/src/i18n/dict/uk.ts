@@ -65,7 +65,6 @@ export const uk: Dict = {
       example: "Приклад – вигадана фірма",
       job: "Ремонт ванної кімнати",
       priceType: "Орієнтовний кошторис",
-      scoreLabel: "Дуже нечітко",
       price: "Ціна з ПДВ",
       extra: "Може бути дорожче на",
       flags: [
@@ -483,7 +482,7 @@ export const uk: Dict = {
     },
   },
   score: {
-    labels: { transparent: "Дуже зрозуміла", fair: "Досить зрозуміла", unclear: "Незрозуміла", veryUnclear: "Дуже незрозуміла" },
+    labels: { transparent: "Чітка", fair: "Досить чітка", unclear: "Незрозуміла", veryUnclear: "Дуже незрозуміла" },
     spec: "Чи описані позиції?",
     complete: "Чи є в пропозиції важливе?",
     terms: "Ціна та умови",

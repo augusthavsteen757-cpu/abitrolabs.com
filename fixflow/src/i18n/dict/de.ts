@@ -66,7 +66,6 @@ export const de: Dict = {
       example: "Beispiel – fiktive Firma",
       job: "Badsanierung",
       priceType: "Kostenvoranschlag",
-      scoreLabel: "Sehr unklar",
       price: "Preis inkl. MwSt.",
       extra: "Kann teurer werden um",
       flags: [
@@ -484,7 +483,7 @@ export const de: Dict = {
     },
   },
   score: {
-    labels: { transparent: "Sehr klar", fair: "Recht klar", unclear: "Unklar", veryUnclear: "Sehr unklar" },
+    labels: { transparent: "Eindeutig", fair: "Recht eindeutig", unclear: "Unklar", veryUnclear: "Sehr unklar" },
     spec: "Sind die Posten beschrieben?",
     complete: "Steht das Wichtige im Angebot?",
     terms: "Preis und Bedingungen",

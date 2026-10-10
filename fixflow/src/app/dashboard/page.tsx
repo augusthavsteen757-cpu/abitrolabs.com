@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { FilePlus2, FileSearch, Gauge, AlertTriangle, Wallet, Columns3, Upload } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { listQuotes } from "@/lib/quotes";
-import { parseStoredAnalysis, redactForFree } from "@/lib/analysis";
+import { parseStoredAnalysis, redactForFree, scoreOfQuote } from "@/lib/analysis";
 import { formatRange } from "@/lib/format";
 import { hasFullAccess } from "@/lib/plans";
 import { QuoteCard } from "@/components/QuoteCard";
@@ -41,7 +41,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     })
     .filter((a) => a != null);
 
-  const avgScore = done.length ? Math.round(done.reduce((s, q) => s + (q.score ?? 0), 0) / done.length) : null;
+  const avgScore = done.length ? Math.round(done.reduce((s, q) => s + (scoreOfQuote(q) ?? 0), 0) / done.length) : null;
   const seriousFlags = analyses.reduce((s, a) => s + a.flags.filter((f) => f.severity === "high").length, 0);
   const extraMin = analyses.reduce((s, a) => s + a.extraCostRisk.min * 1.25, 0);
   const extraMax = analyses.reduce((s, a) => s + a.extraCostRisk.max * 1.25, 0);

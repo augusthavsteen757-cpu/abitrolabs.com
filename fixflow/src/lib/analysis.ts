@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { computeScore } from "./score";
 
 export const CATEGORIES = [
   "Arbejdsløn",
@@ -308,6 +309,9 @@ export function parseStoredAnalysis(json: string | null): QuoteAnalysis | null {
     // Analyses saved before the Danish rules / currency fields existed.
     return {
       ...a,
+      // Always recomputed from the findings, so every page shows the same number – even for analyses
+      // stored before a change to the scoring rules.
+      score: computeScore(a),
       rules: a.rules ?? [],
       currency: a.currency ?? "DKK",
       language: languageCode(a.language),
@@ -319,6 +323,11 @@ export function parseStoredAnalysis(json: string | null): QuoteAnalysis | null {
   } catch {
     return null;
   }
+}
+
+/** The Tilbudsscore of a stored quote – the one number every page must show. */
+export function scoreOfQuote(q: { analysisJson: string | null; score: number | null }): number | null {
+  return parseStoredAnalysis(q.analysisJson)?.score.total ?? q.score;
 }
 
 /** Share of the amount (excl. VAT) that sits in vague or unclear line items, 0..1 */

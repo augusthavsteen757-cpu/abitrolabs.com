@@ -66,7 +66,6 @@ export const en: Dict = {
       example: "Example – fictional company",
       job: "Bathroom renovation",
       priceType: "Estimate",
-      scoreLabel: "Very unclear",
       price: "Price incl. VAT",
       extra: "Could cost more by",
       flags: [
@@ -484,7 +483,7 @@ export const en: Dict = {
     },
   },
   score: {
-    labels: { transparent: "Very clear", fair: "Fairly clear", unclear: "Unclear", veryUnclear: "Very unclear" },
+    labels: { transparent: "Transparent", fair: "Fairly clear", unclear: "Unclear", veryUnclear: "Very unclear" },
     spec: "Are the items described?",
     complete: "Are the important things included?",
     terms: "Price and terms",

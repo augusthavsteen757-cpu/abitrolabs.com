@@ -62,7 +62,6 @@ export const pl: Dict = {
       example: "Przykład – fikcyjna firma",
       job: "Remont łazienki",
       priceType: "Kosztorys szacunkowy",
-      scoreLabel: "Bardzo niejasna",
       price: "Cena z VAT",
       extra: "Może być drożej o",
       flags: [
@@ -480,7 +479,7 @@ export const pl: Dict = {
     },
   },
   score: {
-    labels: { transparent: "Bardzo jasna", fair: "Dość jasna", unclear: "Niejasna", veryUnclear: "Bardzo niejasna" },
+    labels: { transparent: "Przejrzysta", fair: "Dość przejrzysta", unclear: "Niejasna", veryUnclear: "Bardzo niejasna" },
     spec: "Czy pozycje są opisane?",
     complete: "Czy w wycenie jest to, co ważne?",
     terms: "Cena i warunki",

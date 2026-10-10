@@ -43,7 +43,7 @@ function HeroMock({ d }: { d: Dict }) {
           <span className="badge shrink-0 bg-amber-50 text-amber-800 ring-1 ring-amber-200">{m.priceType}</span>
         </div>
         <div className="mt-5 flex items-center gap-5">
-          <ScoreRing score={36} size={104} label={m.scoreLabel} />
+          <ScoreRing score={36} size={104} label={d.score.labels.veryUnclear} />
           <div className="min-w-0 space-y-2 text-sm">
             <div>
               <p className="text-ink-muted">{m.price}</p>

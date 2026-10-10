@@ -4,16 +4,18 @@ import type { Quote } from "@/db/schema";
 import { ScoreRing } from "./ScoreRing";
 import { formatKr, formatShortDate } from "@/lib/format";
 import { scoreLabel } from "@/lib/score";
+import { scoreOfQuote } from "@/lib/analysis";
 import type { Dict } from "@/i18n/dict";
 
 export function QuoteCard({ quote, locked, d, intlLocale }: { quote: Quote; locked: boolean; d: Dict; intlLocale: string }) {
+  const score = scoreOfQuote(quote);
   return (
     <Link
       href={`/dashboard/tilbud/${quote.id}`}
       className="card group flex items-center gap-4 p-4 transition-shadow hover:shadow-lift sm:p-5"
     >
-      {quote.status === "DONE" && quote.score != null ? (
-        <ScoreRing score={quote.score} size={56} srText={d.quote.scoreAria.replace("{score}", String(quote.score))} />
+      {quote.status === "DONE" && score != null ? (
+        <ScoreRing score={score} size={56} srText={d.quote.scoreAria.replace("{score}", String(score))} />
       ) : quote.status === "FAILED" ? (
         <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
           <XCircle className="h-6 w-6" />
@@ -31,7 +33,7 @@ export function QuoteCard({ quote, locked, d, intlLocale }: { quote: Quote; lock
             <>
               <span className="num font-medium text-ink-soft">{formatKr(quote.totalInclVat)}</span>
               <span aria-hidden>·</span>
-              <span>{quote.score != null ? scoreLabel(quote.score, d.score) : ""}</span>
+              <span>{score != null ? scoreLabel(score, d.score) : ""}</span>
             </>
           ) : quote.status === "FAILED" ? (
             <span className="text-red-700">{d.quoteCard.failed}</span>

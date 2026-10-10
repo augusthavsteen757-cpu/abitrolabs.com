@@ -66,7 +66,6 @@ export const sv: Dict = {
       example: "Exempel – påhittat företag",
       job: "Badrumsrenovering",
       priceType: "Kostnadsuppskattning",
-      scoreLabel: "Mycket otydlig",
       price: "Pris inkl. moms",
       extra: "Kan bli dyrare med",
       flags: [
@@ -484,7 +483,7 @@ export const sv: Dict = {
     },
   },
   score: {
-    labels: { transparent: "Mycket tydlig", fair: "Ganska tydlig", unclear: "Otydlig", veryUnclear: "Mycket otydlig" },
+    labels: { transparent: "Tydlig", fair: "Ganska tydlig", unclear: "Oklar", veryUnclear: "Mycket oklar" },
     spec: "Är posterna beskrivna?",
     complete: "Står det viktiga i offerten?",
     terms: "Pris och villkor",

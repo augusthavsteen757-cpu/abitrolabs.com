@@ -66,7 +66,6 @@ export const nb: Dict = {
       example: "Eksempel – fiktivt firma",
       job: "Oppussing av bad",
       priceType: "Overslag",
-      scoreLabel: "Svært uklart",
       price: "Pris med mva.",
       extra: "Kan bli dyrere med",
       flags: [
@@ -484,7 +483,7 @@ export const nb: Dict = {
     },
   },
   score: {
-    labels: { transparent: "Svært tydelig", fair: "Ganske tydelig", unclear: "Utydelig", veryUnclear: "Svært utydelig" },
+    labels: { transparent: "Tydelig", fair: "Ganske tydelig", unclear: "Uklar", veryUnclear: "Svært uklar" },
     spec: "Er postene beskrevet?",
     complete: "Står det viktige i tilbudet?",
     terms: "Pris og vilkår",

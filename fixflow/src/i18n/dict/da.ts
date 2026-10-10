@@ -64,7 +64,6 @@ export const da = {
       example: "Eksempel – fiktivt firma",
       job: "Renovering af badeværelse",
       priceType: "Overslag",
-      scoreLabel: "Meget uklart",
       price: "Pris med moms",
       extra: "Kan blive dyrere med",
       flags: [
@@ -482,7 +481,7 @@ export const da = {
     },
   },
   score: {
-    labels: { transparent: "Meget klart", fair: "Ret klart", unclear: "Uklart", veryUnclear: "Meget uklart" },
+    labels: { transparent: "Tydeligt", fair: "Ret tydeligt", unclear: "Uklart", veryUnclear: "Meget uklart" },
     spec: "Er posterne beskrevet?",
     complete: "Står de vigtige ting i tilbuddet?",
     terms: "Pris og vilkår",
