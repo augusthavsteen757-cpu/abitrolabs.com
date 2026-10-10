@@ -57,6 +57,20 @@ try {
   await shot(page, "landing");
   log("landing page");
 
+  // Visitors on a phone can go straight to a feature from the top menu: sign up, then land on it.
+  const visitor = await newPage(390, 844);
+  await visitor.goto(BASE);
+  await visitor.locator("header nav").getByRole("link", { name: "Sammenlign" }).click();
+  await visitor.waitForURL(/\/opret\?next=%2Fdashboard%2Fsammenlign/);
+  await visitor.fill("#name", "Ny Besøgende");
+  await visitor.fill("#email", `visitor${Date.now()}@eksempel.dk`);
+  await visitor.fill("#password", "Ny-Besoegende-Kode-31");
+  await visitor.check("input[name=acceptTerms]");
+  await visitor.click("button[type=submit]");
+  await visitor.waitForURL(`${BASE}/dashboard/sammenlign`);
+  await visitor.close();
+  log("public top menu (mobile) leads to the feature after signup");
+
   const email = `test${Date.now()}@eksempel.dk`;
   await page.goto(`${BASE}/opret`);
   await page.fill("#name", "Test Testesen");
