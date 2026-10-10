@@ -2,7 +2,7 @@ import "server-only";
 import { and, eq, gt, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { users, type User } from "@/db/schema";
-import { currentPeriod, planLimit } from "./plans";
+import { currentPeriod, isBeta, planLimit } from "./plans";
 
 export type QuotaSource = "plan" | "credit";
 
@@ -13,7 +13,7 @@ export type QuotaSource = "plan" | "credit";
 export async function consumeAnalysis(user: User): Promise<QuotaSource | null> {
   const limit = planLimit(user);
 
-  if (user.plan === "PRO") {
+  if (user.plan === "PRO" && !isBeta()) {
     // Roll an expired Pro period over first – guarded on the old start, so only one request does it.
     const p = currentPeriod(user);
     if (p.periodStart.getTime() !== user.periodStart.getTime()) {
@@ -30,6 +30,7 @@ export async function consumeAnalysis(user: User): Promise<QuotaSource | null> {
     .where(and(eq(users.id, user.id), lt(users.periodUsed, limit)))
     .returning({ id: users.id });
   if (plan.length) return "plan";
+  if (isBeta()) return null; // no extra purchases in the beta – the cap is the cap
 
   const credit = await db
     .update(users)

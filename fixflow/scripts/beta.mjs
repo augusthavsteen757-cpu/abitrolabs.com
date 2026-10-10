@@ -47,5 +47,19 @@ const fr = await p.evaluate(async () => (await fetch("/api/contractors?trade=vvs
 ok(fr === 503, "contractor API off in beta without CVR");
 await p.goto(B + "/handelsbetingelser");
 ok((await p.innerText("body")).includes("Gratis betaperiode"), "terms describe the beta");
+// A user who had Pro and a test payment from before the beta (the seeded demo user) gets the beta deal:
+// 5 in total, no Pro, no period – and test payments are never shown on a production build without
+// ALLOW_SIMULATED_PAYMENTS (klardal.com).
+const old = await (await br.newContext({ locale: "da-DK" })).newPage();
+old.on("pageerror", (e) => errs.push(e.message));
+await old.goto(B + "/login");
+await old.fill("#email", "demo@klardal.dk"); await old.fill("#password", process.env.DEMO_PASSWORD || "demo1234");
+await old.click("button[type=submit]"); await old.waitForURL(/\/dashboard/);
+await old.goto(B + "/dashboard/konto");
+const acc = await old.innerText("main");
+ok(/3 af 5/.test(acc) && !/af 10/.test(acc), "beta account shows 3 of 5 analyses, not the old Pro quota");
+ok(!/Pro – 1 måned|Testbetaling|Fortryd købet|nulstilles/.test(acc), "no Pro plan, period or test payment in the beta");
+const nav = await old.innerText("aside");
+ok(nav.includes("Gratis beta") && nav.includes("3/5"), "sidebar shows the beta plan with 3/5");
 ok(errs.length === 0, "no page errors " + errs.join(";"));
 await br.close();

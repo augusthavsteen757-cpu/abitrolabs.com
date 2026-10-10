@@ -619,6 +619,7 @@ export const da = {
     usagePro: "{used} af {limit} analyser brugt i denne periode",
     resets: " · nulstilles {date}",
     usageFree: "{used} af {limit} gratis analyse brugt.",
+    usageBeta: "{used} af {limit} gratis analyser brugt.",
     credits: " Du har {n} engangskøb til gode.",
     remainingOne: "analyse tilbage",
     remainingOther: "analyser tilbage",

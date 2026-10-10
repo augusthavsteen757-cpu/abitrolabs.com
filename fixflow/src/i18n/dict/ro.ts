@@ -621,6 +621,7 @@ export const ro: Dict = {
     usagePro: "{used} din {limit} analize folosite în această perioadă",
     resets: " · se resetează pe {date}",
     usageFree: "{used} din {limit} analiză gratuită folosită.",
+    usageBeta: "{used} din {limit} analize gratuite folosite.",
     credits: " Ai {n} achiziții unice disponibile.",
     remainingOne: "analiză rămasă",
     remainingOther: "analize rămase",

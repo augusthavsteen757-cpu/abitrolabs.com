@@ -621,6 +621,7 @@ export const de: Dict = {
     usagePro: "{used} von {limit} Analysen in diesem Zeitraum genutzt",
     resets: " · wird am {date} zurückgesetzt",
     usageFree: "{used} von {limit} kostenloser Analyse genutzt.",
+    usageBeta: "{used} von {limit} kostenlosen Analysen genutzt.",
     credits: " Du hast noch {n} Einzelkäufe gut.",
     remainingOne: "Analyse übrig",
     remainingOther: "Analysen übrig",

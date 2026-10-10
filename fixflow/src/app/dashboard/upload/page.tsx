@@ -30,8 +30,8 @@ export default async function UploadPage() {
       <div className="mt-8">
         {usage.remaining <= 0 ? (
           <Paywall
-            title={user.plan === "PRO" ? t.usedProTitle : t.usedFreeTitle}
-            text={user.plan === "PRO" ? t.usedProText : t.usedFreeText}
+            title={usage.plan === "PRO" ? t.usedProTitle : t.usedFreeTitle}
+            text={usage.plan === "PRO" ? t.usedProText : t.usedFreeText}
             showSingle
           />
         ) : (

@@ -621,6 +621,7 @@ export const sv: Dict = {
     usagePro: "{used} av {limit} analyser använda denna period",
     resets: " · nollställs {date}",
     usageFree: "{used} av {limit} gratisanalys använd.",
+    usageBeta: "{used} av {limit} gratis analyser använda.",
     credits: " Du har {n} engångsköp kvar.",
     remainingOne: "analys kvar",
     remainingOther: "analyser kvar",

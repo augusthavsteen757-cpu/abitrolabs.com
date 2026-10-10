@@ -621,6 +621,7 @@ export const nb: Dict = {
     usagePro: "{used} av {limit} analyser brukt i denne perioden",
     resets: " · nullstilles {date}",
     usageFree: "{used} av {limit} gratis analyse brukt.",
+    usageBeta: "{used} av {limit} gratis analyser brukt.",
     credits: " Du har {n} enkeltkjøp til gode.",
     remainingOne: "analyse igjen",
     remainingOther: "analyser igjen",

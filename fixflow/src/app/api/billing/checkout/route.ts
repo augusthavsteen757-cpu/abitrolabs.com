@@ -5,7 +5,7 @@ import { randomBytes } from "crypto";
 import { requireApiUser } from "@/lib/auth";
 import { handle, jsonError } from "@/lib/api";
 import { rateLimit } from "@/lib/rate-limit";
-import { resumePro, cancelPro, createStripeCheckout, fulfill, isStripeEnabled } from "@/lib/billing";
+import { resumePro, cancelPro, createStripeCheckout, fulfill, isSimulationAllowed, isStripeEnabled } from "@/lib/billing";
 import { isDemoMode } from "@/lib/ai";
 import { isBeta } from "@/lib/plans";
 import { getDict } from "@/i18n/server";
@@ -51,9 +51,7 @@ export const POST = handle(async (req: Request) => {
   }
 
   // Test mode: simulate a successful payment right away – never in production unless explicitly allowed.
-  if (process.env.NODE_ENV === "production" && process.env.ALLOW_SIMULATED_PAYMENTS !== "1") {
-    return jsonError(da.errors.paymentsOffline, 503);
-  }
+  if (!isSimulationAllowed()) return jsonError(da.errors.paymentsOffline, 503);
   await fulfill({
     userId: user.id,
     kind,

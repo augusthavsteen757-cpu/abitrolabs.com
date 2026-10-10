@@ -25,9 +25,11 @@ export function currentPeriod(user: Pick<User, "periodStart" | "periodUsed">, no
   return { periodStart: start, periodUsed: used, periodEnd: new Date(start.getTime() + PERIOD_MS) };
 }
 
+/** In the beta everyone has the same deal (no Pro, no periods, no extra purchases). */
 export function planLimit(user: Pick<User, "plan">) {
+  if (isBeta()) return BETA_ANALYSES_TOTAL;
   if (user.plan === "PRO") return PRO_ANALYSES_PER_PERIOD;
-  return isBeta() ? BETA_ANALYSES_TOTAL : FREE_ANALYSES_TOTAL;
+  return FREE_ANALYSES_TOTAL;
 }
 
 export type Usage = {
@@ -46,6 +48,11 @@ export type Usage = {
  */
 export function getUsage(user: User, now = new Date()): Usage {
   const limit = planLimit(user);
+  if (isBeta()) {
+    // A plan or credits left over from before the beta (e.g. test purchases) don't apply.
+    const remaining = Math.max(0, limit - user.periodUsed);
+    return { plan: "FREE", used: Math.min(user.periodUsed, limit), limit, planRemaining: remaining, credits: 0, remaining, periodEnd: null };
+  }
   const p = user.plan === "PRO" ? currentPeriod(user, now) : { periodUsed: user.periodUsed, periodEnd: null };
   const planRemaining = Math.max(0, limit - p.periodUsed);
   return {

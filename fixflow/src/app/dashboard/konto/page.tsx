@@ -8,7 +8,7 @@ import { PRO_PRICE_DKK, SINGLE_PRICE_DKK, getUsage, isBeta } from "@/lib/plans";
 import { getDict, getI18n } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
 import { INTL_LOCALE } from "@/i18n/config";
-import { isStripeEnabled, unusedSinglePurchases, withdrawalQuote } from "@/lib/billing";
+import { isSimulationAllowed, isStripeEnabled, unusedSinglePurchases, withdrawalQuote } from "@/lib/billing";
 import { WITHDRAWAL_DAYS } from "@/lib/company";
 import { WithdrawButton } from "@/components/WithdrawButton";
 import { cn, formatDate, formatKr } from "@/lib/format";
@@ -31,10 +31,10 @@ export default async function AccountPage({
   const t = d.account;
   const intl = INTL_LOCALE[locale];
   const date = (v: Date | null) => formatDate(v, intl);
-  const history = await db.query.payments.findMany({
-    where: eq(payments.userId, user.id),
-    orderBy: [desc(payments.createdAt)],
-  });
+  // Test payments are never shown where they can't be made (klardal.com).
+  const history = (
+    await db.query.payments.findMany({ where: eq(payments.userId, user.id), orderBy: [desc(payments.createdAt)] })
+  ).filter((p) => p.provider !== "simulated" || isSimulationAllowed());
   const unused = unusedSinglePurchases(user, history);
   const upgrade = sp.upgrade;
   const quoteId = sp.quote;
@@ -42,8 +42,8 @@ export default async function AccountPage({
     ? await db.query.quotes.findFirst({ where: and(eq(quotes.id, quoteId), eq(quotes.userId, user.id)) })
     : null;
   const beta = isBeta();
-  const simulated = !isStripeEnabled() && !beta;
-  const isPro = user.plan === "PRO";
+  const simulated = !isStripeEnabled() && !beta && isSimulationAllowed();
+  const isPro = usage.plan === "PRO";
 
   return (
     <div className="mx-auto max-w-4xl animate-fade-up">
@@ -79,7 +79,7 @@ export default async function AccountPage({
             <p className="mt-1 text-sm text-ink-soft">
               {isPro
                 ? `${fmt(t.usagePro, { used: usage.used, limit: usage.limit })}${usage.periodEnd ? fmt(t.resets, { date: date(usage.periodEnd) }) : ""}.`
-                : fmt(t.usageFree, { used: usage.used, limit: usage.limit })}
+                : fmt(beta ? t.usageBeta : t.usageFree, { used: usage.used, limit: usage.limit })}
               {usage.credits > 0 && fmt(t.credits, { n: usage.credits })}
             </p>
           </div>
@@ -191,7 +191,8 @@ export default async function AccountPage({
         </>
       )}
 
-      {/* History */}
+      {/* History – hidden in the beta when there is nothing to show (nothing can be bought) */}
+      {!(beta && history.length === 0) && (
       <section className="mt-10">
         <h2 className="flex items-center gap-2 text-xl font-semibold">
           <Receipt className="h-5 w-5 text-brand-600" /> {t.payments}
@@ -240,6 +241,7 @@ export default async function AccountPage({
           </>
         )}
       </section>
+      )}
       <AccountSettings postalCode={user.postalCode ?? ""} />
     </div>
   );

@@ -16,7 +16,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <DashboardNav
         name={user.name}
         email={user.email}
-        plan={user.plan}
+        plan={usage.plan}
         used={usage.used}
         limit={usage.limit}
         remaining={usage.remaining}

@@ -620,6 +620,7 @@ export const uk: Dict = {
     usagePro: "Використано {used} з {limit} аналізів у цьому періоді",
     resets: " · оновлення {date}",
     usageFree: "Використано {used} з {limit} безкоштовних аналізів.",
+    usageBeta: "Використано {used} з {limit} безкоштовних аналізів.",
     credits: " Доступно разових покупок: {n}.",
     remainingOne: "аналіз залишився",
     remainingOther: "аналізів залишилось",

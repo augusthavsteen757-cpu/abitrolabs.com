@@ -17,6 +17,8 @@ const appUrl = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "
 export type CheckoutKind = "PRO_MONTHLY" | "SINGLE";
 
 export const isStripeEnabled = () => !!process.env.STRIPE_SECRET_KEY;
+/** Simulated (test) payments: only in development or when a test site explicitly allows them – never on klardal.com. */
+export const isSimulationAllowed = () => process.env.NODE_ENV !== "production" || process.env.ALLOW_SIMULATED_PAYMENTS === "1";
 
 /** Grants what was bought. Called directly in simulated mode, or from the Stripe webhook. */
 export async function fulfill(opts: {
