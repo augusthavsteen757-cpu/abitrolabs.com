@@ -170,7 +170,7 @@ export const en: Dict = {
     },
     {
       q: "Can I use Klardal in another language?",
-      a: "Yes. Choose your language at the top of the page. The analysis is written in your language, and quotes in, say, Swedish, German or Polish are explained too. Messages to the contractor can be in Danish or your own language.",
+      a: "Yes. Choose your language at the top of the page. The analysis is written in your language, and quotes in, say, Swedish, German or Polish are explained too. Messages to the contractor can be in Danish or your own language. The assessment follows Danish rules, so the quote must be for work in Denmark.",
     },
     {
       q: "What happens to my files?",
@@ -289,6 +289,7 @@ export const en: Dict = {
     metaTitle: "New quote",
     title: "Analyse a quote",
     intro: "Upload the quote as a PDF or take a photo. We’ll explain it and find what you should ask about.",
+    danishOnly: "Klardal assesses quotes under Danish rules. If the quote is for work in another country, the assessment of rules, VAT and terms won’t fit.",
     usedProTitle: "You’ve used your 10 analyses for this period",
     usedProText: "Buy an extra analysis, or wait until your next period starts.",
     usedFreeTitle: "You’ve used your free analysis",
@@ -419,7 +420,7 @@ export const en: Dict = {
     messageLocked: "Get a ready-made, polite message for the contractor in one click when you unlock the analysis.",
     unlockMessages: "Unlock messages",
     disclaimer:
-      "The analysis is produced by AI, is for guidance only and is based solely on what’s in the uploaded document. It may contain errors. The quote score is calculated using fixed rules based on the AI’s review and reflects how clear the quote is – not the contractor’s workmanship. Amounts for possible extra costs and price level are estimates. Klardal doesn’t replace legal or building advice.",
+      "The analysis is produced by AI, is for guidance only and is based solely on what’s in the uploaded document. It may contain errors. The quote score is calculated using fixed rules based on the AI’s review and reflects how clear the quote is – not the contractor’s workmanship. Amounts for possible extra costs and price level are estimates. Klardal doesn’t replace legal or building advice. The assessment is based on Danish rules and does not fit work in other countries.",
     suggestionStart: "When can you start, and when will you be finished?",
     suggestionFixed: "Can the price be made a fixed price?",
     qualityTitle: "Check these figures yourself",

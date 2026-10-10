@@ -170,7 +170,7 @@ export const nb: Dict = {
     },
     {
       q: "Kan jeg bruke Klardal på et annet språk?",
-      a: "Ja. Velg språk øverst på siden. Analysen skrives på ditt språk, og tilbud på for eksempel svensk, tysk eller polsk blir også forklart. Meldinger til håndverkeren kan du få på dansk eller ditt eget språk.",
+      a: "Ja. Velg språk øverst på siden. Analysen skrives på ditt språk, og tilbud på for eksempel svensk, tysk eller polsk blir også forklart. Meldinger til håndverkeren kan du få på dansk eller ditt eget språk. Vurderingen følger danske regler, så tilbudet må gjelde arbeid i Danmark.",
     },
     {
       q: "Hva skjer med filene mine?",
@@ -289,6 +289,7 @@ export const nb: Dict = {
     metaTitle: "Nytt tilbud",
     title: "Analyser et tilbud",
     intro: "Last opp tilbudet som PDF eller ta et bilde. Vi forklarer det og finner det du bør spørre om.",
+    danishOnly: "Klardal vurderer tilbud etter danske regler. Gjelder tilbudet arbeid i et annet land, stemmer ikke vurderingen av regler, moms og vilkår.",
     usedProTitle: "Du har brukt de 10 analysene dine i denne perioden",
     usedProText: "Kjøp en ekstra analyse, eller vent til neste periode starter.",
     usedFreeTitle: "Du har brukt den gratis analysen din",
@@ -419,7 +420,7 @@ export const nb: Dict = {
     messageLocked: "Få en ferdig, høflig melding til håndverkeren med ett klikk når du låser opp analysen.",
     unlockMessages: "Lås opp meldinger",
     disclaimer:
-      "Analysen er laget av AI, er veiledende og bygger bare på det som står i det opplastede dokumentet. Den kan inneholde feil. Tilbudsscoren er beregnet etter faste regler ut fra AI-ens gjennomgang og sier noe om hvor tydelig tilbudet er – ikke om håndverkerens faglige kvalitet. Beløp for mulige ekstrakostnader og prisnivå er anslag. Klardal erstatter ikke juridisk eller byggteknisk rådgivning.",
+      "Analysen er laget av AI, er veiledende og bygger bare på det som står i det opplastede dokumentet. Den kan inneholde feil. Tilbudsscoren er beregnet etter faste regler ut fra AI-ens gjennomgang og sier noe om hvor tydelig tilbudet er – ikke om håndverkerens faglige kvalitet. Beløp for mulige ekstrakostnader og prisnivå er anslag. Klardal erstatter ikke juridisk eller byggteknisk rådgivning. Vurderingen bygger på danske regler og passer ikke for arbeid i andre land.",
     suggestionStart: "Når kan dere starte, og når er dere ferdige?",
     suggestionFixed: "Kan prisen gjøres om til fastpris?",
     qualityTitle: "Sjekk disse tallene selv",

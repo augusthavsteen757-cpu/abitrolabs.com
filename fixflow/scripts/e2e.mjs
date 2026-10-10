@@ -73,6 +73,8 @@ try {
   log("signup → empty dashboard");
 
   await page.goto(`${BASE}/dashboard/upload`);
+  const dk = await page.locator("[data-testid=danish-only]").innerText();
+  if (!/danske regler/.test(dk) || !/andet land/.test(dk)) throw new Error("upload page must say analyses follow Danish rules: " + dk);
   await page.setInputFiles("[data-testid=file-input]", "sample-quotes/eksempel-vvs-badevaerelse.pdf");
   await page.fill("#project", "Nyt badeværelse");
   await page.click("button[type=submit]");

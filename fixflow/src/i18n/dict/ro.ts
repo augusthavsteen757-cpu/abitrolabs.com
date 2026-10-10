@@ -170,7 +170,7 @@ export const ro: Dict = {
     },
     {
       q: "Pot folosi Klardal în altă limbă?",
-      a: "Da. Alege limba din partea de sus a paginii. Analiza este scrisă în limba ta, iar ofertele în, de exemplu, suedeză, germană sau poloneză sunt explicate și ele. Mesajele către meșter le poți primi în daneză sau în limba ta.",
+      a: "Da. Alege limba din partea de sus a paginii. Analiza este scrisă în limba ta, iar ofertele în, de exemplu, suedeză, germană sau poloneză sunt explicate și ele. Mesajele către meșter le poți primi în daneză sau în limba ta. Evaluarea urmează regulile daneze, deci oferta trebuie să privească lucrări în Danemarca.",
     },
     {
       q: "Ce se întâmplă cu fișierele mele?",
@@ -289,6 +289,7 @@ export const ro: Dict = {
     metaTitle: "Ofertă nouă",
     title: "Analizează o ofertă",
     intro: "Încarcă oferta ca PDF sau fă o poză. O explicăm și găsim ce ar trebui să întrebi.",
+    danishOnly: "Klardal evaluează ofertele după regulile daneze. Dacă oferta privește lucrări în altă țară, evaluarea regulilor, TVA-ului și condițiilor nu se potrivește.",
     usedProTitle: "Ai folosit cele 10 analize din această perioadă",
     usedProText: "Cumpără o analiză suplimentară sau așteaptă începutul perioadei următoare.",
     usedFreeTitle: "Ai folosit analiza gratuită",
@@ -419,7 +420,7 @@ export const ro: Dict = {
     messageLocked: "Primește un mesaj politicos, gata de trimis meșterului, dintr-un clic, după ce deblochezi analiza.",
     unlockMessages: "Deblochează mesajele",
     disclaimer:
-      "Analiza este realizată de AI, are caracter orientativ și se bazează doar pe conținutul documentului încărcat. Poate conține erori. Scorul ofertei este calculat după reguli fixe pe baza analizei făcute de AI și arată cât de clară este oferta – nu calitatea profesională a meșterului. Sumele pentru posibilele costuri suplimentare și nivelul de preț sunt estimări. Klardal nu înlocuiește consultanța juridică sau tehnică în construcții.",
+      "Analiza este realizată de AI, are caracter orientativ și se bazează doar pe conținutul documentului încărcat. Poate conține erori. Scorul ofertei este calculat după reguli fixe pe baza analizei făcute de AI și arată cât de clară este oferta – nu calitatea profesională a meșterului. Sumele pentru posibilele costuri suplimentare și nivelul de preț sunt estimări. Klardal nu înlocuiește consultanța juridică sau tehnică în construcții. Evaluarea se bazează pe regulile daneze și nu se potrivește pentru lucrări în alte țări.",
     suggestionStart: "Când puteți începe și când terminați?",
     suggestionFixed: "Se poate face prețul ca preț fix?",
     qualityTitle: "Verifică singur aceste cifre",

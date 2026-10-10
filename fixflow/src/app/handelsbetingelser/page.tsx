@@ -27,7 +27,8 @@ export default function TermsPage() {
       </p>
       <p>
         <strong>Analysen er vejledende.</strong> Den bygger kun på det, der står i det dokument, du uploader, og er ikke
-        juridisk, teknisk eller økonomisk rådgivning. Den kan indeholde fejl – fx hvis et dokument er utydeligt. Vi slår
+        juridisk, teknisk eller økonomisk rådgivning. Vurderingen bygger på danske regler og er beregnet til arbejde i
+        Danmark – gælder et tilbud arbejde i et andet land, passer vurderingen af regler, moms og vilkår ikke. Den kan indeholde fejl – fx hvis et dokument er utydeligt. Vi slår
         ikke firmaer op i registre (fx autorisation). Tilbudsscoren siger noget om, hvor tydeligt et tilbud er, ikke om
         håndværkerens faglige kvalitet eller hæderlighed. Prisniveauet er et groft skøn. Kontrollér altid vigtige punkter
         med håndværkeren, og søg rådgivning ved store eller komplicerede opgaver.

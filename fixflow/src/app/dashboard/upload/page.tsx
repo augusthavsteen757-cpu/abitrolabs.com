@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Landmark } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { getUsage } from "@/lib/plans";
 import { listQuotes } from "@/lib/quotes";
@@ -22,6 +23,10 @@ export default async function UploadPage() {
     <div className="mx-auto max-w-2xl animate-fade-up">
       <h1 className="text-3xl font-semibold sm:text-4xl">{t.title}</h1>
       <p className="mt-2 text-ink-soft">{t.intro}</p>
+      <p className="mt-3 flex gap-2 text-sm text-ink-muted" data-testid="danish-only">
+        <Landmark className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+        {t.danishOnly}
+      </p>
       <div className="mt-8">
         {usage.remaining <= 0 ? (
           <Paywall

@@ -170,7 +170,7 @@ export const sv: Dict = {
     },
     {
       q: "Kan jag använda Klardal på ett annat språk?",
-      a: "Ja. Välj språk högst upp på sidan. Analysen skrivs på ditt språk, och offerter på t.ex. svenska, tyska eller polska förklaras också. Meddelanden till hantverkaren kan du få på danska eller ditt eget språk.",
+      a: "Ja. Välj språk högst upp på sidan. Analysen skrivs på ditt språk, och offerter på t.ex. svenska, tyska eller polska förklaras också. Meddelanden till hantverkaren kan du få på danska eller ditt eget språk. Bedömningen följer danska regler, så offerten måste gälla arbete i Danmark.",
     },
     {
       q: "Vad händer med mina filer?",
@@ -289,6 +289,7 @@ export const sv: Dict = {
     metaTitle: "Ny offert",
     title: "Analysera en offert",
     intro: "Ladda upp offerten som PDF eller ta en bild. Vi förklarar den och hittar det du bör fråga om.",
+    danishOnly: "Klardal bedömer offerter enligt danska regler. Gäller offerten arbete i ett annat land stämmer bedömningen av regler, moms och villkor inte.",
     usedProTitle: "Du har använt dina 10 analyser för den här perioden",
     usedProText: "Köp en extra analys eller vänta tills nästa period börjar.",
     usedFreeTitle: "Du har använt din gratisanalys",
@@ -419,7 +420,7 @@ export const sv: Dict = {
     messageLocked: "Få ett färdigt, artigt meddelande till hantverkaren med ett klick när du låser upp analysen.",
     unlockMessages: "Lås upp meddelanden",
     disclaimer:
-      "Analysen är gjord av AI, är vägledande och bygger bara på det som står i det uppladdade dokumentet. Den kan innehålla fel. Offertpoängen beräknas enligt fasta regler utifrån AI:ns genomgång och säger något om hur tydlig offerten är – inte om hantverkarens yrkesskicklighet. Belopp för möjliga extrakostnader och prisläge är uppskattningar. Klardal ersätter inte juridisk eller byggteknisk rådgivning.",
+      "Analysen är gjord av AI, är vägledande och bygger bara på det som står i det uppladdade dokumentet. Den kan innehålla fel. Offertpoängen beräknas enligt fasta regler utifrån AI:ns genomgång och säger något om hur tydlig offerten är – inte om hantverkarens yrkesskicklighet. Belopp för möjliga extrakostnader och prisläge är uppskattningar. Klardal ersätter inte juridisk eller byggteknisk rådgivning. Bedömningen bygger på danska regler och passar inte för arbete i andra länder.",
     suggestionStart: "När kan ni börja, och när är ni klara?",
     suggestionFixed: "Kan priset göras till ett fast pris?",
     qualityTitle: "Kontrollera de här siffrorna själv",

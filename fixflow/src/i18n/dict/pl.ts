@@ -166,7 +166,7 @@ export const pl: Dict = {
     },
     {
       q: "Czy mogę używać Klardal w innym języku?",
-      a: "Tak. Wybierz język u góry strony. Analiza powstaje w Twoim języku, a wyceny np. po szwedzku, niemiecku czy polsku też zostaną wyjaśnione. Wiadomości do wykonawcy możesz otrzymać po duńsku lub w swoim języku.",
+      a: "Tak. Wybierz język u góry strony. Analiza powstaje w Twoim języku, a wyceny np. po szwedzku, niemiecku czy polsku też zostaną wyjaśnione. Wiadomości do wykonawcy możesz otrzymać po duńsku lub w swoim języku. Ocena opiera się na duńskich przepisach, więc wycena musi dotyczyć prac w Danii.",
     },
     {
       q: "Co się dzieje z moimi plikami?",
@@ -285,6 +285,7 @@ export const pl: Dict = {
     metaTitle: "Nowa wycena",
     title: "Przeanalizuj wycenę",
     intro: "Wgraj wycenę jako PDF lub zrób zdjęcie. Wyjaśnimy ją i wskażemy, o co warto zapytać.",
+    danishOnly: "Klardal ocenia wyceny według duńskich przepisów. Jeśli wycena dotyczy prac w innym kraju, ocena przepisów, VAT i warunków nie będzie trafna.",
     usedProTitle: "Wykorzystałeś 10 analiz w tym okresie",
     usedProText: "Kup dodatkową analizę lub poczekaj na początek kolejnego okresu.",
     usedFreeTitle: "Wykorzystałeś darmową analizę",
@@ -415,7 +416,7 @@ export const pl: Dict = {
     messageLocked: "Po odblokowaniu analizy otrzymasz jednym kliknięciem gotową, uprzejmą wiadomość do wykonawcy.",
     unlockMessages: "Odblokuj wiadomości",
     disclaimer:
-      "Analiza została przygotowana przez AI, ma charakter orientacyjny i opiera się wyłącznie na treści wgranego dokumentu. Może zawierać błędy. Ocena wyceny jest liczona według stałych zasad na podstawie przeglądu przeprowadzonego przez AI i mówi o tym, jak przejrzysta jest wycena – nie o jakości pracy wykonawcy. Kwoty możliwych dodatkowych kosztów i poziom cen to szacunki. Klardal nie zastępuje porady prawnej ani budowlano-technicznej.",
+      "Analiza została przygotowana przez AI, ma charakter orientacyjny i opiera się wyłącznie na treści wgranego dokumentu. Może zawierać błędy. Ocena wyceny jest liczona według stałych zasad na podstawie przeglądu przeprowadzonego przez AI i mówi o tym, jak przejrzysta jest wycena – nie o jakości pracy wykonawcy. Kwoty możliwych dodatkowych kosztów i poziom cen to szacunki. Klardal nie zastępuje porady prawnej ani budowlano-technicznej. Ocena opiera się na duńskich przepisach i nie pasuje do prac w innych krajach.",
     suggestionStart: "Kiedy mogą Państwo zacząć i kiedy skończą?",
     suggestionFixed: "Czy cena może być ceną stałą?",
     qualityTitle: "Sprawdź te liczby samodzielnie",

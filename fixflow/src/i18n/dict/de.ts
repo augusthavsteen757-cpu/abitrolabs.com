@@ -170,7 +170,7 @@ export const de: Dict = {
     },
     {
       q: "Kann ich Klardal in einer anderen Sprache nutzen?",
-      a: "Ja. Wähle die Sprache oben auf der Seite. Die Analyse wird in deiner Sprache geschrieben, und auch Angebote z. B. auf Schwedisch, Deutsch oder Polnisch werden erklärt. Nachrichten an den Handwerker bekommst du auf Dänisch oder in deiner Sprache.",
+      a: "Ja. Wähle die Sprache oben auf der Seite. Die Analyse wird in deiner Sprache geschrieben, und auch Angebote z. B. auf Schwedisch, Deutsch oder Polnisch werden erklärt. Nachrichten an den Handwerker bekommst du auf Dänisch oder in deiner Sprache. Die Bewertung folgt dänischen Regeln, das Angebot muss also Arbeiten in Dänemark betreffen.",
     },
     {
       q: "Was passiert mit meinen Dateien?",
@@ -289,6 +289,7 @@ export const de: Dict = {
     metaTitle: "Neues Angebot",
     title: "Angebot prüfen",
     intro: "Lade das Angebot als PDF hoch oder mach ein Foto. Wir erklären es und finden, was du nachfragen solltest.",
+    danishOnly: "Klardal bewertet Angebote nach dänischen Regeln. Betrifft das Angebot Arbeiten in einem anderen Land, passt die Bewertung von Regeln, Mehrwertsteuer und Bedingungen nicht.",
     usedProTitle: "Du hast deine 10 Analysen in diesem Zeitraum genutzt",
     usedProText: "Kaufe eine zusätzliche Analyse oder warte, bis dein nächster Zeitraum beginnt.",
     usedFreeTitle: "Du hast deine kostenlose Analyse genutzt",
@@ -419,7 +420,7 @@ export const de: Dict = {
     messageLocked: "Erhalte mit einem Klick eine fertige, höfliche Nachricht an den Handwerker, sobald du die Analyse freischaltest.",
     unlockMessages: "Nachrichten freischalten",
     disclaimer:
-      "Die Analyse wurde von KI erstellt, dient zur Orientierung und basiert nur auf dem Inhalt des hochgeladenen Dokuments. Sie kann Fehler enthalten. Der Angebots-Score wird nach festen Regeln auf Grundlage der KI-Prüfung berechnet und sagt etwas darüber aus, wie klar das Angebot ist – nicht über die fachliche Qualität des Handwerkers. Beträge für mögliche Zusatzkosten und das Preisniveau sind Schätzungen. Klardal ersetzt keine rechtliche oder bautechnische Beratung.",
+      "Die Analyse wurde von KI erstellt, dient zur Orientierung und basiert nur auf dem Inhalt des hochgeladenen Dokuments. Sie kann Fehler enthalten. Der Angebots-Score wird nach festen Regeln auf Grundlage der KI-Prüfung berechnet und sagt etwas darüber aus, wie klar das Angebot ist – nicht über die fachliche Qualität des Handwerkers. Beträge für mögliche Zusatzkosten und das Preisniveau sind Schätzungen. Klardal ersetzt keine rechtliche oder bautechnische Beratung. Die Bewertung beruht auf dänischen Regeln und passt nicht für Arbeiten in anderen Ländern.",
     suggestionStart: "Wann können Sie anfangen, und wann sind Sie fertig?",
     suggestionFixed: "Ist ein Festpreis möglich?",
     qualityTitle: "Prüfe diese Zahlen selbst",
