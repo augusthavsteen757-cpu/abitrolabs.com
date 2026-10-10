@@ -7,6 +7,7 @@ import { users } from "@/db/schema";
 import { checkPassword, setSessionCookie } from "@/lib/auth";
 import { handle, jsonError } from "@/lib/api";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { isDemoAccountBlocked } from "@/lib/demo";
 
 const schema = z.object({ email: z.string().trim().toLowerCase().max(200), password: z.string().max(200) });
 
@@ -22,7 +23,7 @@ export const POST = handle(async (req: Request) => {
 
   const user = await db.query.users.findFirst({ where: eq(users.email, parsed.data.email) });
   const ok = await checkPassword(parsed.data.password, user?.passwordHash);
-  if (!user || !ok) return jsonError(da.errors.wrongLogin, 401);
+  if (!user || !ok || isDemoAccountBlocked(user.email)) return jsonError(da.errors.wrongLogin, 401);
   await setSessionCookie(user);
   return NextResponse.json({ ok: true });
 });

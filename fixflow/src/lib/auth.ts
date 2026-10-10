@@ -1,4 +1,5 @@
 import "server-only";
+import { isDemoAccountBlocked } from "./demo";
 import { da } from "@/i18n/dict/da";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -57,6 +58,7 @@ export async function getCurrentUser(): Promise<User | null> {
   const user = await db.query.users.findFirst({ where: eq(users.id, session.userId) });
   // A bumped sessionVersion (log out everywhere / password change) invalidates older tokens.
   if (!user || user.sessionVersion !== session.version) return null;
+  if (isDemoAccountBlocked(user.email)) return null;
   // A cancelled Pro subscription ends at the end of the paid period.
   if (user.plan === "PRO" && user.planEndsAt && user.planEndsAt.getTime() <= Date.now()) {
     const [downgraded] = await db

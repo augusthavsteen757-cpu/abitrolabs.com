@@ -1,6 +1,7 @@
 /**
  * Production without ANTHROPIC_API_KEY (and without ALLOW_DEMO_MODE) must never show an example analysis
  * as if it were the user's quote: the health check fails, uploads fail with a clear message and nobody is charged.
+ * The seeded demo account is closed outside demo mode.
  *
  *   ALLOW_LOCAL_DB=1 npm start            # no ANTHROPIC_API_KEY, no ALLOW_DEMO_MODE
  *   BASE_URL=http://localhost:3000 node scripts/no-ai-key.mjs
@@ -53,6 +54,16 @@ ok(second.status === 201 && second.body.quote?.status === "FAILED", `the failed 
 const page = await req(`/dashboard/tilbud/${first.body.quote?.id}`);
 const html = await page.text();
 ok(page.status === 200 && html.includes("teknisk fejl") && !html.includes('data-testid="demo-notice"'), "quote page shows the error, not an example");
+
+// The seeded demo account and its login hint exist only in demo mode.
+const loginHtml = await (await fetch(BASE + "/login")).text();
+ok(!loginHtml.includes("demo1234"), "login page does not show the demo account");
+const demoLogin = await fetch(BASE + "/api/auth/login", {
+  method: "POST",
+  headers: { origin: BASE, "content-type": "application/json" },
+  body: JSON.stringify({ email: "demo@klardal.dk", password: "demo1234" }),
+});
+ok(demoLogin.status === 401, `demo account cannot log in (${demoLogin.status})`);
 
 console.log(failed ? `\n${failed} check(s) failed` : "\nAll checks passed");
 process.exit(failed ? 1 : 0);

@@ -9,14 +9,8 @@ import { AI_LANGUAGE, DEFAULT_LOCALE, type Locale } from "@/i18n/config";
 import { DICTS } from "@/i18n/dict";
 import { fmt } from "@/i18n/fmt";
 
-/**
- * Demo mode (hand-written example analyses, no AI) is only for local development and explicit preview
- * sites. In production a missing key must fail loudly – never show an example as if it were the user's quote.
- */
-export const isDemoMode = () =>
-  !process.env.ANTHROPIC_API_KEY && (process.env.NODE_ENV !== "production" || process.env.ALLOW_DEMO_MODE === "1");
-/** True when the app can't analyse at all: production without a key and without an explicit demo opt-in. */
-export const isAiMissing = () => !process.env.ANTHROPIC_API_KEY && !isDemoMode();
+import { isAiMissing, isDemoMode } from "./demo";
+export { isAiMissing, isDemoMode };
 
 const MODEL = () => process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
 /** Tried in order if the main model is unavailable, overloaded or not enabled on the account. */

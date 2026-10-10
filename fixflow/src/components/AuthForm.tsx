@@ -19,7 +19,7 @@ function safeNext(next: string | null) {
   }
 }
 
-export function AuthForm({ mode }: { mode: "login" | "signup" }) {
+export function AuthForm({ mode, showDemo = false }: { mode: "login" | "signup"; showDemo?: boolean }) {
   const params = useSearchParams();
   const { d } = useI18n();
   const a = d.auth;
@@ -132,7 +132,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           <>{a.newHere} <Link href={`/opret${carryQs}`} className="font-semibold text-brand-700 hover:underline">{a.createFree}</Link></>
         )}
       </p>
-      {!isSignup && (
+      {!isSignup && showDemo && (
         <div className="mt-8 rounded-2xl border border-dashed border-brand-300 bg-brand-50/60 p-4 text-sm">
           <p className="font-semibold text-brand-800">{a.demoTitle}</p>
           <p className="mt-1 text-ink-soft">
