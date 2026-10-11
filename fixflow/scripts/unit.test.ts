@@ -10,6 +10,8 @@ import { fmt } from "../src/i18n/fmt";
 import { formatKr } from "../src/lib/format";
 import { passwordProblem } from "../src/lib/password";
 import { DEMO_EMAIL, DEMO_PASSWORD } from "../src/lib/demo";
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 
 let passed = 0;
 const test = (name: string, fn: () => void) => {
@@ -126,6 +128,19 @@ test("home 'what you get' has the same five points with a title and a text in ev
     assert.equal(d.home.features.length, 5, lang);
     for (const f of d.home.features) assert.ok(f.title.length > 5 && f.text.length > 10, `${lang}: ${f.title}`);
   }
+});
+
+test("React hydration fix applies to Next's bundled React, stays valid JS and refuses changed code", () => {
+  const loader = createRequire(import.meta.url)("./react-hydration-fix-loader.cjs");
+  for (const file of ["production", "development"]) {
+    const src = readFileSync(new URL(`../node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.${file}.js`, import.meta.url), "utf8");
+    const out: string = loader.call({ resourcePath: file }, src);
+    assert.ok(out.includes("klardal: react 19.3 hydration replay fix"), `${file}: patched`);
+    assert.ok(/popToNextHostParent\((\w+)\),\s*5 === \1\.tag/.test(out), `${file}: resets the hydration position`);
+    assert.equal(loader.call({ resourcePath: file }, out), out, `${file}: applying twice changes nothing`);
+    new Function(out); // throws on a syntax error
+  }
+  assert.throws(() => loader.call({ resourcePath: "x" }, "function replaySuspendedUnitOfWork(a) {}"), /review the patch/);
 });
 
 console.log(`\n${passed} tests passed`);
