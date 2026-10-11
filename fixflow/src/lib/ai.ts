@@ -4,8 +4,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { CATEGORIES, CHECK_KEYS, CHECK_LABELS, RULE_KEYS, RULE_LABELS, normalizeAnalysis, type QuoteAnalysis } from "./analysis";
 import { computeScore } from "./score";
 import { pickDemoQuote } from "./demo-data";
-import { formatMoney } from "./format";
-import { AI_LANGUAGE, DEFAULT_LOCALE, type Locale } from "@/i18n/config";
+import { formatDate, formatMoney } from "./format";
+import { AI_LANGUAGE, DEFAULT_LOCALE, INTL_LOCALE, type Locale } from "@/i18n/config";
 import { DICTS } from "@/i18n/dict";
 import { fmt } from "@/i18n/fmt";
 
@@ -408,7 +408,8 @@ export async function draftMessage(
   const context = {
     contractor: analysis.contractor.name,
     title: analysis.title,
-    quoteDate: analysis.quoteDate,
+    // Written out in the message's language ("2. september 2026"), so the AI doesn't copy "2026-09-02".
+    quoteDate: messageDate(analysis.quoteDate, locale),
     totalInclVat: analysis.totals.inclVat,
     priceType: analysis.priceType,
     lineItems: analysis.lineItems.map((i) => ({ description: i.description, amount: i.amount, clarity: i.clarity })),
@@ -441,6 +442,11 @@ export async function draftMessage(
   }
 }
 
+/** A date as people write it in the message's language, e.g. "2. september 2026". */
+function messageDate(date: string | null, locale: Locale): string | null {
+  return date ? formatDate(date, INTL_LOCALE[locale]) : null;
+}
+
 /** Template fallback (demo mode or AI errors). */
 export function templateMessage(
   analysis: QuoteAnalysis,
@@ -455,7 +461,7 @@ export function templateMessage(
   const t = topic.trim();
   const flag = analysis.flags.find((f) => f.title.toLowerCase() === t.toLowerCase() || t.toLowerCase().includes(f.title.toLowerCase()));
   const item = flag?.relatedItem ? analysis.lineItems.find((i) => i.description === flag.relatedItem) : undefined;
-  const ref = analysis.quoteDate ? fmt(m.ref, { date: analysis.quoteDate }) : m.refNoDate;
+  const ref = analysis.quoteDate ? fmt(m.ref, { date: messageDate(analysis.quoteDate, locale) ?? analysis.quoteDate }) : m.refNoDate;
   const opening = fmt(m.opening[tone], { ref, title: analysis.title.toLowerCase(), price: money(analysis.totals.inclVat) });
   const itemLine = item ? fmt(m.item, { item: item.description, amount: money(item.amount) }) + " " : "";
   const close = tone === "venlig" ? m.closeWarm : m.close;
