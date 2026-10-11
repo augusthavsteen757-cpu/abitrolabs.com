@@ -3,6 +3,11 @@ import {
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
+  Gauge,
+  TriangleAlert,
+  ListChecks,
+  MessageSquareText,
+  Columns3,
 } from "lucide-react";
 import { MarketingFooter, MarketingHeader } from "@/components/MarketingShell";
 import { PricingCards } from "@/components/PricingCards";
@@ -12,6 +17,9 @@ import { ScoreRing } from "@/components/ScoreRing";
 import { getCurrentUser } from "@/lib/auth";
 import { getDict } from "@/i18n/server";
 import type { Dict } from "@/i18n/dict";
+
+// Same order as home.features in the dictionaries.
+const FEATURE_ICONS = [Gauge, TriangleAlert, ListChecks, MessageSquareText, Columns3];
 
 export const dynamic = "force-dynamic";
 
@@ -133,13 +141,21 @@ export default async function HomePage() {
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-20">
             <h2 className="text-2xl font-semibold sm:text-4xl">{h.whyTitle}</h2>
             <p className="mt-3 max-w-2xl text-lg text-ink-soft">{h.whyText}</p>
-            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-              {h.features.map((f) => (
-                <li key={f} className="flex gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" aria-hidden />
-                  <span>{f}</span>
-                </li>
-              ))}
+            <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {h.features.map((f, i) => {
+                const Icon = FEATURE_ICONS[i] ?? CheckCircle2;
+                return (
+                  <li key={f.title} className="card flex gap-4 p-5">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+                      <Icon className="h-5 w-5" aria-hidden />
+                    </span>
+                    <div>
+                      <h3 className="font-sans text-base font-semibold">{f.title}</h3>
+                      <p className="mt-1 text-ink-soft">{f.text}</p>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
             <Link href={user ? "/dashboard/upload" : "/opret"} className="btn-primary mt-8 px-6 py-3 text-base">
               {h.readyCta} <ArrowRight className="h-4 w-4" />

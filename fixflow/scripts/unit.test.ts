@@ -121,4 +121,11 @@ test("verdict sentence and label always come from the same score band", () => {
   }
 });
 
+test("home 'what you get' has the same five points with a title and a text in every language", () => {
+  for (const [lang, d] of Object.entries(DICTS)) {
+    assert.equal(d.home.features.length, 5, lang);
+    for (const f of d.home.features) assert.ok(f.title.length > 5 && f.text.length > 10, `${lang}: ${f.title}`);
+  }
+});
+
 console.log(`\n${passed} tests passed`);
