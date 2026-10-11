@@ -57,11 +57,11 @@ ok(page.status === 200 && html.includes("teknisk fejl") && !html.includes('data-
 
 // The seeded demo account and its login hint exist only in demo mode.
 const loginHtml = await (await fetch(BASE + "/login")).text();
-ok(!loginHtml.includes("demo1234"), "login page does not show the demo account");
+ok(!loginHtml.includes("Klardal-Test-2026"), "login page does not show the demo account");
 const demoLogin = await fetch(BASE + "/api/auth/login", {
   method: "POST",
   headers: { origin: BASE, "content-type": "application/json" },
-  body: JSON.stringify({ email: "demo@klardal.dk", password: "demo1234" }),
+  body: JSON.stringify({ email: "demo@klardal.dk", password: "Klardal-Test-2026" }),
 });
 ok(demoLogin.status === 401, `demo account cannot log in (${demoLogin.status})`);
 

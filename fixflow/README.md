@@ -34,7 +34,7 @@ npm run dev               # http://localhost:3000
 
 | E-mail            | Adgangskode |
 | ----------------- | ----------- |
-| `demo@klardal.dk` | `demo1234`  |
+| `demo@klardal.dk` | `Klardal-Test-2026` |
 
 Demo-brugeren har Pro og tre badeværelsestilbud i projektet "Nyt badeværelse" samt én gemt besked.
 

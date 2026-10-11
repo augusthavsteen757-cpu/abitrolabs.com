@@ -53,7 +53,7 @@ ok((await p.innerText("body")).includes("Gratis betaperiode"), "terms describe t
 const old = await (await br.newContext({ locale: "da-DK" })).newPage();
 old.on("pageerror", (e) => errs.push(e.message));
 await old.goto(B + "/login");
-await old.fill("#email", "demo@klardal.dk"); await old.fill("#password", process.env.DEMO_PASSWORD || "demo1234");
+await old.fill("#email", "demo@klardal.dk"); await old.fill("#password", process.env.DEMO_PASSWORD || "Klardal-Test-2026");
 await old.click("button[type=submit]"); await old.waitForURL(/\/dashboard/);
 await old.goto(B + "/dashboard/konto");
 const acc = await old.innerText("main");

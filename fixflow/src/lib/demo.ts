@@ -4,6 +4,8 @@
  * it were the user's quote, and never let anyone into the shared demo account.
  */
 export const DEMO_EMAIL = "demo@klardal.dk";
+/** Follows the same password rules as everyone else (at least 10 characters, not the e-mail name). */
+export const DEMO_PASSWORD = "Klardal-Test-2026";
 
 export const isDemoMode = () =>
   !process.env.ANTHROPIC_API_KEY && (process.env.NODE_ENV !== "production" || process.env.ALLOW_DEMO_MODE === "1");

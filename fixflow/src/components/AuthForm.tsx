@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { DEMO_PASSWORD } from "@/lib/demo";
 import { Loader2 } from "lucide-react";
 import { useI18n } from "@/i18n/client";
 
@@ -138,7 +139,7 @@ export function AuthForm({ mode, showDemo = false }: { mode: "login" | "signup";
           <p className="mt-1 text-ink-soft">
             {a.demoEmail}: <span className="font-mono text-ink">demo@klardal.dk</span>
             <br />
-            {a.demoPassword}: <span className="font-mono text-ink">demo1234</span>
+            {a.demoPassword}: <span className="font-mono text-ink">{DEMO_PASSWORD}</span>
           </p>
         </div>
       )}

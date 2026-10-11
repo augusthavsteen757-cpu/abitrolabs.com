@@ -3,6 +3,7 @@
  * Run with: npm run db:seed  (after npm run db:push)
  */
 import "dotenv/config";
+import { DEMO_PASSWORD } from "../src/lib/demo";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import bcrypt from "bcryptjs";
@@ -172,7 +173,7 @@ async function main() {
     .values({
       email,
       name: "Demo Jensen",
-      passwordHash: await bcrypt.hash("demo1234", 10),
+      passwordHash: await bcrypt.hash(DEMO_PASSWORD, 10),
       plan: "PRO",
       postalCode: "4000",
       acceptedTermsAt: new Date(),
@@ -222,7 +223,7 @@ async function main() {
       "Hej Eksempel VVS ApS\n\nTusind tak for jeres overslag af 2. september på renovering af badeværelset. Det ser fornuftigt ud, og vi har et enkelt spørgsmål, inden vi beslutter os.\n\nPosten \"Materialer iht. aftale\" på 32.000 kr. ekskl. moms er ikke beskrevet nærmere. Vil I sende en liste over, hvad den dækker – fx fliser, toilet, armaturer og membran med mærke og mængde?\n\nSå er vi helt trygge ved at gå videre.\n\nMange venlige hilsner\nDemo Jensen",
   });
 
-  console.log(`\n  Demo-bruger: ${email} / demo1234 (Pro, ${bathroom.length} tilbud i "Nyt badeværelse")`);
+  console.log(`\n  Demo-bruger: ${email} / ${DEMO_PASSWORD} (Pro, ${bathroom.length} tilbud i "Nyt badeværelse")`);
 }
 
 main()
