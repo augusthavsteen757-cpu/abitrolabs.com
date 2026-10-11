@@ -159,7 +159,7 @@ export const en: Dict = {
     },
     {
       q: "What happens to my files?",
-      a: "The file is sent to our AI provider (Anthropic) and stored in your account. We don’t use it for anything else, and you can delete it at any time. Feel free to black out your CPR number before uploading.",
+      a: "The file is sent to our AI provider (Anthropic) and stored in your account. We don’t use it for anything else, and you can delete it at any time. If a PDF contains a CPR number, we remove it automatically before the AI reads the quote. We can’t find it on photos or scanned PDFs – black it out yourself before uploading.",
     },
     {
       paidOnly: true,
@@ -308,7 +308,7 @@ export const en: Dict = {
     errEmpty: "The file is empty.",
     errChoose: "Choose a file first.",
     errFailed: "Upload failed. Please try again.",
-    aiNote: "The quote is analysed by artificial intelligence (AI). The analysis may contain errors. Please black out your CPR number and other sensitive information.",
+    aiNote: "The quote is analysed by artificial intelligence (AI). The analysis may contain errors. CPR numbers in PDFs are removed automatically. On photos, please black out your CPR number and other sensitive information yourself.",
     defaultProject: "My project",
   },
   paywall: {
@@ -356,6 +356,8 @@ export const en: Dict = {
     demoBadge: "Demo analysis",
     demoNoticeTitle: "Example – not an analysis of your quote",
     demoNoticeText: "This test site doesn’t use AI. It always shows the same example analysis, whatever quote you upload.",
+    cprHiddenOne: "We found a CPR number in the quote and removed it before the AI read the quote.",
+    cprHiddenMany: "We found {n} CPR numbers in the quote and removed them before the AI read the quote.",
     noCvr: "No company number (CVR)",
     validUntil: "valid until {date}",
     distance: "approx. {km} km from you",

@@ -245,6 +245,8 @@ export type QuoteAnalysis = Omit<z.infer<typeof rawAnalysisSchema>, "totals"> & 
   quality: QualityChecks;
   score: ScoreResult;
   demo?: boolean;
+  /** How many CPR numbers Klardal removed from the quote's text before the AI read it. */
+  cprHidden?: number;
 };
 
 const round = (n: number) => Math.round(n * 100) / 100;

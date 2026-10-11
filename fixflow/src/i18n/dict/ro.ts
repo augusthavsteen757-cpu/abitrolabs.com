@@ -159,7 +159,7 @@ export const ro: Dict = {
     },
     {
       q: "Ce se întâmplă cu fișierele mele?",
-      a: "Fișierul este trimis furnizorului nostru de AI (Anthropic) și salvat în contul tău. Nu îl folosim la altceva și îl poți șterge oricând. Acoperă numărul CPR înainte să încarci.",
+      a: "Fișierul este trimis furnizorului nostru de AI (Anthropic) și salvat în contul tău. Nu îl folosim la altceva și îl poți șterge oricând. Dacă un PDF conține un număr CPR, îl eliminăm automat înainte ca AI-ul să citească oferta. Pe poze și PDF-uri scanate nu îl putem găsi – acoperă-l singur înainte să încarci.",
     },
     {
       paidOnly: true,
@@ -308,7 +308,7 @@ export const ro: Dict = {
     errEmpty: "Fișierul este gol.",
     errChoose: "Alege mai întâi un fișier.",
     errFailed: "Încărcarea a eșuat. Încearcă din nou.",
-    aiNote: "Oferta este analizată de inteligența artificială (AI). Analiza poate conține erori. De preferat, acoperă numărul CPR și alte informații sensibile.",
+    aiNote: "Oferta este analizată de inteligența artificială (AI). Analiza poate conține erori. Numerele CPR din PDF-uri sunt eliminate automat. Pe poze, acoperă singur numărul CPR și alte informații sensibile.",
     defaultProject: "Proiectul meu",
   },
   paywall: {
@@ -356,6 +356,8 @@ export const ro: Dict = {
     demoBadge: "Analiză demo",
     demoNoticeTitle: "Exemplu – nu este o analiză a ofertei tale",
     demoNoticeText: "Acest site de test nu folosește AI. Arată mereu aceeași analiză-exemplu, indiferent ce ofertă încarci.",
+    cprHiddenOne: "Am găsit un număr CPR în ofertă și l-am eliminat înainte ca AI-ul să citească oferta.",
+    cprHiddenMany: "Am găsit {n} numere CPR în ofertă și le-am eliminat înainte ca AI-ul să citească oferta.",
     noCvr: "Lipsește numărul firmei (CVR)",
     validUntil: "valabilă până la {date}",
     distance: "la cca {km} km de tine",

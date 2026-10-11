@@ -155,7 +155,7 @@ export const pl: Dict = {
     },
     {
       q: "Co się dzieje z moimi plikami?",
-      a: "Plik trafia do naszego dostawcy AI (Anthropic) i jest zapisywany na twoim koncie. Nie używamy go do niczego innego i możesz go usunąć w każdej chwili. Zamaż numer CPR przed wgraniem.",
+      a: "Plik trafia do naszego dostawcy AI (Anthropic) i jest zapisywany na twoim koncie. Nie używamy go do niczego innego i możesz go usunąć w każdej chwili. Jeśli w pliku PDF jest numer CPR, usuwamy go automatycznie, zanim AI przeczyta wycenę. Na zdjęciach i zeskanowanych PDF-ach nie możemy go znaleźć – zamaż go sam przed wgraniem.",
     },
     {
       paidOnly: true,
@@ -304,7 +304,7 @@ export const pl: Dict = {
     errEmpty: "Plik jest pusty.",
     errChoose: "Najpierw wybierz plik.",
     errFailed: "Wgrywanie nie powiodło się. Spróbuj ponownie.",
-    aiNote: "Wycena jest analizowana przez sztuczną inteligencję (AI). Analiza może zawierać błędy. Najlepiej zakryj numer CPR i inne wrażliwe dane.",
+    aiNote: "Wycena jest analizowana przez sztuczną inteligencję (AI). Analiza może zawierać błędy. Numery CPR w plikach PDF są usuwane automatycznie. Na zdjęciach zakryj sam numer CPR i inne wrażliwe dane.",
     defaultProject: "Mój projekt",
   },
   paywall: {
@@ -352,6 +352,8 @@ export const pl: Dict = {
     demoBadge: "Analiza demo",
     demoNoticeTitle: "Przykład – nie jest to analiza twojej wyceny",
     demoNoticeText: "Ta strona testowa nie używa AI. Zawsze pokazuje tę samą przykładową analizę, niezależnie od wgranej wyceny.",
+    cprHiddenOne: "Znaleźliśmy w wycenie numer CPR i usunęliśmy go, zanim AI przeczytała wycenę.",
+    cprHiddenMany: "Znaleźliśmy w wycenie numery CPR ({n}) i usunęliśmy je, zanim AI przeczytała wycenę.",
     noCvr: "Brak numeru firmy (CVR)",
     validUntil: "ważna do {date}",
     distance: "ok. {km} km od Ciebie",

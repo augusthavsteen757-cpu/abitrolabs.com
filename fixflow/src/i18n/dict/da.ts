@@ -157,7 +157,7 @@ export const da = {
     },
     {
       q: "Hvad sker der med mine filer?",
-      a: "Filen sendes til vores AI-leverandør (Anthropic) og gemmes på din konto. Vi bruger den ikke til andet, og du kan slette den når som helst. Overstreg gerne dit CPR-nummer, før du uploader.",
+      a: "Filen sendes til vores AI-leverandør (Anthropic) og gemmes på din konto. Vi bruger den ikke til andet, og du kan slette den når som helst. Står der et CPR-nummer i en PDF, fjerner vi det automatisk, før AI'en læser tilbuddet. På billeder og scannede PDF'er kan vi ikke finde det – overstreg det selv, før du uploader.",
     },
     {
       paidOnly: true,
@@ -306,7 +306,7 @@ export const da = {
     errEmpty: "Filen er tom.",
     errChoose: "Vælg en fil først.",
     errFailed: "Upload mislykkedes. Prøv igen.",
-    aiNote: "Tilbuddet analyseres af kunstig intelligens (AI). Analysen kan indeholde fejl. Overstreg gerne CPR-nummer og andre følsomme oplysninger.",
+    aiNote: "Tilbuddet analyseres af kunstig intelligens (AI). Analysen kan indeholde fejl. CPR-numre i PDF'er fjernes automatisk. På billeder skal du selv overstrege CPR-nummer og andre følsomme oplysninger.",
     defaultProject: "Mit projekt",
   },
   paywall: {
@@ -354,6 +354,8 @@ export const da = {
     demoBadge: "Demo-analyse",
     demoNoticeTitle: "Eksempel – ikke en analyse af dit tilbud",
     demoNoticeText: "Denne testside bruger ikke AI. Den viser altid den samme eksempel-analyse, uanset hvilket tilbud du uploader.",
+    cprHiddenOne: "Vi fandt et CPR-nummer i tilbuddet og fjernede det, før AI'en læste tilbuddet.",
+    cprHiddenMany: "Vi fandt {n} CPR-numre i tilbuddet og fjernede dem, før AI'en læste tilbuddet.",
     noCvr: "CVR-nummer mangler",
     validUntil: "gælder til {date}",
     distance: "ca. {km} km fra dig",

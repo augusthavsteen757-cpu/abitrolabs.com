@@ -9,6 +9,7 @@
 import { chromium } from "playwright-core";
 import path from "path";
 import { mkdirSync } from "fs";
+import { PDFDocument, StandardFonts } from "pdf-lib";
 
 const BASE = process.env.BASE_URL || "http://localhost:3000";
 // Same as src/lib/demo.ts DEMO_PASSWORD (the seeded demo account; demo mode only).
@@ -112,6 +113,7 @@ try {
   await page.getByText("Det skal du være opmærksom på").waitFor();
   // Demo analyses must never pass for a real review of the user's quote.
   await page.locator("[data-testid=demo-notice]").getByText("Eksempel – ikke en analyse af dit tilbud").waitFor();
+  assert((await page.locator("[data-testid=cpr-hidden]").count()) === 0, "no CPR notice for a quote without a CPR number");
   const quoteUrl = page.url();
   log("upload → analysis page renders");
 
@@ -230,6 +232,23 @@ try {
   await demo.getByRole("radio", { name: /^Priserne er uden moms/ }).click();
   await demo.waitForFunction(() => document.querySelector("[aria-checked=true]")?.textContent?.includes("Dit valg"));
   log("unclear VAT: user choice is saved and used on analysis, overview and comparison");
+
+  // A CPR number in a PDF is removed before the AI reads it, and the user is told.
+  const cprDoc = await PDFDocument.create();
+  const cprFont = await cprDoc.embedFont(StandardFonts.Helvetica);
+  const cprPage = cprDoc.addPage();
+  ["Tilbud: maling af stue", "Kunde: Jens Hansen, CPR 120385-1234", "Maling 18.500 kr."].forEach((l, i) => cprPage.drawText(l, { x: 50, y: 750 - i * 20, size: 12, font: cprFont }));
+  await demo.goto(`${BASE}/dashboard/upload`);
+  await demo.setInputFiles("[data-testid=file-input]", { name: "tilbud-maling.pdf", mimeType: "application/pdf", buffer: Buffer.from(await cprDoc.save()) });
+  await demo.click("button[type=submit]");
+  await demo.waitForURL(/\/dashboard\/tilbud\//, { timeout: 60_000 });
+  const cprNotice = await demo.locator("[data-testid=cpr-hidden]").innerText();
+  assert(cprNotice.includes("fandt et CPR-nummer") && !(await demo.content()).includes("120385"), `CPR notice shown and number never in the page (${cprNotice})`);
+  await shot(demo, "cpr-hidden");
+  const cprQuoteId = demo.url().split("/").pop();
+  const del = await demo.evaluate(async (id) => (await fetch(`/api/quotes/${id}`, { method: "DELETE" })).status, cprQuoteId);
+  assert(del === 200, `test quote deleted (${del})`);
+  log("CPR number in a PDF is removed before the AI and the user is told");
 
   // Open Eksempel VVS quote and use "Spørg håndværkeren"
   await demo.goto(`${BASE}/dashboard`);

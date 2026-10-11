@@ -11,6 +11,7 @@ import {
   MessageSquareText,
   HelpCircle,
   ShieldAlert,
+  ShieldCheck,
   Building2,
   ChevronDown,
 } from "lucide-react";
@@ -245,6 +246,13 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           <p className="font-semibold">{t.demoNoticeTitle}</p>
           <p className="mt-0.5">{t.demoNoticeText}</p>
         </div>
+      )}
+
+      {!!analysis.cprHidden && (
+        <p className="mt-5 flex items-start gap-2 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900" data-testid="cpr-hidden">
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+          <span>{analysis.cprHidden === 1 ? t.cprHiddenOne : fmt(t.cprHiddenMany, { n: analysis.cprHidden })}</span>
+        </p>
       )}
 
       {/* Kort sagt: one sentence that tells the user what to do */}

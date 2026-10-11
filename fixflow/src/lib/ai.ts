@@ -10,6 +10,8 @@ import { DICTS } from "@/i18n/dict";
 import { fmt } from "@/i18n/fmt";
 
 import { isAiMissing, isDemoMode } from "./demo";
+import { maskCpr, maskCprDeep } from "./cpr";
+import { quoteContent } from "./quote-content";
 export { isAiMissing, isDemoMode };
 
 const MODEL = () => process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
@@ -228,20 +230,10 @@ const ANALYSIS_TOOL: Anthropic.Tool = {
   },
 };
 
-function fileBlock(data: Buffer, mimeType: string): Anthropic.ContentBlockParam {
-  const b64 = data.toString("base64");
-  if (mimeType === "application/pdf") {
-    return { type: "document", source: { type: "base64", media_type: "application/pdf", data: b64 } };
-  }
-  return {
-    type: "image",
-    source: { type: "base64", media_type: mimeType as "image/jpeg" | "image/png" | "image/webp", data: b64 },
-  };
-}
-
-function finalize(raw: unknown, demo = false): QuoteAnalysis {
-  const normalized = normalizeAnalysis(raw);
-  return { ...normalized, score: computeScore(normalized), ...(demo ? { demo: true } : {}) };
+function finalize(raw: unknown, demo = false, cprHidden = 0): QuoteAnalysis {
+  // Second safety net: a CPR number the AI read on a photo is never stored or shown back.
+  const normalized = normalizeAnalysis(maskCprDeep(raw));
+  return { ...normalized, score: computeScore(normalized), ...(demo ? { demo: true } : {}), ...(cprHidden ? { cprHidden } : {}) };
 }
 
 /** Instruction telling the model which language the user reads. */
@@ -258,13 +250,17 @@ export async function analyzeQuote(
 ): Promise<{ analysis: QuoteAnalysis; meta: AiMeta | null }> {
   if (isDemoMode()) {
     await new Promise((r) => setTimeout(r, 1800));
-    return { analysis: finalize(pickDemoQuote(fileName).raw, true), meta: null };
+    // The CPR check also runs here, so the notice can be tested without an AI key.
+    const { cprHidden } = await quoteContent(data, mimeType);
+    return { analysis: finalize(pickDemoQuote(fileName).raw, true, cprHidden), meta: null };
   }
   if (isAiMissing()) {
     console.error(JSON.stringify({ event: "analysis", outcome: "no_api_key" }));
     throw new AnalysisError(da.errors.aiUnavailable);
   }
 
+  const { block, cprHidden } = await quoteContent(data, mimeType);
+  const safeName = maskCpr(fileName.replace(/[\r\n]/g, " ").slice(0, 120)).text;
   const request = (model: string, forceTool: boolean) =>
     getClient().messages.create({
       model,
@@ -278,10 +274,10 @@ export async function analyzeQuote(
         {
           role: "user",
           content: [
-            fileBlock(data, mimeType),
+            block,
             {
               type: "text",
-              text: `Analysér dette håndværkertilbud (filnavn: ${fileName.replace(/[\r\n]/g, " ").slice(0, 120)}) og kald registrer_analyse med resultatet.`,
+              text: `Analysér dette håndværkertilbud (filnavn: ${safeName}) og kald registrer_analyse med resultatet.`,
             },
           ],
         },
@@ -359,7 +355,7 @@ export async function analyzeQuote(
     throw new AnalysisError(da.errors.aiIncomplete);
   }
   const input = toolUse.input as Record<string, unknown>;
-  const analysis = finalize({ ...input, outputLocale: locale });
+  const analysis = finalize({ ...input, outputLocale: locale }, false, cprHidden);
   if (analysis.documentCheck.isQuote === false) {
     log("not_a_quote");
     throw new AnalysisError(da.errors.notAQuote);

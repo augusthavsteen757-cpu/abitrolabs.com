@@ -159,7 +159,7 @@ export const sv: Dict = {
     },
     {
       q: "Vad händer med mina filer?",
-      a: "Filen skickas till vår AI-leverantör (Anthropic) och sparas på ditt konto. Vi använder den inte till något annat, och du kan radera den när som helst. Stryk gärna över ditt CPR-nummer innan du laddar upp.",
+      a: "Filen skickas till vår AI-leverantör (Anthropic) och sparas på ditt konto. Vi använder den inte till något annat, och du kan radera den när som helst. Står det ett CPR-nummer i en PDF tar vi bort det automatiskt innan AI:n läser offerten. På bilder och skannade PDF:er kan vi inte hitta det – stryk över det själv innan du laddar upp.",
     },
     {
       paidOnly: true,
@@ -308,7 +308,7 @@ export const sv: Dict = {
     errEmpty: "Filen är tom.",
     errChoose: "Välj en fil först.",
     errFailed: "Uppladdningen misslyckades. Försök igen.",
-    aiNote: "Offerten analyseras av artificiell intelligens (AI). Analysen kan innehålla fel. Stryk gärna över CPR-nummer och andra känsliga uppgifter.",
+    aiNote: "Offerten analyseras av artificiell intelligens (AI). Analysen kan innehålla fel. CPR-nummer i PDF:er tas bort automatiskt. På bilder behöver du själv stryka över CPR-nummer och andra känsliga uppgifter.",
     defaultProject: "Mitt projekt",
   },
   paywall: {
@@ -356,6 +356,8 @@ export const sv: Dict = {
     demoBadge: "Demoanalys",
     demoNoticeTitle: "Exempel – inte en analys av din offert",
     demoNoticeText: "Den här testsidan använder inte AI. Den visar alltid samma exempelanalys, oavsett vilken offert du laddar upp.",
+    cprHiddenOne: "Vi hittade ett CPR-nummer i offerten och tog bort det innan AI:n läste offerten.",
+    cprHiddenMany: "Vi hittade {n} CPR-nummer i offerten och tog bort dem innan AI:n läste offerten.",
     noCvr: "Organisationsnummer (CVR) saknas",
     validUntil: "gäller till {date}",
     distance: "ca {km} km från dig",

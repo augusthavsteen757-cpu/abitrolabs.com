@@ -159,7 +159,7 @@ export const de: Dict = {
     },
     {
       q: "Was passiert mit meinen Dateien?",
-      a: "Die Datei wird an unseren KI-Anbieter (Anthropic) geschickt und in deinem Konto gespeichert. Wir nutzen sie für nichts anderes, und du kannst sie jederzeit löschen. Schwärze gern deine CPR-Nummer vor dem Hochladen.",
+      a: "Die Datei wird an unseren KI-Anbieter (Anthropic) geschickt und in deinem Konto gespeichert. Wir nutzen sie für nichts anderes, und du kannst sie jederzeit löschen. Steht in einem PDF eine CPR-Nummer, entfernen wir sie automatisch, bevor die KI das Angebot liest. Auf Fotos und gescannten PDFs können wir sie nicht finden – schwärze sie dort selbst vor dem Hochladen.",
     },
     {
       paidOnly: true,
@@ -308,7 +308,7 @@ export const de: Dict = {
     errEmpty: "Die Datei ist leer.",
     errChoose: "Wähle zuerst eine Datei.",
     errFailed: "Upload fehlgeschlagen. Bitte versuche es erneut.",
-    aiNote: "Das Angebot wird von künstlicher Intelligenz (KI) analysiert. Die Analyse kann Fehler enthalten. Schwärze gern CPR-Nummer und andere sensible Angaben.",
+    aiNote: "Das Angebot wird von künstlicher Intelligenz (KI) analysiert. Die Analyse kann Fehler enthalten. CPR-Nummern in PDFs werden automatisch entfernt. Auf Fotos schwärze bitte CPR-Nummer und andere sensible Angaben selbst.",
     defaultProject: "Mein Projekt",
   },
   paywall: {
@@ -356,6 +356,8 @@ export const de: Dict = {
     demoBadge: "Demo-Analyse",
     demoNoticeTitle: "Beispiel – keine Analyse deines Angebots",
     demoNoticeText: "Diese Testseite nutzt keine KI. Sie zeigt immer dieselbe Beispielanalyse, egal welches Angebot du hochlädst.",
+    cprHiddenOne: "Wir haben eine CPR-Nummer im Angebot gefunden und entfernt, bevor die KI das Angebot gelesen hat.",
+    cprHiddenMany: "Wir haben {n} CPR-Nummern im Angebot gefunden und entfernt, bevor die KI das Angebot gelesen hat.",
     noCvr: "Firmennummer (CVR) fehlt",
     validUntil: "gültig bis {date}",
     distance: "ca. {km} km von dir",
