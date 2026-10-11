@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import { DEMO_QUOTES } from "../src/lib/demo-data";
 import { analysisOfQuote, applyVatChoice, normalizeAnalysis, parseStoredAnalysis, priceOfQuote, scoreOfQuote } from "../src/lib/analysis";
-import { computeScore, scoreLabel } from "../src/lib/score";
+import { computeScore, scoreBand, scoreLabel } from "../src/lib/score";
 import { DICTS } from "../src/i18n/dict";
 import { fmt } from "../src/i18n/fmt";
 import { formatKr } from "../src/lib/format";
@@ -109,6 +109,16 @@ test("no double full stop when an amount ends a sentence", () => {
 test("the demo account's password follows the same rules as everyone's", () => {
   assert.equal(passwordProblem(DEMO_PASSWORD, DEMO_EMAIL), null);
   assert.notEqual(passwordProblem("demo1234", DEMO_EMAIL), null, "the old 8-character password is rejected");
+});
+
+test("verdict sentence and label always come from the same score band", () => {
+  for (const [lang, d] of Object.entries(DICTS)) {
+    for (const score of [0, 39, 40, 59, 60, 79, 80, 100]) {
+      const band = scoreBand(score);
+      assert.equal(scoreLabel(score, d.score), d.score.labels[band], `${lang} ${score}`);
+      assert.ok(d.quote.verdict[band].length > 10, `${lang} verdict for ${band}`);
+    }
+  }
 });
 
 console.log(`\n${passed} tests passed`);

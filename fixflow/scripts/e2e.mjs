@@ -218,7 +218,7 @@ try {
   assert((await demo.getByRole("radio", { name: /^Priserne er uden moms/ }).getAttribute("aria-checked")) === "true", "assumed excl. VAT before choosing");
   await demo.getByRole("radio", { name: /^Priserne er med moms/ }).click();
   await demo.waitForFunction(() => document.querySelector("[aria-checked=true]")?.textContent?.includes("Dit valg"));
-  const mainPrice = await demo.locator("section[aria-label] dd").first().innerText();
+  const mainPrice = await demo.locator("[data-testid=price] dd").first().innerText();
   assert(mainPrice.includes("98.000 kr."), `analysis price follows the choice (${mainPrice})`);
   await demo.goto(`${BASE}/dashboard`);
   assert((await demo.getByRole("link", { name: /Eksempel Byg/ }).innerText()).includes("98.000 kr."), "overview price follows the choice");

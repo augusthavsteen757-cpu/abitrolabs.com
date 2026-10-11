@@ -5,11 +5,18 @@ import { fmt } from "@/i18n/fmt";
 type Input = Pick<QuoteAnalysis, "lineItems" | "checks" | "priceType" | "flags">;
 type ScoreTexts = Dict["score"];
 
+export type ScoreBand = "transparent" | "fair" | "unclear" | "veryUnclear";
+
+/** The one place the score bands (80 / 60 / 40) are defined – labels and verdict sentences both use it. */
+export function scoreBand(score: number): ScoreBand {
+  if (score >= 80) return "transparent";
+  if (score >= 60) return "fair";
+  if (score >= 40) return "unclear";
+  return "veryUnclear";
+}
+
 export function scoreLabel(score: number, t: ScoreTexts = da.score): string {
-  if (score >= 80) return t.labels.transparent;
-  if (score >= 60) return t.labels.fair;
-  if (score >= 40) return t.labels.unclear;
-  return t.labels.veryUnclear;
+  return t.labels[scoreBand(score)];
 }
 
 /**

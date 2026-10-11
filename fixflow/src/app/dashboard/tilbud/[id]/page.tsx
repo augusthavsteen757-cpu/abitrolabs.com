@@ -30,7 +30,7 @@ import {
 import { hasFullAccess } from "@/lib/plans";
 import { cn, formatDate, formatMoney, formatRange } from "@/lib/format";
 import { ScoreRing, scoreColor } from "@/components/ScoreRing";
-import { SEVERITY } from "@/components/Severity";
+import { SEVERITY, SeverityBadge } from "@/components/Severity";
 import { CopyButton, DeleteQuoteButton, RetryButton, UnlockWithCreditButton } from "@/components/QuoteActions";
 import { MessageComposer } from "@/components/MessageComposer";
 import { VatChoice } from "@/components/VatChoice";
@@ -40,7 +40,7 @@ import { Locked } from "@/components/Locked";
 import { getDict, getI18n } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
 import { INTL_LOCALE } from "@/i18n/config";
-import { computeScore } from "@/lib/score";
+import { computeScore, scoreBand } from "@/lib/score";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getDict()).quote.metaTitle };
@@ -157,16 +157,12 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
   // Most important first; the original index is kept because the free-plan lock refers to it.
   const SEV_ORDER = { high: 0, medium: 1, low: 2 } as const;
   const flags = view.flags.map((f, i) => ({ f, i })).sort((a, b) => SEV_ORDER[a.f.severity] - SEV_ORDER[b.f.severity]);
-  const TOP = 3;
   // The quote doesn't say whether prices include VAT: show both readings and let the user pick.
   const vatUnclear = isVatUnclear(analysis);
   const extraMax = view.extraCostRisk.max * 1.25;
   const worstCase = !lock?.extra && analysis.totals.inclVat != null && extraMax > 0 ? analysis.totals.inclVat + extraMax : null;
-  // Show the first two sentences; the rest folds out so the page stays short on a phone.
-  // A sentence ends at . ! ? followed by a space and a capital letter – so "122.500 kr. inkl." is not split.
-  const sentences = analysis.summary.split(/(?<=[.!?])\s+(?=[\p{Lu}"„«(])/u);
-  const summaryShort = sentences.slice(0, 2).join(" ").trim();
-  const summaryRest = sentences.slice(2).join(" ").trim();
+  // One plain sentence about what to do, chosen from the score band.
+  const verdictText = t.verdict[scoreBand(score.total)];
 
   const flagCard = ({ f, i }: (typeof flags)[number]) => {
     const s = SEVERITY[f.severity];
@@ -177,10 +173,8 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         <div className="flex items-start gap-3">
           <s.icon className={cn("mt-0.5 h-5 w-5 shrink-0", s.iconColor)} aria-hidden />
           <div className="min-w-0 flex-1">
-            <h3 className="font-sans text-base font-semibold leading-snug">
-              <span className="sr-only">{L.severity[f.severity]}: </span>
-              {f.title}
-            </h3>
+            <SeverityBadge severity={f.severity} label={L.severity[f.severity]} />
+            <h3 className="mt-1.5 font-sans text-base font-semibold leading-snug">{f.title}</h3>
             {flagLocked ? (
               <Locked lines={2} label={t.seeExplanation} className="mt-2" />
             ) : (
@@ -253,47 +247,17 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         </div>
       )}
 
-      {/* Verdict: the three numbers that matter */}
-      <section className="card mt-6 p-5 sm:p-6" aria-label={t.scoreTitle}>
-        <div className="flex items-center gap-5">
-          <ScoreRing score={score.total} size={104} label={score.label} srText={fmt(t.scoreAria, { score: score.total })} />
-          <dl className="min-w-0 flex-1 space-y-2.5">
-            <div>
-              <dt className="text-xs text-ink-muted">{t.priceIncl}</dt>
-              <dd className="num font-display text-2xl font-semibold leading-tight">{money(analysis.totals.inclVat)}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-red-800">{t.extraIncl}</dt>
-              <dd className="num text-base font-semibold text-red-800">
-                {lock?.extra ? (
-                  <Locked lines={1} label={t.seeAmount} />
-                ) : (
-                  formatRange(view.extraCostRisk.min * 1.25, extraMax, cur)
-                )}
-              </dd>
-            </div>
-          </dl>
+      {/* Kort sagt: one sentence that tells the user what to do */}
+      <section className={cn("card mt-6 p-5 sm:p-6")} aria-label={t.scoreTitle}>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">{t.summary}</h2>
+        <div className="mt-3 flex items-center gap-4">
+          <ScoreRing score={score.total} size={92} label={score.label} srText={fmt(t.scoreAria, { score: score.total })} />
+          <p className={cn("min-w-0 text-lg font-semibold leading-snug", color.text)} data-testid="verdict">{verdictText}</p>
         </div>
-        {vatUnclear && (
-          <VatChoice
-            quoteId={quote.id}
-            choice={quote.vatChoice}
-            assumed={analysis.vatBasis?.assumed ?? "excl"}
-            prices={{ excl: money(applyVatChoice(analysis, "excl").totals.inclVat), incl: money(applyVatChoice(analysis, "incl").totals.inclVat) }}
-          />
-        )}
-        {worstCase != null && (
-          <p className="num mt-4 rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-900">
-            {fmt(t.worstCase, { amount: money(worstCase) })}
-          </p>
-        )}
-        <p className="mt-3 text-xs text-ink-muted">{t.scoreNote}</p>
-      </section>
-
-      {/* Short summary */}
-      <section className="card mt-4 p-5 sm:p-6">
-        <h2 className="text-xl font-semibold">{t.summary}</h2>
-        {writtenIn && <p className="mt-2 text-xs text-ink-muted">{fmt(t.analysisLanguageNote, { language: writtenIn })}</p>}
+        <p className="mt-3 text-xs text-ink-muted">
+          {t.scoreNote} {t.scoreScale}
+        </p>
+        {writtenIn && <p className="mt-3 text-xs text-ink-muted">{fmt(t.analysisLanguageNote, { language: writtenIn })}</p>}
         {foreign && (
           <p className="mt-3 rounded-xl bg-sky-50 px-3.5 py-2.5 text-sm text-sky-900">
             {fmt(t.foreign, { language: sourceLanguage || t.otherLanguage })}{" "}
@@ -301,13 +265,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             {t.foreignRut}
           </p>
         )}
-        <p className="mt-2 leading-relaxed text-ink-soft">{summaryShort}</p>
-        {summaryRest && (
-          <details className="group mt-1">
-            <summary className="cursor-pointer list-none text-sm font-semibold text-brand-700 group-open:hidden">{t.readMore}</summary>
-            <p className="leading-relaxed text-ink-soft">{summaryRest}</p>
-          </details>
-        )}
+        <p className="mt-4 leading-relaxed text-ink-soft">{analysis.summary}</p>
         {qualityNotes.length > 0 && (
           <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" data-testid="quality-notes">
             <p className="font-semibold">{t.qualityTitle}</p>
@@ -320,6 +278,37 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         )}
       </section>
 
+      {/* 1. Hvad koster det? */}
+      <section className="mt-10">
+        <Step n={1} title={t.priceTitle} />
+        <div className="card mt-4 p-5 sm:p-6" data-testid="price">
+          <dl className="space-y-3">
+            <div>
+              <dt className="text-sm text-ink-muted">{t.priceIncl}</dt>
+              <dd className="num font-display text-3xl font-semibold leading-tight">{money(analysis.totals.inclVat)}</dd>
+            </div>
+            <div>
+              <dt className="text-sm text-red-800">{t.extraIncl}</dt>
+              <dd className="num text-lg font-semibold text-red-800">
+                {lock?.extra ? <Locked lines={1} label={t.seeAmount} /> : formatRange(view.extraCostRisk.min * 1.25, extraMax, cur)}
+              </dd>
+            </div>
+          </dl>
+          {vatUnclear && (
+            <VatChoice
+              quoteId={quote.id}
+              choice={quote.vatChoice}
+              assumed={analysis.vatBasis?.assumed ?? "excl"}
+              prices={{ excl: money(applyVatChoice(analysis, "excl").totals.inclVat), incl: money(applyVatChoice(analysis, "incl").totals.inclVat) }}
+            />
+          )}
+          {worstCase != null && (
+            <p className="num mt-4 rounded-xl bg-red-50 px-3.5 py-2.5 text-red-900">{fmt(t.worstCase, { amount: money(worstCase) })}</p>
+          )}
+          {!lock?.extra && view.extraCostRisk.explanation && <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{view.extraCostRisk.explanation}</p>}
+        </div>
+      </section>
+
       {!full && (
         <section id="laas-op" className="mt-6 scroll-mt-24">
           {user.extraCredits > 0 ? (
@@ -330,44 +319,26 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         </section>
       )}
 
-      {/* Most important findings */}
+      {/* 2. Det skal du være opmærksom på */}
       <section className="mt-10">
-        <SectionTitle icon={ShieldAlert}>{t.flagsTitle}</SectionTitle>
+        <Step n={2} title={t.flagsTitle} />
         {flags.length === 0 ? (
           <p className="card mt-4 p-5 text-ink-soft">{t.noFlags}</p>
         ) : (
-          <div className="mt-4 space-y-3">
-            {flags.slice(0, TOP).map(flagCard)}
-            {flags.length > TOP && (
-              <details className="group">
-                <summary className="btn-secondary w-full cursor-pointer list-none justify-center group-open:hidden">
-                  {fmt(t.showAllFlags, { n: flags.length })}
-                </summary>
-                <div className="space-y-3">{flags.slice(TOP).map(flagCard)}</div>
-              </details>
-            )}
-          </div>
+          <div className="mt-4 space-y-3">{flags.map(flagCard)}</div>
         )}
       </section>
 
-      {/* Questions */}
+      {/* 3. Det skal du spørge om */}
       <section className="mt-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <SectionTitle icon={HelpCircle}>{t.questionsTitle}</SectionTitle>
+          <Step n={3} title={t.questionsTitle} />
           {visibleQuestions.length > 0 && (
             <CopyButton label={t.copyAll} text={visibleQuestions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")} />
           )}
         </div>
         <div className="card mt-4">
-          <ol className="divide-y divide-line">{visibleQuestions.slice(0, TOP).map((q, i) => question(q, i + 1))}</ol>
-          {visibleQuestions.length > TOP && (
-            <details className="group border-t border-line">
-              <summary className="cursor-pointer list-none p-4 text-sm font-semibold text-brand-700 group-open:hidden">
-                {fmt(t.showAllQuestions, { n: visibleQuestions.length })}
-              </summary>
-              <ol className="divide-y divide-line">{visibleQuestions.slice(TOP).map((q, i) => question(q, i + TOP + 1))}</ol>
-            </details>
-          )}
+          <ol className="divide-y divide-line">{visibleQuestions.map((q, i) => question(q, i + 1))}</ol>
         </div>
         {hiddenCount > 0 && (
           <a href="#laas-op" className="card mt-3 flex items-center gap-4 p-4 hover:shadow-lift">
@@ -378,7 +349,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
 
       {/* Message composer */}
       <section className="mt-10" id="besked">
-        <SectionTitle icon={MessageSquareText}>{t.messageTitle}</SectionTitle>
+        <Step n={4} title={t.messageTitle} />
         <p className="mt-1 text-sm text-ink-muted">{t.messageIntro}</p>
         <div className="mt-4">
           {full ? (
@@ -398,12 +369,10 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         </div>
       </section>
 
-      {/* Everything else, folded away */}
+      {/* 5. Hvad betaler du for? */}
       <section className="mt-10">
-        <SectionTitle>{t.detailsTitle}</SectionTitle>
-        <div className="card mt-4 divide-y divide-line">
-          <Fold title={t.itemsTitle}>
-            {view.extraCostRisk.explanation && <p className="mb-3 text-sm text-ink-soft">{view.extraCostRisk.explanation}</p>}
+        <Step n={5} title={t.itemsTitle} />
+        <div className="card mt-4 p-5 sm:p-6">
             {catTotal > 0 && (
               <>
                 <div className="flex h-3 overflow-hidden rounded-full bg-paper" role="img" aria-label={t.categoryAria}>
@@ -461,10 +430,13 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
               </ul>
             )}
             <p className="mt-2 text-xs text-ink-muted">{vatUnclear && quote.vatChoice === "incl" ? t.itemsNoteConverted : t.itemsNote}</p>
-          </Fold>
+        </div>
+      </section>
 
-          <Fold title={t.checklistTitle} meta={fmt(t.checklistCount, { n: analysis.checks.filter((c) => c.present).length })}>
-            <ul className="space-y-3">
+      {/* 6. Står det vigtigste i tilbuddet? */}
+      <section className="mt-10">
+        <Step n={6} title={t.checklistTitle} sub={fmt(t.checklistCount, { n: analysis.checks.filter((c) => c.present).length })} />
+        <div className="card mt-4 p-5 sm:p-6">            <ul className="space-y-3">
               {analysis.checks.map((c) => (
                 <li key={c.key} className="flex gap-3">
                   {c.present ? (
@@ -479,7 +451,13 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                 </li>
               ))}
             </ul>
-          </Fold>
+        </div>
+      </section>
+
+      {/* The technical part, folded away */}
+      <section className="mt-10">
+        <SectionTitle>{t.detailsTitle}</SectionTitle>
+        <div className="card mt-4 divide-y divide-line">
 
           {view.rules.length > 0 && (
             <Fold title={t.rulesTitle}>
@@ -564,6 +542,21 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           <ReportAnalysis quoteId={quote.id} />
         </div>
       )}
+    </div>
+  );
+}
+
+/** A numbered heading, so the page reads like a short guide from top to bottom. */
+function Step({ n, title, sub }: { n: number; title: string; sub?: string }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="num mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-semibold text-white" aria-hidden>
+        {n}
+      </span>
+      <div className="min-w-0">
+        <h2 className="text-xl font-semibold leading-snug sm:text-2xl">{title}</h2>
+        {sub && <p className="mt-0.5 text-sm text-ink-muted">{sub}</p>}
+      </div>
     </div>
   );
 }
