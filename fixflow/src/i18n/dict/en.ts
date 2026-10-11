@@ -25,7 +25,7 @@ export const en: Dict = {
       "This page is only available in Danish, because the Danish version is the legally binding one.",
     legalSummaryTitle: "The key points in brief",
     legalSummary: [
-      "Prices include VAT: Pro costs DKK 49 per month, a one-off purchase DKK 99 and a 3-pack with 3 analyses DKK 199.",
+      "Prices are final – nothing is added on top: Pro costs DKK 49 per month, a one-off purchase DKK 99 and a 3-pack with 3 analyses DKK 199.",
       "Pro renews automatically every month until you cancel. You can cancel at any time on your account page.",
       "You have a 14-day right of withdrawal. Once you use an analysis from a one-off purchase or a 3-pack, you lose the right of withdrawal for that analysis. If you withdraw from Pro, you pay for the days you have had it.",
       "The analysis is produced by artificial intelligence (AI) and may contain errors. It is guidance – not legal or technical advice.",
@@ -93,13 +93,13 @@ export const en: Dict = {
     ],
     readyCta: "Start for free",
     pricingTitle: "Less than an hour of a tradesperson’s time",
-    pricingText: "See your score for free. Only pay if you want the full analysis. All prices include VAT.",
+    pricingText: "See your score for free. Only pay if you want the full analysis. All prices are final – nothing is added on top.",
     faqTitle: "Questions and answers",
   },
   pricingPage: {
     title: "Simple pricing. No commitment.",
     text: "See for free how your quote scores and which red flags it has. Unlock the full analysis for 99 kr. – or choose Pro.",
-    note: "All prices include VAT. Pro renews automatically every month and can be cancelled at any time.",
+    note: "All prices are final – nothing is added on top. Pro renews automatically every month and can be cancelled at any time.",
     faqTitle: "Questions about pricing and accounts",
   },
   plans: {
@@ -339,7 +339,7 @@ export const en: Dict = {
   checkout: {
     consentSingle: "I request access straight away and acknowledge that I lose my right of withdrawal once the analysis has been delivered (when I use the purchase).",
     consentPack: "I request access straight away and acknowledge that I lose my right of withdrawal for each analysis once it has been delivered (when I use it). I can withdraw from unused analyses within 14 days.",
-    consentPro: "I request that Pro starts straight away. If I withdraw within 14 days, I pay for the part I have used. Pro renews automatically every month at 49 kr. incl. VAT until I cancel.",
+    consentPro: "I request that Pro starts straight away. If I withdraw within 14 days, I pay for the part I have used. Pro renews automatically every month at 49 kr. until I cancel.",
     terms: "Terms of sale",
     needConsent: "Tick the box to confirm you want access straight away.",
     failed: "The payment couldn’t be completed.",

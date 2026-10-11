@@ -21,7 +21,7 @@ export const pl: Dict = {
       "Ta strona jest dostępna tylko po duńsku, ponieważ to wersja duńska jest prawnie wiążąca.",
     legalSummaryTitle: "Najważniejsze w skrócie",
     legalSummary: [
-      "Ceny zawierają VAT: Pro kosztuje 49 DKK miesięcznie, jednorazowy zakup 99 DKK, a pakiet 3 analiz 199 DKK.",
+      "Ceny są ostateczne – nic nie jest doliczane: Pro kosztuje 49 DKK miesięcznie, jednorazowy zakup 99 DKK, a pakiet 3 analiz 199 DKK.",
       "Pro odnawia się automatycznie co miesiąc, dopóki nie zrezygnujesz. Możesz zrezygnować w dowolnym momencie na stronie konta.",
       "Masz 14 dni na odstąpienie od umowy. Gdy wykorzystasz analizę z jednorazowego zakupu lub pakietu 3 analiz, tracisz prawo odstąpienia dla tej analizy. Jeśli odstąpisz od Pro, płacisz za dni, w których z niego korzystałeś.",
       "Analizę przygotowuje sztuczna inteligencja (AI) i może ona zawierać błędy. Ma charakter wskazówki – nie jest poradą prawną ani techniczną.",
@@ -89,13 +89,13 @@ export const pl: Dict = {
     ],
     readyCta: "Zacznij za darmo",
     pricingTitle: "Mniej niż godzina pracy fachowca",
-    pricingText: "Zobacz ocenę za darmo. Płać tylko wtedy, gdy chcesz zobaczyć całą analizę. Wszystkie ceny zawierają VAT.",
+    pricingText: "Zobacz ocenę za darmo. Płać tylko wtedy, gdy chcesz zobaczyć całą analizę. Wszystkie ceny są ostateczne – nic nie jest doliczane.",
     faqTitle: "Pytania i odpowiedzi",
   },
   pricingPage: {
     title: "Prosta cena. Bez zobowiązań.",
     text: "Sprawdź za darmo, jak ocenia się Twoja wycena i jakie ma czerwone flagi. Odblokuj pełną analizę za 99 kr. – lub wybierz Pro.",
-    note: "Wszystkie ceny zawierają VAT. Pro odnawia się automatycznie co miesiąc i można z niego zrezygnować w dowolnym momencie.",
+    note: "Wszystkie ceny są ostateczne – nic nie jest doliczane. Pro odnawia się automatycznie co miesiąc i można z niego zrezygnować w dowolnym momencie.",
     faqTitle: "Pytania o ceny i konto",
   },
   plans: {
@@ -335,7 +335,7 @@ export const pl: Dict = {
   checkout: {
     consentSingle: "Proszę o natychmiastowy dostęp i przyjmuję do wiadomości, że tracę prawo odstąpienia od umowy z chwilą dostarczenia analizy (gdy wykorzystam zakup).",
     consentPack: "Proszę o natychmiastowy dostęp i przyjmuję do wiadomości, że tracę prawo odstąpienia od umowy dla każdej analizy po jej dostarczeniu (gdy z niej skorzystam). Od niewykorzystanych analiz mogę odstąpić w ciągu 14 dni.",
-    consentPro: "Proszę o natychmiastowe rozpoczęcie Pro. Jeśli odstąpię od umowy w ciągu 14 dni, zapłacę za część, którą wykorzystałem. Pro odnawia się automatycznie co miesiąc za 49 kr. z VAT, dopóki nie zrezygnuję.",
+    consentPro: "Proszę o natychmiastowe rozpoczęcie Pro. Jeśli odstąpię od umowy w ciągu 14 dni, zapłacę za część, którą wykorzystałem. Pro odnawia się automatycznie co miesiąc za 49 kr., dopóki nie zrezygnuję.",
     terms: "Regulamin",
     needConsent: "Zaznacz pole, aby potwierdzić, że chcesz uzyskać dostęp od razu.",
     failed: "Nie udało się zrealizować płatności.",

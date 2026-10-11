@@ -25,7 +25,7 @@ export const nb: Dict = {
       "Denne siden finnes bare på dansk, fordi det er den juridisk bindende versjonen.",
     legalSummaryTitle: "Det viktigste i korte trekk",
     legalSummary: [
-      "Prisene er inkl. mva.: Pro koster 49 DKK per måned, et enkeltkjøp 99 DKK og en 3-pakke med 3 analyser 199 DKK.",
+      "Prisene er endelige – ingenting kommer i tillegg: Pro koster 49 DKK per måned, et enkeltkjøp 99 DKK og en 3-pakke med 3 analyser 199 DKK.",
       "Pro fornyes automatisk hver måned til du sier opp. Du kan si opp når som helst på kontosiden din.",
       "Du har 14 dagers angrerett. Bruker du en analyse fra et enkeltkjøp eller en 3-pakke, mister du angreretten for den analysen. Angrer du Pro, betaler du for dagene du har hatt det.",
       "Analysen lages av kunstig intelligens (AI) og kan inneholde feil. Den er veiledning – ikke juridisk eller teknisk rådgivning.",
@@ -93,13 +93,13 @@ export const nb: Dict = {
     ],
     readyCta: "Start gratis",
     pricingTitle: "Mindre enn én times håndverkerlønn",
-    pricingText: "Se scoren din gratis. Betal bare hvis du vil se hele analysen. Alle priser er inkl. mva.",
+    pricingText: "Se scoren din gratis. Betal bare hvis du vil se hele analysen. Alle priser er endelige – ingenting kommer i tillegg.",
     faqTitle: "Spørsmål og svar",
   },
   pricingPage: {
     title: "Enkel pris. Ingen binding.",
     text: "Se gratis hvordan tilbudet ditt scorer og hvilke røde flagg det har. Lås opp hele analysen for 99 kr – eller velg Pro.",
-    note: "Alle priser er inkl. mva. Pro fornyes automatisk hver måned og kan sies opp når som helst.",
+    note: "Alle priser er endelige – ingenting kommer i tillegg. Pro fornyes automatisk hver måned og kan sies opp når som helst.",
     faqTitle: "Spørsmål om priser og konto",
   },
   plans: {
@@ -339,7 +339,7 @@ export const nb: Dict = {
   checkout: {
     consentSingle: "Jeg ber om å få tilgang med en gang og erkjenner at jeg mister angreretten min når analysen er levert (når jeg bruker kjøpet).",
     consentPack: "Jeg ber om å få tilgang med en gang og erkjenner at jeg mister angreretten for hver analyse når den er levert (når jeg bruker den). Ubrukte analyser kan jeg angre innen 14 dager.",
-    consentPro: "Jeg ber om at Pro starter med en gang. Angrer jeg innen 14 dager, betaler jeg for den delen jeg har brukt. Pro fornyes automatisk hver måned til 49 kr. inkl. mva. til jeg sier opp.",
+    consentPro: "Jeg ber om at Pro starter med en gang. Angrer jeg innen 14 dager, betaler jeg for den delen jeg har brukt. Pro fornyes automatisk hver måned til 49 kr. til jeg sier opp.",
     terms: "Salgsvilkår",
     needConsent: "Huk av for å bekrefte at du vil ha tilgang med en gang.",
     failed: "Betalingen kunne ikke gjennomføres.",

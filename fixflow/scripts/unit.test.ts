@@ -196,4 +196,11 @@ test("new texts exist in every language: 3-pakke, codes and their errors", () =>
   }
 });
 
+test("Klardal's own prices never claim VAT (Klardal is not VAT-registered)", () => {
+  const vat = /moms|\bVAT\b|MwSt|Mehrwertsteuer|\bmva\b|merverdiavgift|\bTVA\b|ПДВ/i;
+  for (const [lang, d] of Object.entries(DICTS))
+    for (const v of [d.lang.legalSummary[0], d.home.pricingText, d.pricingPage.note, d.checkout.consentPro])
+      assert.ok(!vat.test(v), `${lang}: ${v}`);
+});
+
 console.log(`\n${passed} tests passed`);

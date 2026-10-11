@@ -25,7 +25,7 @@ export const de: Dict = {
       "Diese Seite gibt es nur auf Dänisch, da die dänische Fassung die rechtlich verbindliche Version ist.",
     legalSummaryTitle: "Das Wichtigste in Kürze",
     legalSummary: [
-      "Die Preise enthalten MwSt.: Pro kostet 49 DKK pro Monat, ein Einzelkauf 99 DKK und ein 3er-Paket mit 3 Analysen 199 DKK.",
+      "Die Preise sind Endpreise – es kommt nichts hinzu: Pro kostet 49 DKK pro Monat, ein Einzelkauf 99 DKK und ein 3er-Paket mit 3 Analysen 199 DKK.",
       "Pro verlängert sich automatisch jeden Monat, bis du kündigst. Du kannst jederzeit auf deiner Kontoseite kündigen.",
       "Du hast ein 14-tägiges Widerrufsrecht. Nutzt du eine Analyse aus einem Einzelkauf oder einem 3er-Paket, verlierst du das Widerrufsrecht für diese Analyse. Widerrufst du Pro, zahlst du für die Tage, an denen du es hattest.",
       "Die Analyse wird von künstlicher Intelligenz (KI) erstellt und kann Fehler enthalten. Sie dient zur Orientierung – sie ist keine rechtliche oder technische Beratung.",
@@ -93,13 +93,13 @@ export const de: Dict = {
     ],
     readyCta: "Kostenlos starten",
     pricingTitle: "Weniger als eine Handwerkerstunde",
-    pricingText: "Deinen Score siehst du gratis. Du zahlst nur, wenn du die ganze Analyse sehen willst. Alle Preise inkl. MwSt.",
+    pricingText: "Deinen Score siehst du gratis. Du zahlst nur, wenn du die ganze Analyse sehen willst. Alle Preise sind Endpreise – es kommt nichts hinzu.",
     faqTitle: "Fragen und Antworten",
   },
   pricingPage: {
     title: "Einfacher Preis. Keine Bindung.",
     text: "Sieh kostenlos, wie dein Angebot abschneidet und welche Warnsignale es gibt. Schalte die ganze Analyse für 99 kr. frei – oder wähle Pro.",
-    note: "Alle Preise inkl. MwSt. Pro verlängert sich automatisch jeden Monat und ist jederzeit kündbar.",
+    note: "Alle Preise sind Endpreise – es kommt nichts hinzu. Pro verlängert sich automatisch jeden Monat und ist jederzeit kündbar.",
     faqTitle: "Fragen zu Preisen und Konto",
   },
   plans: {
@@ -339,7 +339,7 @@ export const de: Dict = {
   checkout: {
     consentSingle: "Ich verlange, sofort Zugang zu erhalten, und nehme zur Kenntnis, dass ich mein Widerrufsrecht verliere, sobald die Analyse geliefert ist (wenn ich den Kauf nutze).",
     consentPack: "Ich verlange, sofort Zugang zu erhalten, und nehme zur Kenntnis, dass ich mein Widerrufsrecht für jede Analyse verliere, sobald sie geliefert ist (wenn ich sie nutze). Ungenutzte Analysen kann ich innerhalb von 14 Tagen widerrufen.",
-    consentPro: "Ich verlange, dass Pro sofort beginnt. Widerrufe ich innerhalb von 14 Tagen, zahle ich für den Teil, den ich genutzt habe. Pro verlängert sich automatisch jeden Monat zu 49 kr. inkl. MwSt., bis ich kündige.",
+    consentPro: "Ich verlange, dass Pro sofort beginnt. Widerrufe ich innerhalb von 14 Tagen, zahle ich für den Teil, den ich genutzt habe. Pro verlängert sich automatisch jeden Monat zu 49 kr., bis ich kündige.",
     terms: "AGB",
     needConsent: "Setze das Häkchen, um zu bestätigen, dass du sofort Zugang möchtest.",
     failed: "Die Zahlung konnte nicht durchgeführt werden.",

@@ -23,7 +23,7 @@ export const da = {
       "Denne side findes kun på dansk, fordi det er den juridisk gældende version.",
     legalSummaryTitle: "Det vigtigste kort fortalt",
     legalSummary: [
-      "Priserne er inkl. moms: Pro koster 49 kr. pr. måned, et engangskøb 99 kr. og en 3-pakke med 3 analyser 199 kr.",
+      "Priserne er endelige – der kommer intet oveni: Pro koster 49 kr. pr. måned, et engangskøb 99 kr. og en 3-pakke med 3 analyser 199 kr.",
       "Pro fornyes automatisk hver måned, indtil du opsiger. Du kan opsige når som helst på din kontoside.",
       "Du har 14 dages fortrydelsesret. Bruger du en analyse fra et engangskøb eller en 3-pakke, mister du fortrydelsesretten for den analyse. Fortryder du Pro, betaler du for de dage, du har haft det.",
       "Analysen laves af kunstig intelligens (AI) og kan indeholde fejl. Den er vejledning – ikke juridisk eller teknisk rådgivning.",
@@ -91,13 +91,13 @@ export const da = {
     ],
     readyCta: "Start gratis",
     pricingTitle: "Mindre end en times håndværkerløn",
-    pricingText: "Se din score gratis. Betal kun, hvis du vil se hele analysen. Alle priser er inkl. moms.",
+    pricingText: "Se din score gratis. Betal kun, hvis du vil se hele analysen. Alle priser er endelige – der kommer intet oveni.",
     faqTitle: "Spørgsmål og svar",
   },
   pricingPage: {
     title: "Enkel pris. Ingen binding.",
     text: "Se gratis hvordan dit tilbud scorer, og hvilke røde flag der er. Lås hele analysen op for 99 kr. – eller vælg Pro.",
-    note: "Alle priser er inkl. moms. Pro fornyes automatisk hver måned og kan opsiges når som helst.",
+    note: "Alle priser er endelige – der kommer intet oveni. Pro fornyes automatisk hver måned og kan opsiges når som helst.",
     faqTitle: "Spørgsmål om priser og konto",
   },
   plans: {
@@ -337,7 +337,7 @@ export const da = {
   checkout: {
     consentSingle: "Jeg anmoder om at få adgang med det samme og anerkender, at jeg mister min fortrydelsesret, når analysen er leveret (når jeg bruger købet).",
     consentPack: "Jeg anmoder om at få adgang med det samme og anerkender, at jeg mister min fortrydelsesret for hver analyse, når den er leveret (når jeg bruger den). Ubrugte analyser kan jeg fortryde inden for 14 dage.",
-    consentPro: "Jeg anmoder om, at Pro starter med det samme. Fortryder jeg inden for 14 dage, betaler jeg for den del, jeg har brugt. Pro fornyes automatisk hver måned til 49 kr. inkl. moms, indtil jeg opsiger.",
+    consentPro: "Jeg anmoder om, at Pro starter med det samme. Fortryder jeg inden for 14 dage, betaler jeg for den del, jeg har brugt. Pro fornyes automatisk hver måned til 49 kr., indtil jeg opsiger.",
     terms: "Handelsbetingelser",
     needConsent: "Sæt flueben for at bekræfte, at du vil have adgang med det samme.",
     failed: "Betalingen kunne ikke gennemføres.",

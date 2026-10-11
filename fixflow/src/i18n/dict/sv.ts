@@ -25,7 +25,7 @@ export const sv: Dict = {
       "Den här sidan finns bara på danska, eftersom det är den juridiskt bindande versionen.",
     legalSummaryTitle: "Det viktigaste i korthet",
     legalSummary: [
-      "Priserna inkluderar moms: Pro kostar 49 DKK per månad, ett engångsköp 99 DKK och ett 3-paket med 3 analyser 199 DKK.",
+      "Priserna är slutliga – inget tillkommer: Pro kostar 49 DKK per månad, ett engångsköp 99 DKK och ett 3-paket med 3 analyser 199 DKK.",
       "Pro förnyas automatiskt varje månad tills du säger upp. Du kan säga upp när som helst på din kontosida.",
       "Du har 14 dagars ångerrätt. Använder du en analys från ett engångsköp eller ett 3-paket förlorar du ångerrätten för den analysen. Ångrar du Pro betalar du för de dagar du har haft det.",
       "Analysen görs av artificiell intelligens (AI) och kan innehålla fel. Den är vägledning – inte juridisk eller teknisk rådgivning.",
@@ -93,13 +93,13 @@ export const sv: Dict = {
     ],
     readyCta: "Börja gratis",
     pricingTitle: "Mindre än en timmes hantverkarlön",
-    pricingText: "Se din poäng gratis. Betala bara om du vill se hela analysen. Alla priser är inkl. moms.",
+    pricingText: "Se din poäng gratis. Betala bara om du vill se hela analysen. Alla priser är slutliga – inget tillkommer.",
     faqTitle: "Frågor och svar",
   },
   pricingPage: {
     title: "Enkelt pris. Ingen bindningstid.",
     text: "Se gratis hur din offert får för poäng och vilka varningsflaggor som finns. Lås upp hela analysen för 99 kr. – eller välj Pro.",
-    note: "Alla priser inkl. moms. Pro förnyas automatiskt varje månad och kan sägas upp när som helst.",
+    note: "Alla priser är slutliga – inget tillkommer. Pro förnyas automatiskt varje månad och kan sägas upp när som helst.",
     faqTitle: "Frågor om priser och konto",
   },
   plans: {
@@ -339,7 +339,7 @@ export const sv: Dict = {
   checkout: {
     consentSingle: "Jag begär att få tillgång direkt och bekräftar att jag förlorar min ångerrätt när analysen har levererats (när jag använder köpet).",
     consentPack: "Jag begär att få tillgång direkt och bekräftar att jag förlorar min ångerrätt för varje analys när den har levererats (när jag använder den). Oanvända analyser kan jag ångra inom 14 dagar.",
-    consentPro: "Jag begär att Pro startar direkt. Ångrar jag mig inom 14 dagar betalar jag för den del jag har använt. Pro förnyas automatiskt varje månad för 49 kr. inkl. moms tills jag säger upp.",
+    consentPro: "Jag begär att Pro startar direkt. Ångrar jag mig inom 14 dagar betalar jag för den del jag har använt. Pro förnyas automatiskt varje månad för 49 kr. tills jag säger upp.",
     terms: "Köpvillkor",
     needConsent: "Kryssa i rutan för att bekräfta att du vill ha tillgång direkt.",
     failed: "Betalningen kunde inte genomföras.",

@@ -231,11 +231,11 @@ async function sendOrderConfirmation(userId: string, p: Payment) {
     p.renewal ? "Dit Pro-abonnement er fornyet. Her er din kvittering." : "Tak for dit køb. Her er din ordrebekræftelse.",
     "",
     `Produkt: ${product}`,
-    `Pris: ${p.amountDkk} kr. inkl. moms (heraf moms ${((p.amountDkk * 0.2)).toFixed(2).replace(".", ",")} kr.)`,
+    `Pris: ${p.amountDkk} kr. (Klardal er ikke momsregistreret, så der er ingen moms i prisen.)`,
     `Dato: ${p.createdAt.toLocaleString("da-DK", { timeZone: "Europe/Copenhagen" })}`,
     `Ordrenummer: ${p.id}`,
   ];
-  if (pro) lines.push("", "Pro fornyes automatisk hver måned til 49 kr. inkl. moms, indtil du opsiger. Du kan opsige når som helst på din kontoside.");
+  if (pro) lines.push("", `Pro fornyes automatisk hver måned til ${PRO_PRICE_DKK} kr., indtil du opsiger. Du kan opsige når som helst på din kontoside.`);
   if (!p.renewal) {
     lines.push(
       "",
@@ -303,8 +303,8 @@ export async function createStripeCheckout(user: User, kind: CheckoutKind, quote
     "metadata[consentText]": consentText.slice(0, 500),
     "custom_text[submit][message]":
       kind === "PRO_MONTHLY"
-        ? `Du forpligter dig til at betale ${PRO_PRICE_DKK} kr. inkl. moms pr. måned, indtil du opsiger.`
-        : `Du forpligter dig til at betale ${PRICE_DKK[kind]} kr. inkl. moms.`,
+        ? `Du forpligter dig til at betale ${PRO_PRICE_DKK} kr. pr. måned, indtil du opsiger.`
+        : `Du forpligter dig til at betale ${PRICE_DKK[kind]} kr.`,
     success_url: `${base}${back}?betalt=1`,
     cancel_url: `${base}/dashboard/konto`,
     locale: "auto",

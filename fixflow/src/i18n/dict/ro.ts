@@ -25,7 +25,7 @@ export const ro: Dict = {
       "Această pagină există doar în daneză, deoarece aceasta este versiunea cu valoare juridică.",
     legalSummaryTitle: "Cele mai importante lucruri, pe scurt",
     legalSummary: [
-      "Prețurile includ TVA: Pro costă 49 DKK pe lună, o achiziție unică 99 DKK, iar un pachet de 3 analize 199 DKK.",
+      "Prețurile sunt finale – nu se adaugă nimic: Pro costă 49 DKK pe lună, o achiziție unică 99 DKK, iar un pachet de 3 analize 199 DKK.",
       "Pro se reînnoiește automat în fiecare lună până când îl anulezi. Poți anula oricând din pagina contului.",
       "Ai drept de retragere de 14 zile. Când folosești o analiză dintr-o achiziție unică sau dintr-un pachet de 3, pierzi dreptul de retragere pentru acea analiză. Dacă te retragi din Pro, plătești zilele în care l-ai avut.",
       "Analiza este realizată de inteligența artificială (AI) și poate conține erori. Are caracter de îndrumare – nu este consultanță juridică sau tehnică.",
@@ -93,13 +93,13 @@ export const ro: Dict = {
     ],
     readyCta: "Începe gratuit",
     pricingTitle: "Mai puțin decât o oră de manoperă",
-    pricingText: "Vezi scorul gratuit. Plătești doar dacă vrei analiza completă. Toate prețurile includ TVA.",
+    pricingText: "Vezi scorul gratuit. Plătești doar dacă vrei analiza completă. Toate prețurile sunt finale – nu se adaugă nimic.",
     faqTitle: "Întrebări și răspunsuri",
   },
   pricingPage: {
     title: "Preț simplu. Fără angajament.",
     text: "Vezi gratuit ce scor are oferta ta și ce semnale de alarmă există. Deblochează analiza completă pentru 99 kr. – sau alege Pro.",
-    note: "Toate prețurile includ TVA. Pro se reînnoiește automat în fiecare lună și poate fi anulat oricând.",
+    note: "Toate prețurile sunt finale – nu se adaugă nimic. Pro se reînnoiește automat în fiecare lună și poate fi anulat oricând.",
     faqTitle: "Întrebări despre prețuri și cont",
   },
   plans: {
@@ -339,7 +339,7 @@ export const ro: Dict = {
   checkout: {
     consentSingle: "Solicit acces imediat și iau la cunoștință că îmi pierd dreptul de retragere atunci când analiza este livrată (când folosesc achiziția).",
     consentPack: "Solicit acces imediat și iau la cunoștință că îmi pierd dreptul de retragere pentru fiecare analiză după ce a fost livrată (când o folosesc). Mă pot retrage din analizele nefolosite în 14 zile.",
-    consentPro: "Solicit ca Pro să înceapă imediat. Dacă mă retrag în termen de 14 zile, plătesc pentru partea pe care am folosit-o. Pro se reînnoiește automat în fiecare lună la 49 kr. cu TVA, până când îl anulez.",
+    consentPro: "Solicit ca Pro să înceapă imediat. Dacă mă retrag în termen de 14 zile, plătesc pentru partea pe care am folosit-o. Pro se reînnoiește automat în fiecare lună la 49 kr., până când îl anulez.",
     terms: "Termeni și condiții",
     needConsent: "Bifează căsuța ca să confirmi că vrei acces imediat.",
     failed: "Plata nu a putut fi finalizată.",

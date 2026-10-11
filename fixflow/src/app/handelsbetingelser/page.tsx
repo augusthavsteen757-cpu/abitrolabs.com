@@ -60,15 +60,15 @@ export default function TermsPage() {
           <strong>Gratis:</strong> 1 analyse med Tilbudsscore og et udvalg af resultaterne. Resten af analysen er låst.
         </li>
         <li>
-          <strong>Pro:</strong> {PRO_PRICE_DKK} kr. pr. måned inkl. moms, {PRO_ANALYSES_PER_PERIOD} analyser pr.
+          <strong>Pro:</strong> {PRO_PRICE_DKK} kr. pr. måned, {PRO_ANALYSES_PER_PERIOD} analyser pr.
           betalingsperiode (1 måned). <strong>Abonnementet fornyes automatisk hver måned</strong>, indtil du opsiger det.
         </li>
         <li>
-          <strong>Engangskøb:</strong> {SINGLE_PRICE_DKK} kr. inkl. moms for én komplet analyse eller oplåsning af et
+          <strong>Engangskøb:</strong> {SINGLE_PRICE_DKK} kr. for én komplet analyse eller oplåsning af et
           tilbud, du allerede har fået analyseret.
         </li>
         <li>
-          <strong>3-pakke:</strong> {PACK3_PRICE_DKK} kr. inkl. moms for {PACK3_CREDITS} komplette analyser. Hver analyse
+          <strong>3-pakke:</strong> {PACK3_PRICE_DKK} kr. for {PACK3_CREDITS} komplette analyser. Hver analyse
           bruges på samme måde som et engangskøb. Ubrugte analyser udløber ikke.
         </li>
         <li>
@@ -83,7 +83,7 @@ export default function TermsPage() {
         </li>
       </ul>
       <p>
-        Alle priser er i danske kroner inkl. moms. Betaling sker med kort via Stripe. Ubrugte analyser i Pro overføres ikke
+        Alle priser er i danske kroner og er de endelige priser. Klardal er ikke momsregistreret, så der lægges ikke moms oven i. Betaling sker med kort via Stripe. Ubrugte analyser i Pro overføres ikke
         til næste periode. Når du har købt, får du en ordrebekræftelse på e-mail med dit samtykke, oplysninger om
         fortrydelsesret og et link til disse betingelser.
       </p>
