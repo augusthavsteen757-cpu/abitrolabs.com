@@ -77,7 +77,7 @@ export function MessageComposer({
               type="button"
               onClick={() => setTopic(s)}
               className={cn(
-                "max-w-full truncate rounded-full border px-3 py-1.5 text-left text-sm transition-colors",
+                "max-w-full rounded-2xl border px-3 py-1.5 text-left text-sm leading-snug transition-colors",
                 topic === s ? "border-brand-500 bg-brand-50 text-brand-800" : "border-line bg-white text-ink-soft hover:border-brand-300",
               )}
             >

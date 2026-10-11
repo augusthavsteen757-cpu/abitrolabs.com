@@ -49,7 +49,7 @@ export function ComparePicker({ items, selected }: { items: Item[]; selected: st
                       )}
                     >
                       <input type="checkbox" checked={on} onChange={() => toggle(i.id)} className="h-4 w-4 accent-brand-700" />
-                      <span className="truncate">{i.label}</span>
+                      <span className="min-w-0 break-words">{i.label}</span>
                       <span className="num shrink-0 text-ink-muted">{formatKr(i.total)}</span>
                     </label>
                   );

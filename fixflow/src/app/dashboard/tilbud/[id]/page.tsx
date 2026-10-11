@@ -238,7 +238,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             {analysis.validUntil && ` · ${fmt(t.validUntil, { date: formatDate(analysis.validUntil, intl) })}`}
           </span>
         </p>
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           <a href={`/api/quotes/${quote.id}/file`} target="_blank" rel="noopener" className="btn-secondary px-3 py-1.5 text-sm">
             <ExternalLink className="h-4 w-4" /> {t.viewOriginal}
           </a>

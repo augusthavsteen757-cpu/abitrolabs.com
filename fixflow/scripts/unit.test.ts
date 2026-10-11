@@ -6,6 +6,10 @@ import { DEMO_QUOTES } from "../src/lib/demo-data";
 import { analysisOfQuote, applyVatChoice, normalizeAnalysis, parseStoredAnalysis, priceOfQuote, scoreOfQuote } from "../src/lib/analysis";
 import { computeScore, scoreLabel } from "../src/lib/score";
 import { DICTS } from "../src/i18n/dict";
+import { fmt } from "../src/i18n/fmt";
+import { formatKr } from "../src/lib/format";
+import { passwordProblem } from "../src/lib/password";
+import { DEMO_EMAIL, DEMO_PASSWORD } from "../src/lib/demo";
 
 let passed = 0;
 const test = (name: string, fn: () => void) => {
@@ -85,6 +89,26 @@ test("quote stating only an incl.-VAT total keeps the written amount as the incl
   assert.equal(a.vatBasis?.assumed, "incl");
   assert.equal(applyVatChoice(a, "incl").totals.inclVat, 100000);
   assert.equal(applyVatChoice(a, "excl").totals.inclVat, 125000);
+});
+
+test("no double full stop when an amount ends a sentence", () => {
+  assert.equal(fmt("ender på {w}. Den laveste", { w: formatKr(169750) }), "ender på 169.750 kr. Den laveste");
+  assert.equal(fmt("Pris {p}.", { p: "100 kr." }), "Pris 100 kr.");
+  assert.equal(fmt("Pris {p}.", { p: 100 }), "Pris 100.");
+  assert.equal(fmt("{a}.{b}", { a: "x", b: "y" }), "x.y");
+  assert.equal(fmt("Ukendt {x}.", {}), "Ukendt {x}.");
+  // Every compare insight in every language, filled with amounts ending in "kr.", has no "..".
+  for (const [lang, d] of Object.entries(DICTS)) {
+    for (const [k, tpl] of Object.entries(d.compare.insight)) {
+      const out = fmt(tpl, new Proxy({}, { has: () => true, get: () => formatKr(169750) }) as Record<string, string>);
+      assert.ok(!out.includes(".."), `${lang}.compare.insight.${k}: ${out}`);
+    }
+  }
+});
+
+test("the demo account's password follows the same rules as everyone's", () => {
+  assert.equal(passwordProblem(DEMO_PASSWORD, DEMO_EMAIL), null);
+  assert.notEqual(passwordProblem("demo1234", DEMO_EMAIL), null, "the old 8-character password is rejected");
 });
 
 console.log(`\n${passed} tests passed`);

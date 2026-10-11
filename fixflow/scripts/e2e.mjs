@@ -11,6 +11,8 @@ import path from "path";
 import { mkdirSync } from "fs";
 
 const BASE = process.env.BASE_URL || "http://localhost:3000";
+// Same as src/lib/demo.ts DEMO_PASSWORD (the seeded demo account; demo mode only).
+const DEMO_PASSWORD = process.env.DEMO_PASSWORD || "Klardal-Test-2026";
 const SHOTS = process.env.SCREENSHOT_DIR || "screenshots";
 mkdirSync(SHOTS, { recursive: true });
 
@@ -38,6 +40,16 @@ async function noOverflow(page, label) {
     cw: document.documentElement.clientWidth,
   }));
   assert(sw <= cw, `${label}: horizontal overflow (${sw} > ${cw})`);
+}
+
+// Text cut off with "…" hides information (long translations, long titles): it must wrap instead.
+async function noCutText(page, label) {
+  const cut = await page.evaluate(() =>
+    [...document.querySelectorAll("body *")]
+      .filter((el) => (el.offsetParent || getComputedStyle(el).position === "fixed") && el.innerText.trim() && getComputedStyle(el).textOverflow === "ellipsis" && el.scrollWidth > el.clientWidth + 1)
+      .map((el) => el.innerText.trim().slice(0, 40)),
+  );
+  assert(cut.length === 0, `${label}: text cut off: ${cut.join(" | ")}`);
 }
 
 async function shot(page, name) {
@@ -180,7 +192,7 @@ try {
   const demo = await newPage();
   await demo.goto(`${BASE}/login`);
   await demo.fill("#email", "demo@klardal.dk");
-  await demo.fill("#password", "demo1234");
+  await demo.fill("#password", DEMO_PASSWORD);
   await demo.click("button[type=submit]");
   await demo.waitForURL(`${BASE}/dashboard`);
   await demo.getByRole("link", { name: /Sammenlign 3 tilbud/ }).click();
@@ -237,6 +249,8 @@ try {
   await demo.getByText(`Dine beskeder (${before + 1})`).waitFor({ timeout: 20_000 });
   const firstMsg = await demo.locator("article").filter({ hasText: "Før vi kan skrive under" }).count();
   assert(firstMsg > 0, "generated message uses the chosen tone");
+  const msgText = await demo.locator("article").filter({ hasText: "Før vi kan skrive under" }).first().innerText();
+  assert(!/\d{4}-\d{2}-\d{2}/.test(msgText) && /\d{1,2}\. \p{L}+ \d{4}/u.test(msgText), `message date is written out in Danish (${msgText.slice(0, 120)})`);
   await shot(demo, "message");
   log("message generated and saved");
 
@@ -270,10 +284,11 @@ try {
     await mobile.goto(`${BASE}${r}`);
     await mobile.waitForLoadState("networkidle");
     await noOverflow(mobile, r);
+    await noCutText(mobile, r);
   }
   await mobile.goto(`${BASE}/login`);
   await mobile.fill("#email", "demo@klardal.dk");
-  await mobile.fill("#password", "demo1234");
+  await mobile.fill("#password", DEMO_PASSWORD);
   await mobile.click("button[type=submit]");
   await mobile.waitForURL(`${BASE}/dashboard`);
   const quoteHref = await mobile.getByRole("link", { name: /Eksempel Bad/ }).getAttribute("href");
@@ -282,6 +297,7 @@ try {
     await mobile.goto(`${BASE}${r}`);
     await mobile.waitForLoadState("networkidle");
     await noOverflow(mobile, r);
+    await noCutText(mobile, r);
   }
   /* ---------------- Data isolation: another user can never reach the demo user's quote ---------------- */
   const otherQuoteId = quoteHref.split("/").pop();
@@ -335,7 +351,7 @@ try {
   await intruder.context().clearCookies();
   await intruder.goto(`${BASE}/login?next=${encodeURIComponent("/\\evil.example")}`);
   await intruder.fill("#email", "demo@klardal.dk");
-  await intruder.fill("#password", "demo1234");
+  await intruder.fill("#password", DEMO_PASSWORD);
   await intruder.click("button[type=submit]");
   await intruder.waitForURL((u) => u.origin === new URL(BASE).origin && u.pathname.startsWith("/dashboard"));
   log("login ignores a crafted redirect to another site");
@@ -387,7 +403,7 @@ try {
   const langPage = await newPage(390, 844);
   await langPage.goto(`${BASE}/login`);
   await langPage.fill("#email", "demo@klardal.dk");
-  await langPage.fill("#password", "demo1234");
+  await langPage.fill("#password", DEMO_PASSWORD);
   await langPage.click("button[type=submit]");
   await langPage.waitForURL(`${BASE}/dashboard`);
   const host = new URL(BASE).hostname;
@@ -398,12 +414,13 @@ try {
       await langPage.waitForLoadState("networkidle");
       assert((await langPage.getAttribute("html", "lang")) === loc, `${loc} ${r}: html lang`);
       await noOverflow(langPage, `${loc} ${r}`);
+      await noCutText(langPage, `${loc} ${r}`);
     }
     await langPage.goto(`${BASE}${quoteHref}`);
     await shot(langPage, `mobile-quote-${loc}`);
   }
   await langPage.context().addCookies([{ name: "ff_lang", value: "da", domain: host, path: "/" }]);
-  log(`all pages render in ${LOCALES.length} more languages without overflow at 390px`);
+  log(`all pages render in ${LOCALES.length} more languages without overflow or cut-off text at 390px`);
 
   // Expected: the 404 page logs a 404 resource, and the weak-password test gets a deliberate 400.
   const relevant = errors.filter((e) => !e.includes("/findes-ikke") && !(e.includes("/opret") && e.includes("status of 400")) && !(e.includes("/login") && e.includes("status of 401")) && !(e.includes("status of 404") || e.includes("status of 402")) && !(e.includes("/nulstil") && e.includes("status of 400")));

@@ -277,7 +277,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
             <p className="flex items-center gap-2 text-sm font-semibold text-brand-700">
               <w.icon className="h-4 w-4" /> {w.label}
             </p>
-            <p className="mt-3 truncate font-semibold">{w.row.name}</p>
+            <p className="mt-3 break-words font-semibold">{w.row.name}</p>
             <p className="num mt-1 font-display text-2xl font-semibold">{w.value}</p>
             <p className="text-sm text-ink-muted">{w.sub}</p>
           </div>

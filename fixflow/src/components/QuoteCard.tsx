@@ -27,7 +27,7 @@ export function QuoteCard({ quote, locked, d, intlLocale }: { quote: Quote; lock
       )}
       <div className="min-w-0 flex-1">
         <p className="truncate text-xs text-ink-muted">{quote.contractorName || quote.fileName}</p>
-        <p className="truncate font-semibold text-ink">{quote.title || d.quoteCard.analyzing}</p>
+        <p className="line-clamp-2 font-semibold leading-snug text-ink">{quote.title || d.quoteCard.analyzing}</p>
         <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-sm text-ink-muted">
           {quote.status === "DONE" ? (
             <>
