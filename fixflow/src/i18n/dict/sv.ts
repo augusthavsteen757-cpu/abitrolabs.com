@@ -353,6 +353,16 @@ export const sv: Dict = {
     retrying: "Analyserar igen…",
     retryFailed: "Det gick inte. Försök igen.",
   },
+  article: {
+    danishOnly: "Den här artikeln finns bara på danska.",
+    updated: "Uppdaterad {date}",
+    ctaTitle: "Har du fått en offert?",
+    ctaText: "Ladda upp den och få den förklarad på enkel svenska – med frågorna du bör ställa innan du skriver under.",
+    draft: "Utkast – sidan visas inte i Google än.",
+    all: "Alla guider",
+    indexTitle: "Guider till hantverkarofferter",
+    indexText: "Korta guider om priser, offerter och dina rättigheter när du ska få något gjort i hemmet.",
+  },
   quote: {
     metaTitle: "Offert",
     back: "Alla offerter",

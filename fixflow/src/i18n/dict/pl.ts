@@ -349,6 +349,16 @@ export const pl: Dict = {
     retrying: "Ponowna analiza…",
     retryFailed: "Nie udało się. Spróbuj ponownie.",
   },
+  article: {
+    danishOnly: "Ten artykuł jest dostępny tylko po duńsku.",
+    updated: "Zaktualizowano {date}",
+    ctaTitle: "Masz wycenę?",
+    ctaText: "Wgraj ją i otrzymaj wyjaśnienie prostym językiem – z pytaniami, które warto zadać przed podpisaniem.",
+    draft: "Wersja robocza – ta strona nie jest jeszcze widoczna w Google.",
+    all: "Wszystkie poradniki",
+    indexTitle: "Poradniki o wycenach fachowców",
+    indexText: "Krótkie poradniki o cenach, wycenach i twoich prawach, gdy zlecasz prace w domu.",
+  },
   quote: {
     metaTitle: "Wycena",
     back: "Wszystkie wyceny",

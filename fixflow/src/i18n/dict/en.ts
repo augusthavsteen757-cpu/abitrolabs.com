@@ -353,6 +353,16 @@ export const en: Dict = {
     retrying: "Analysing again…",
     retryFailed: "That didn’t work. Please try again.",
   },
+  article: {
+    danishOnly: "This article is only available in Danish.",
+    updated: "Updated {date}",
+    ctaTitle: "Got a quote?",
+    ctaText: "Upload it and get it explained in plain language – with the questions to ask before you sign.",
+    draft: "Draft – this page is not shown in Google yet.",
+    all: "All guides",
+    indexTitle: "Guides to contractor quotes",
+    indexText: "Short guides to prices, quotes and your rights when you need work done in your home.",
+  },
   quote: {
     metaTitle: "Quote",
     back: "All quotes",

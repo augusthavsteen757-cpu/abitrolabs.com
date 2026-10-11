@@ -351,6 +351,16 @@ export const da = {
     retrying: "Analyserer igen…",
     retryFailed: "Det lykkedes ikke. Prøv igen.",
   },
+  article: {
+    danishOnly: "",
+    updated: "Opdateret {date}",
+    ctaTitle: "Har du fået et tilbud?",
+    ctaText: "Upload det, og få det forklaret på almindeligt dansk – med de spørgsmål, du bør stille, før du skriver under.",
+    draft: "Udkast – siden vises ikke i Google endnu.",
+    all: "Alle guides",
+    indexTitle: "Guides til håndværkertilbud",
+    indexText: "Korte guides til priser, tilbud og dine rettigheder, når du skal have lavet noget i hjemmet.",
+  },
   quote: {
     metaTitle: "Tilbud",
     back: "Alle tilbud",

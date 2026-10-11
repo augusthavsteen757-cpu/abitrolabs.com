@@ -353,6 +353,16 @@ export const ro: Dict = {
     retrying: "Se analizează din nou…",
     retryFailed: "N-a reușit. Încearcă din nou.",
   },
+  article: {
+    danishOnly: "Acest articol este disponibil doar în daneză.",
+    updated: "Actualizat {date}",
+    ctaTitle: "Ai primit o ofertă?",
+    ctaText: "Încarc-o și primește explicația pe înțelesul tuturor – cu întrebările pe care să le pui înainte să semnezi.",
+    draft: "Ciornă – pagina nu apare încă în Google.",
+    all: "Toate ghidurile",
+    indexTitle: "Ghiduri despre ofertele meșterilor",
+    indexText: "Ghiduri scurte despre prețuri, oferte și drepturile tale când ai lucrări de făcut în casă.",
+  },
   quote: {
     metaTitle: "Ofertă",
     back: "Toate ofertele",

@@ -353,6 +353,16 @@ export const de: Dict = {
     retrying: "Wird erneut analysiert…",
     retryFailed: "Das hat nicht geklappt. Bitte versuche es erneut.",
   },
+  article: {
+    danishOnly: "Dieser Artikel ist nur auf Dänisch verfügbar.",
+    updated: "Aktualisiert am {date}",
+    ctaTitle: "Hast du ein Angebot bekommen?",
+    ctaText: "Lade es hoch und lass es dir in einfacher Sprache erklären – mit den Fragen, die du vor der Unterschrift stellen solltest.",
+    draft: "Entwurf – diese Seite wird noch nicht bei Google angezeigt.",
+    all: "Alle Ratgeber",
+    indexTitle: "Ratgeber zu Handwerkerangeboten",
+    indexText: "Kurze Ratgeber zu Preisen, Angeboten und deinen Rechten, wenn bei dir zu Hause etwas gemacht werden soll.",
+  },
   quote: {
     metaTitle: "Angebot",
     back: "Alle Angebote",

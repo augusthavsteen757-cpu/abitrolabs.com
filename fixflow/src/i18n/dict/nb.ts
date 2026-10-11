@@ -353,6 +353,16 @@ export const nb: Dict = {
     retrying: "Analyserer på nytt …",
     retryFailed: "Det gikk ikke. Prøv igjen.",
   },
+  article: {
+    danishOnly: "Denne artikkelen finnes bare på dansk.",
+    updated: "Oppdatert {date}",
+    ctaTitle: "Har du fått et tilbud?",
+    ctaText: "Last det opp og få det forklart på enkelt norsk – med spørsmålene du bør stille før du skriver under.",
+    draft: "Utkast – siden vises ikke i Google ennå.",
+    all: "Alle guider",
+    indexTitle: "Guider til håndverkertilbud",
+    indexText: "Korte guider om priser, tilbud og rettighetene dine når du skal få gjort noe i hjemmet.",
+  },
   quote: {
     metaTitle: "Tilbud",
     back: "Alle tilbud",

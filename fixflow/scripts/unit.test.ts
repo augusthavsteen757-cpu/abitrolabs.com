@@ -10,6 +10,7 @@ import { fmt } from "../src/i18n/fmt";
 import { formatKr } from "../src/lib/format";
 import { passwordProblem } from "../src/lib/password";
 import { DEMO_EMAIL, DEMO_PASSWORD } from "../src/lib/demo";
+import { ARTICLES } from "../src/content/articles";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 
@@ -141,6 +142,18 @@ test("React hydration fix applies to Next's bundled React, stays valid JS and re
     new Function(out); // throws on a syntax error
   }
   assert.throws(() => loader.call({ resourcePath: "x" }, "function replaySuspendedUnitOfWork(a) {}"), /review the patch/);
+});
+
+test("articles: unique URL-safe slugs, search-friendly title and description lengths, valid dates", () => {
+  assert.equal(new Set(ARTICLES.map((a) => a.slug)).size, ARTICLES.length);
+  for (const a of ARTICLES) {
+    assert.match(a.slug, /^[a-z0-9]+(-[a-z0-9]+)*$/, a.slug);
+    assert.ok(a.title.length <= 60, `${a.slug}: title ${a.title.length} chars`);
+    assert.ok(a.description.length >= 50 && a.description.length <= 160, `${a.slug}: description ${a.description.length} chars`);
+    for (const d of [a.published, a.updated]) assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(d)), `${a.slug}: ${d}`);
+    assert.ok(a.updated >= a.published, `${a.slug}: updated before published`);
+    assert.ok(a.draft || !/PLADSHOLDER/.test(JSON.stringify(a)), `${a.slug}: placeholder text in a published article`);
+  }
 });
 
 console.log(`\n${passed} tests passed`);
