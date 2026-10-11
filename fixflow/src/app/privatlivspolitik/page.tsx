@@ -5,7 +5,7 @@ import { COMPANY } from "@/lib/company";
 export const metadata: Metadata = { title: "Privatlivspolitik" };
 export const dynamic = "force-dynamic";
 
-// UDKAST – skal godkendes af August (tjek bl.a. hvilke leverandører der står på dataprivacyframework.gov).
+// UDKAST – skal godkendes af August. Anthropic: ikke på dataprivacyframework.gov (tjekket 11/10-2026). Render og Turso: mangler tjek.
 const TRANSFER =
   "Selskabet er amerikansk, så adgang fra USA (fx ved support) er en overførsel til et tredjeland. Den sker på grundlag af EU-Kommissionens standardkontraktbestemmelser (databeskyttelsesforordningens art. 46, stk. 2, litra c) og – hvis selskabet er certificeret – EU-US Data Privacy Framework (art. 45).";
 
@@ -106,8 +106,8 @@ export default function PrivacyPage() {
       <p>
         USA ligger uden for EU/EØS, så det er en <strong>overførsel til et tredjeland</strong>. Den sker på grundlag af
         vores databehandleraftale med Anthropic, som indeholder EU-Kommissionens standardkontraktbestemmelser
-        (databeskyttelsesforordningens art. 46, stk. 2, litra c), og – hvis Anthropic er certificeret – EU-US Data
-        Privacy Framework (art. 45). Du kan få en kopi af standardkontraktbestemmelserne ved at skrive til os.
+        (databeskyttelsesforordningens art. 46, stk. 2, litra c). Anthropic er ikke certificeret under EU-US Data
+        Privacy Framework. Du kan få en kopi af standardkontraktbestemmelserne ved at skrive til os.
       </p>
       <p>
         Anthropic må kun bruge indholdet til at levere analysen til os. Efter Anthropics kommercielle vilkår bruges det
