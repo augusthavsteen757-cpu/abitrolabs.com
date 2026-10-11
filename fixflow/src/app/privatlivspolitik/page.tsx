@@ -5,9 +5,9 @@ import { COMPANY } from "@/lib/company";
 export const metadata: Metadata = { title: "Privatlivspolitik" };
 export const dynamic = "force-dynamic";
 
-// UDKAST – skal godkendes af August. Anthropic: ikke på dataprivacyframework.gov (tjekket 11/10-2026). Render og Turso: mangler tjek.
-const TRANSFER =
-  "Selskabet er amerikansk, så adgang fra USA (fx ved support) er en overførsel til et tredjeland. Den sker på grundlag af EU-Kommissionens standardkontraktbestemmelser (databeskyttelsesforordningens art. 46, stk. 2, litra c) og – hvis selskabet er certificeret – EU-US Data Privacy Framework (art. 45).";
+// UDKAST – skal godkendes af August. Tjekket på dataprivacyframework.gov 11/10-2026: Render er aktiv (EU-US DPF);
+// Anthropic og ChiselStrike (Turso) står ikke på listen.
+const US_ACCESS = "Selskabet er amerikansk, så adgang fra USA (fx ved support) er en overførsel til et tredjeland.";
 
 export default function PrivacyPage() {
   return (
@@ -73,11 +73,14 @@ export default function PrivacyPage() {
       <p>Vi bruger disse databehandlere, som kun må behandle oplysningerne efter vores instruks og under en databehandleraftale:</p>
       <ul>
         <li>
-          <strong>Render Services, Inc. (USA)</strong> – drift af serveren, der står i Frankfurt (EU). {TRANSFER}
+          <strong>Render Services, Inc. (USA)</strong> – drift af serveren, der står i Frankfurt (EU). {US_ACCESS} Render
+          er certificeret under EU-US Data Privacy Framework, som overførslen sker på grundlag af
+          (databeskyttelsesforordningens art. 45).
         </li>
         <li>
           <strong>ChiselStrike, Inc. (Turso, USA)</strong> – database med din konto, dine analyser og dine uploadede filer,
-          opbevaret hos Amazon Web Services i Stockholm (EU). {TRANSFER}
+          opbevaret hos Amazon Web Services i Stockholm (EU). {US_ACCESS} Den sker på grundlag af EU-Kommissionens
+          standardkontraktbestemmelser (art. 46, stk. 2, litra c).
         </li>
         <li>
           <strong>Anthropic, PBC (USA)</strong> – AI-analyse af dine tilbud og udkast til beskeder. Se afsnittet om
