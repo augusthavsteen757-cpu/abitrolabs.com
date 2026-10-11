@@ -23,14 +23,17 @@ const FEATURE_ICONS = [Gauge, TriangleAlert, ListChecks, MessageSquareText, Colu
 
 export const dynamic = "force-dynamic";
 
+// Common ways people mistype the name, so search engines can connect them to Klardal.
+const MISSPELLINGS = ["Klardahl", "Klaredahl", "Klaredal"];
+
 // Tells Google the site name and logo shown next to search results (static values only – no user input).
 function siteJsonLd() {
   const url = `${(process.env.APP_URL || "https://klardal.com").replace(/\/$/, "")}/`;
   return {
     "@context": "https://schema.org",
     "@graph": [
-      { "@type": "WebSite", "@id": `${url}#website`, name: "Klardal", alternateName: "klardal.com", url },
-      { "@type": "Organization", "@id": `${url}#organization`, name: "Klardal", url, logo: `${url}logo.png` },
+      { "@type": "WebSite", "@id": `${url}#website`, name: "Klardal", alternateName: ["klardal.com", ...MISSPELLINGS], url },
+      { "@type": "Organization", "@id": `${url}#organization`, name: "Klardal", alternateName: MISSPELLINGS, url, logo: `${url}logo.png` },
     ],
   };
 }

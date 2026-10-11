@@ -2,9 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
-/** Extra domains that should always land on the main domain (e.g. klardal.dk → klardal.com). */
+/** Extra domains that should always land on the main domain (e.g. klardal.dk or the misspelling klardahl.dk → klardal.com). */
 const REDIRECT_HOSTS = new Set(
-  (process.env.REDIRECT_HOSTS ?? "klardal.dk,www.klardal.dk").split(",").map((h) => h.trim().toLowerCase()).filter(Boolean),
+  (process.env.REDIRECT_HOSTS ?? "klardal.dk,www.klardal.dk,klardahl.dk,www.klardahl.dk,klardahl.com,www.klardahl.com").split(",").map((h) => h.trim().toLowerCase()).filter(Boolean),
 );
 const MAIN_URL = process.env.APP_URL || "https://klardal.com";
 
