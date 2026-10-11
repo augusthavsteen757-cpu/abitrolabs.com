@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     const userId = o.metadata?.userId;
     // Delayed payment methods complete the session before the money arrives – only grant when paid.
     const paid = o.payment_status === "paid" || o.payment_status === "no_payment_required";
-    if (userId && paid && (kind === "PRO_MONTHLY" || kind === "SINGLE")) {
+    if (userId && paid && (kind === "PRO_MONTHLY" || kind === "SINGLE" || kind === "PACK3")) {
       await fulfill({
         userId,
         kind,

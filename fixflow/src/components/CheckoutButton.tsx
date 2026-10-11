@@ -8,7 +8,7 @@ import { cn } from "@/lib/format";
 import { useI18n } from "@/i18n/client";
 
 type Props = {
-  kind: "PRO_MONTHLY" | "SINGLE" | "CANCEL" | "RESUME";
+  kind: "PRO_MONTHLY" | "SINGLE" | "PACK3" | "CANCEL" | "RESUME";
   quoteId?: string;
   className?: string;
   children: React.ReactNode;
@@ -27,7 +27,7 @@ export function CheckoutButton({ kind, quoteId, className, children, redirectTo,
   const [error, setError] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const isPurchase = kind === "PRO_MONTHLY" || kind === "SINGLE";
+  const isPurchase = kind === "PRO_MONTHLY" || kind === "SINGLE" || kind === "PACK3";
 
   async function onClick() {
     if (isPurchase && !consent) {
@@ -77,7 +77,7 @@ export function CheckoutButton({ kind, quoteId, className, children, redirectTo,
             className="mt-0.5 h-4 w-4 shrink-0 accent-brand-500"
           />
           <span>
-            {kind === "PRO_MONTHLY" ? d.checkout.consentPro : d.checkout.consentSingle}{" "}
+            {kind === "PRO_MONTHLY" ? d.checkout.consentPro : kind === "PACK3" ? d.checkout.consentPack : d.checkout.consentSingle}{" "}
             <Link href="/handelsbetingelser" target="_blank" className="underline">{d.checkout.terms}</Link>
           </span>
         </label>

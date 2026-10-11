@@ -27,9 +27,12 @@ export function AuthForm({ mode, showDemo = false }: { mode: "login" | "signup";
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const plan = params.get("plan");
+  // A partner code from a link like klardal.com/opret?kode=ABC is carried to the account page after signup.
+  const code = (params.get("kode") ?? "").replace(/[^A-Za-z0-9-]/g, "").slice(0, 64);
   const next = safeNext(params.get("next"));
   const carry = new URLSearchParams();
   if (plan) carry.set("plan", plan);
+  if (code) carry.set("kode", code);
   if (next) carry.set("next", next);
   const carryQs = carry.toString() ? `?${carry}` : "";
 
@@ -55,7 +58,8 @@ export function AuthForm({ mode, showDemo = false }: { mode: "login" | "signup";
         return;
       }
       let dest = next || "/dashboard";
-      if (plan === "pro" || plan === "single") dest = `/dashboard/konto?upgrade=${plan}`;
+      if (plan === "pro" || plan === "single" || plan === "pack") dest = `/dashboard/konto?upgrade=${plan}`;
+      if (code) dest = `/dashboard/konto?kode=${encodeURIComponent(code)}`;
       // Full navigation so the dashboard renders with the new session (and no stale router cache).
       window.location.assign(dest);
     } catch {
@@ -71,9 +75,14 @@ export function AuthForm({ mode, showDemo = false }: { mode: "login" | "signup";
       <p className="mt-2 text-ink-soft">
         {isSignup ? a.signupText : a.loginText}
       </p>
-      {plan && isSignup && (
+      {plan && isSignup && !code && (
         <p className="mt-4 rounded-xl bg-brand-50 px-3.5 py-2.5 text-sm text-brand-800">
-          {plan === "pro" ? a.chosePro : a.choseSingle}
+          {plan === "pro" ? a.chosePro : plan === "pack" ? a.chosePack : a.choseSingle}
+        </p>
+      )}
+      {code && (
+        <p className="mt-4 rounded-xl bg-brand-50 px-3.5 py-2.5 text-sm text-brand-800" data-testid="code-note">
+          {isSignup ? a.codeSignup : a.codeLogin}
         </p>
       )}
       <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>

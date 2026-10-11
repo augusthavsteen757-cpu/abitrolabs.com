@@ -311,8 +311,8 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
 
       {!full && (
         <section id="laas-op" className="mt-6 scroll-mt-24">
-          {user.extraCredits > 0 ? (
-            <UnlockWithCreditButton id={quote.id} credits={user.extraCredits} />
+          {user.extraCredits + user.giftCredits > 0 ? (
+            <UnlockWithCreditButton id={quote.id} credits={user.extraCredits + user.giftCredits} />
           ) : (
             <Paywall quoteId={quote.id} title={t.unlockTitle} text={t.unlockText} />
           )}

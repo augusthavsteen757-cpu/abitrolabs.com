@@ -189,6 +189,84 @@ try {
   await page.getByText("Forkert e-mail eller adgangskode.").waitFor();
   log("account deletion removes the account");
 
+  /* ---------------- 1b. Partner code → gift analyses → compare unlocked quotes → 3-pakke → partial withdrawal ---------------- */
+  // Needs PARTNER_CODES="E2E-PARTNER=1:2" (one use, two analyses) – set by scripts/test-all.sh.
+  const buyer = await newPage();
+  await buyer.goto(`${BASE}/opret?kode=E2E-PARTNER`);
+  await buyer.getByTestId("code-note").waitFor();
+  await buyer.fill("#name", "Kode Kodesen");
+  await buyer.fill("#email", `kode${Date.now()}@eksempel.dk`);
+  await buyer.fill("#password", "Kode-Kodesen-2026");
+  await buyer.check("input[name=acceptTerms]");
+  await buyer.click("button[type=submit]");
+  await buyer.waitForURL(/\/dashboard\/konto\?kode=E2E-PARTNER$/);
+  assert((await buyer.getByTestId("code-input").inputValue()) === "E2E-PARTNER", "code from the link is filled in");
+  log("signup link with a code lands on the account page with the code filled in");
+  await buyer.getByTestId("code-submit").click();
+  await buyer.getByText("Koden er indløst. Du har fået 2 gratis analyser.").waitFor();
+  await buyer.waitForURL(`${BASE}/dashboard/konto`);
+  await buyer.getByText(/Ekstra analyser til gode: 2\./).waitFor();
+  log("partner code gives 2 gift analyses");
+  for (const [typed, msg] of [["e2e partner", "Du har allerede brugt den kode."], ["FINDES-IKKE", "Koden findes ikke. Tjek at den er skrevet rigtigt."]]) {
+    await buyer.getByTestId("code-input").fill(typed);
+    await buyer.getByTestId("code-submit").click();
+    await buyer.getByText(msg).waitFor();
+  }
+  const double = await buyer.evaluate(async () => {
+    const post = () => fetch("/api/codes", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code: "E2E-PARTNER" }) }).then((r) => r.status);
+    return Promise.all([post(), post(), post()]);
+  });
+  assert(double.every((s) => s === 400), `parallel re-redeems are refused: ${double}`);
+  await buyer.reload();
+  await buyer.getByText(/Ekstra analyser til gode: 2\./).waitFor();
+  log("a code can't be used twice, also with parallel requests; unknown codes are refused");
+
+  const uploadAs = async (p, file) => {
+    await p.goto(`${BASE}/dashboard/upload`);
+    await p.setInputFiles("[data-testid=file-input]", `sample-quotes/${file}`);
+    await p.fill("#project", "Badeværelse");
+    await p.click("button[type=submit]");
+    await p.waitForURL(/\/dashboard\/tilbud\//, { timeout: 60_000 });
+    await p.getByText("Det skal du være opmærksom på").waitFor();
+    return p.url();
+  };
+  const freeUrl = await uploadAs(buyer, "eksempel-byg.pdf");
+  // The free analysis is locked; with gift analyses on the account, the page offers to unlock it with one.
+  await buyer.getByRole("button", { name: "Lås tilbuddet op" }).waitFor();
+  assert((await buyer.getByText("Skriv besked").count()) === 0, "the free analysis is locked");
+  for (const f of ["eksempel-vinduer.pdf", "eksempel-vvs-badevaerelse.pdf"]) {
+    await uploadAs(buyer, f);
+    await buyer.getByText("Skriv besked").first().waitFor();
+  }
+  log("free analysis first, then the gift analyses – which are fully unlocked");
+
+  await buyer.goto(`${BASE}/dashboard/sammenlign`);
+  await buyer.getByText(/Skift tilbud \(2 valgt\)/).waitFor();
+  assert((await buyer.getByText("Sammenligning kræver Pro").count()) === 0, "no paywall with 2 unlocked quotes");
+  log("without Pro, the 2 unlocked quotes can be compared");
+
+  await buyer.goto(`${BASE}/dashboard/konto`);
+  const pack = buyer.getByTestId("pack3");
+  await pack.getByRole("checkbox").check();
+  await pack.getByRole("button", { name: "Køb 3-pakken" }).click();
+  await buyer.getByText("3-pakke – 3 analyser").waitFor({ timeout: 15_000 });
+  await buyer.getByText(/Ekstra analyser til gode: 3\./).waitFor();
+  await buyer.goto(freeUrl);
+  await buyer.getByRole("button", { name: "Lås tilbuddet op" }).click();
+  await buyer.getByText("Skriv besked").first().waitFor({ timeout: 15_000 });
+  log("3-pakke adds 3 analyses; one unlocks the free analysis");
+
+  await buyer.goto(`${BASE}/dashboard/konto`);
+  await buyer.getByTestId("withdraw").click();
+  await buyer.getByText(/Du får 132,67 kr\. tilbage/).waitFor();
+  await buyer.getByTestId("withdraw").click();
+  await buyer.getByText("Købet er fortrudt").waitFor();
+  await buyer.getByText(/Fortrudt – 132,67 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
+  assert((await buyer.getByText(/Ekstra analyser til gode/).count()) === 0, "the 2 unused analyses are removed");
+  log("withdrawing a partly used 3-pakke refunds the 2 unused analyses (132,67 kr.)");
+  await noOverflow(buyer, "konto with code + pack");
+  await buyer.context().close();
+
   /* ---------------- 2. Demo user: compare + ask contractor ---------------- */
   const demo = await newPage();
   await demo.goto(`${BASE}/login`);
@@ -326,6 +404,11 @@ try {
     };
   }, otherQuoteId);
   for (const [k, v] of Object.entries(probes)) assert(v === 404 || v === 403 || v === 402, `intruder ${k} must be denied, got ${v}`);
+  const usedUp = await intruder.evaluate(async () => {
+    const r = await fetch("/api/codes", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code: "E2E-PARTNER" }) });
+    return { status: r.status, error: (await r.json()).error };
+  });
+  assert(usedUp.status === 400 && usedUp.error === "Koden er brugt op.", `a used-up code is refused for others: ${JSON.stringify(usedUp)}`);
   const page404 = await intruder.goto(`${BASE}${quoteHref}`);
   assert(page404.status() === 404, "quote page of another user is 404");
   await mobile.goto(`${BASE}${quoteHref}`);
@@ -424,8 +507,8 @@ try {
   await langPage.context().addCookies([{ name: "ff_lang", value: "da", domain: host, path: "/" }]);
   log(`all pages render in ${LOCALES.length} more languages without overflow or cut-off text at 390px`);
 
-  // Expected: the 404 page logs a 404 resource, and the weak-password test gets a deliberate 400.
-  const relevant = errors.filter((e) => !e.includes("/findes-ikke") && !(e.includes("/opret") && e.includes("status of 400")) && !(e.includes("/login") && e.includes("status of 401")) && !(e.includes("status of 404") || e.includes("status of 402")) && !(e.includes("/nulstil") && e.includes("status of 400")));
+  // Expected: the 404 page logs a 404 resource, the weak-password test and the wrong partner codes get deliberate 400s.
+  const relevant = errors.filter((e) => !e.includes("/findes-ikke") && !(e.includes("/opret") && e.includes("status of 400")) && !(e.includes("/login") && e.includes("status of 401")) && !(e.includes("status of 404") || e.includes("status of 402")) && !(e.includes("/nulstil") && e.includes("status of 400")) && !((e.includes("/dashboard/konto") || e.includes(`${BASE}/dashboard `)) && e.includes("status of 400")));
   if (relevant.length) {
     console.error("\nConsole errors:\n" + relevant.join("\n"));
     process.exitCode = 1;

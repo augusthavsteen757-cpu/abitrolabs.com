@@ -3,18 +3,24 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { payments, quotes, users, type User } from "@/db/schema";
-import { PRO_PRICE_DKK, SINGLE_PRICE_DKK, currentPeriod } from "./plans";
+import { PRO_PRICE_DKK, currentPeriod } from "./plans";
+import { CREDITS_OF, PRICE_DKK, unusedPurchases, withdrawalQuote, type CheckoutKind } from "./purchases";
 import { spendCredit } from "./quota";
 import { COMPANY, WITHDRAWAL_DAYS } from "./company";
 import { sendEmail } from "./email";
 import { HttpError } from "./auth";
 import { da } from "@/i18n/dict/da";
 
-const DAY = 24 * 60 * 60 * 1000;
 // Read at runtime (NEXT_PUBLIC_* would be frozen into the build).
 const appUrl = () => process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-export type CheckoutKind = "PRO_MONTHLY" | "SINGLE";
+export { CREDITS_OF, PRICE_DKK, unusedPurchases, withdrawalQuote, type CheckoutKind };
+
+const stripePriceId = (kind: CheckoutKind) =>
+  ({ PRO_MONTHLY: process.env.STRIPE_PRICE_PRO_MONTHLY, SINGLE: process.env.STRIPE_PRICE_SINGLE, PACK3: process.env.STRIPE_PRICE_PACK3 })[kind];
+
+/** The 3-pakke can be sold once Stripe has a price for it (always in test mode). */
+export const isPackAvailable = () => !isStripeEnabled() || !!process.env.STRIPE_PRICE_PACK3;
 
 export const isStripeEnabled = () => !!process.env.STRIPE_SECRET_KEY;
 /** Simulated (test) payments: only in development or when a test site explicitly allows them – never on klardal.com. */
@@ -46,7 +52,7 @@ export async function fulfill(opts: {
       consentAt: consentAt ?? null,
       consentText: opts.consentText ?? null,
       paymentIntent: opts.paymentIntent ?? null,
-      amountDkk: kind === "PRO_MONTHLY" ? PRO_PRICE_DKK : SINGLE_PRICE_DKK,
+      amountDkk: PRICE_DKK[kind],
     })
     .returning();
   await sendOrderConfirmation(userId, payment);
@@ -60,7 +66,7 @@ export async function fulfill(opts: {
 
   await db
     .update(users)
-    .set({ extraCredits: sql`${users.extraCredits} + 1` })
+    .set({ extraCredits: sql`${users.extraCredits} + ${CREDITS_OF[kind]}` })
     .where(eq(users.id, userId));
 
   if (quoteId) {
@@ -147,40 +153,11 @@ export async function subscriptionRenewed(subscriptionId: string, invoiceId: str
 
 type Payment = typeof payments.$inferSelect;
 
-/**
- * Single purchases whose credit is still unused. Credits are interchangeable, so the newest purchases count as
- * the unused ones (the customer has spent the oldest first).
- */
-export function unusedSinglePurchases(user: User, all: Payment[]): Set<string> {
-  const singles = all
-    .filter((p) => p.kind === "SINGLE" && !p.refundedAt)
-    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-  return new Set(singles.slice(0, Math.max(0, user.extraCredits)).map((p) => p.id));
-}
-
-/** What the customer gets back if they withdraw now, in øre – or why they can't. */
-export function withdrawalQuote(
-  p: Payment,
-  unusedSingles: Set<string>,
-  now = Date.now(),
-): { refundOere: number } | { reason: keyof typeof da.errors } {
-  if (p.refundedAt) return { reason: "withdrawDone" };
-  if (p.renewal || now - p.createdAt.getTime() > WITHDRAWAL_DAYS * DAY) return { reason: "withdrawExpired" };
-  const paid = p.amountDkk * 100;
-  if (p.kind === "SINGLE") {
-    if (!unusedSingles.has(p.id)) return { reason: "withdrawUsed" };
-    return { refundOere: paid };
-  }
-  // Pro: the customer pays for each started day they have had it (30-day month).
-  const daysUsed = Math.max(1, Math.ceil((now - p.createdAt.getTime()) / DAY));
-  return { refundOere: Math.max(0, paid - Math.round((paid * daysUsed) / 30)) };
-}
-
 export async function withdrawPurchase(user: User, paymentId: string) {
   const p = await db.query.payments.findFirst({ where: and(eq(payments.id, paymentId), eq(payments.userId, user.id)) });
   if (!p) throw new HttpError(404, da.errors.withdrawNotFound);
   const all = await db.query.payments.findMany({ where: eq(payments.userId, user.id) });
-  const q = withdrawalQuote(p, unusedSinglePurchases(user, all));
+  const q = withdrawalQuote(p, unusedPurchases(user, all));
   if ("reason" in q) throw new HttpError(400, da.errors[q.reason]);
 
   let refundedAutomatically = p.provider === "simulated";
@@ -192,8 +169,9 @@ export async function withdrawPurchase(user: User, paymentId: string) {
     }
   }
 
-  if (p.kind === "SINGLE") {
-    await db.update(users).set({ extraCredits: sql`max(0, ${users.extraCredits} - 1)` }).where(eq(users.id, user.id));
+  if (p.kind === "SINGLE" || p.kind === "PACK3") {
+    const n = q.credits ?? 1;
+    await db.update(users).set({ extraCredits: sql`max(0, ${users.extraCredits} - ${n})` }).where(eq(users.id, user.id));
   } else {
     await cancelPro(user, { immediately: true });
   }
@@ -207,7 +185,8 @@ export async function withdrawPurchase(user: User, paymentId: string) {
     text: [
       `Hej ${user.name}`,
       "",
-      `Vi har modtaget, at du fortryder dit køb (${p.kind === "PRO_MONTHLY" ? "Pro – 1 måned" : "Engangskøb – 1 analyse"}) af ${p.createdAt.toLocaleDateString("da-DK")}.`,
+      `Vi har modtaget, at du fortryder dit køb (${PRODUCT_NAME[p.kind]}) af ${p.createdAt.toLocaleDateString("da-DK")}.`,
+      p.kind === "PACK3" && q.credits !== 3 ? `Du har brugt ${3 - (q.credits ?? 0)} af de 3 analyser, så du får pengene tilbage for de ${q.credits} ubrugte.` : "",
       `Du får ${amount} kr. tilbage på det betalingsmiddel, du brugte, senest 14 dage fra i dag.`,
       p.kind === "PRO_MONTHLY" ? "Pro er stoppet med det samme." : "",
     ].join("\n"),
@@ -234,12 +213,18 @@ async function firstInvoicePaymentIntent(subscriptionId: string): Promise<string
 
 /* ---------------------------- Order confirmation ---------------------------- */
 
+const PRODUCT_NAME: Record<CheckoutKind, string> = {
+  PRO_MONTHLY: "Klardal Pro – 1 måned",
+  SINGLE: "Klardal engangskøb – 1 komplet analyse",
+  PACK3: "Klardal 3-pakke – 3 komplette analyser",
+};
+
 /** Order confirmation on a durable medium (forbrugeraftaleloven § 17), incl. the consent the customer gave. */
 async function sendOrderConfirmation(userId: string, p: Payment) {
   const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
   if (!user) return;
   const pro = p.kind === "PRO_MONTHLY";
-  const product = pro ? "Klardal Pro – 1 måned" : "Klardal engangskøb – 1 komplet analyse";
+  const product = PRODUCT_NAME[p.kind];
   const lines = [
     `Hej ${user.name}`,
     "",
@@ -255,13 +240,15 @@ async function sendOrderConfirmation(userId: string, p: Payment) {
     lines.push(
       "",
       "Dit samtykke:",
-      `»${p.consentText ?? (pro ? da.checkout.consentPro : da.checkout.consentSingle)}«`,
+      `»${p.consentText ?? (pro ? da.checkout.consentPro : p.kind === "PACK3" ? da.checkout.consentPack : da.checkout.consentSingle)}«`,
       p.consentAt ? `Givet ${p.consentAt.toLocaleString("da-DK", { timeZone: "Europe/Copenhagen" })}.` : "",
       "",
       "Fortrydelsesret:",
       pro
         ? `Du kan fortryde inden for ${WITHDRAWAL_DAYS} dage fra i dag. Du betaler da for de dage, du har haft Pro, og får resten tilbage.`
-        : `Du kan fortryde inden for ${WITHDRAWAL_DAYS} dage, så længe du ikke har brugt købet. Når analysen er leveret (du har brugt købet), har du ingen fortrydelsesret.`,
+        : p.kind === "PACK3"
+          ? `Du kan fortryde inden for ${WITHDRAWAL_DAYS} dage for de analyser, du ikke har brugt, og får pengene tilbage for dem. En analyse, du har brugt, er leveret, og for den har du ingen fortrydelsesret.`
+          : `Du kan fortryde inden for ${WITHDRAWAL_DAYS} dage, så længe du ikke har brugt købet. Når analysen er leveret (du har brugt købet), har du ingen fortrydelsesret.`,
       `Fortryd på ${appUrl()}/dashboard/konto, eller skriv til ${COMPANY.email}. Du kan bruge standardfortrydelsesformularen i handelsbetingelserne, men det er ikke et krav.`,
       "",
       `Handelsbetingelser: ${appUrl()}/handelsbetingelser`,
@@ -300,7 +287,7 @@ async function stripe(path: string, params: Record<string, string>, method = "PO
 
 export async function createStripeCheckout(user: User, kind: CheckoutKind, quoteId: string | null, consentText: string) {
   const base = appUrl();
-  const price = kind === "PRO_MONTHLY" ? process.env.STRIPE_PRICE_PRO_MONTHLY : process.env.STRIPE_PRICE_SINGLE;
+  const price = stripePriceId(kind);
   if (!price) throw new Error("Stripe price id is not configured");
   const back = quoteId ? `/dashboard/tilbud/${quoteId}` : "/dashboard/konto";
   const session = await stripe("/v1/checkout/sessions", {
@@ -317,7 +304,7 @@ export async function createStripeCheckout(user: User, kind: CheckoutKind, quote
     "custom_text[submit][message]":
       kind === "PRO_MONTHLY"
         ? `Du forpligter dig til at betale ${PRO_PRICE_DKK} kr. inkl. moms pr. måned, indtil du opsiger.`
-        : `Du forpligter dig til at betale ${SINGLE_PRICE_DKK} kr. inkl. moms.`,
+        : `Du forpligter dig til at betale ${PRICE_DKK[kind]} kr. inkl. moms.`,
     success_url: `${base}${back}?betalt=1`,
     cancel_url: `${base}/dashboard/konto`,
     locale: "auto",

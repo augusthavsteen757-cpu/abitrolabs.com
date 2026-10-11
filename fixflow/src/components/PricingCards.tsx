@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
-import { PRO_PRICE_DKK, SINGLE_PRICE_DKK, isBeta } from "@/lib/plans";
+import { PACK3_PRICE_DKK, PRO_PRICE_DKK, SINGLE_PRICE_DKK, isBeta } from "@/lib/plans";
+import { isPackAvailable } from "@/lib/billing";
 import { BetaNotice } from "./BetaNotice";
 import { cn } from "@/lib/format";
 import { getDict } from "@/i18n/server";
@@ -12,9 +13,12 @@ export async function PricingCards() {
     { key: "FREE", plan: d.plans.free, price: "0 kr.", period: "", href: "/opret", highlight: false },
     { key: "PRO", plan: d.plans.pro, price: `${PRO_PRICE_DKK} kr.`, period: d.common.perMonth, href: "/opret?plan=pro", highlight: true },
     { key: "SINGLE", plan: d.plans.single, price: `${SINGLE_PRICE_DKK} kr.`, period: "", href: "/opret?plan=single", highlight: false },
+    ...(isPackAvailable()
+      ? [{ key: "PACK3", plan: d.plans.pack, price: `${PACK3_PRICE_DKK} kr.`, period: "", href: "/opret?plan=pack", highlight: false }]
+      : []),
   ];
   return (
-    <div className="grid gap-5 md:grid-cols-3">
+    <div className={cn("grid gap-5", cards.length > 3 ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-3")}>
       {cards.map(({ key, plan, price, period, href, highlight }) => (
         <div
           key={key}

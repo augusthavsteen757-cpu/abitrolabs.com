@@ -87,8 +87,13 @@ Defineret i `src/lib/plans.ts`.
 | **Gratis**      | 0 kr.       | 1 analyse i alt: score, flag, forklaringer, 3 spørgsmål. Ingen beskedgenerator/sammenligning.   |
 | **Pro**         | 49 kr./md.  | 10 analyser pr. 30-dages periode, sammenligning, alle spørgsmål, beskedgenerator, historik.     |
 | **Engangskøb**  | 99 kr.      | +1 kredit = én komplet analyse. Kan også låse et allerede analyseret tilbud op.                 |
+| **3-pakke**     | 199 kr.     | +3 kreditter. Ubrugte analyser kan fortrydes pro rata i 14 dage.                                |
+| **Partnerkode** | betales af partneren | Gratis analyser (gave-kreditter) fra `PARTNER_CODES`. Bruges før købte kreditter.      |
 
-- Plan-kvoten bruges før kreditter.
+- Plan-kvoten bruges før kreditter, og gave-kreditter fra koder før købte kreditter (så købte forbliver fortrydelige længst).
+- Uden Pro kan man sammenligne de tilbud, man har låst op, når man har mindst to.
+- Partnerkoder: sæt `PARTNER_CODES="KODE=50"` i Render. Kunden indløser på kontosiden eller via `https://klardal.com/opret?kode=KODE`. En kode kan bruges én gang pr. konto.
+- Analyser lavet i betaen bliver låst op ved opstart, mens `BETA_FREE=1`, så de forbliver åbne, når betaen slutter.
 - Analyser lavet med Pro eller en kredit bliver `unlocked`.
 - Mislykkes en analyse, refunderes kvoten/kreditten, og tilbuddet markeres `FAILED` med en dansk fejlbesked (med "Prøv igen").
 - Uden `STRIPE_SECRET_KEY` simuleres betalinger ("Testtilstand") og registreres i `payments` med `provider = "simulated"`.
@@ -230,8 +235,8 @@ Appen findes på dansk, engelsk, svensk, norsk, tysk, polsk, ukrainsk og rumæns
 
 Uden `STRIPE_SECRET_KEY` er betaling simuleret. Sådan slår du rigtig betaling til:
 
-1. Opret to produkter i Stripe: **Pro** (49 kr./md., recurring) og **Engangskøb** (99 kr., one-time). Notér pris-id'erne.
-2. Sæt `STRIPE_SECRET_KEY`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_SINGLE` og `APP_URL`.
+1. Opret tre produkter i Stripe: **Pro** (49 kr./md., recurring), **Engangskøb** (99 kr., one-time) og **3-pakke** (199 kr., one-time). Notér pris-id'erne.
+2. Sæt `STRIPE_SECRET_KEY`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_SINGLE`, `STRIPE_PRICE_PACK3` og `APP_URL`.
 3. Opret et webhook-endpoint til `https://dit-domæne.dk/api/billing/webhook` med hændelserne `checkout.session.completed`, `invoice.paid` og `customer.subscription.deleted`, og sæt `STRIPE_WEBHOOK_SECRET`.
 4. `/api/billing/checkout` returnerer nu `{ url }` til Stripe Checkout, og webhooken giver Pro/kredit (idempotent via `payments.reference`).
 5. Ved fortrydelse refunderer appen automatisk via Stripe (`/v1/refunds`). Kunden får kvittering og ordrebekræftelse på e-mail (Brevo).

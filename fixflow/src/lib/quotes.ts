@@ -11,7 +11,7 @@ import { HttpError } from "./auth";
 import { rateLimit } from "./rate-limit";
 import { logError } from "./api";
 import { parseStoredAnalysis, analysisOfQuote, redactForFree, type LockInfo, type QuoteAnalysis } from "./analysis";
-import { hasFullAccess } from "./plans";
+import { hasFullAccess, isBeta } from "./plans";
 
 /** An analysis still "running" after this long died with its server (deploy, crash, out of memory). */
 const STALE_MS = 10 * 60 * 1000;
@@ -103,7 +103,8 @@ export async function runAnalysis(user: User, quote: Quote, locale: Locale = DEF
   try {
     const data = await readStoredFile(quote.fileKey);
     const { analysis, meta } = await analyzeQuote(data, quote.mimeType, quote.fileName, locale);
-    const unlocked = quote.unlocked || user.plan === "PRO" || source === "credit";
+    // Analyses made in the free beta stay fully open when the beta ends.
+    const unlocked = quote.unlocked || user.plan === "PRO" || source !== "plan" || isBeta();
     const [updated] = await db
       .update(quotes)
       .set({
@@ -148,4 +149,18 @@ export function publicQuote(user: User, quote: Quote) {
   if (analysis && !full) ({ analysis: safe, lock } = redactForFree(analysis));
   const { analysisJson: _omit, fileKey: _key, aiModel: _m, aiInputTokens: _i, aiOutputTokens: _o, aiMs: _ms, ...rest } = quote;
   return { ...rest, analysis: safe, fullAccess: full, lock };
+}
+
+/**
+ * Everyone had the full analysis in the free beta. Run at startup while the beta is on, so every analysis made in
+ * the beta (also before this was added) stays open when the beta ends.
+ */
+export async function unlockBetaAnalyses() {
+  if (!isBeta()) return 0;
+  const rows = await db
+    .update(quotes)
+    .set({ unlocked: true })
+    .where(and(eq(quotes.status, "DONE"), eq(quotes.unlocked, false)))
+    .returning({ id: quotes.id });
+  return rows.length;
 }

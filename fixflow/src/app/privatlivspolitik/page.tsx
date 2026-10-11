@@ -39,6 +39,10 @@ export default function PrivacyPage() {
           Kortoplysninger håndteres alene af Stripe – vi ser dem aldrig.
         </li>
         <li>
+          <strong>Koder:</strong> hvis du indløser en kode fra en partner, gemmer vi hvilken kode og hvornår, så koden
+          kun kan bruges én gang pr. konto. Partneren får ikke at vide, hvem der har brugt koden.
+        </li>
+        <li>
           <strong>Tekniske oplysninger:</strong> din IP-adresse og, ved loginforsøg, den indtastede e-mail gemmes i højst
           1 time for at beskytte mod misbrug. Vores hostingudbyder fører tekniske logfiler med IP-adresser i en kort
           periode. Vi registrerer også, hvornår du sidst har været aktiv (bruges til at slette inaktive konti).

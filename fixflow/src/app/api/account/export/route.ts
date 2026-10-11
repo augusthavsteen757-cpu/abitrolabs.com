@@ -25,6 +25,7 @@ export const GET = handle(async () => {
       plan: user.plan,
       postalCode: user.postalCode,
       extraCredits: user.extraCredits,
+      giftCredits: user.giftCredits,
       createdAt: user.createdAt,
       acceptedTermsAt: user.acceptedTermsAt,
     },

@@ -29,7 +29,7 @@ run typecheck npx tsc --noEmit
 run unit npx tsx scripts/unit.test.ts
 run build npm run build
 
-start ALLOW_LOCAL_DB=1 ALLOW_SIMULATED_PAYMENTS=1 ALLOW_DEMO_MODE=1 &&
+start ALLOW_LOCAL_DB=1 ALLOW_SIMULATED_PAYMENTS=1 ALLOW_DEMO_MODE=1 PARTNER_CODES=E2E-PARTNER=1:2 &&
   run e2e env BASE_URL=$BASE CHROMIUM_PATH=$CHROMIUM_PATH node scripts/e2e.mjs
 
 start BETA_FREE=1 ALLOW_LOCAL_DB=1 ALLOW_DEMO_MODE=1 COMPANY_NAME=Klardal "COMPANY_CVR=under registrering" \

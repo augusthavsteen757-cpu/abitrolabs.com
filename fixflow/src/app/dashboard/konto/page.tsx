@@ -4,16 +4,17 @@ import { Check, Sparkles, FlaskConical, Receipt, CheckCircle2 } from "lucide-rea
 import { db } from "@/db";
 import { payments, quotes } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
-import { PRO_PRICE_DKK, SINGLE_PRICE_DKK, getUsage, isBeta } from "@/lib/plans";
+import { PACK3_PRICE_DKK, PRO_PRICE_DKK, SINGLE_PRICE_DKK, getUsage, isBeta } from "@/lib/plans";
 import { getDict, getI18n } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
 import { INTL_LOCALE } from "@/i18n/config";
-import { isSimulationAllowed, isStripeEnabled, unusedSinglePurchases, withdrawalQuote } from "@/lib/billing";
+import { isPackAvailable, isSimulationAllowed, isStripeEnabled, unusedPurchases, withdrawalQuote } from "@/lib/billing";
 import { WITHDRAWAL_DAYS } from "@/lib/company";
 import { WithdrawButton } from "@/components/WithdrawButton";
 import { cn, formatDate, formatKr } from "@/lib/format";
 import { CheckoutButton } from "@/components/CheckoutButton";
 import { AccountSettings } from "@/components/AccountSettings";
+import { RedeemCode } from "@/components/RedeemCode";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getDict()).account.metaTitle };
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AccountPage({
   searchParams,
 }: {
-  searchParams: Promise<{ upgrade?: string; quote?: string; betalt?: string }>;
+  searchParams: Promise<{ upgrade?: string; quote?: string; betalt?: string; kode?: string }>;
 }) {
   const sp = await searchParams;
   const user = await requireUser();
@@ -35,7 +36,8 @@ export default async function AccountPage({
   const history = (
     await db.query.payments.findMany({ where: eq(payments.userId, user.id), orderBy: [desc(payments.createdAt)] })
   ).filter((p) => p.provider !== "simulated" || isSimulationAllowed());
-  const unused = unusedSinglePurchases(user, history);
+  const unused = unusedPurchases(user, history);
+  const pack = isPackAvailable();
   const upgrade = sp.upgrade;
   const quoteId = sp.quote;
   const quote = quoteId
@@ -188,6 +190,36 @@ export default async function AccountPage({
           </div>
         </section>
       </div>
+
+      {pack && (
+        <section
+          className={cn(
+            "mt-5 flex flex-col gap-4 rounded-2xl border p-6 sm:flex-row sm:items-center sm:justify-between",
+            upgrade === "pack" ? "border-brand-700 bg-brand-900 text-white shadow-lift ring-4 ring-brand-300/40" : "border-line bg-white shadow-card",
+          )}
+          data-testid="pack3"
+        >
+          <div className="min-w-0">
+            <h2 className={cn("text-xl font-semibold", upgrade === "pack" && "text-white")}>{d.plans.pack.name}</h2>
+            <p className={cn("mt-1 text-sm", upgrade === "pack" ? "text-brand-100" : "text-ink-soft")}>{d.plans.pack.tagline}</p>
+            <p className="mt-2">
+              <span className="num font-display text-3xl font-semibold">{PACK3_PRICE_DKK} kr.</span>
+            </p>
+          </div>
+          <div className="sm:w-72">
+            <CheckoutButton
+              kind="PACK3"
+              dark={upgrade === "pack"}
+              className={upgrade === "pack" ? "btn-light" : "btn-secondary"}
+              redirectTo="/dashboard/konto"
+            >
+              {t.buyPack}
+            </CheckoutButton>
+          </div>
+        </section>
+      )}
+
+      <RedeemCode initialCode={(sp.kode ?? "").slice(0, 64)} />
         </>
       )}
 
@@ -208,7 +240,7 @@ export default async function AccountPage({
               return (
                 <div key={p.id} className="flex items-start justify-between gap-4 p-4">
                   <div className="min-w-0">
-                    <p className="font-medium">{p.kind === "PRO_MONTHLY" ? t.payPro : t.paySingle}</p>
+                    <p className="font-medium">{p.kind === "PRO_MONTHLY" ? t.payPro : p.kind === "PACK3" ? t.payPack : t.paySingle}</p>
                     <p className="text-xs text-ink-muted">
                       {date(p.createdAt)} · {p.provider === "simulated" ? t.payTest : t.payStripe}
                     </p>
