@@ -3,6 +3,7 @@ import { AuthLayout } from "@/components/AuthLayout";
 import { ForgotPasswordForm } from "@/components/PasswordResetForms";
 import { getDict } from "@/i18n/server";
 import { COMPANY } from "@/lib/company";
+import { isEmailEnabled } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function ForgotPasswordPage() {
   return (
     <AuthLayout>
-      <ForgotPasswordForm contactEmail={COMPANY.email} />
+      <ForgotPasswordForm contactEmail={COMPANY.email} emailEnabled={isEmailEnabled()} />
     </AuthLayout>
   );
 }

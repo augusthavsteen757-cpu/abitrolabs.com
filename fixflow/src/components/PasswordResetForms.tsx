@@ -12,9 +12,26 @@ async function post(url: string, body: unknown) {
   return { ok: res.ok, json: await res.json().catch(() => ({})) };
 }
 
-export function ForgotPasswordForm({ contactEmail }: { contactEmail: string }) {
+export function ForgotPasswordForm({ contactEmail, emailEnabled = true }: { contactEmail: string; emailEnabled?: boolean }) {
   const { d } = useI18n();
   const a = d.auth;
+  // Without e-mail sending we can't send a link – say so up front instead of pretending.
+  if (!emailEnabled) {
+    const [before, after] = a.forgotNoEmail.split("{email}");
+    return (
+      <div>
+        <h1 className="text-3xl font-semibold">{a.forgotTitle}</h1>
+        <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-amber-900" data-testid="forgot-offline">
+          {before}
+          <a href={`mailto:${contactEmail}`} className="font-semibold underline">{contactEmail}</a>
+          {after}
+        </p>
+        <p className="mt-6 text-center text-sm">
+          <Link href="/login" className="font-semibold text-brand-700 hover:underline">{a.backToLogin}</Link>
+        </p>
+      </div>
+    );
+  }
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   async function submit(e: React.FormEvent<HTMLFormElement>) {

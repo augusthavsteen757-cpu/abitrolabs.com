@@ -65,5 +65,11 @@ const demoLogin = await fetch(BASE + "/api/auth/login", {
 });
 ok(demoLogin.status === 401, `demo account cannot log in (${demoLogin.status})`);
 
+// No e-mail service (BREVO_API_KEY) in this run: the forgot-password page must not pretend to send a link.
+const forgot = await (await fetch(BASE + "/glemt-adgangskode")).text();
+ok(forgot.includes('data-testid="forgot-offline"') && forgot.includes("mailto:") && !forgot.includes(">Send link<"), "forgot password is honest without e-mail");
+const forgotApi = await fetch(BASE + "/api/auth/forgot", { method: "POST", headers: { origin: BASE, "content-type": "application/json" }, body: JSON.stringify({ email: "a@b.dk" }) });
+ok((await forgotApi.json()).emailEnabled === false, "forgot API reports that e-mail is off");
+
 console.log(failed ? `\n${failed} check(s) failed` : "\nAll checks passed");
 process.exit(failed ? 1 : 0);

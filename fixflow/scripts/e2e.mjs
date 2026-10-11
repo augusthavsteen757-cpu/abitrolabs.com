@@ -342,9 +342,16 @@ try {
 
   // Forgot password: page works and an invalid reset link gives a clear error.
   await intruder.goto(`${BASE}/glemt-adgangskode`);
-  await intruder.fill("#email", "findes.ikke@eksempel.dk");
-  await intruder.getByRole("button", { name: "Send link" }).click();
-  await intruder.getByRole("status").waitFor();
+  const offline = intruder.locator("[data-testid=forgot-offline]");
+  if (await offline.count()) {
+    // No e-mail service configured: an honest message with the contact address, and no form that pretends to send.
+    assert((await offline.locator("a[href^='mailto:']").count()) === 1, "forgot page offers the contact e-mail");
+    assert((await intruder.getByRole("button", { name: "Send link" }).count()) === 0, "no send button without e-mail");
+  } else {
+    await intruder.fill("#email", "findes.ikke@eksempel.dk");
+    await intruder.getByRole("button", { name: "Send link" }).click();
+    await intruder.getByRole("status").waitFor();
+  }
   await intruder.goto(`${BASE}/nulstil?token=ugyldig-token-ugyldig-token`);
   await intruder.fill("#password", "Ny-Adgangskode-2026");
   await intruder.getByRole("button", { name: "Gem ny adgangskode" }).click();
