@@ -82,8 +82,8 @@ export const sv: Dict = {
       { title: "Vi går igenom den", text: "Oftast under en minut, sedan har du en tydlig överblick." },
       { title: "Fråga hantverkaren", text: "Du får frågorna och ett färdigt meddelande att skicka." },
     ],
-    whyTitle: "Vet vad du säger ja till",
-    whyText: "Klardal läser offerten med dig och visar var räkningen kan bli högre och vad du bör fråga om – innan du skriver under. Även på ditt eget språk.",
+    whyTitle: "Få överblick med Klardal",
+    whyText: "Vi läser offerten med dig och visar var räkningen kan bli högre och vad du bör fråga om – innan du skriver under. Även på ditt eget språk.",
     features: [
       { title: "Se direkt om offerten är tydlig", text: "Ett tal från 0 till 100 och en mening om vad du bör göra." },
       { title: "Hitta det som kan göra det dyrare", text: "T.ex. ”enligt räkning”, ”diverse” och poster utan pris." },

@@ -80,8 +80,8 @@ export const da = {
       { title: "Vi gennemgår det", text: "Typisk under et minut, så har du et klart overblik." },
       { title: "Spørg håndværkeren", text: "Du får spørgsmålene og en færdig besked, du kan sende." },
     ],
-    whyTitle: "Vid, hvad du siger ja til",
-    whyText: "Klardal læser tilbuddet med dig og viser, hvor regningen kan stige, og hvad du bør spørge om – før du skriver under. Også på dit eget sprog.",
+    whyTitle: "Få overblik med Klardal",
+    whyText: "Vi læser tilbuddet med dig og viser, hvor regningen kan stige, og hvad du bør spørge om – før du skriver under. Også på dit eget sprog.",
     features: [
       { title: "Se med det samme, om tilbuddet er klart", text: "Et tal fra 0 til 100 og én sætning om, hvad du bør gøre." },
       { title: "Find det, der kan gøre det dyrere", text: "Fx »efter regning«, »diverse« og poster uden pris." },

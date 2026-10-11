@@ -82,8 +82,8 @@ export const nb: Dict = {
       { title: "Vi går gjennom det", text: "Vanligvis under ett minutt, så har du en tydelig oversikt." },
       { title: "Spør håndverkeren", text: "Du får spørsmålene og en ferdig melding du kan sende." },
     ],
-    whyTitle: "Vit hva du sier ja til",
-    whyText: "Klardal leser tilbudet sammen med deg og viser hvor regningen kan bli høyere, og hva du bør spørre om – før du skriver under. Også på ditt eget språk.",
+    whyTitle: "Få oversikt med Klardal",
+    whyText: "Vi leser tilbudet sammen med deg og viser hvor regningen kan bli høyere, og hva du bør spørre om – før du skriver under. Også på ditt eget språk.",
     features: [
       { title: "Se med en gang om tilbudet er tydelig", text: "Et tall fra 0 til 100 og én setning om hva du bør gjøre." },
       { title: "Finn det som kan gjøre det dyrere", text: "F.eks. «etter regning», «diverse» og poster uten pris." },

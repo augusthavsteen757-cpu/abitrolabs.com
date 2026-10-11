@@ -82,8 +82,8 @@ export const en: Dict = {
       { title: "We go through it", text: "Typically under a minute, and you have a clear overview." },
       { title: "Ask the contractor", text: "You get the questions and a ready-made message to send." },
     ],
-    whyTitle: "Know what you’re saying yes to",
-    whyText: "Klardal reads the quote with you and shows where the bill could go up and what to ask – before you sign. In your own language too.",
+    whyTitle: "Get the full picture with Klardal",
+    whyText: "We read the quote with you and show where the bill could go up and what to ask – before you sign. In your own language too.",
     features: [
       { title: "See straight away if the quote is clear", text: "A number from 0 to 100 and one sentence on what to do." },
       { title: "Spot what could make it more expensive", text: "E.g. “by the hour”, “miscellaneous” and items with no price." },

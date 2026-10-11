@@ -78,8 +78,8 @@ export const pl: Dict = {
       { title: "Przeglądamy ją", text: "Zwykle poniżej minuty – i masz jasny przegląd." },
       { title: "Zapytaj wykonawcę", text: "Dostajesz pytania i gotową wiadomość do wysłania." },
     ],
-    whyTitle: "Wiedz, na co się zgadzasz",
-    whyText: "Klardal czyta ofertę razem z Tobą i pokazuje, gdzie rachunek może wzrosnąć i o co warto zapytać – zanim podpiszesz. Także w Twoim języku.",
+    whyTitle: "Zyskaj jasny obraz z Klardal",
+    whyText: "Czytamy ofertę razem z Tobą i pokazujemy, gdzie rachunek może wzrosnąć i o co warto zapytać – zanim podpiszesz. Także w Twoim języku.",
     features: [
       { title: "Od razu zobacz, czy oferta jest jasna", text: "Liczba od 0 do 100 i jedno zdanie o tym, co warto zrobić." },
       { title: "Znajdź to, co może podnieść koszt", text: "Np. „według rzeczywistych kosztów”, „różne” i pozycje bez ceny." },

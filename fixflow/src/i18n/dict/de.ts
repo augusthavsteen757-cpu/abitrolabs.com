@@ -82,8 +82,8 @@ export const de: Dict = {
       { title: "Wir gehen es durch", text: "Meist unter einer Minute, dann hast du einen klaren Überblick." },
       { title: "Frag den Handwerker", text: "Du bekommst die Fragen und eine fertige Nachricht zum Senden." },
     ],
-    whyTitle: "Wissen, wozu Sie Ja sagen",
-    whyText: "Klardal liest das Angebot mit Ihnen und zeigt, wo die Rechnung steigen kann und was Sie fragen sollten – bevor Sie unterschreiben. Auch in Ihrer Sprache.",
+    whyTitle: "Mit Klardal den Überblick behalten",
+    whyText: "Wir lesen das Angebot mit Ihnen und zeigen, wo die Rechnung steigen kann und was Sie fragen sollten – bevor Sie unterschreiben. Auch in Ihrer Sprache.",
     features: [
       { title: "Sofort sehen, ob das Angebot klar ist", text: "Eine Zahl von 0 bis 100 und ein Satz dazu, was Sie tun sollten." },
       { title: "Finden, was es teurer machen kann", text: "Z. B. „nach Aufwand“, „Diverses“ und Posten ohne Preis." },

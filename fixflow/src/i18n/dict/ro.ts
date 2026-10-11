@@ -82,8 +82,8 @@ export const ro: Dict = {
       { title: "O verificăm", text: "De obicei sub un minut și ai o imagine clară." },
       { title: "Întreabă meseriașul", text: "Primești întrebările și un mesaj gata de trimis." },
     ],
-    whyTitle: "Știi la ce spui da",
-    whyText: "Klardal citește oferta împreună cu tine și îți arată unde poate crește factura și ce să întrebi – înainte să semnezi. Și în limba ta.",
+    whyTitle: "Ai o imagine clară cu Klardal",
+    whyText: "Citim oferta împreună cu tine și îți arătăm unde poate crește factura și ce să întrebi – înainte să semnezi. Și în limba ta.",
     features: [
       { title: "Vezi imediat dacă oferta e clară", text: "Un număr de la 0 la 100 și o propoziție despre ce să faci." },
       { title: "Găsește ce o poate face mai scumpă", text: "De ex. „în regie”, „diverse” și poziții fără preț." },
