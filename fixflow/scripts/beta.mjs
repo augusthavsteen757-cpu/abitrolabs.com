@@ -13,6 +13,7 @@ const ok = (c, m) => { if (!c) throw new Error("FAIL: " + m); console.log("  ✓
 await p.goto(B);
 ok(await p.getByTestId("beta-notice").isVisible(), "landing shows beta notice instead of prices");
 ok(!(await p.innerText("body")).includes("Vælg Pro"), "no Pro purchase button on landing");
+ok(!(await p.innerText("body")).includes("Kan jeg opsige Pro?"), "FAQ hides the Pro question while nothing can be bought");
 await p.goto(B + "/opret");
 const email = `beta${Date.now()}@eksempel.dk`;
 await p.fill("#name", "Beta Tester"); await p.fill("#email", email); await p.fill("#password", "Kaffekande-Solsikke-77");

@@ -67,6 +67,7 @@ try {
   await page.goto(BASE);
   await page.getByRole("heading", { name: /Forstå dit håndværkertilbud/ }).waitFor();
   await shot(page, "landing");
+  assert((await page.innerText("body")).includes("Kan jeg opsige Pro?"), "outside the beta the FAQ explains cancelling Pro");
   log("landing page");
 
   // Visitors on a phone can go straight to a feature from the top menu: sign up, then land on it.
@@ -199,7 +200,8 @@ try {
   await demo.waitForURL(/sammenlign\?ids=/);
   await demo.getByText("Det bør du vide").waitFor();
   await demo.getByText("Lavest værste scenarie").waitFor();
-  await demo.getByText("Bedste samlede match").waitFor();
+  await demo.getByText("Vores bud på bedste valg").waitFor();
+  await demo.locator("[data-testid=best-disclaimer]").getByText(/ikke en vurdering af håndværkerens faglige kvalitet/).waitFor();
   await demo.getByRole("rowheader", { name: "Afstand fra dig" }).waitFor();
   const cols = await demo.locator("table thead th").count();
   assert(cols === 4, `comparison table has 3 quotes (+label col), saw ${cols - 1}`);
