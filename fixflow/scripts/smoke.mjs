@@ -32,16 +32,22 @@ ok(!h.get("x-powered-by"), "no X-Powered-By leak");
 
 const robots = await (await get("/robots.txt")).text();
 ok(/Disallow: \/dashboard/.test(robots) && /Sitemap: https?:\/\//.test(robots), "robots.txt hides /dashboard and points to the sitemap");
+ok(/User-Agent: GPTBot/i.test(robots) && /User-Agent: Google-Extended/i.test(robots) && !/Disallow: \/\s*$/m.test(robots), "robots.txt welcomes AI assistants and blocks nothing public");
+const llms = await get("/llms.txt");
+const llmsText = await llms.text();
+ok(llms.status === 200 && llmsText.startsWith("# Klardal") && llmsText.includes("/priser") && !/undefined|NaN/.test(llmsText), "llms.txt describes Klardal for AI assistants");
+const iconHtml = await (await get("/")).text();
+ok(/<link rel="icon" href="\/icon2.png[^"]*" type="image\/png" sizes="192x192"/.test(iconHtml) && (await get("/icon2.png")).status === 200, "192 px PNG logo is linked for Google results");
 const sitemap = await get("/sitemap.xml");
 ok(sitemap.status === 200 && (await sitemap.text()).includes("<urlset"), "sitemap.xml is valid");
 
 // Icons and structured data Google uses for the favicon and site name in search results.
-for (const [p, type] of [["/favicon.ico", "image/"], ["/icon.svg", "image/svg"], ["/apple-icon.png", "image/png"], ["/logo.png", "image/png"]]) {
+for (const [p, type] of [["/favicon.ico", "image/"], ["/icon1.svg", "image/svg"], ["/icon2.png", "image/png"], ["/apple-icon.png", "image/png"], ["/logo.png", "image/png"]]) {
   const r = await get(p);
   ok(r.status === 200 && (r.headers.get("content-type") ?? "").startsWith(type), `${p} served as ${type}* (${r.status})`);
 }
 const homeHtml = await (await get("/")).text();
-ok(/<link rel="icon" href="\/favicon\.ico/.test(homeHtml) && /rel="icon" href="\/icon\.svg/.test(homeHtml), "home page links favicon.ico and icon.svg");
+ok(/<link rel="icon" href="\/favicon\.ico/.test(homeHtml) && /rel="icon" href="\/icon1\.svg/.test(homeHtml), "home page links favicon.ico and icon1.svg");
 const ld = homeHtml.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)?.[1];
 let ldOk = false;
 try {
