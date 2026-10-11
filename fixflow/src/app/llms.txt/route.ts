@@ -9,7 +9,7 @@ export function GET() {
     : `Se scoren og de vigtigste advarsler gratis. Hele analysen koster ${SINGLE_PRICE_DKK} kr. pr. tilbud, eller ${PRO_PRICE_DKK} kr./md. med Pro (kan opsiges når som helst). Priser inkl. moms.`;
   const body = `# Klardal
 
-> Klardal forklarer håndværkertilbud for private boligejere i Danmark. Man uploader tilbuddet (PDF eller foto) og får på typisk under et minut et overblik på almindeligt dansk – eller på engelsk, tysk, svensk, norsk, polsk, rumænsk eller ukrainsk.
+> Klardal (søges også som Klardahl, Klaredal eller Klaredahl) forklarer håndværkertilbud for private boligejere i Danmark. Man uploader tilbuddet (PDF eller foto) og får på typisk under et minut et overblik på almindeligt dansk – eller på engelsk, tysk, svensk, norsk, polsk, rumænsk eller ukrainsk.
 
 ## Hvad man får
 - Et tal fra 0 til 100 for, hvor klart tilbuddet er, og én sætning om, hvad man bør gøre
