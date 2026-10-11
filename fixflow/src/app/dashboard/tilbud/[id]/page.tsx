@@ -329,49 +329,9 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         )}
       </section>
 
-      {/* 3. Det skal du spørge om */}
+      {/* 3. Hvad betaler du for? */}
       <section className="mt-10">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Step n={3} title={t.questionsTitle} />
-          {visibleQuestions.length > 0 && (
-            <CopyButton label={t.copyAll} text={visibleQuestions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")} />
-          )}
-        </div>
-        <div className="card mt-4">
-          <ol className="divide-y divide-line">{visibleQuestions.map((q, i) => question(q, i + 1))}</ol>
-        </div>
-        {hiddenCount > 0 && (
-          <a href="#laas-op" className="card mt-3 flex items-center gap-4 p-4 hover:shadow-lift">
-            <Locked lines={2} label={fmt(t.moreQuestions, { n: hiddenCount })} className="flex-1" asLink={false} />
-          </a>
-        )}
-      </section>
-
-      {/* Message composer */}
-      <section className="mt-10" id="besked">
-        <Step n={4} title={t.messageTitle} />
-        <p className="mt-1 text-sm text-ink-muted">{t.messageIntro}</p>
-        <div className="mt-4">
-          {full ? (
-            <Suspense>
-              <MessageComposer
-                quoteId={quote.id}
-                suggestions={suggestions}
-                initialMessages={messages.map((m) => ({ ...m, createdAt: m.createdAt.toISOString() }))}
-              />
-            </Suspense>
-          ) : (
-            <a href="#laas-op" className="card flex flex-col gap-3 p-5 hover:shadow-lift">
-              <p className="text-sm text-ink-soft">{t.messageLocked}</p>
-              <Locked lines={4} label={t.unlockMessages} asLink={false} />
-            </a>
-          )}
-        </div>
-      </section>
-
-      {/* 5. Hvad betaler du for? */}
-      <section className="mt-10">
-        <Step n={5} title={t.itemsTitle} />
+        <Step n={3} title={t.itemsTitle} />
         <div className="card mt-4 p-5 sm:p-6">
             {catTotal > 0 && (
               <>
@@ -433,9 +393,9 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         </div>
       </section>
 
-      {/* 6. Står det vigtigste i tilbuddet? */}
+      {/* 4. Står det vigtigste i tilbuddet? */}
       <section className="mt-10">
-        <Step n={6} title={t.checklistTitle} sub={fmt(t.checklistCount, { n: analysis.checks.filter((c) => c.present).length })} />
+        <Step n={4} title={t.checklistTitle} sub={fmt(t.checklistCount, { n: analysis.checks.filter((c) => c.present).length })} />
         <div className="card mt-4 p-5 sm:p-6">            <ul className="space-y-3">
               {analysis.checks.map((c) => (
                 <li key={c.key} className="flex gap-3">
@@ -451,6 +411,46 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                 </li>
               ))}
             </ul>
+        </div>
+      </section>
+
+      {/* 5. Det skal du spørge om – first understand, then act */}
+      <section className="mt-10">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Step n={5} title={t.questionsTitle} />
+          {visibleQuestions.length > 0 && (
+            <CopyButton label={t.copyAll} text={visibleQuestions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")} />
+          )}
+        </div>
+        <div className="card mt-4">
+          <ol className="divide-y divide-line">{visibleQuestions.map((q, i) => question(q, i + 1))}</ol>
+        </div>
+        {hiddenCount > 0 && (
+          <a href="#laas-op" className="card mt-3 flex items-center gap-4 p-4 hover:shadow-lift">
+            <Locked lines={2} label={fmt(t.moreQuestions, { n: hiddenCount })} className="flex-1" asLink={false} />
+          </a>
+        )}
+      </section>
+
+      {/* Message composer */}
+      <section className="mt-10" id="besked">
+        <Step n={6} title={t.messageTitle} />
+        <p className="mt-1 text-sm text-ink-muted">{t.messageIntro}</p>
+        <div className="mt-4">
+          {full ? (
+            <Suspense>
+              <MessageComposer
+                quoteId={quote.id}
+                suggestions={suggestions}
+                initialMessages={messages.map((m) => ({ ...m, createdAt: m.createdAt.toISOString() }))}
+              />
+            </Suspense>
+          ) : (
+            <a href="#laas-op" className="card flex flex-col gap-3 p-5 hover:shadow-lift">
+              <p className="text-sm text-ink-soft">{t.messageLocked}</p>
+              <Locked lines={4} label={t.unlockMessages} asLink={false} />
+            </a>
+          )}
         </div>
       </section>
 
