@@ -9,7 +9,8 @@ import {
   CATEGORIES,
   CHECK_KEYS,
   categoryTotals,
-  parseStoredAnalysis,
+  analysisOfQuote,
+  priceOfQuote,
   unspecifiedShare,
   worstCase,
   type QuoteAnalysis,
@@ -152,7 +153,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
     id: q.id,
     label: shortName(q.contractorName, d.common.unknownFirm) + (q.title ? ` – ${q.title}` : ""),
     project: q.projectName,
-    total: q.totalInclVat,
+    total: priceOfQuote(q),
   }));
 
   let ids = (sp.ids ?? "").split(",").filter(Boolean);
@@ -168,7 +169,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   const origin = await locatePostalCode(user.postalCode);
   const rows: Row[] = [];
   for (const q of ids.map((id) => quotes.find((x) => x.id === id))) {
-    const a = q ? parseStoredAnalysis(q.analysisJson) : null;
+    const a = q ? analysisOfQuote(q) : null;
     if (!q || !a) continue;
     const place = origin ? await locatePostalCode(postalCodeFromText(a.contractor.address)) : null;
     rows.push({

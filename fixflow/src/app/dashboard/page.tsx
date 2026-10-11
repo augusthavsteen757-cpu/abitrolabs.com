@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { FilePlus2, FileSearch, Gauge, AlertTriangle, Wallet, Columns3, Upload } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { listQuotes } from "@/lib/quotes";
-import { parseStoredAnalysis, redactForFree, scoreOfQuote } from "@/lib/analysis";
+import { analysisOfQuote, redactForFree, scoreOfQuote } from "@/lib/analysis";
 import { formatRange } from "@/lib/format";
 import { hasFullAccess } from "@/lib/plans";
 import { QuoteCard } from "@/components/QuoteCard";
@@ -35,7 +35,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const done = quotes.filter((q) => q.status === "DONE");
   const analyses = done
     .map((q) => {
-      const a = parseStoredAnalysis(q.analysisJson);
+      const a = analysisOfQuote(q);
       // Locked quotes only contribute what the free preview shows.
       return a && !hasFullAccess(user, q) ? redactForFree(a).analysis : a;
     })

@@ -31,6 +31,7 @@ export type DemoQuote = {
     language: string;
     rules: { key: RuleKey; status: "ok" | "missing" | "unclear" | "not_relevant"; note: string }[];
     priceLevel: { level: "lav" | "normal" | "hoej" | "ukendt"; explanation: string };
+    documentCheck: { isQuote: boolean; readability: "good"; unreadableNote: null; suspiciousInstructions: boolean; vatStated: "incl" | "excl" | "both" | "unclear" };
   };
 };
 
@@ -74,6 +75,7 @@ export const DEMO_QUOTES: DemoQuote[] = [
       validUntil: "2026-09-16",
       priceType: "overslag",
       totals: { exclVat: 128400, vat: 32100, inclVat: 160500 },
+      documentCheck: { isQuote: true, readability: "good", unreadableNote: null, suspiciousInstructions: false, vatStated: "both" },
       summary:
         "Eksempel VVS giver et overslag på 160.500 kr. inkl. moms for at rive det gamle badeværelse ned og bygge et nyt med nye rør, fliser og el. Det er et overslag, så den endelige pris er ikke bindende og kan blive højere. En stor del af beløbet – 40.500 kr. ekskl. moms – ligger i to poster, der ikke er beskrevet: \"Materialer iht. aftale\" og \"Diverse arbejde\". El-arbejdet afregnes efter forbrug, og der står intet om bortskaffelse, tidsplan eller garanti. Bed om en mere detaljeret specifikation, før du skriver under.",
       lineItems: [
@@ -195,6 +197,7 @@ export const DEMO_QUOTES: DemoQuote[] = [
       validUntil: "2026-10-05",
       priceType: "fast_pris",
       totals: { exclVat: 129800, vat: 32450, inclVat: 162250 },
+      documentCheck: { isQuote: true, readability: "good", unreadableNote: null, suspiciousInstructions: false, vatStated: "both" },
       summary:
         "Eksempel Bad tilbyder at renovere badeværelset til en fast pris på 162.250 kr. inkl. moms. Tilbuddet er meget grundigt: hver post er beskrevet med mængder og materialer, og der er en klar betalingsplan i tre rater. Oprydning, bortskaffelse og garanti er med, og firmaet er medlem af Byggeriets Ankenævn. Det eneste, der er lidt uklart, er hvor meget af den eksisterende el-installation der skal tilpasses.",
       lineItems: [
@@ -295,6 +298,7 @@ export const DEMO_QUOTES: DemoQuote[] = [
       validUntil: "2026-09-16",
       priceType: "uklart",
       totals: { exclVat: 98000, vat: 24500, inclVat: 122500 },
+      documentCheck: { isQuote: true, readability: "good", unreadableNote: null, suspiciousInstructions: false, vatStated: "unclear" },
       summary:
         "Eksempel Byg er billigst med 122.500 kr. inkl. moms, men tilbuddet består kun af tre samleposter uden beskrivelse. Der er intet CVR-nummer, og halvdelen af beløbet skal betales, før arbejdet går i gang. Det er uklart, om prisen er fast, og der står intet om materialer, garanti eller hvad der sker ved ekstraarbejde. Den lave pris kan derfor ende højere, og du har få muligheder, hvis noget går galt.",
       lineItems: [
@@ -408,6 +412,7 @@ export const DEMO_QUOTES: DemoQuote[] = [
       validUntil: "2026-09-27",
       priceType: "tilbud",
       totals: { exclVat: 123200, vat: 30800, inclVat: 154000 },
+      documentCheck: { isQuote: true, readability: "good", unreadableNote: null, suspiciousInstructions: false, vatStated: "both" },
       summary:
         "Eksempel Vinduer tilbyder at udskifte 8 vinduer for 154.000 kr. inkl. moms. Vinduer, montering og bortskaffelse er tydeligt beskrevet med stykpriser, og der er god garanti. Den svage plet er murværksreparationen, som afregnes efter regning, og der står ingen timepris. Maling af lysninger er heller ikke nævnt.",
       lineItems: [

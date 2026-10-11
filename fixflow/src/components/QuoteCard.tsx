@@ -4,7 +4,7 @@ import type { Quote } from "@/db/schema";
 import { ScoreRing } from "./ScoreRing";
 import { formatKr, formatShortDate } from "@/lib/format";
 import { scoreLabel } from "@/lib/score";
-import { scoreOfQuote } from "@/lib/analysis";
+import { priceOfQuote, scoreOfQuote } from "@/lib/analysis";
 import type { Dict } from "@/i18n/dict";
 
 export function QuoteCard({ quote, locked, d, intlLocale }: { quote: Quote; locked: boolean; d: Dict; intlLocale: string }) {
@@ -31,7 +31,7 @@ export function QuoteCard({ quote, locked, d, intlLocale }: { quote: Quote; lock
         <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-sm text-ink-muted">
           {quote.status === "DONE" ? (
             <>
-              <span className="num font-medium text-ink-soft">{formatKr(quote.totalInclVat)}</span>
+              <span className="num font-medium text-ink-soft">{formatKr(priceOfQuote(quote))}</span>
               <span aria-hidden>·</span>
               <span>{score != null ? scoreLabel(score, d.score) : ""}</span>
             </>

@@ -236,8 +236,12 @@ const EMPTY_QUALITY: QualityChecks = {
 export type ScoreBreakdownItem = { key: string; label: string; points: number; max: number; hint: string };
 export type ScoreResult = { total: number; label: string; breakdown: ScoreBreakdownItem[] };
 
+export type VatChoice = "excl" | "incl";
+
 export type QuoteAnalysis = Omit<z.infer<typeof rawAnalysisSchema>, "totals"> & {
   totals: { exclVat: number; vat: number; inclVat: number };
+  /** The total as written on the quote, and how Klardal read it when the quote didn't say (excl/incl VAT). */
+  vatBasis?: { amount: number; assumed: VatChoice };
   quality: QualityChecks;
   score: ScoreResult;
   demo?: boolean;
@@ -268,6 +272,10 @@ export function normalizeAnalysis(raw: unknown): Omit<QuoteAnalysis, "score"> {
     implausibleAmounts:
       a.lineItems.some((i) => i.amount < 0 || i.amount > 50_000_000) || [exclVat, vat, inclVat].some((v) => v != null && (v < 0 || v > 50_000_000)),
   };
+  const vatBasis = {
+    amount: round(stated.exclVat ?? stated.inclVat ?? sumItems),
+    assumed: (stated.exclVat == null && stated.inclVat != null ? "incl" : "excl") as VatChoice,
+  };
   if (exclVat == null && inclVat != null) exclVat = inclVat / 1.25;
   if (exclVat == null && vat != null) exclVat = vat * 4;
   if (exclVat == null) exclVat = sumItems;
@@ -295,6 +303,7 @@ export function normalizeAnalysis(raw: unknown): Omit<QuoteAnalysis, "score"> {
     ...a,
     rules,
     totals: { exclVat: round(exclVat), vat: round(vat), inclVat: round(inclVat) },
+    vatBasis,
     checks,
     flags,
     extraCostRisk: { ...a.extraCostRisk, min, max },
@@ -323,6 +332,43 @@ export function parseStoredAnalysis(json: string | null): QuoteAnalysis | null {
   } catch {
     return null;
   }
+}
+
+export const isVatUnclear = (a: Pick<QuoteAnalysis, "documentCheck">) => a.documentCheck?.vatStated === "unclear";
+
+/**
+ * When the quote doesn't say whether its prices include VAT, the user decides. Amounts on the quote
+ * (line items, total) are taken as written; "incl" means they already contain 25 % VAT.
+ * Without a choice the analysis is returned as Klardal read it.
+ */
+export function applyVatChoice(a: QuoteAnalysis, choice: VatChoice | null | undefined): QuoteAnalysis {
+  if (!choice || !isVatUnclear(a)) return a;
+  const basis = a.vatBasis ?? { amount: a.totals.exclVat, assumed: "excl" as const };
+  const P = basis.amount;
+  const f = choice === "incl" ? 1 / 1.25 : 1;
+  return {
+    ...a,
+    lineItems: a.lineItems.map((i) => ({
+      ...i,
+      amount: round(i.amount * f),
+      unitPrice: i.unitPrice == null ? i.unitPrice : round(i.unitPrice * f),
+    })),
+    totals:
+      choice === "incl"
+        ? { exclVat: round(P / 1.25), vat: round(P - P / 1.25), inclVat: round(P) }
+        : { exclVat: round(P), vat: round(P * 0.25), inclVat: round(P * 1.25) },
+  };
+}
+
+/** The analysis of a stored quote with the user's VAT choice applied – what every page must show. */
+export function analysisOfQuote(q: { analysisJson: string | null; vatChoice?: VatChoice | null }): QuoteAnalysis | null {
+  const a = parseStoredAnalysis(q.analysisJson);
+  return a ? applyVatChoice(a, q.vatChoice) : null;
+}
+
+/** Price incl. VAT of a stored quote (respects the VAT choice). */
+export function priceOfQuote(q: { analysisJson: string | null; vatChoice?: VatChoice | null; totalInclVat: number | null }): number | null {
+  return analysisOfQuote(q)?.totals.inclVat ?? q.totalInclVat;
 }
 
 /** The Tilbudsscore of a stored quote – the one number every page must show. */

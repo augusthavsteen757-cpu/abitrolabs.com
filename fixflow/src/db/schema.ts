@@ -44,6 +44,8 @@ export const quotes = sqliteTable(
     score: integer("score"),
     analysisJson: text("analysis_json"),
     unlocked: integer("unlocked", { mode: "boolean" }).notNull().default(false),
+    /** When the quote doesn't say whether prices include VAT, the user's answer (null = not chosen yet). */
+    vatChoice: text("vat_choice", { enum: ["excl", "incl"] }),
     /** Which AI model made the analysis and what it used (for cost tracking and spotting model drift). */
     /** Which quota paid for the running analysis – lets a crashed analysis be refunded later. */
     chargedSource: text("charged_source", { enum: ["plan", "credit"] }),

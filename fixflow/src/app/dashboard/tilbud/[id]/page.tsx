@@ -21,7 +21,9 @@ import {
   CATEGORIES,
   languageDisplayName,
   categoryTotals,
-  parseStoredAnalysis,
+  analysisOfQuote,
+  applyVatChoice,
+  isVatUnclear,
   redactForFree,
   type Category,
 } from "@/lib/analysis";
@@ -31,6 +33,7 @@ import { ScoreRing, scoreColor } from "@/components/ScoreRing";
 import { SEVERITY } from "@/components/Severity";
 import { CopyButton, DeleteQuoteButton, RetryButton, UnlockWithCreditButton } from "@/components/QuoteActions";
 import { MessageComposer } from "@/components/MessageComposer";
+import { VatChoice } from "@/components/VatChoice";
 import { Paywall } from "@/components/Paywall";
 import { ReportAnalysis } from "@/components/ReportAnalysis";
 import { Locked } from "@/components/Locked";
@@ -84,7 +87,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
     </Link>
   );
 
-  const analysis = parseStoredAnalysis(quote.analysisJson);
+  const analysis = analysisOfQuote(quote);
   if (quote.status !== "DONE" || !analysis) {
     return (
       <div className="mx-auto max-w-xl">
@@ -134,7 +137,6 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
     dc?.unreadableNote && dc.readability !== "good" ? fmt(t.qualityUnreadable, { note: dc.unreadableNote }) : null,
     q?.itemsMismatch && q.statedExclVat != null ? fmt(t.qualityMismatch, { items: money(q.itemsSum), total: money(q.statedExclVat) }) : null,
     q?.vatMismatch ? t.qualityVat : null,
-    !view.demo && dc?.vatStated === "unclear" ? t.qualityVatUnclear : null,
     q?.implausibleAmounts ? t.qualityImplausible : null,
     dc?.suspiciousInstructions ? t.qualityInjection : null,
   ].filter((x): x is string => !!x);
@@ -156,6 +158,8 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
   const SEV_ORDER = { high: 0, medium: 1, low: 2 } as const;
   const flags = view.flags.map((f, i) => ({ f, i })).sort((a, b) => SEV_ORDER[a.f.severity] - SEV_ORDER[b.f.severity]);
   const TOP = 3;
+  // The quote doesn't say whether prices include VAT: show both readings and let the user pick.
+  const vatUnclear = isVatUnclear(analysis);
   const extraMax = view.extraCostRisk.max * 1.25;
   const worstCase = !lock?.extra && analysis.totals.inclVat != null && extraMax > 0 ? analysis.totals.inclVat + extraMax : null;
   // Show the first two sentences; the rest folds out so the page stays short on a phone.
@@ -270,6 +274,14 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             </div>
           </dl>
         </div>
+        {vatUnclear && (
+          <VatChoice
+            quoteId={quote.id}
+            choice={quote.vatChoice}
+            assumed={analysis.vatBasis?.assumed ?? "excl"}
+            prices={{ excl: money(applyVatChoice(analysis, "excl").totals.inclVat), incl: money(applyVatChoice(analysis, "incl").totals.inclVat) }}
+          />
+        )}
         {worstCase != null && (
           <p className="num mt-4 rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-900">
             {fmt(t.worstCase, { amount: money(worstCase) })}
@@ -448,7 +460,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                 </li>
               </ul>
             )}
-            <p className="mt-2 text-xs text-ink-muted">{t.itemsNote}</p>
+            <p className="mt-2 text-xs text-ink-muted">{vatUnclear && quote.vatChoice === "incl" ? t.itemsNoteConverted : t.itemsNote}</p>
           </Fold>
 
           <Fold title={t.checklistTitle} meta={fmt(t.checklistCount, { n: analysis.checks.filter((c) => c.present).length })}>

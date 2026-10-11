@@ -194,6 +194,29 @@ try {
   await shot(demo, "compare");
   log("demo user compares 3 quotes");
 
+  // Unclear VAT: the user picks, and the analysis, the overview and the comparison all follow the choice.
+  await demo.goto(`${BASE}/dashboard`);
+  await demo.getByRole("link", { name: /Eksempel Byg/ }).click();
+  await demo.waitForURL(/tilbud\//);
+  const vat = demo.locator("[data-testid=vat-choice]");
+  await vat.getByText("Priserne er uden moms").waitFor();
+  await vat.getByText("I alt 98.000 kr. med moms").waitFor();
+  assert((await demo.getByRole("radio", { name: /^Priserne er uden moms/ }).getAttribute("aria-checked")) === "true", "assumed excl. VAT before choosing");
+  await demo.getByRole("radio", { name: /^Priserne er med moms/ }).click();
+  await demo.waitForFunction(() => document.querySelector("[aria-checked=true]")?.textContent?.includes("Dit valg"));
+  const mainPrice = await demo.locator("section[aria-label] dd").first().innerText();
+  assert(mainPrice.includes("98.000 kr."), `analysis price follows the choice (${mainPrice})`);
+  await demo.goto(`${BASE}/dashboard`);
+  assert((await demo.getByRole("link", { name: /Eksempel Byg/ }).innerText()).includes("98.000 kr."), "overview price follows the choice");
+  await demo.goto(`${BASE}/dashboard/sammenlign`);
+  assert((await demo.locator("table").innerText()).includes("98.000 kr."), "comparison follows the choice");
+  // Back to the default so the rest of the test sees the seeded numbers.
+  await demo.goto(`${BASE}/dashboard`);
+  await demo.getByRole("link", { name: /Eksempel Byg/ }).click();
+  await demo.getByRole("radio", { name: /^Priserne er uden moms/ }).click();
+  await demo.waitForFunction(() => document.querySelector("[aria-checked=true]")?.textContent?.includes("Dit valg"));
+  log("unclear VAT: user choice is saved and used on analysis, overview and comparison");
+
   // Open Eksempel VVS quote and use "Spørg håndværkeren"
   await demo.goto(`${BASE}/dashboard`);
   await demo.getByRole("link", { name: /Eksempel VVS/ }).click();
@@ -280,6 +303,7 @@ try {
       message: await r(`/api/quotes/${id}/message`, { method: "POST", headers: j, body: JSON.stringify({ topic: "hej med dig" }) }),
       report: await r(`/api/quotes/${id}/report`, { method: "POST", headers: j, body: JSON.stringify({ message: "test test" }) }),
       unlock: await r(`/api/quotes/${id}/unlock`, { method: "POST" }),
+      vat: await r(`/api/quotes/${id}/vat`, { method: "POST", headers: j, body: JSON.stringify({ choice: "incl" }) }),
       del: await r(`/api/quotes/${id}`, { method: "DELETE" }),
     };
   }, otherQuoteId);

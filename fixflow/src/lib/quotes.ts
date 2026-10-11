@@ -10,7 +10,7 @@ import { consumeAnalysis, refundAnalysis } from "./quota";
 import { HttpError } from "./auth";
 import { rateLimit } from "./rate-limit";
 import { logError } from "./api";
-import { parseStoredAnalysis, redactForFree, type LockInfo, type QuoteAnalysis } from "./analysis";
+import { parseStoredAnalysis, analysisOfQuote, redactForFree, type LockInfo, type QuoteAnalysis } from "./analysis";
 import { hasFullAccess } from "./plans";
 
 /** An analysis still "running" after this long died with its server (deploy, crash, out of memory). */
@@ -141,7 +141,7 @@ export async function runAnalysis(user: User, quote: Quote, locale: Locale = DEF
 
 /** Shape sent to the client. Locked (free) quotes never include the paid details. */
 export function publicQuote(user: User, quote: Quote) {
-  const analysis = parseStoredAnalysis(quote.analysisJson);
+  const analysis = analysisOfQuote(quote);
   const full = hasFullAccess(user, quote);
   let safe: QuoteAnalysis | null = analysis;
   let lock: LockInfo | null = null;

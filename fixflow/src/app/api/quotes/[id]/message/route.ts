@@ -7,7 +7,7 @@ import { requireApiUser } from "@/lib/auth";
 import { handle, jsonError } from "@/lib/api";
 import { getQuote } from "@/lib/quotes";
 import { draftMessage } from "@/lib/ai";
-import { parseStoredAnalysis } from "@/lib/analysis";
+import { analysisOfQuote } from "@/lib/analysis";
 import { hasFullAccess } from "@/lib/plans";
 import { rateLimit } from "@/lib/rate-limit";
 import { LOCALES } from "@/i18n/config";
@@ -31,7 +31,7 @@ export const POST = handle(async (req: Request, { params }: { params: Promise<{ 
   if (!hasFullAccess(user, quote)) {
     return jsonError(da.errors.needUnlock, 402);
   }
-  const analysis = parseStoredAnalysis(quote.analysisJson);
+  const analysis = analysisOfQuote(quote);
   if (!analysis) return jsonError(da.errors.notAnalyzed);
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return jsonError(da.errors.topicShort);
