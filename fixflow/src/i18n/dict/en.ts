@@ -31,6 +31,13 @@ export const en: Dict = {
       "The analysis is produced by artificial intelligence (AI) and may contain errors. It is guidance – not legal or technical advice.",
       "You can delete your account and all your data at any time.",
     ],
+    privacySummary: [
+      "We only keep what is needed: your account, your quotes and their analyses.",
+      "Your quotes are read by AI at our provider Anthropic in the USA. This is a transfer to a country outside the EU, and it is made under the EU’s standard contractual clauses. Anthropic may not use your quotes to train AI.",
+      "If a PDF contains a CPR number, we remove it before the AI reads the quote. On photos and scanned PDFs, you need to black it out yourself.",
+      "We don’t sell your information or use it for advertising. We use no advertising or statistics cookies.",
+      "You can download or delete all your data on your account page.",
+    ],
   },
   meta: {
     title: "Klardal – understand your contractor’s quote",

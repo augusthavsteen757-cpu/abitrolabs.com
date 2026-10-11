@@ -427,7 +427,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Step n={5} title={t.questionsTitle} />
           {visibleQuestions.length > 0 && (
-            <CopyButton label={t.copyAll} text={visibleQuestions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")} />
+            <CopyButton label={t.copyAll} event="questions_copied" text={visibleQuestions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")} />
           )}
         </div>
         <div className="card mt-4">

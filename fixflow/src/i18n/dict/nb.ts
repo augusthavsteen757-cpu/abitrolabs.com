@@ -31,6 +31,13 @@ export const nb: Dict = {
       "Analysen lages av kunstig intelligens (AI) og kan inneholde feil. Den er veiledning – ikke juridisk eller teknisk rådgivning.",
       "Du kan slette kontoen din og alle dataene dine når som helst.",
     ],
+    privacySummary: [
+      "Vi lagrer bare det som trengs: kontoen din, tilbudene dine og analysene av dem.",
+      "Tilbudene dine leses av AI hos leverandøren vår Anthropic i USA. Det er en overføring til et land utenfor EU, og den skjer etter EUs standardkontrakter. Anthropic får ikke bruke tilbudene dine til å trene AI.",
+      "Står det et CPR-nummer i en PDF, fjerner vi det før AI-en leser tilbudet. På bilder og skannede PDF-er må du selv stryke over det.",
+      "Vi selger ikke opplysningene dine og bruker dem ikke til reklame. Vi bruker ingen reklame- eller statistikkinformasjonskapsler.",
+      "Du kan laste ned eller slette alle dataene dine på kontosiden.",
+    ],
   },
   meta: {
     title: "Klardal – forstå tilbudet fra håndverkeren",

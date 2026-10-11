@@ -29,6 +29,13 @@ export const da = {
       "Analysen laves af kunstig intelligens (AI) og kan indeholde fejl. Den er vejledning – ikke juridisk eller teknisk rådgivning.",
       "Du kan slette din konto og alle dine data når som helst.",
     ],
+    privacySummary: [
+      "Vi gemmer kun det, der skal til: din konto, dine tilbud og analyserne af dem.",
+      "Dine tilbud bliver læst af AI hos vores leverandør Anthropic i USA. Det er en overførsel til et land uden for EU, og den sker efter EU's standardkontrakter. Anthropic må ikke bruge dine tilbud til at træne AI.",
+      "Står der et CPR-nummer i en PDF, fjerner vi det, før AI'en læser tilbuddet. På billeder og scannede PDF'er skal du selv overstrege det.",
+      "Vi sælger ikke dine oplysninger og bruger dem ikke til reklame. Vi bruger ingen reklame- eller statistikcookies.",
+      "Du kan hente eller slette alle dine data på din kontoside.",
+    ],
   },
   meta: {
     title: "Klardal – forstå dit håndværkertilbud",

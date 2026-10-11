@@ -27,6 +27,13 @@ export const pl: Dict = {
       "Analizę przygotowuje sztuczna inteligencja (AI) i może ona zawierać błędy. Ma charakter wskazówki – nie jest poradą prawną ani techniczną.",
       "Możesz w dowolnym momencie usunąć swoje konto i wszystkie swoje dane.",
     ],
+    privacySummary: [
+      "Przechowujemy tylko to, co potrzebne: twoje konto, wyceny i ich analizy.",
+      "Twoje wyceny czyta AI u naszego dostawcy Anthropic w USA. To przekazanie danych do kraju spoza UE, które odbywa się na podstawie standardowych klauzul umownych UE. Anthropic nie może używać twoich wycen do trenowania AI.",
+      "Jeśli w pliku PDF jest numer CPR, usuwamy go, zanim AI przeczyta wycenę. Na zdjęciach i zeskanowanych PDF-ach musisz go zakryć sam.",
+      "Nie sprzedajemy twoich danych i nie używamy ich do reklamy. Nie używamy plików cookie reklamowych ani statystycznych.",
+      "Wszystkie swoje dane możesz pobrać lub usunąć na stronie konta.",
+    ],
   },
   meta: {
     title: "Klardal – zrozum wycenę od wykonawcy",

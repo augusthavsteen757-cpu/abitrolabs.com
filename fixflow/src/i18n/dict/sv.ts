@@ -31,6 +31,13 @@ export const sv: Dict = {
       "Analysen görs av artificiell intelligens (AI) och kan innehålla fel. Den är vägledning – inte juridisk eller teknisk rådgivning.",
       "Du kan radera ditt konto och alla dina data när som helst.",
     ],
+    privacySummary: [
+      "Vi sparar bara det som behövs: ditt konto, dina offerter och analyserna av dem.",
+      "Dina offerter läses av AI hos vår leverantör Anthropic i USA. Det är en överföring till ett land utanför EU, och den sker enligt EU:s standardavtalsklausuler. Anthropic får inte använda dina offerter för att träna AI.",
+      "Står det ett CPR-nummer i en PDF tar vi bort det innan AI:n läser offerten. På bilder och skannade PDF:er behöver du själv stryka över det.",
+      "Vi säljer inte dina uppgifter och använder dem inte för reklam. Vi använder inga reklam- eller statistikcookies.",
+      "Du kan ladda ner eller radera alla dina uppgifter på din kontosida.",
+    ],
   },
   meta: {
     title: "Klardal – förstå din hantverkaroffert",

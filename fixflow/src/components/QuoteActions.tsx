@@ -7,10 +7,26 @@ import { cn } from "@/lib/format";
 import { useI18n } from "@/i18n/client";
 import { fmt } from "@/i18n/fmt";
 
-export function CopyButton({ text, label, className }: { text: string; label?: string; className?: string }) {
+/** Anonymous usage count (see lib/events.ts); failures are ignored. */
+function countEvent(name: "message_copied" | "questions_copied") {
+  fetch("/api/events", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name }), keepalive: true }).catch(() => {});
+}
+
+export function CopyButton({
+  text,
+  label,
+  className,
+  event,
+}: {
+  text: string;
+  label?: string;
+  className?: string;
+  event?: "message_copied" | "questions_copied";
+}) {
   const { d } = useI18n();
   const [copied, setCopied] = useState(false);
   async function copy() {
+    if (event) countEvent(event);
     try {
       await navigator.clipboard.writeText(text);
     } catch {

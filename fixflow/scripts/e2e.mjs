@@ -275,6 +275,21 @@ try {
   await shot(demo, "message");
   log("message generated and saved");
 
+  // Anonymous usage counts: copy the message and the questions, then the admin page shows every event.
+  await demo.locator("article").filter({ hasText: "Før vi kan skrive under" }).first().getByRole("button", { name: "Kopiér" }).click();
+  await demo.getByRole("button", { name: "Kopiér alle" }).click();
+  await demo.waitForTimeout(500);
+  const badEvent = (await demo.request.post(`${BASE}/api/events`, { headers: { origin: BASE }, data: { name: "analysis_done" } })).status();
+  assert(badEvent === 400, `the browser can only report copy events (${badEvent})`);
+  await demo.goto(`${BASE}/dashboard/sammenlign`);
+  await demo.goto(`${BASE}/dashboard/admin`);
+  const usage = await demo.locator("[data-testid=admin-totals]").innerText();
+  for (const label of ["Analyse fuldført", "Sammenligning åbnet", "Besked genereret", "Besked kopieret", "Spørgsmål kopieret"]) {
+    const row = usage.split("\n").find((l) => l.startsWith(label)) ?? "";
+    assert(/\t[1-9]/.test(row), `admin shows "${label}" counted (${row})`);
+  }
+  log("anonymous usage counts reach the admin page");
+
   // Find contractors nearby (demo firms) and build a quote request
   await demo.goto(`${BASE}/dashboard/find`);
   await demo.selectOption("#trade", "vvs");
@@ -330,6 +345,9 @@ try {
   await intruder.check("input[name=acceptTerms]");
   await intruder.click("button[type=submit]");
   await intruder.waitForURL(`${BASE}/dashboard`);
+  const adminProbe = await intruder.goto(`${BASE}/dashboard/admin`);
+  assert(adminProbe.status() === 404, `usage numbers are hidden from other users (${adminProbe.status()})`);
+  await intruder.goto(`${BASE}/dashboard`);
   const probes = await intruder.evaluate(async (id) => {
     const j = { "content-type": "application/json" };
     const r = async (url, init) => (await fetch(url, init)).status;

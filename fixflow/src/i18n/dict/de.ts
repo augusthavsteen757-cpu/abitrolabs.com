@@ -31,6 +31,13 @@ export const de: Dict = {
       "Die Analyse wird von künstlicher Intelligenz (KI) erstellt und kann Fehler enthalten. Sie dient zur Orientierung – sie ist keine rechtliche oder technische Beratung.",
       "Du kannst dein Konto und alle deine Daten jederzeit löschen.",
     ],
+    privacySummary: [
+      "Wir speichern nur, was nötig ist: dein Konto, deine Angebote und deren Analysen.",
+      "Deine Angebote werden von KI bei unserem Anbieter Anthropic in den USA gelesen. Das ist eine Übermittlung in ein Land außerhalb der EU; sie erfolgt auf Grundlage der EU-Standardvertragsklauseln. Anthropic darf deine Angebote nicht zum Trainieren von KI verwenden.",
+      "Steht in einem PDF eine CPR-Nummer, entfernen wir sie, bevor die KI das Angebot liest. Auf Fotos und gescannten PDFs musst du sie selbst schwärzen.",
+      "Wir verkaufen deine Daten nicht und nutzen sie nicht für Werbung. Wir verwenden keine Werbe- oder Statistik-Cookies.",
+      "Du kannst alle deine Daten auf deiner Kontoseite herunterladen oder löschen.",
+    ],
   },
   meta: {
     title: "Klardal – verstehe dein Handwerkerangebot",

@@ -10,6 +10,7 @@ import { consumeAnalysis, refundAnalysis } from "./quota";
 import { HttpError } from "./auth";
 import { rateLimit } from "./rate-limit";
 import { logError } from "./api";
+import { track } from "./events";
 import { parseStoredAnalysis, analysisOfQuote, redactForFree, type LockInfo, type QuoteAnalysis } from "./analysis";
 import { hasFullAccess } from "./plans";
 
@@ -128,6 +129,12 @@ export async function runAnalysis(user: User, quote: Quote, locale: Locale = DEF
       await refundAnalysis(user.id, source);
       throw new HttpError(404, da.errors.quoteNotFound);
     }
+    await track("analysis_done");
+    const inProject = await db
+      .select({ id: quotes.id })
+      .from(quotes)
+      .where(and(eq(quotes.userId, user.id), eq(quotes.projectName, updated.projectName), eq(quotes.status, "DONE")));
+    if (inProject.length === 2) await track("second_quote_in_project");
     return updated;
   } catch (err) {
     if (err instanceof HttpError) throw err;

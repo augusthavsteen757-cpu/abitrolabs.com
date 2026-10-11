@@ -12,6 +12,7 @@ import { hasFullAccess } from "@/lib/plans";
 import { rateLimit } from "@/lib/rate-limit";
 import { LOCALES } from "@/i18n/config";
 import { getLocale } from "@/i18n/server";
+import { track } from "@/lib/events";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -42,5 +43,6 @@ export const POST = handle(async (req: Request, { params }: { params: Promise<{ 
     .insert(contractorMessages)
     .values({ quoteId: quote.id, topic: parsed.data.topic, body })
     .returning();
+  await track("message_generated");
   return NextResponse.json({ message });
 });

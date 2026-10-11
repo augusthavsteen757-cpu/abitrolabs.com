@@ -31,6 +31,13 @@ export const ro: Dict = {
       "Analiza este realizată de inteligența artificială (AI) și poate conține erori. Are caracter de îndrumare – nu este consultanță juridică sau tehnică.",
       "Îți poți șterge oricând contul și toate datele.",
     ],
+    privacySummary: [
+      "Păstrăm doar ce este necesar: contul tău, ofertele tale și analizele lor.",
+      "Ofertele tale sunt citite de AI la furnizorul nostru Anthropic din SUA. Este un transfer într-o țară din afara UE, care se face pe baza clauzelor contractuale standard ale UE. Anthropic nu are voie să folosească ofertele tale pentru a antrena AI.",
+      "Dacă un PDF conține un număr CPR, îl eliminăm înainte ca AI-ul să citească oferta. Pe poze și PDF-uri scanate trebuie să îl acoperi singur.",
+      "Nu îți vindem datele și nu le folosim pentru reclame. Nu folosim cookie-uri de reclamă sau de statistică.",
+      "Poți descărca sau șterge toate datele tale pe pagina contului.",
+    ],
   },
   meta: {
     title: "Klardal – înțelege oferta meșterului",
