@@ -4,6 +4,9 @@ export const DEFAULT_LOCALE: Locale = "da";
 export const LOCALE_COOKIE = "ff_lang";
 
 /** Shown in the language picker – each language in its own name. */
+/** Short labels for the compact language picker. Ukrainian is "UA" (the country code), since "UK" reads as English. */
+export const LOCALE_SHORT: Record<Locale, string> = { da: "DA", en: "EN", sv: "SV", nb: "NO", de: "DE", pl: "PL", uk: "UA", ro: "RO" };
+
 export const LOCALE_NAMES: Record<Locale, string> = {
   da: "Dansk",
   en: "English",

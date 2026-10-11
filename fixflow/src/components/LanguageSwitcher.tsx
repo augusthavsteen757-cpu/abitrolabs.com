@@ -1,7 +1,7 @@
 "use client";
 
 import { Globe } from "lucide-react";
-import { LOCALES, LOCALE_COOKIE, LOCALE_NAMES, type Locale } from "@/i18n/config";
+import { LOCALES, LOCALE_COOKIE, LOCALE_NAMES, LOCALE_SHORT, type Locale } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/format";
 
@@ -28,7 +28,7 @@ export function LanguageSwitcher({ className, compact = false }: { className?: s
       >
         {LOCALES.map((l) => (
           <option key={l} value={l}>
-            {compact ? l.toUpperCase() : LOCALE_NAMES[l]}
+            {compact ? LOCALE_SHORT[l] : LOCALE_NAMES[l]}
           </option>
         ))}
       </select>
