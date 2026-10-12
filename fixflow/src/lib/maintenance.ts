@@ -1,9 +1,12 @@
+import { ensureSchema } from "@/db/ensure-schema";
 import { deleteInactiveAccounts } from "./account";
 import { recoverStaleAnalyses, unlockBetaAnalyses } from "./quotes";
 import { syncPartnerCodes } from "./codes";
 
 /** One-off jobs when the server starts: partner codes from PARTNER_CODES, and keeping beta analyses open. */
 export async function runStartupTasks() {
+  // Must run first: the code below (and every request) expects the new columns and tables.
+  await ensureSchema().catch((err) => console.error("Schema check failed", err));
   await syncPartnerCodes().catch((err) => console.error("Partner code sync failed", err));
   const unlocked = await unlockBetaAnalyses().catch((err) => {
     console.error("Unlocking beta analyses failed", err);
