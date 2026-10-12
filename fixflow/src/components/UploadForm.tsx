@@ -6,6 +6,7 @@ import { cn, formatBytes } from "@/lib/format";
 import { useI18n } from "@/i18n/client";
 import { fmt, plural } from "@/i18n/fmt";
 import type { Dict } from "@/i18n/dict/da";
+import { HOUSING, LOAD_BEARING } from "@/lib/job-context";
 
 const ACCEPT = "application/pdf,image/jpeg,image/png,image/webp";
 const MAX = 10 * 1024 * 1024;
@@ -62,6 +63,9 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
   const file = files[0] ?? null;
   const [preview, setPreview] = useState<string | null>(null);
   const [project, setProject] = useState(projects[0] ?? "");
+  const [housing, setHousing] = useState("");
+  const [builtYear, setBuiltYear] = useState("");
+  const [loadBearing, setLoadBearing] = useState("");
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -105,6 +109,9 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
     const fd = new FormData();
     for (const f of files) fd.append("file", await shrinkImage(f, files.length > 1));
     fd.append("projectName", project.trim());
+    if (housing) fd.append("housing", housing);
+    if (builtYear.trim()) fd.append("builtYear", builtYear.trim());
+    if (loadBearing) fd.append("loadBearing", loadBearing);
     let res: Response;
     try {
       res = await fetch("/api/quotes", { method: "POST", body: fd });
@@ -300,6 +307,57 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
         </datalist>
         <p className="mt-1.5 text-xs text-ink-muted">{t.projectHelp}</p>
       </div>
+
+      <details className="group rounded-xl border border-line bg-white" data-testid="job-context">
+        <summary className="cursor-pointer list-none px-4 py-3 font-medium marker:hidden">
+          <span className="flex items-center justify-between gap-3">
+            {t.contextTitle}
+            <Plus className="h-4 w-4 shrink-0 text-ink-muted transition-transform group-open:rotate-45" />
+          </span>
+          <span className="mt-0.5 block text-xs font-normal text-ink-muted">{t.contextHelp}</span>
+        </summary>
+        <div className="grid gap-4 border-t border-line px-4 py-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="housing" className="label">{t.housing}</label>
+            <select id="housing" value={housing} onChange={(e) => setHousing(e.target.value)} className="input">
+              <option value="">{t.choose}</option>
+              {HOUSING.map((h) => (
+                <option key={h} value={h}>{t.housingOptions[h]}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="builtYear" className="label">{t.builtYear}</label>
+            <input
+              id="builtYear"
+              inputMode="numeric"
+              pattern="[0-9]{4}"
+              value={builtYear}
+              onChange={(e) => setBuiltYear(e.target.value.replace(/\D/g, "").slice(0, 4))}
+              className="input"
+              placeholder="1972"
+            />
+          </div>
+          <fieldset className="sm:col-span-2">
+            <legend className="label">{t.loadBearing}</legend>
+            <div className="flex flex-wrap gap-2">
+              {LOAD_BEARING.map((v) => (
+                <label key={v} className={cn("cursor-pointer rounded-lg border px-3 py-2 text-sm", loadBearing === v ? "border-brand-600 bg-brand-50 text-brand-800" : "border-line")}>
+                  <input
+                    type="radio"
+                    name="loadBearing"
+                    value={v}
+                    checked={loadBearing === v}
+                    onChange={() => setLoadBearing(v)}
+                    className="sr-only"
+                  />
+                  {t.loadBearingOptions[v]}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        </div>
+      </details>
 
       {error && (
         <p role="alert" className="rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-700">

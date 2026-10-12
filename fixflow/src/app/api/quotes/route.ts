@@ -11,6 +11,7 @@ import { eq } from "drizzle-orm";
 import { listQuotes, publicQuote, runAnalysis } from "@/lib/quotes";
 import { getUsage } from "@/lib/plans";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { parseJobContext } from "@/lib/job-context";
 import { CombineError, MAX_FILES, MAX_PAGES, MAX_TOTAL_SIZE, combineFiles, combinedFileName } from "@/lib/combine";
 
 export const runtime = "nodejs";
@@ -77,10 +78,13 @@ export const POST = handle(async (req: Request) => {
     fileName = combinedFileName(inputs.map((i) => i.name));
   }
 
+  const jobContext = parseJobContext((k) => form?.get(k));
+  const jobContextJson = jobContext ? JSON.stringify(jobContext) : null;
+
   const fileKey = await saveFile(user.id, buf, mimeType);
   const [quote] = await db
     .insert(quotes)
-    .values({ userId: user.id, projectName, fileName, fileKey, mimeType, fileSize: buf.length })
+    .values({ userId: user.id, projectName, fileName, fileKey, mimeType, fileSize: buf.length, jobContext: jobContextJson })
     .returning();
 
   try {

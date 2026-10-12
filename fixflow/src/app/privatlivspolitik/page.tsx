@@ -35,6 +35,11 @@ export default function PrivacyPage() {
           det automatisk, før tilbuddet sendes til AI-analyse. På billeder og scannede PDF&apos;er kan vi ikke finde det,
           så overstreg selv CPR-nummer og andre følsomme oplysninger.
         </li>
+        <li>
+          <strong>Oplysninger om opgaven</strong>, hvis du vælger at give dem ved upload: boligtype, byggeår og om
+          arbejdet berører bærende konstruktioner. De gemmes sammen med tilbuddet og sendes med til AI-analysen, så den
+          kan tage højde for dem.
+        </li>
         <li><strong>Beskeder</strong>, du laver med beskedgeneratoren (udkastet indeholder dit navn).</li>
         <li>
           <strong>Køb:</strong> type, beløb, dato, dit samtykke til levering med det samme og evt. fortrydelse.

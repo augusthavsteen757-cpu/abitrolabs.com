@@ -12,6 +12,7 @@ import { fmt } from "@/i18n/fmt";
 import { isAiMissing, isDemoMode } from "./demo";
 import { maskCpr, maskCprDeep } from "./cpr";
 import { quoteContent } from "./quote-content";
+import { jobContextForAi, type JobContext } from "./job-context";
 export { isAiMissing, isDemoMode };
 
 const MODEL = () => process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
@@ -74,6 +75,14 @@ Regler:
   * Bygninger opført eller renoveret før ca. 1986 kan indeholde asbest, PCB eller bly; nedrivning kræver kortlægning og korrekt bortskaffelse (Arbejdstilsynet).
   * Vådrum skal opfylde BR18's krav og bør udføres efter BUILD-anvisning 252 (tidligere SBi-anvisning 252) eller tilsvarende, med godkendt vådrumssikring.
   * Klager over byggearbejde kan i mange tilfælde indbringes for Byggeriets Ankenævn, hvis firmaet er omfattet; mange firmaer er med i en garantiordning.
+- Tjek altid også disse forhold, og flag eller spørg, når de mangler eller er uklare: hvem søger og betaler eventuelle tilladelser; om firmaet har ansvarsforsikring; om oprydning, bortskaffelse og rengøring er med; om timer × timepris og mængder × enhedspris passer med beløbene; og foreslå at bede om 2–3 referencer på lignende opgaver, når opgaven er stor.
+- Vurder tilbuddet efter opgavens type:
+  * Ejerlejlighed/etageejendom: arbejde på fælles dele (fx facade, vinduer, faldstammer, bærende vægge) kræver normalt ejerforeningens godkendelse – spørg, om den er indhentet.
+  * Ændringer i bærende vægge eller konstruktioner kræver statiske beregninger fra en ingeniør og ofte byggetilladelse. Står det ikke i tilbuddet, hvem der laver beregningen, og hvad den koster, så flag det.
+  * Tilbygning og nybyggeri: byggetilladelse (hvem søger, og er gebyrer med), tegninger og statik samt BR18's krav (fx energi). Myndighedsbehandling kan tage tid – tjek om tidsplanen tager højde for det.
+  * Tag: stillads, undertag og konstruktionens tilstand, især på ældre huse.
+  * Renovering (bad, køkken m.m.): skjulte forhold som råd, skimmel eller gamle rør – hvem bærer risikoen, og hvad koster det, hvis de findes? Ved el-arbejde bør kunden få dokumentation for installationen fra el-installatøren.
+- Har kunden givet oplysninger om opgaven (boligtype, byggeår, bærende konstruktioner), så brug dem i vurderingen og i spørgsmålene – men opfind aldrig noget ud fra dem, og sig ikke, at tilbuddet indeholder noget, det ikke gør.
 - Vær saglig og neutral over for håndværkeren: beskriv hvad der står og ikke står i dokumentet, aldrig påstande om firmaets hæderlighed eller kvalitet.
 - Danske priser: vurder i priceLevel om den samlede pris virker lav, normal eller høj for opgaven i forhold til typiske danske priser (groft skøn – sig hvis det ikke kan vurderes, og vær forsigtig).
 - rules: vurder hver af disse danske regler/ordninger med status "ok", "missing", "unclear" eller "not_relevant" (hvis den ikke gælder denne opgave): ${RULE_KEYS.map((k) => `${k} (${RULE_LABELS[k]})`).join("; ")}.
@@ -252,6 +261,7 @@ export async function analyzeQuote(
   mimeType: string,
   fileName: string,
   locale: Locale = DEFAULT_LOCALE,
+  jobContext: JobContext | null = null,
 ): Promise<{ analysis: QuoteAnalysis; meta: AiMeta | null }> {
   if (isDemoMode()) {
     await new Promise((r) => setTimeout(r, 1800));
@@ -273,6 +283,7 @@ export async function analyzeQuote(
   }
 
   const { blocks, cprHidden } = await quoteContent(data, mimeType);
+  const contextText = jobContextForAi(jobContext);
   const safeName = maskCpr(fileName.replace(/[\r\n]/g, " ").slice(0, 120)).text;
   const request = (model: string, forceTool: boolean) =>
     getClient().messages.create({
@@ -290,7 +301,10 @@ export async function analyzeQuote(
             ...blocks,
             {
               type: "text",
-              text: `Analysér dette håndværkertilbud (filnavn: ${safeName}) og kald registrer_analyse med resultatet.`,
+              text:
+                (contextText
+                  ? `Kundens egne oplysninger om opgaven (valgfrie og kan være upræcise – brug dem som baggrund for vurderingen, ikke som noget der står i tilbuddet):\n${contextText}\n\n`
+                  : "") + `Analysér dette håndværkertilbud (filnavn: ${safeName}) og kald registrer_analyse med resultatet.`,
             },
           ],
         },

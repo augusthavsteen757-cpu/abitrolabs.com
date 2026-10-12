@@ -5,7 +5,7 @@
  *
  *   BASE_URL=https://klardal.com node eval/run-eval.mjs
  *
- * Needs BETA_FREE=1 (or enough analyses) on the target. Uses 5 analyses (~5 kr.) per run.
+ * Needs BETA_FREE=1 (or enough analyses) on the target. Uses 6 analyses (~6 kr.) per run.
  */
 import { readFileSync } from "fs";
 import path from "path";
@@ -24,8 +24,9 @@ async function call(p, init = {}) {
   return { status: res.status, json: await res.json().catch(() => ({})) };
 }
 
-async function upload(file) {
+async function upload(file, context = {}) {
   const fd = new FormData();
+  for (const [k, v] of Object.entries(context)) fd.append(k, v);
   // Several files = one upload of several files (they are joined into one PDF on the server).
   for (const f of [file].flat()) fd.append("file", new Blob([readFileSync(path.join(dir, "fixtures", f))], { type: "application/pdf" }), f);
   fd.append("projectName", "Eval");
@@ -68,6 +69,20 @@ const cases = [
     },
   },
   {
+    // The customer says it's a flat and load-bearing walls are involved: the analysis should take that up.
+    file: "koekken-overslag.pdf",
+    context: { housing: "apartment", builtYear: "1962", loadBearing: "yes" },
+    check(q) {
+      const a = q.analysis;
+      const text = JSON.stringify([a.flags, a.questions]).toLowerCase();
+      return {
+        "status DONE": q.status === "DONE",
+        "mentions the owners' association": /ejerforening/.test(text),
+        "mentions structural calculation / engineer": /statik|statisk|ingeniør/.test(text),
+      };
+    },
+  },
+  {
     // Two quotes from two different firms in one upload must be refused (and not charged).
     file: ["koekken-overslag.pdf", "sum-mismatch.pdf"],
     check(q) {
@@ -100,7 +115,7 @@ if (signup.status >= 300) {
 let failed = 0;
 for (const c of cases) {
   const t0 = Date.now();
-  const r = await upload(c.file);
+  const r = await upload(c.file, c.context);
   const q = r.json.quote ?? {};
   const results = r.status < 300 ? c.check(q) : { [`upload ok (got ${r.status} ${r.json.error ?? ""})`]: false };
   console.log(`\n${[c.file].flat().join(" + ")}  (${Math.round((Date.now() - t0) / 1000)} s)`);

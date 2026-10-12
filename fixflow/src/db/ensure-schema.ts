@@ -36,7 +36,10 @@ const TABLES = [
 ];
 
 /** [table, column, definition] – added with ALTER TABLE only when missing. */
-const COLUMNS: [string, string, string][] = [["users", "gift_credits", "integer DEFAULT 0 NOT NULL"]];
+const COLUMNS: [string, string, string][] = [
+  ["users", "gift_credits", "integer DEFAULT 0 NOT NULL"],
+  ["quotes", "job_context", "text"],
+];
 
 export async function ensureSchema() {
   for (const [table, column, definition] of COLUMNS) {

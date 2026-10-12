@@ -5,6 +5,7 @@ import { and, desc, eq, inArray, lt } from "drizzle-orm";
 import { db } from "@/db";
 import { contractorMessages, quotes, type Quote, type User } from "@/db/schema";
 import { AnalysisError, analyzeQuote } from "./ai";
+import { readJobContext } from "./job-context";
 import { readStoredFile } from "./storage";
 import { consumeAnalysis, refundAnalysis } from "./quota";
 import { HttpError } from "./auth";
@@ -103,7 +104,7 @@ export async function runAnalysis(user: User, quote: Quote, locale: Locale = DEF
 
   try {
     const data = await readStoredFile(quote.fileKey);
-    const { analysis, meta } = await analyzeQuote(data, quote.mimeType, quote.fileName, locale);
+    const { analysis, meta } = await analyzeQuote(data, quote.mimeType, quote.fileName, locale, readJobContext(quote.jobContext));
     // Analyses made in the free beta stay fully open when the beta ends.
     const unlocked = quote.unlocked || user.plan === "PRO" || source !== "plan" || isBeta();
     const [updated] = await db
