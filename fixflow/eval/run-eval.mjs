@@ -7,7 +7,7 @@
  *
  * Needs BETA_FREE=1 (or enough analyses) on the target. Uses 6 analyses (~6 kr.) per run.
  */
-import { readFileSync } from "fs";
+import { appendFileSync, readFileSync } from "fs";
 import path from "path";
 
 const BASE = process.env.BASE_URL || "http://localhost:3000";
@@ -101,28 +101,61 @@ const cases = [
   },
 ];
 
-const email = `eval${Date.now()}@eksempel.dk`;
-const signup = await call("/api/auth/signup", {
-  method: "POST",
-  headers: { "content-type": "application/json" },
-  body: JSON.stringify({ name: "Eval", email, password: "Eval-Klardal-2026!x", acceptTerms: true }),
-});
-if (signup.status >= 300) {
-  console.error("Signup failed", signup);
-  process.exit(1);
+const password = "Eval-Klardal-2026!x";
+let email = "";
+
+/** A fresh test account (each gets the free analyses of the beta). */
+async function newAccount() {
+  cookie = "";
+  email = `eval${Date.now()}@eksempel.dk`;
+  const signup = await call("/api/auth/signup", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ name: "Eval", email, password, acceptTerms: true }),
+  });
+  if (signup.status >= 300) {
+    console.error("Signup failed", signup);
+    process.exit(1);
+  }
 }
 
+/** Removes the test account again (with its quotes and files), so runs leave nothing behind on the site. */
+async function deleteAccount() {
+  const deleted = await call("/api/account/delete", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ password }),
+  });
+  console.log(deleted.status === 200 ? `\nTest account deleted` : `\nCould not delete the test account ${email} (${deleted.status})`);
+}
+
+await newAccount();
+
 let failed = 0;
+const summary = [`## AI-test mod ${BASE}`, ""];
 for (const c of cases) {
   const t0 = Date.now();
-  const r = await upload(c.file, c.context);
+  let r = await upload(c.file, c.context);
+  if (r.status === 402) {
+    // The account's free analyses are used up: continue on a new one.
+    await deleteAccount();
+    await newAccount();
+    r = await upload(c.file, c.context);
+  }
   const q = r.json.quote ?? {};
   const results = r.status < 300 ? c.check(q) : { [`upload ok (got ${r.status} ${r.json.error ?? ""})`]: false };
   console.log(`\n${[c.file].flat().join(" + ")}  (${Math.round((Date.now() - t0) / 1000)} s)`);
+  summary.push(`**${[c.file].flat().join(" + ")}**`);
   for (const [name, ok] of Object.entries(results)) {
     console.log(`  ${ok ? "✓" : "✗"} ${name}`);
+    summary.push(`- ${ok ? "✅" : "❌"} ${name}`);
     if (!ok) failed++;
   }
+  summary.push("");
 }
+await deleteAccount();
+summary.push(failed ? `**${failed} tjek fejlede**` : "**Alle tjek bestået**");
+// On GitHub Actions the result is shown on the run's page.
+if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary.join("\n") + "\n");
 console.log(failed ? `\n${failed} check(s) failed` : "\nAll checks passed");
 process.exitCode = failed ? 1 : 0;
