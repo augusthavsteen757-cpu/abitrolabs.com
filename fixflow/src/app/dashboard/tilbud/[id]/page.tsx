@@ -199,6 +199,24 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
     );
   };
 
+  // Overview first: only the most important things are open, the rest is one tap away.
+  const SHOWN = 3;
+  const missingChecks = analysis.checks.filter((c) => !c.present);
+  const presentChecks = analysis.checks.filter((c) => c.present);
+  const checkRow = (c: (typeof analysis.checks)[number]) => (
+    <li key={c.key} className="flex gap-3">
+      {c.present ? (
+        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" aria-label={t.yes} />
+      ) : (
+        <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" aria-label={t.no} />
+      )}
+      <div className="min-w-0">
+        <p className="font-medium">{L.check[c.key]}</p>
+        {c.note && <p className="text-sm text-ink-muted">{c.note}</p>}
+      </div>
+    </li>
+  );
+
   const question = (q: (typeof visibleQuestions)[number], n: number) => (
     <li key={n} className="flex gap-3 p-4">
       <span className="num flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-50 text-xs font-semibold text-brand-700">
@@ -333,7 +351,14 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         {flags.length === 0 ? (
           <p className="card mt-4 p-5 text-ink-soft">{t.noFlags}</p>
         ) : (
-          <div className="mt-4 space-y-3">{flags.map(flagCard)}</div>
+          <>
+            <div className="mt-4 space-y-3">{flags.slice(0, SHOWN).map(flagCard)}</div>
+            {flags.length > SHOWN && (
+              <More label={fmt(t.showAllFlags, { n: flags.length })} testId="more-flags">
+                <div className="space-y-3">{flags.slice(SHOWN).map(flagCard)}</div>
+              </More>
+            )}
+          </>
         )}
       </section>
 
@@ -364,7 +389,8 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             {view.lineItems.length === 0 ? (
               <p className="mt-3 text-sm text-ink-muted">{t.noItems}</p>
             ) : (
-              <ul className="mt-4 divide-y divide-line rounded-xl border border-line">
+              <More label={fmt(t.showAllItems, { n: view.lineItems.length })} testId="more-items">
+              <ul className="divide-y divide-line rounded-xl border border-line">
                 {view.lineItems.map((item, i) => (
                   <li key={i} className="p-3.5">
                     <div className="flex items-start justify-between gap-3">
@@ -396,6 +422,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                   <span className="num font-semibold">{money(analysis.totals.exclVat)}</span>
                 </li>
               </ul>
+              </More>
             )}
             <p className="mt-2 text-xs text-ink-muted">{vatUnclear && quote.vatChoice === "incl" ? t.itemsNoteConverted : t.itemsNote}</p>
         </div>
@@ -404,21 +431,22 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
       {/* 4. Står det vigtigste i tilbuddet? */}
       <section className="mt-10">
         <Step n={4} title={t.checklistTitle} sub={fmt(t.checklistCount, { n: analysis.checks.filter((c) => c.present).length })} />
-        <div className="card mt-4 p-5 sm:p-6">            <ul className="space-y-3">
-              {analysis.checks.map((c) => (
-                <li key={c.key} className="flex gap-3">
-                  {c.present ? (
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" aria-label={t.yes} />
-                  ) : (
-                    <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" aria-label={t.no} />
-                  )}
-                  <div className="min-w-0">
-                    <p className="font-medium">{L.check[c.key]}</p>
-                    {c.note && <p className="text-sm text-ink-muted">{c.note}</p>}
-                  </div>
-                </li>
-              ))}
-            </ul>
+        <div className="card mt-4 p-5 sm:p-6" data-testid="checks">
+          {missingChecks.length === 0 ? (
+            <p className="flex items-center gap-2 font-medium text-brand-800">
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-brand-600" aria-hidden /> {t.checksAllPresent}
+            </p>
+          ) : (
+            <>
+              <p className="text-sm font-semibold text-red-800">{t.checksMissing}</p>
+              <ul className="mt-2 space-y-3">{missingChecks.map(checkRow)}</ul>
+            </>
+          )}
+          {presentChecks.length > 0 && (
+            <More label={fmt(t.checksPresent, { n: presentChecks.length })} testId="more-checks">
+              <ul className="space-y-3">{presentChecks.map(checkRow)}</ul>
+            </More>
+          )}
         </div>
       </section>
 
@@ -431,7 +459,14 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           )}
         </div>
         <div className="card mt-4">
-          <ol className="divide-y divide-line">{visibleQuestions.map((q, i) => question(q, i + 1))}</ol>
+          <ol className="divide-y divide-line">{visibleQuestions.slice(0, SHOWN).map((q, i) => question(q, i + 1))}</ol>
+          {visibleQuestions.length > SHOWN && (
+            <div className="border-t border-line px-4 pb-3">
+              <More label={fmt(t.showAllQuestions, { n: visibleQuestions.length })} testId="more-questions">
+                <ol className="divide-y divide-line">{visibleQuestions.slice(SHOWN).map((q, i) => question(q, i + 1 + SHOWN))}</ol>
+              </More>
+            </div>
+          )}
         </div>
         {hiddenCount > 0 && (
           <a href="#laas-op" className="card mt-3 flex items-center gap-4 p-4 hover:shadow-lift">
@@ -581,6 +616,19 @@ function Fold({ title, meta, children }: { title: string; meta?: string; childre
         <ChevronDown className="h-5 w-5 shrink-0 text-ink-muted transition group-open:rotate-180" aria-hidden />
       </summary>
       <div className="px-4 pb-5 sm:px-5">{children}</div>
+    </details>
+  );
+}
+
+/** "Vis alle …": the rest of a list, folded so the page stays an overview. */
+function More({ label, testId, children }: { label: string; testId?: string; children: React.ReactNode }) {
+  return (
+    <details className="group mt-3" data-testid={testId}>
+      <summary className="flex cursor-pointer list-none items-center gap-1.5 py-1 text-sm font-semibold text-brand-700 hover:underline">
+        {label}
+        <ChevronDown className="h-4 w-4 transition group-open:rotate-180" aria-hidden />
+      </summary>
+      <div className="mt-3">{children}</div>
     </details>
   );
 }

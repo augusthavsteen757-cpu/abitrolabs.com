@@ -62,7 +62,8 @@ Regler:
 - Flag-typen "terms" bruges kun til betalings- og aftalevilkår (forudbetaling, gyldighed, prisform, forbehold).
 - estimatedExtraMin/Max og extraCostRisk er realistiske skøn i DKK ekskl. moms for danske forhold. Brug null, hvis et flag ikke har en direkte økonomisk risiko.
 - Udfyld alle 10 checks: ${CHECK_KEYS.map((k) => `${k} (${CHECK_LABELS[k]})`).join("; ")}.
-- Skriv 5–10 konkrete, høflige spørgsmål til håndværkeren, der henviser til de faktiske poster og beløb.
+- Skriv 4–7 konkrete, høflige spørgsmål til håndværkeren, der henviser til de faktiske poster og beløb. Ét kort spørgsmål pr. punkt – det vigtigste først.
+- HOLD DET KORT – kunden vil have overblik, ikke en rapport: summary højst 3 korte sætninger. Hver forklaring (flags, poster, checks, regler, ekstraudgifter, prisniveau) højst 1–2 korte sætninger. "why" på spørgsmål højst én kort sætning. Brug korte, almindelige ord, og gentag ikke det samme flere steder. Tag kun de flags med, der betyder noget for kunden – det vigtigste først.
 - priceType: "fast_pris" (fast pris), "tilbud" (bindende tilbud), "overslag" (ikke-bindende skøn), "uklart" (fremgår ikke).
 - Datoer som YYYY-MM-DD hvis muligt.
 - Du kender danske forhold og vurderer altid efter dansk praksis og lovgivning:
@@ -122,7 +123,7 @@ const ANALYSIS_TOOL: Anthropic.Tool = {
         properties: { exclVat: nullableNumber, vat: nullableNumber, inclVat: nullableNumber },
         required: ["exclVat", "vat", "inclVat"],
       },
-      summary: { type: "string", description: "3–5 sætninger på almindeligt dansk" },
+      summary: { type: "string", description: "Højst 3 korte sætninger på almindeligt dansk" },
       lineItems: {
         type: "array",
         items: {
@@ -134,7 +135,7 @@ const ANALYSIS_TOOL: Anthropic.Tool = {
             quantity: nullableNumber,
             unit: nullableString,
             unitPrice: nullableNumber,
-            explanation: { type: "string", description: "Hvad kunden reelt betaler for, på almindeligt dansk" },
+            explanation: { type: "string", description: "Hvad kunden reelt betaler for – én kort sætning" },
             clarity: { type: "string", enum: ["clear", "vague", "unclear"] },
             note: nullableString,
           },

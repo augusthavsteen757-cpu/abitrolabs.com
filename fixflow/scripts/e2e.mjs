@@ -172,6 +172,15 @@ try {
   const after = await page.locator("section:has(h2:has-text('Spørgsmål til håndværkeren')) ol > li").count();
   assert(after === 8, `all 8 questions after unlock (saw ${after})`);
   assert((await page.content()).includes("tilbuddets største enkeltpost"), "unlocked details are shown");
+  // Overview first: at most 3 warnings and 3 questions are open; the rest is behind "Vis alle".
+  const openFlags = await page.locator("section:has(h2:has-text('Det skal du være opmærksom på')) > div > article").count();
+  assert(openFlags <= 3, `at most 3 warnings open (saw ${openFlags})`);
+  await page.getByTestId("more-questions").locator("summary").getByText(/Vis alle 8 spørgsmål/).waitFor();
+  assert(!(await page.getByTestId("more-questions").evaluate((el) => el.open)), "extra questions start folded");
+  await page.getByTestId("more-items").locator("summary").getByText(/Se alle \d+ poster/).waitFor();
+  await page.getByTestId("checks").getByText("Det mangler:").waitFor();
+  await page.getByTestId("more-questions").locator("summary").click();
+  assert(await page.getByTestId("more-questions").evaluate((el) => el.open), "'Vis alle' opens the rest");
   await shot(page, "analysis-unlocked");
   log("single purchase unlocks the quote");
 
