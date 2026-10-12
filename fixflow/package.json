@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "db:push": "drizzle-kit push",
+    "db:push": "node scripts/pre-push.mjs && drizzle-kit push",
     "db:seed": "tsx scripts/seed.ts",
     "setup": "npm run db:push && npm run db:seed",
     "test:e2e": "node scripts/e2e.mjs"
