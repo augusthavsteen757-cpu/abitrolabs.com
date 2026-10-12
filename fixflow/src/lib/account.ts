@@ -27,11 +27,16 @@ export async function deleteAccountData(user: User) {
   await db.delete(users).where(eq(users.id, user.id));
 }
 
-/** Deletes accounts that have been inactive for 3 years. Runs daily from instrumentation.ts. */
+/** Deletes free accounts without bought analyses that have been inactive for 3 years. Runs daily from instrumentation.ts. */
 export async function deleteInactiveAccounts(now = Date.now()) {
   const cutoff = new Date(now - INACTIVE_DELETE_MS);
   const stale = await db.query.users.findMany({
-    where: or(lt(users.lastSeenAt, cutoff), and(isNull(users.lastSeenAt), lt(users.createdAt, cutoff))),
+    // Never a paying Pro customer or someone with bought analyses left: the terms say bought analyses don't expire.
+    where: and(
+      or(lt(users.lastSeenAt, cutoff), and(isNull(users.lastSeenAt), lt(users.createdAt, cutoff))),
+      eq(users.plan, "FREE"),
+      eq(users.extraCredits, 0),
+    ),
     limit: 200,
   });
   for (const u of stale) {

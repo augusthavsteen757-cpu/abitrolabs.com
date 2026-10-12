@@ -185,10 +185,13 @@ export async function withdrawPurchase(user: User, paymentId: string) {
     text: [
       `Hej ${user.name}`,
       "",
-      `Vi har modtaget, at du fortryder dit køb (${PRODUCT_NAME[p.kind]}) af ${p.createdAt.toLocaleDateString("da-DK")}.`,
+      `Vi har modtaget, at du fortryder dit køb (${PRODUCT_NAME[p.kind]}, ordrenummer ${p.id}) af ${p.createdAt.toLocaleDateString("da-DK")}.`,
+      `Modtaget: ${new Date().toLocaleString("da-DK", { timeZone: "Europe/Copenhagen" })}.`,
       p.kind === "PACK3" && q.credits !== 3 ? `Du har brugt ${3 - (q.credits ?? 0)} af de 3 analyser, så du får pengene tilbage for de ${q.credits} ubrugte.` : "",
       `Du får ${amount} kr. tilbage på det betalingsmiddel, du brugte, senest 14 dage fra i dag.`,
       p.kind === "PRO_MONTHLY" ? "Pro er stoppet med det samme." : "",
+      "",
+      ...sellerLines(),
     ].join("\n"),
   });
   if (!refundedAutomatically) {
@@ -219,6 +222,9 @@ const PRODUCT_NAME: Record<CheckoutKind, string> = {
   PACK3: "Klardal 3-pakke – 3 komplette analyser",
 };
 
+/** Who the customer bought from – in every receipt and confirmation (forbrugeraftaleloven § 8 and § 17). */
+const sellerLines = () => [`Sælger: ${COMPANY.name}, CVR ${COMPANY.cvr}, ${COMPANY.address}`, `Kontakt: ${COMPANY.email}`];
+
 /** Order confirmation on a durable medium (forbrugeraftaleloven § 17), incl. the consent the customer gave. */
 async function sendOrderConfirmation(userId: string, p: Payment) {
   const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
@@ -234,6 +240,8 @@ async function sendOrderConfirmation(userId: string, p: Payment) {
     `Pris: ${p.amountDkk} kr. (Klardal er ikke momsregistreret, så der er ingen moms i prisen.)`,
     `Dato: ${p.createdAt.toLocaleString("da-DK", { timeZone: "Europe/Copenhagen" })}`,
     `Ordrenummer: ${p.id}`,
+    "",
+    ...sellerLines(),
   ];
   if (pro) lines.push("", `Pro fornyes automatisk hver måned til ${PRO_PRICE_DKK} kr., indtil du opsiger. Du kan opsige når som helst på din kontoside.`);
   if (!p.renewal) {
@@ -249,7 +257,11 @@ async function sendOrderConfirmation(userId: string, p: Payment) {
         : p.kind === "PACK3"
           ? `Du kan fortryde inden for ${WITHDRAWAL_DAYS} dage for de analyser, du ikke har brugt, og får pengene tilbage for dem. En analyse, du har brugt, er leveret, og for den har du ingen fortrydelsesret.`
           : `Du kan fortryde inden for ${WITHDRAWAL_DAYS} dage, så længe du ikke har brugt købet. Når analysen er leveret (du har brugt købet), har du ingen fortrydelsesret.`,
-      `Fortryd på ${appUrl()}/dashboard/konto, eller skriv til ${COMPANY.email}. Du kan bruge standardfortrydelsesformularen i handelsbetingelserne, men det er ikke et krav.`,
+      `Fortryd med knappen »Fortryd aftalen her« på ${appUrl()}/dashboard/konto, eller skriv til ${COMPANY.email}. Du kan bruge standardfortrydelsesformularen nedenfor, men det er ikke et krav.`,
+      "",
+      "Standardfortrydelsesformular (udfyld og returnér kun formularen, hvis du ønsker at fortryde aftalen):",
+      `Til ${COMPANY.name}, ${COMPANY.address}, ${COMPANY.email}:`,
+      "Jeg meddeler herved, at jeg ønsker at gøre brug af min fortrydelsesret i forbindelse med min aftale om levering af følgende tjenesteydelse/digitale indhold: ______ · Bestilt den: ______ · Forbrugerens navn: ______ · Forbrugerens adresse: ______ · Dato: ______",
       "",
       `Handelsbetingelser: ${appUrl()}/handelsbetingelser`,
       `Privatlivspolitik: ${appUrl()}/privatlivspolitik`,
