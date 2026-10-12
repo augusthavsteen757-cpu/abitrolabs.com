@@ -191,7 +191,7 @@ test("partner codes: typed codes are normalized, bad entries in PARTNER_CODES ar
 test("new texts exist in every language: 3-pakke, codes and their errors", () => {
   for (const [lang, d] of Object.entries(DICTS)) {
     assert.equal(d.plans.pack.features.length, 4, lang);
-    for (const v of [d.checkout.consentPack, d.code.title, d.code.button, d.errors.codeInvalid, d.errors.codeUsedUp, d.errors.codeAlreadyUsed, d.errors.codeBeta])
+    for (const v of [d.account.withdrawButton, d.account.withdrawConfirmButton, d.checkout.consentPack, d.code.title, d.code.button, d.errors.codeInvalid, d.errors.codeUsedUp, d.errors.codeAlreadyUsed, d.errors.codeBeta])
       assert.ok(v.length > 2, lang);
     assert.ok(d.code.doneOther.includes("{n}") && d.code.doneOne.includes("{n}"), `${lang}: code count`);
     const summary = d.lang.legalSummary[0];
@@ -227,6 +227,14 @@ test("Pro is gone: no text a customer reads before buying offers Pro or a monthl
     }
     assert.ok(!("pro" in d.plans), `${lang}: plans.pro`);
   }
+});
+
+test("the terms name the withdrawal button exactly as the account page shows it", () => {
+  const terms = readFileSync(new URL("../src/app/handelsbetingelser/page.tsx", import.meta.url), "utf8");
+  assert.ok(terms.includes(`»${DICTS.da.account.withdrawButton}«`), "terms mention the real button name");
+  assert.ok(!/\bPro\b/.test(terms), "terms do not mention Pro");
+  const privacy = readFileSync(new URL("../src/app/privatlivspolitik/page.tsx", import.meta.url), "utf8");
+  assert.ok(!/\bPro\b/.test(privacy), "privacy policy does not mention Pro");
 });
 
 test("Klardal's own prices never claim VAT (Klardal is not VAT-registered)", () => {

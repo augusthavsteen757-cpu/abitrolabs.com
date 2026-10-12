@@ -86,7 +86,7 @@ export default function TermsPage() {
       <h2>Sletning af konto</h2>
       <p>
         Du kan slette din konto når som helst på din kontoside. Vil du have penge tilbage for et køb inden for
-        fortrydelsesfristen, så brug »Fortryd købet« først.
+        fortrydelsesfristen, så brug »Fortryd aftalen her« først.
       </p>
 
       <h2>Fortrydelsesret</h2>
@@ -109,7 +109,7 @@ export default function TermsPage() {
         </li>
       </ul>
       <p>
-        <strong>Sådan fortryder du:</strong> Brug knappen »Fortryd købet« ved betalingen på din kontoside, eller send en
+        <strong>Sådan fortryder du:</strong> Brug knappen »Fortryd aftalen her« ved betalingen på din kontoside, eller send en
         tydelig meddelelse til {COMPANY.email}. Du kan bruge formularen nedenfor, men skal ikke. Det er nok, at du sender
         meddelelsen, inden fristen udløber. Du får en bekræftelse på e-mail.
       </p>

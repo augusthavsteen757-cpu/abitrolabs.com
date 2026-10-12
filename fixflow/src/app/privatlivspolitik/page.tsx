@@ -127,7 +127,7 @@ export default function PrivacyPage() {
           Konto, tilbud, analyser og beskeder: indtil du sletter dem eller din konto. Vi sletter straks i databasen; kopier
           i databasens sikkerhedskopier slettes automatisk, når de udløber.
         </li>
-        <li>Konti, der ikke har været brugt i 3 år, sletter vi automatisk.</li>
+        <li>Konti, der ikke har været brugt i 3 år, sletter vi automatisk – dog ikke, mens du har ubrugte købte analyser.</li>
         <li>
           Køb: 5 år efter regnskabsårets udløb (bogføringsloven). Sletter du din konto, gemmes de uden navn og e-mail.
         </li>
