@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Landmark } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { getUsage } from "@/lib/plans";
@@ -26,6 +27,12 @@ export default async function UploadPage() {
       <p className="mt-3 flex gap-2 text-sm text-ink-muted" data-testid="danish-only">
         <Landmark className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
         {t.danishOnly}
+      </p>
+      <p className="mt-3 text-sm text-ink-soft">
+        {d.compare.uploadLinkText}{" "}
+        <Link href="/dashboard/sammenlign/ny" className="font-semibold text-brand-700 underline underline-offset-2" data-testid="compare-link">
+          {d.compare.uploadLink}
+        </Link>
       </p>
       <div className="mt-8">
         {usage.remaining <= 0 ? (

@@ -16,6 +16,7 @@ import { createRequire } from "node:module";
 import { unusedPurchases, withdrawalQuote } from "../src/lib/purchases";
 import { normalizeCode, parsePartnerCodes } from "../src/lib/code-format";
 import type { Payment } from "../src/db/schema";
+import { PACK3_PRICE_DKK, PRO_PRICE_DKK, SINGLE_PRICE_DKK } from "../src/lib/plans";
 
 let passed = 0;
 const test = (name: string, fn: () => void) => {
@@ -193,7 +194,10 @@ test("new texts exist in every language: 3-pakke, codes and their errors", () =>
     for (const v of [d.checkout.consentPack, d.code.title, d.code.button, d.errors.codeInvalid, d.errors.codeUsedUp, d.errors.codeAlreadyUsed, d.errors.codeBeta])
       assert.ok(v.length > 2, lang);
     assert.ok(d.code.doneOther.includes("{n}") && d.code.doneOne.includes("{n}"), `${lang}: code count`);
-    assert.ok(d.lang.legalSummary[0].includes("199"), `${lang}: legal summary names the 3-pakke price`);
+    const summary = d.lang.legalSummary[0];
+    for (const price of [PRO_PRICE_DKK, SINGLE_PRICE_DKK, PACK3_PRICE_DKK])
+      assert.ok(new RegExp(`(?<!\\d)${price}(?!\\d)`).test(summary), `${lang}: legal summary names ${price} kr.`);
+    assert.ok(!/(?<!\d)199(?!\d)/.test(summary), `${lang}: old 3-pakke price`);
   }
 });
 

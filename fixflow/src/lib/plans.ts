@@ -1,9 +1,9 @@
 import type { User } from "@/db/schema";
 
 export const PRO_PRICE_DKK = 49;
-export const SINGLE_PRICE_DKK = 99;
+export const SINGLE_PRICE_DKK = 49;
 /** 3-pakke: three complete analyses for people who get several quotes for the same job. */
-export const PACK3_PRICE_DKK = 199;
+export const PACK3_PRICE_DKK = 99;
 export const PACK3_CREDITS = 3;
 export const PRO_ANALYSES_PER_PERIOD = 10;
 export const FREE_ANALYSES_TOTAL = 1;
