@@ -42,12 +42,12 @@ export default function TermsPage() {
 
       {isBeta() && (
         <>
-          <h2>Gratis betaperiode</h2>
+          <h2>Gratis prøveperiode</h2>
           <p>
-            Klardal er lige nu i en gratis betaperiode. Du får hele analysen af op til {BETA_ANALYSES_TOTAL} tilbud uden
-            betaling, og der kan ikke købes noget. Vi giver dig besked på e-mail i god tid, før betaperioden slutter.
+            Klardal er lige nu i en gratis prøveperiode. Du får hele analysen af op til {BETA_ANALYSES_TOTAL} tilbud uden
+            betaling, og der kan ikke købes noget. Vi giver dig besked på e-mail i god tid, før prøveperioden slutter.
             Der starter aldrig en betaling automatisk – du skal selv vælge at købe. Priserne nedenfor gælder først
-            efter betaperioden.
+            efter prøveperioden.
           </p>
         </>
       )}

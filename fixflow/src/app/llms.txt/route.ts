@@ -5,7 +5,7 @@ import { BETA_ANALYSES_TOTAL, isBeta, PACK3_PRICE_DKK, SINGLE_PRICE_DKK } from "
 export function GET() {
   const base = (process.env.APP_URL || "https://klardal.com").replace(/\/$/, "");
   const price = isBeta()
-    ? `Klardal er i gratis beta: hele analysen af op til ${BETA_ANALYSES_TOTAL} tilbud pr. person, uden kreditkort.`
+    ? `Klardal er i en gratis prøveperiode: hele analysen af op til ${BETA_ANALYSES_TOTAL} tilbud pr. person, uden kreditkort.`
     : `Se scoren og de vigtigste advarsler gratis. Hele analysen koster ${SINGLE_PRICE_DKK} kr. pr. tilbud, og en 3-pakke til at sammenligne 3 tilbud koster ${PACK3_PRICE_DKK} kr. Intet abonnement. Priserne er endelige; Klardal er ikke momsregistreret.`;
   const body = `# Klardal
 

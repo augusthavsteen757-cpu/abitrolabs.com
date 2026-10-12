@@ -1,24 +1,30 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { UploadCloud, FileText, Camera, X, Check, Loader2, ShieldCheck } from "lucide-react";
+import { UploadCloud, FileText, Camera, X, Check, Loader2, ShieldCheck, Plus, Info } from "lucide-react";
 import { cn, formatBytes } from "@/lib/format";
 import { useI18n } from "@/i18n/client";
-import { plural } from "@/i18n/fmt";
+import { fmt, plural } from "@/i18n/fmt";
 import type { Dict } from "@/i18n/dict/da";
 
 const ACCEPT = "application/pdf,image/jpeg,image/png,image/webp";
 const MAX = 10 * 1024 * 1024;
+/** Pages/screenshots of one quote – joined into one PDF on the server (see lib/combine.ts). */
+const MAX_FILES = 10;
 /** The AI reads images up to ~2.5k px; bigger phone photos only cost upload time and can exceed its 5 MB limit. */
 const MAX_EDGE = 2576;
 
-/** Shrinks large photos in the browser (JPEG, max 2576 px) before upload. Returns the original if not needed. */
-export async function shrinkImage(file: File): Promise<File> {
+/**
+ * Shrinks large photos in the browser (JPEG, max 2576 px) before upload. Returns the original if not needed.
+ * `pdfSafe`: the file will be joined into a PDF, which takes only JPEG and PNG – so WebP is converted too.
+ */
+export async function shrinkImage(file: File, pdfSafe = false): Promise<File> {
   if (!file.type.startsWith("image/")) return file;
   try {
     const bmp = await createImageBitmap(file);
     const scale = Math.min(1, MAX_EDGE / Math.max(bmp.width, bmp.height));
-    if (scale === 1 && file.size <= 4 * 1024 * 1024) {
+    const mustConvert = pdfSafe && file.type !== "image/jpeg" && file.type !== "image/png";
+    if (scale === 1 && file.size <= 4 * 1024 * 1024 && !mustConvert) {
       bmp.close();
       return file;
     }
@@ -52,7 +58,8 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
   const STEPS = t.steps;
   const inputRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const file = files[0] ?? null;
   const [preview, setPreview] = useState<string | null>(null);
   const [project, setProject] = useState(projects[0] ?? "");
   const [dragging, setDragging] = useState(false);
@@ -77,20 +84,26 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
     return () => clearInterval(t);
   }, [busy, STEPS.length]);
 
-  function pick(f: File | undefined | null) {
-    if (!f) return;
-    const err = validate(f, t);
-    setError(err);
-    setFile(err ? null : f);
+  /** Adds the chosen files (several pages or screenshots of the same quote). */
+  function pick(list: FileList | File[] | null | undefined) {
+    const picked = Array.from(list ?? []);
+    if (!picked.length) return;
+    for (const f of picked) {
+      const err = validate(f, t);
+      if (err) return setError(err);
+    }
+    if (files.length + picked.length > MAX_FILES) return setError(d.errors.tooManyFiles);
+    setError(null);
+    setFiles([...files, ...picked]);
   }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!file) return setError(t.errChoose);
+    if (!files.length) return setError(t.errChoose);
     setBusy(true);
     setError(null);
     const fd = new FormData();
-    fd.append("file", await shrinkImage(file));
+    for (const f of files) fd.append("file", await shrinkImage(f, files.length > 1));
     fd.append("projectName", project.trim());
     let res: Response;
     try {
@@ -178,7 +191,7 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
           onDrop={(e) => {
             e.preventDefault();
             setDragging(false);
-            pick(e.dataTransfer.files?.[0]);
+            pick(e.dataTransfer.files);
           }}
           className={cn(
             "flex cursor-pointer flex-col items-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-colors sm:py-16",
@@ -195,29 +208,75 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
           <p className="mt-1 text-sm text-ink-muted">{t.fileTypes}</p>
         </div>
       ) : (
-        <div className="card flex items-center gap-4 p-4">
-          {preview ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={preview} alt={t.previewAlt} className="h-16 w-16 shrink-0 rounded-lg object-cover" />
-          ) : (
-            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600">
-              <FileText className="h-7 w-7" />
-            </span>
+        <div className="space-y-2" data-testid="upload-files">
+          {files.map((f, i) => (
+            <div key={`${f.name}-${i}`} className="card flex items-center gap-4 p-3 sm:p-4">
+              {i === 0 && preview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={preview} alt={t.previewAlt} className="h-14 w-14 shrink-0 rounded-lg object-cover" />
+              ) : (
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600">
+                  <FileText className="h-6 w-6" />
+                </span>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">{f.name}</p>
+                <p className="text-sm text-ink-muted">{formatBytes(f.size)}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFiles(files.filter((_, j) => j !== i))}
+                className="rounded-lg p-2 text-ink-muted hover:bg-paper hover:text-ink"
+                aria-label={t.removeFile}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          ))}
+          {files.length > 1 && <p className="text-sm font-medium text-brand-800" data-testid="upload-files-count">{fmt(t.filesCount, { n: files.length })}</p>}
+          {files.length < MAX_FILES && (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button type="button" onClick={() => inputRef.current?.click()} className="btn-secondary w-full" data-testid="upload-add-more">
+                <Plus className="h-4 w-4" /> {t.addMore}
+              </button>
+              <button type="button" onClick={() => cameraRef.current?.click()} className="btn-secondary w-full sm:hidden">
+                <Camera className="h-4 w-4" /> {t.camera}
+              </button>
+            </div>
           )}
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-medium">{file.name}</p>
-            <p className="text-sm text-ink-muted">{formatBytes(file.size)}</p>
-          </div>
-          <button type="button" onClick={() => setFile(null)} className="rounded-lg p-2 text-ink-muted hover:bg-paper hover:text-ink" aria-label={t.removeFile}>
-            <X className="h-5 w-5" />
-          </button>
         </div>
       )}
 
-      <input ref={inputRef} type="file" accept={ACCEPT} className="hidden" onChange={(e) => pick(e.target.files?.[0])} data-testid="file-input" />
-      <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => pick(e.target.files?.[0])} />
+      <p className="flex gap-2 rounded-xl bg-amber-50 px-3.5 py-2.5 text-sm text-amber-900" data-testid="one-quote-note">
+        <Info className="mt-0.5 h-4 w-4 shrink-0" />
+        <span>{t.oneQuote}</span>
+      </p>
 
-      {!file && (
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ACCEPT}
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          pick(e.target.files);
+          e.target.value = "";
+        }}
+        data-testid="file-input"
+      />
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => {
+          pick(e.target.files);
+          e.target.value = "";
+        }}
+      />
+
+      {!files.length && (
         <button type="button" onClick={() => cameraRef.current?.click()} className="btn-secondary w-full sm:hidden">
           <Camera className="h-4 w-4" /> {t.camera}
         </button>
@@ -248,7 +307,7 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
         </p>
       )}
 
-      <button type="submit" disabled={!file} className="btn-primary w-full py-3 text-base">
+      <button type="submit" disabled={!files.length} className="btn-primary w-full py-3 text-base">
         {t.submit}
       </button>
       <p className="flex items-center justify-center gap-2 text-center text-xs text-ink-muted">

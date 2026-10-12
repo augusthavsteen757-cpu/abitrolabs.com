@@ -8,8 +8,9 @@
  */
 import { chromium } from "playwright-core";
 import path from "path";
-import { mkdirSync } from "fs";
+import { mkdirSync, readFileSync } from "fs";
 import { PDFDocument, StandardFonts } from "pdf-lib";
+import sharp from "sharp";
 
 const BASE = process.env.BASE_URL || "http://localhost:3000";
 // Same as src/lib/demo.ts DEMO_PASSWORD (the seeded demo account; demo mode only).
@@ -343,6 +344,71 @@ try {
   const newIds = new URL(demo.url()).searchParams.get("ids").split(",");
   for (const id of newIds) assert((await demo.request.delete(`${BASE}/api/quotes/${id}`, { headers: { origin: BASE } })).status() === 200, "cleanup");
   log("upload 3 quotes at once → straight to their comparison");
+
+  // Several pages / screenshots of ONE quote → one combined analysis (counts as one).
+  const shotPng = await sharp({ create: { width: 390, height: 844, channels: 3, background: "#ffffff" } }).png().toBuffer();
+  const shotWebp = await sharp({ create: { width: 390, height: 844, channels: 3, background: "#ffffff" } }).webp().toBuffer();
+  const listQuotes = async () => (await (await demo.request.get(`${BASE}/api/quotes`)).json()).quotes.map((q) => q.id);
+  const quotesBefore = await listQuotes();
+  await demo.goto(`${BASE}/dashboard/upload`);
+  await demo.getByTestId("one-quote-note").getByText("Upload kun filer fra ét tilbud ad gangen").waitFor();
+  await demo.setInputFiles("[data-testid=file-input]", "sample-quotes/eksempel-vvs-badevaerelse.pdf");
+  await demo.setInputFiles("[data-testid=file-input]", [
+    { name: "side-2.png", mimeType: "image/png", buffer: shotPng },
+    { name: "side-3.webp", mimeType: "image/webp", buffer: shotWebp },
+  ]);
+  await demo.getByTestId("upload-files-count").getByText("3 filer – analyseres samlet som ét tilbud").waitFor();
+  // Remove one again: the list and the count follow.
+  await demo.getByTestId("upload-files").getByRole("button", { name: "Fjern fil" }).nth(1).click();
+  await demo.getByText("2 filer – analyseres samlet som ét tilbud").waitFor();
+  assert((await demo.getByTestId("upload-files").innerText()).includes("side-3.webp"), "the right file was removed");
+  await demo.fill("#project", "E2E flere filer");
+  await shot(demo, "upload-multi");
+  await demo.click("button[type=submit]");
+  await demo.waitForURL(/\/dashboard\/tilbud\//, { timeout: 90_000 });
+  await demo.getByText("Det skal du være opmærksom på").waitFor();
+  const multiId = demo.url().split("/").pop();
+  const quotesAfter = await listQuotes();
+  assert(quotesAfter.length === quotesBefore.length + 1, `several files make ONE quote (${quotesBefore.length} → ${quotesAfter.length})`);
+  const original = await demo.request.get(`${BASE}/api/quotes/${multiId}/file`);
+  assert(original.headers()["content-type"] === "application/pdf", "the combined original is a PDF");
+  const combinedPages = (await PDFDocument.load(await original.body())).getPageCount();
+  const samplePages = (await PDFDocument.load(readFileSync("sample-quotes/eksempel-vvs-badevaerelse.pdf"))).getPageCount();
+  assert(combinedPages === samplePages + 1, `original holds every page: ${samplePages} + 1 screenshot (saw ${combinedPages})`);
+  // One file still works exactly as before.
+  const singleRes = await demo.request.post(`${BASE}/api/quotes`, {
+    headers: { origin: BASE },
+    multipart: {
+      file: { name: "a.png", mimeType: "image/png", buffer: shotPng },
+    },
+  });
+  assert(singleRes.status() === 201, `single image upload still works (${singleRes.status()})`);
+  const singleId = (await singleRes.json()).quote.id;
+  const tooMany = await demo.request.fetch(`${BASE}/api/quotes`, {
+    method: "POST",
+    headers: { origin: BASE },
+    multipart: (() => {
+      const fd = new FormData();
+      for (let i = 0; i < 11; i++) fd.append("file", new Blob([shotPng], { type: "image/png" }), `s${i}.png`);
+      return fd;
+    })(),
+  });
+  assert(tooMany.status() === 413 && (await tooMany.json()).error === "Du kan højst uploade 10 filer til ét tilbud.", `11 files are refused (${tooMany.status()})`);
+  const mixedWebp = await demo.request.fetch(`${BASE}/api/quotes`, {
+    method: "POST",
+    headers: { origin: BASE },
+    multipart: (() => {
+      const fd = new FormData();
+      fd.append("file", new Blob([shotPng], { type: "image/png" }), "a.png");
+      fd.append("file", new Blob([shotWebp], { type: "image/webp" }), "b.webp");
+      return fd;
+    })(),
+  });
+  // WebP is converted in the browser; sent raw to the API in a combined upload it is refused clearly.
+  assert(mixedWebp.status() === 415, `raw WebP in a combined upload is refused (${mixedWebp.status()})`);
+  assert((await listQuotes()).length === quotesAfter.length + 1, "refused uploads leave no quote behind (only the single upload was added)");
+  for (const id of [multiId, singleId]) assert((await demo.request.delete(`${BASE}/api/quotes/${id}`, { headers: { origin: BASE } })).status() === 200, "cleanup");
+  log("several pages/screenshots of one quote → one combined analysis; limits and bad files refused");
 
   // Unclear VAT: the user picks, and the analysis, the overview and the comparison all follow the choice.
   await demo.goto(`${BASE}/dashboard`);

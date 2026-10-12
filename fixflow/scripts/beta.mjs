@@ -28,7 +28,7 @@ const email = "beta-tester@eksempel.dk"; // fresh database per run; also ADMIN_E
 await p.fill("#name", "Beta Tester"); await p.fill("#email", email); await p.fill("#password", "Kaffekande-Solsikke-77");
 await p.locator("input[type=checkbox]").first().check();
 await p.click("button[type=submit]"); await p.waitForURL(B + "/dashboard");
-ok((await p.innerText("body")).includes("Gratis beta"), "nav shows beta plan");
+ok((await p.innerText("body")).includes("Gratis prøveperiode"), "nav shows beta plan");
 ok(!(await p.innerText("body")).includes("Opgradér til Pro"), "no upgrade link");
 for (let i = 0; i < 5; i++) {
   await p.goto(B + "/dashboard/upload");
@@ -52,7 +52,7 @@ ok(true, "after 5 analyses: beta limit message, no purchase");
 await p.goto(B + "/dashboard/sammenlign");
 ok(!(await p.innerText("body")).includes("Sammenligning er en del af Pro"), "compare available in beta");
 await p.goto(B + "/dashboard/konto");
-ok((await p.innerText("body")).includes("Du er med i betaperioden"), "account page shows beta text");
+ok((await p.innerText("body")).includes("Du er med i prøveperioden"), "account page shows beta text");
 ok((await p.locator("text=Køb én analyse").count()) === 0, "no purchase buttons on account page");
 const r = await p.evaluate(async () => (await fetch("/api/billing/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind: "SINGLE", consent: true }) })).status);
 ok(r === 503, "checkout API refuses purchases in beta");
@@ -61,7 +61,7 @@ ok(await p.getByTestId("find-soon").isVisible(), "find shows coming soon instead
 const fr = await p.evaluate(async () => (await fetch("/api/contractors?trade=vvs&postalCode=4000")).status);
 ok(fr === 503, "contractor API off in beta without CVR");
 await p.goto(B + "/handelsbetingelser");
-ok((await p.innerText("body")).includes("Gratis betaperiode"), "terms describe the beta");
+ok((await p.innerText("body")).includes("Gratis prøveperiode"), "terms describe the beta");
 // A user who had Pro and a test payment from before the beta (the seeded demo user) gets the beta deal:
 // 5 in total, no Pro, no period – and test payments are never shown on a production build without
 // ALLOW_SIMULATED_PAYMENTS (klardal.com).
@@ -75,6 +75,6 @@ const acc = await old.innerText("main");
 ok(/3 af 5/.test(acc) && !/af 10/.test(acc), "beta account shows 3 of 5 analyses, not the old Pro quota");
 ok(!/Pro – 1 måned|Testbetaling|Fortryd købet|nulstilles/.test(acc), "no Pro plan, period or test payment in the beta");
 const nav = await old.innerText("aside");
-ok(nav.includes("Gratis beta") && nav.includes("3/5"), "sidebar shows the beta plan with 3/5");
+ok(nav.includes("Gratis prøveperiode") && nav.includes("3/5"), "sidebar shows the beta plan with 3/5");
 ok(errs.length === 0, "no page errors " + errs.join(";"));
 await br.close();

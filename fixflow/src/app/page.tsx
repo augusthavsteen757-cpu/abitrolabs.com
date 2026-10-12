@@ -100,8 +100,7 @@ export default async function HomePage() {
         <section className="relative overflow-hidden">
           <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-14 pt-8 sm:px-6 sm:pt-16 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pb-24 lg:pt-20">
             <div>
-              <p className="eyebrow">{h.eyebrow}</p>
-              <h1 className="mt-3 text-[2.1rem] font-semibold leading-[1.08] sm:text-5xl lg:text-[3.6rem]">{h.title}</h1>
+              <h1 className="text-[2.1rem] font-semibold leading-[1.08] sm:text-5xl lg:text-[3.6rem]">{h.title}</h1>
               <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-soft">{h.lead}</p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link href={user ? "/dashboard/upload" : "/opret"} className="btn-primary px-6 py-3 text-base">

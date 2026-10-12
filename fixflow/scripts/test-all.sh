@@ -26,7 +26,7 @@ run() { # $1 = name, rest = command
 
 echo "Klardal – all tests"
 run typecheck npx tsc --noEmit
-run unit sh -c "npx tsx scripts/unit.test.ts && npx tsx scripts/cpr.test.mts"
+run unit sh -c "npx tsx scripts/unit.test.ts && npx tsx scripts/cpr.test.mts && npx tsx scripts/combine.test.mts"
 run build npm run build
 
 start ALLOW_LOCAL_DB=1 ALLOW_SIMULATED_PAYMENTS=1 ALLOW_DEMO_MODE=1 ADMIN_EMAILS=demo@klardal.dk PARTNER_CODES=E2E-PARTNER=1:2 &&

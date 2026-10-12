@@ -11,6 +11,7 @@ import { eq } from "drizzle-orm";
 import { listQuotes, publicQuote, runAnalysis } from "@/lib/quotes";
 import { getUsage } from "@/lib/plans";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { CombineError, MAX_FILES, MAX_PAGES, MAX_TOTAL_SIZE, combineFiles, combinedFileName } from "@/lib/combine";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -30,29 +31,51 @@ export const POST = handle(async (req: Request) => {
   }
 
   const form = await req.formData().catch(() => null);
-  const file = form?.get("file");
-  if (!(file instanceof File)) return jsonError(da.errors.chooseFile);
-  if (file.size === 0) return jsonError(da.errors.fileEmpty);
-  if (file.size > MAX_FILE_SIZE) return jsonError(da.errors.fileTooBig, 413);
+  // Several files = several pages/screenshots of ONE quote. They are joined into one PDF and analysed once.
+  const files = (form?.getAll("file") ?? []).filter((f): f is File => f instanceof File);
+  if (!files.length) return jsonError(da.errors.chooseFile);
+  if (files.length > MAX_FILES) return jsonError(da.errors.tooManyFiles, 413);
 
-  const buf = Buffer.from(await file.arrayBuffer());
-  const mimeType = detectMimeType(buf);
-  if (!mimeType || !ALLOWED_TYPES[mimeType]) {
-    return jsonError(da.errors.fileType, 415);
-  }
-
-  // Claude's limits: images up to 5 MB, PDFs up to 100 pages and not encrypted. Say so clearly up front.
-  if (mimeType !== "application/pdf" && buf.length > 5 * 1024 * 1024) return jsonError(da.errors.imageTooLarge, 413);
-  if (mimeType === "application/pdf") {
-    const head = buf.toString("latin1");
-    if (/\/Encrypt\b/.test(head)) return jsonError(da.errors.pdfEncrypted, 415);
-    const pages = (head.match(/\/Type\s*\/Page(?!s)/g) ?? []).length;
-    if (pages > 100) return jsonError(da.errors.pdfTooManyPages, 413);
+  const inputs: { data: Buffer; mimeType: string; name: string }[] = [];
+  let total = 0;
+  for (const file of files) {
+    if (file.size === 0) return jsonError(da.errors.fileEmpty);
+    if (file.size > MAX_FILE_SIZE) return jsonError(da.errors.fileTooBig, 413);
+    total += file.size;
+    if (total > MAX_TOTAL_SIZE) return jsonError(da.errors.filesTooBig, 413);
+    const data = Buffer.from(await file.arrayBuffer());
+    const mimeType = detectMimeType(data);
+    if (!mimeType || !ALLOWED_TYPES[mimeType]) return jsonError(da.errors.fileType, 415);
+    // Claude's limits: images up to 5 MB, PDFs up to 100 pages and not encrypted. Say so clearly up front.
+    if (files.length === 1 && mimeType !== "application/pdf" && data.length > 5 * 1024 * 1024) return jsonError(da.errors.imageTooLarge, 413);
+    if (mimeType === "application/pdf") {
+      const head = data.toString("latin1");
+      if (/\/Encrypt\b/.test(head)) return jsonError(da.errors.pdfEncrypted, 415);
+      const pages = (head.match(/\/Type\s*\/Page(?!s)/g) ?? []).length;
+      if (pages > MAX_PAGES) return jsonError(da.errors.pdfTooManyPages, 413);
+    }
+    inputs.push({ data, mimeType, name: file.name || `tilbud.${ALLOWED_TYPES[mimeType]}` });
   }
 
   const projectRaw = String(form?.get("projectName") ?? "").trim().slice(0, 80);
   const projectName = projectRaw || "Mit projekt";
-  const fileName = (file.name || `tilbud.${ALLOWED_TYPES[mimeType]}`).slice(0, 200);
+  let buf = inputs[0].data;
+  let mimeType = inputs[0].mimeType;
+  let fileName = inputs[0].name.slice(0, 200);
+  if (inputs.length > 1) {
+    try {
+      buf = await combineFiles(inputs);
+    } catch (err) {
+      if (err instanceof CombineError) {
+        if (err.reason === "tooManyPages") return jsonError(da.errors.pdfTooManyPages, 413);
+        if (err.reason === "unsupported") return jsonError(da.errors.fileType, 415);
+        return jsonError(da.errors.combineFailed, 422);
+      }
+      throw err;
+    }
+    mimeType = "application/pdf";
+    fileName = combinedFileName(inputs.map((i) => i.name));
+  }
 
   const fileKey = await saveFile(user.id, buf, mimeType);
   const [quote] = await db
