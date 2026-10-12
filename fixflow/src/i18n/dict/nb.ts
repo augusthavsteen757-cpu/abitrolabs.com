@@ -843,6 +843,7 @@ export const nb: Dict = {
     combineFailed: "Vi klarte ikke å slå sammen filene. Lagre tilbudet som én PDF og last opp den i stedet.",
     resetInvalid: "Lenken er ugyldig eller utløpt. Be om en ny.",
     notAQuote: "Dokumentet ser ikke ut som et tilbud fra en håndverker. Last opp et tilbud eller overslag fra en håndverker. Du har ikke blitt belastet for en analyse.",
+    severalQuotes: "Filene ser ut til å inneholde flere forskjellige tilbud. Last opp ett tilbud om gangen – vil du sammenligne dem, bruk «Sammenlign». Du har ikke blitt belastet for en analyse.",
     withdrawExpired: "Fristen på 14 dager for å angre er utløpt.",
     withdrawUsed: "Kjøpet er brukt, så angreretten har falt bort.",
     withdrawNotFound: "Fant ikke betalingen.",

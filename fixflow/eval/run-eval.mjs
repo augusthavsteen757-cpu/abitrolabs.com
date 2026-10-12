@@ -5,7 +5,7 @@
  *
  *   BASE_URL=https://klardal.com node eval/run-eval.mjs
  *
- * Needs BETA_FREE=1 (or enough analyses) on the target. Uses 3 analyses (~3 kr.) per run.
+ * Needs BETA_FREE=1 (or enough analyses) on the target. Uses 5 analyses (~5 kr.) per run.
  */
 import { readFileSync } from "fs";
 import path from "path";
@@ -26,7 +26,8 @@ async function call(p, init = {}) {
 
 async function upload(file) {
   const fd = new FormData();
-  fd.append("file", new Blob([readFileSync(path.join(dir, "fixtures", file))], { type: "application/pdf" }), file);
+  // Several files = one upload of several files (they are joined into one PDF on the server).
+  for (const f of [file].flat()) fd.append("file", new Blob([readFileSync(path.join(dir, "fixtures", f))], { type: "application/pdf" }), f);
   fd.append("projectName", "Eval");
   return call("/api/quotes", { method: "POST", body: fd });
 }
@@ -67,6 +68,13 @@ const cases = [
     },
   },
   {
+    // Two quotes from two different firms in one upload must be refused (and not charged).
+    file: ["koekken-overslag.pdf", "sum-mismatch.pdf"],
+    check(q) {
+      return { "rejected as several quotes": q.status === "FAILED" && /flere forskellige tilbud/i.test(q.error ?? "") };
+    },
+  },
+  {
     file: "sum-mismatch.pdf",
     check(q) {
       const a = q.analysis;
@@ -95,7 +103,7 @@ for (const c of cases) {
   const r = await upload(c.file);
   const q = r.json.quote ?? {};
   const results = r.status < 300 ? c.check(q) : { [`upload ok (got ${r.status} ${r.json.error ?? ""})`]: false };
-  console.log(`\n${c.file}  (${Math.round((Date.now() - t0) / 1000)} s)`);
+  console.log(`\n${[c.file].flat().join(" + ")}  (${Math.round((Date.now() - t0) / 1000)} s)`);
   for (const [name, ok] of Object.entries(results)) {
     console.log(`  ${ok ? "✓" : "✗"} ${name}`);
     if (!ok) failed++;

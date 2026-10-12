@@ -843,6 +843,7 @@ export const de: Dict = {
     combineFailed: "Wir konnten die Dateien nicht zusammenfügen. Speichere das Angebot als eine PDF und lade diese hoch.",
     resetInvalid: "Der Link ist ungültig oder abgelaufen. Fordere einen neuen an.",
     notAQuote: "Das Dokument sieht nicht wie ein Handwerkerangebot aus. Lade ein Angebot oder einen Kostenvoranschlag eines Handwerkers hoch. Dir wurde keine Analyse berechnet.",
+    severalQuotes: "Die Dateien scheinen mehrere verschiedene Angebote zu enthalten. Lade ein Angebot nach dem anderen hoch – zum Vergleichen nutze „Vergleichen“. Dir wurde keine Analyse berechnet.",
     withdrawExpired: "Die 14-tägige Widerrufsfrist ist abgelaufen.",
     withdrawUsed: "Der Kauf wurde genutzt, daher ist das Widerrufsrecht erloschen.",
     withdrawNotFound: "Die Zahlung wurde nicht gefunden.",

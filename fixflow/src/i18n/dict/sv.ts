@@ -843,6 +843,7 @@ export const sv: Dict = {
     combineFailed: "Vi kunde inte slå ihop filerna. Spara offerten som en PDF och ladda upp den i stället.",
     resetInvalid: "Länken är ogiltig eller har gått ut. Begär en ny.",
     notAQuote: "Dokumentet ser inte ut som en offert från en hantverkare. Ladda upp en offert eller ett kostnadsförslag från en hantverkare. Du har inte debiterats för någon analys.",
+    severalQuotes: "Filerna verkar innehålla flera olika offerter. Ladda upp en offert åt gången – vill du jämföra dem, använd ”Jämför”. Du har inte debiterats för någon analys.",
     withdrawExpired: "Fristen på 14 dagar för att ångra köpet har gått ut.",
     withdrawUsed: "Köpet har använts, så ångerrätten har upphört.",
     withdrawNotFound: "Betalningen hittades inte.",

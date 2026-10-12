@@ -843,6 +843,7 @@ export const en: Dict = {
     combineFailed: "We couldn’t combine the files. Save the quote as one PDF and upload that instead.",
     resetInvalid: "The link is invalid or has expired. Request a new one.",
     notAQuote: "The document doesn’t look like a contractor’s quote. Upload a quote or estimate from a contractor. You haven’t been charged for an analysis.",
+    severalQuotes: "The files seem to contain several different quotes. Upload one quote at a time – to compare them, use “Compare”. You have not been charged for an analysis.",
     withdrawExpired: "The 14-day deadline for withdrawal has expired.",
     withdrawUsed: "The purchase has been used, so the right of withdrawal has lapsed.",
     withdrawNotFound: "The payment couldn’t be found.",

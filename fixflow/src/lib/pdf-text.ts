@@ -4,14 +4,15 @@ import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 
 (globalThis as { pdfjsWorker?: unknown }).pdfjsWorker = pdfWorker;
 
-const MAX_PAGES = 30;
+// Same limit as uploads, so a CPR number on any page is found.
+const MAX_PAGES = 100;
 
 /**
  * Reads the text layer of a PDF, line by line (items on the same height are joined), so it can be
  * checked for CPR numbers before anything is sent to the AI. Scanned PDFs have no text layer and
  * return (almost) nothing. Returns null if the PDF cannot be read at all.
  */
-export async function extractPdfText(data: Buffer): Promise<{ text: string; pages: number } | null> {
+export async function extractPdfText(data: Buffer): Promise<{ text: string; pages: number; pageTexts: string[] } | null> {
   let task: ReturnType<typeof getDocument> | null = null;
   try {
     task = getDocument({
@@ -42,7 +43,7 @@ export async function extractPdfText(data: Buffer): Promise<{ text: string; page
       pages.push(text);
       page.cleanup();
     }
-    return { text: pages.join("\n\n--- Ny side ---\n\n"), pages: doc.numPages };
+    return { text: pages.join("\n\n--- Ny side ---\n\n"), pages: doc.numPages, pageTexts: pages };
   } catch (e) {
     if (process.env.DEBUG_PDF) console.error(e);
     return null;

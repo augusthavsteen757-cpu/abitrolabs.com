@@ -843,6 +843,7 @@ export const ro: Dict = {
     combineFailed: "Nu am putut combina fișierele. Salvează oferta ca un singur PDF și încarcă-l pe acela.",
     resetInvalid: "Linkul este invalid sau a expirat. Cere unul nou.",
     notAQuote: "Documentul nu pare a fi o ofertă de la un meșter. Încarcă o ofertă sau un deviz de la un meșter. Nu ți s-a perceput nicio taxă pentru analiză.",
+    severalQuotes: "Fișierele par să conțină mai multe oferte diferite. Încarcă câte o ofertă pe rând – ca să le compari, folosește „Compară”. Nu ți s-a perceput nicio analiză.",
     withdrawExpired: "Termenul de 14 zile pentru retragere a expirat.",
     withdrawUsed: "Achiziția a fost folosită, așa că dreptul de retragere s-a pierdut.",
     withdrawNotFound: "Plata nu a fost găsită.",

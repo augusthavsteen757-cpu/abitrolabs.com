@@ -839,6 +839,7 @@ export const pl: Dict = {
     combineFailed: "Nie udało się połączyć plików. Zapisz wycenę jako jeden plik PDF i prześlij go.",
     resetInvalid: "Link jest nieprawidłowy lub wygasł. Poproś o nowy.",
     notAQuote: "Ten dokument nie wygląda na wycenę od wykonawcy. Wgraj wycenę lub kosztorys od wykonawcy. Nie pobraliśmy opłaty za analizę.",
+    severalQuotes: "Pliki wyglądają na kilka różnych wycen. Przesyłaj jedną wycenę naraz – aby je porównać, użyj „Porównaj”. Nie pobraliśmy opłaty za analizę.",
     withdrawExpired: "Termin 14 dni na odstąpienie od umowy upłynął.",
     withdrawUsed: "Zakup został wykorzystany, więc prawo odstąpienia od umowy wygasło.",
     withdrawNotFound: "Nie znaleziono płatności.",

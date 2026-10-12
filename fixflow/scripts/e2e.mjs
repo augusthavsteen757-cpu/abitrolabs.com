@@ -410,6 +410,23 @@ try {
   for (const id of [multiId, singleId]) assert((await demo.request.delete(`${BASE}/api/quotes/${id}`, { headers: { origin: BASE } })).status() === 200, "cleanup");
   log("several pages/screenshots of one quote → one combined analysis; limits and bad files refused");
 
+  // Several different quotes put together to get them analysed as one: refused, and not charged.
+  // (Demo mode simulates the AI's verdict for files named "flere-tilbud…"; the real AI is checked by eval/run-eval.mjs.)
+  await demo.goto(`${BASE}/dashboard/upload`);
+  const leftBefore = await demo.getByText(/Du har \d+ analyser? tilbage/).innerText();
+  await demo.setInputFiles("[data-testid=file-input]", [
+    { name: "flere-tilbud-a.pdf", mimeType: "application/pdf", buffer: readFileSync("sample-quotes/eksempel-byg.pdf") },
+    { name: "flere-tilbud-b.pdf", mimeType: "application/pdf", buffer: readFileSync("sample-quotes/eksempel-vinduer.pdf") },
+  ]);
+  await demo.click("button[type=submit]");
+  await demo.waitForURL(/\/dashboard\/tilbud\//, { timeout: 90_000 });
+  await demo.getByText(/Filerne ser ud til at indeholde flere forskellige tilbud/).first().waitFor();
+  const cheatId = demo.url().split("/").pop();
+  await demo.goto(`${BASE}/dashboard/upload`);
+  assert((await demo.getByText(/Du har \d+ analyser? tilbage/).innerText()) === leftBefore, `not charged (${leftBefore})`);
+  assert((await demo.request.delete(`${BASE}/api/quotes/${cheatId}`, { headers: { origin: BASE } })).status() === 200, "cleanup");
+  log("several different quotes in one upload are refused, and the user is not charged");
+
   // Unclear VAT: the user picks, and the analysis, the overview and the comparison all follow the choice.
   await demo.goto(`${BASE}/dashboard`);
   await demo.getByRole("link", { name: /Eksempel Byg/ }).click();

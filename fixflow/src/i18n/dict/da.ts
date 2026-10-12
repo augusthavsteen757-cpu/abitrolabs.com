@@ -841,6 +841,7 @@ export const da = {
     combineFailed: "Vi kunne ikke samle filerne. Gem tilbuddet som én PDF, og upload den i stedet.",
     resetInvalid: "Linket er ugyldigt eller udløbet. Bed om et nyt.",
     notAQuote: "Dokumentet ligner ikke et håndværkertilbud. Upload et tilbud eller overslag fra en håndværker. Du er ikke blevet trukket for en analyse.",
+    severalQuotes: "Filerne ser ud til at indeholde flere forskellige tilbud. Upload ét tilbud ad gangen – vil du sammenligne dem, så brug »Sammenlign«. Du er ikke blevet trukket for en analyse.",
     withdrawExpired: "Fristen på 14 dage for at fortryde er udløbet.",
     withdrawUsed: "Købet er brugt, så fortrydelsesretten er bortfaldet.",
     withdrawNotFound: "Betalingen blev ikke fundet.",

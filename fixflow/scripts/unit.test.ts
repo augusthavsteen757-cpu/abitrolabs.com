@@ -3,7 +3,7 @@
  */
 import assert from "node:assert/strict";
 import { DEMO_QUOTES } from "../src/lib/demo-data";
-import { analysisOfQuote, applyVatChoice, normalizeAnalysis, parseStoredAnalysis, priceOfQuote, scoreOfQuote } from "../src/lib/analysis";
+import { analysisOfQuote, applyVatChoice, normalizeAnalysis, parseStoredAnalysis, priceOfQuote, refusalOf, scoreOfQuote } from "../src/lib/analysis";
 import { computeScore, scoreBand, scoreLabel } from "../src/lib/score";
 import { DICTS } from "../src/i18n/dict";
 import { fmt } from "../src/i18n/fmt";
@@ -235,6 +235,19 @@ test("the terms name the withdrawal button exactly as the account page shows it"
   assert.ok(!/\bPro\b/.test(terms), "terms do not mention Pro");
   const privacy = readFileSync(new URL("../src/app/privatlivspolitik/page.tsx", import.meta.url), "utf8");
   assert.ok(!/\bPro\b/.test(privacy), "privacy policy does not mention Pro");
+});
+
+test("several quotes in one upload are refused (not charged), one quote is analysed", () => {
+  const dc = (o: object) => ({ documentCheck: { isQuote: true, readability: "good" as const, unreadableNote: null, suspiciousInstructions: false, vatStated: "unclear" as const, ...o } });
+  assert.equal(refusalOf(dc({})), null, "older analyses without the field are fine");
+  assert.equal(refusalOf(dc({ severalQuotes: false })), null);
+  assert.equal(refusalOf(dc({ severalQuotes: true }))?.event, "several_quotes");
+  assert.match(refusalOf(dc({ severalQuotes: true }))!.message, /flere forskellige tilbud.*ikke blevet trukket/);
+  assert.equal(refusalOf(dc({ isQuote: false, severalQuotes: true }))?.event, "not_a_quote");
+  // A stored analysis keeps working after the new field was added.
+  const parsed = normalizeAnalysis({ ...DEMO_QUOTES[0].raw, documentCheck: { ...DEMO_QUOTES[0].raw.documentCheck, severalQuotes: "ja" } });
+  assert.equal(parsed.documentCheck.severalQuotes, false, "garbage is read as false");
+  for (const [lang, d] of Object.entries(DICTS)) assert.ok(d.errors.severalQuotes.length > 40, lang);
 });
 
 test("Klardal's own prices never claim VAT (Klardal is not VAT-registered)", () => {

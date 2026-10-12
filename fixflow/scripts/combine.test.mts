@@ -7,6 +7,8 @@ import sharp from "sharp";
 import { CombineError, MAX_PAGES, combineFiles, combinedFileName } from "../src/lib/combine";
 import { quoteContent } from "../src/lib/quote-content";
 import { detectMimeType } from "../src/lib/storage";
+import { extractPdfText } from "../src/lib/pdf-text";
+import { containsCpr } from "../src/lib/cpr";
 
 let passed = 0;
 const test = async (name: string, fn: () => unknown) => {
@@ -82,15 +84,33 @@ await test(`more than ${MAX_PAGES} pages in total is refused`, async () => {
   );
 });
 
-await test("a CPR number in a combined PDF still never reaches the AI", async () => {
+await test("a CPR number in a combined PDF never reaches the AI – and the screenshots still do", async () => {
   const out = await combineFiles([
-    { data: await pdf([["Tilbud fra Eksempel ApS", "Kunde: Anna Hansen, CPR 120385-1234", "I alt 50.000 kr."]]), mimeType: "application/pdf" },
+    { data: await pdf([["Tilbud fra Eksempel ApS", "Kunde: Anna Hansen, CPR 120385-1234", "I alt 50.000 kr."], ["Side 2: Betaling 30 % ved start"]]), mimeType: "application/pdf" },
     { data: await image("png", 200, 300), mimeType: "image/png" },
+    { data: await image("jpeg", 300, 200), mimeType: "image/jpeg" },
   ]);
-  const { block, cprHidden } = await quoteContent(out, "application/pdf");
+  const { blocks, cprHidden } = await quoteContent(out, "application/pdf");
   assert.equal(cprHidden, 1);
-  assert.equal(block.type, "text");
-  assert.ok(block.type === "text" && !block.text.includes("120385") && block.text.includes("50.000 kr."));
+  assert.equal(blocks.length, 2, "masked text + the pages without text");
+  const [text, rest] = blocks;
+  assert.ok(text.type === "text" && !text.text.includes("120385") && text.text.includes("50.000 kr.") && text.text.includes("Betaling 30 %"));
+  assert.ok(text.type === "text" && text.text.includes("Siderne uden tekst"), "the AI is told the extra pages belong to the same quote");
+  assert.ok(rest.type === "document" && rest.source.type === "base64");
+  // Only the 2 screenshot pages are sent as PDF – never the pages with the CPR number.
+  const sentPdf = Buffer.from(rest.source.type === "base64" ? rest.source.data : "", "base64");
+  const sizes = await pagesOf(sentPdf);
+  assert.deepEqual(sizes, [{ width: 200, height: 300 }, { width: 300, height: 200 }]);
+  const sentText = await extractPdfText(sentPdf);
+  assert.ok(sentText && !containsCpr(sentText.text) && !sentText.text.includes("Anna Hansen"), "no text page leaks into the PDF part");
+});
+
+await test("a CPR number on page 40 is still found (long combined quotes)", async () => {
+  const pages = Array.from({ length: 45 }, (_, i) => [`Post ${i + 1}: 1.000 kr.`]);
+  pages[39] = ["Kunde CPR 120385-1234"];
+  const { blocks, cprHidden } = await quoteContent(await pdf(pages), "application/pdf");
+  assert.equal(cprHidden, 1);
+  assert.ok(!JSON.stringify(blocks).includes("120385"));
 });
 
 await test("the combined file is named after the first file", () => {

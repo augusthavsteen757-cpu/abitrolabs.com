@@ -51,23 +51,26 @@ await test("the AI's answer is cleaned too (strings anywhere in the object)", ()
 });
 
 await test("PDF with a CPR number: only the cleaned text is sent, never the PDF or the number", async () => {
-  const { block, cprHidden } = await quoteContent(await pdf(["Kunde: Jens Hansen, CPR 120385-1234", "Badevaerelse 125.000 kr."]), "application/pdf");
+  const { blocks, cprHidden } = await quoteContent(await pdf(["Kunde: Jens Hansen, CPR 120385-1234", "Badevaerelse 125.000 kr."]), "application/pdf");
   assert.equal(cprHidden, 1);
-  assert.equal(block.type, "text");
-  const sent = JSON.stringify(block);
+  assert.equal(blocks.length, 1, "every page has text, so nothing else is sent");
+  assert.equal(blocks[0].type, "text");
+  const sent = JSON.stringify(blocks);
   assert.ok(!sent.includes("120385") && !sent.includes("1234\\n") && sent.includes(CPR_PLACEHOLDER) && sent.includes("125.000 kr."), sent);
 });
 
 await test("PDF without a CPR number is sent as the PDF itself (no loss of layout)", async () => {
-  const { block, cprHidden } = await quoteContent(await pdf(["Badevaerelse 125.000 kr.", "Tlf. 20 30 40 50"]), "application/pdf");
+  const { blocks, cprHidden } = await quoteContent(await pdf(["Badevaerelse 125.000 kr.", "Tlf. 20 30 40 50"]), "application/pdf");
   assert.equal(cprHidden, 0);
-  assert.equal(block.type, "document");
+  assert.equal(blocks.length, 1);
+  assert.equal(blocks[0].type, "document");
 });
 
 await test("photos and unreadable PDFs are passed on unchanged (nothing to read here)", async () => {
-  assert.equal((await quoteContent(Buffer.from([0xff, 0xd8, 0xff]), "image/jpeg")).block.type, "image");
+  assert.equal((await quoteContent(Buffer.from([0xff, 0xd8, 0xff]), "image/jpeg")).blocks[0].type, "image");
   const broken = await quoteContent(Buffer.from("%PDF-1.4 broken"), "application/pdf");
-  assert.equal(broken.block.type, "document");
+  assert.equal(broken.blocks.length, 1);
+  assert.equal(broken.blocks[0].type, "document");
   assert.equal(broken.cprHidden, 0);
 });
 

@@ -1,3 +1,4 @@
+import { da } from "@/i18n/dict/da";
 import { z } from "zod";
 import { computeScore } from "./score";
 
@@ -203,6 +204,8 @@ export const rawAnalysisSchema = z.object({
       readability: z.enum(["good", "partial", "poor"]).catch("good"),
       unreadableNote: str,
       suspiciousInstructions: z.boolean().catch(false),
+      /** Several separate quotes in one upload – refused (see refusalOf in ai.ts). Missing in older analyses. */
+      severalQuotes: z.boolean().optional().catch(false),
       vatStated: z.enum(["incl", "excl", "both", "unclear"]).catch("unclear"),
     })
     .catch({ isQuote: true, readability: "good" as const, unreadableNote: null, suspiciousInstructions: false, vatStated: "unclear" as const }),
@@ -443,4 +446,14 @@ export function redactForFree(a: QuoteAnalysis): { analysis: QuoteAnalysis; lock
     },
     lock,
   };
+}
+
+/**
+ * Documents we don't analyse (the user is not charged): something that isn't a quote, or several separate
+ * quotes put together to get them analysed as one – that would also give a wrong, mixed-up analysis.
+ */
+export function refusalOf(analysis: Pick<QuoteAnalysis, "documentCheck">): { event: string; message: string } | null {
+  if (analysis.documentCheck.isQuote === false) return { event: "not_a_quote", message: da.errors.notAQuote };
+  if (analysis.documentCheck.severalQuotes === true) return { event: "several_quotes", message: da.errors.severalQuotes };
+  return null;
 }
