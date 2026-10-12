@@ -165,9 +165,10 @@ try {
   await buyOne.getByRole("checkbox").check();
   await buyOne.getByRole("button", { name: "Køb én analyse" }).click();
   await page.getByTestId("withdraw").waitFor({ timeout: 15_000 });
-  await page.getByTestId("withdraw").click();
+  // EU withdrawal function (from 19 June 2026): an unambiguous "withdraw" button, then a "confirm withdrawal" step.
+  await page.getByRole("button", { name: "Fortryd aftalen her" }).click();
   await page.getByText(/Du får 49 kr\. tilbage/).waitFor();
-  await page.getByTestId("withdraw").click();
+  await page.getByRole("button", { name: "Bekræft fortrydelse" }).click();
   await page.getByText("Købet er fortrudt").waitFor();
   await page.getByText(/Fortrudt – 49 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
   log("unused purchase can be withdrawn in the app with full refund");

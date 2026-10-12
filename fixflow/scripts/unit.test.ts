@@ -191,7 +191,7 @@ test("partner codes: typed codes are normalized, bad entries in PARTNER_CODES ar
 test("new texts exist in every language: 3-pakke, codes and their errors", () => {
   for (const [lang, d] of Object.entries(DICTS)) {
     assert.equal(d.plans.pack.features.length, 4, lang);
-    for (const v of [d.checkout.consentPack, d.code.title, d.code.button, d.errors.codeInvalid, d.errors.codeUsedUp, d.errors.codeAlreadyUsed, d.errors.codeBeta])
+    for (const v of [d.account.withdrawButton, d.account.withdrawConfirmButton, d.checkout.consentPack, d.code.title, d.code.button, d.errors.codeInvalid, d.errors.codeUsedUp, d.errors.codeAlreadyUsed, d.errors.codeBeta])
       assert.ok(v.length > 2, lang);
     assert.ok(d.code.doneOther.includes("{n}") && d.code.doneOne.includes("{n}"), `${lang}: code count`);
     const summary = d.lang.legalSummary[0];

@@ -22,7 +22,7 @@ export const isCompanyConfigured = () =>
     (process.env.COMPANY_PHONE || process.env.BETA_FREE === "1")
   );
 
-export const LEGAL_UPDATED = "11. oktober 2026";
+export const LEGAL_UPDATED = "12. oktober 2026";
 
 /** Days a consumer has to withdraw from a purchase (forbrugeraftaleloven § 18). */
 export const WITHDRAWAL_DAYS = 14;
