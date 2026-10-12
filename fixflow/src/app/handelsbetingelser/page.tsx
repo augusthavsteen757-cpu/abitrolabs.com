@@ -30,6 +30,8 @@ export default function TermsPage() {
         ikke firmaer op i registre (fx autorisation). Tilbudsscoren siger noget om, hvor tydeligt et tilbud er, ikke om
         håndværkerens faglige kvalitet eller hæderlighed. Prisniveauet er et groft skøn. Kontrollér altid vigtige punkter
         med håndværkeren, og søg rådgivning ved store eller komplicerede opgaver.
+        Klardal er ikke part i din aftale med håndværkeren. Det er dig, der beslutter, om du vil acceptere et tilbud –
+        også når Klardal viser, hvilket tilbud der klarer sig bedst på pris og klarhed.
       </p>
       <p>
         Funktionen <strong>Find håndværkere</strong> viser aktive firmaer fra det offentlige CVR-register (Erhvervsstyrelsen)
