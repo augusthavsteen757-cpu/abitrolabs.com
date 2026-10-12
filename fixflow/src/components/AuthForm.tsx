@@ -26,7 +26,9 @@ export function AuthForm({ mode, showDemo = false }: { mode: "login" | "signup";
   const a = d.auth;
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const plan = params.get("plan");
+  // Old links may still say plan=pro (Pro no longer exists) – the 3-pakke is the closest choice.
+  const rawPlan = params.get("plan");
+  const plan = rawPlan === "pro" ? "pack" : rawPlan === "single" || rawPlan === "pack" ? rawPlan : null;
   // A partner code from a link like klardal.com/opret?kode=ABC is carried to the account page after signup.
   const code = (params.get("kode") ?? "").replace(/[^A-Za-z0-9-]/g, "").slice(0, 64);
   const next = safeNext(params.get("next"));
@@ -58,7 +60,7 @@ export function AuthForm({ mode, showDemo = false }: { mode: "login" | "signup";
         return;
       }
       let dest = next || "/dashboard";
-      if (plan === "pro" || plan === "single" || plan === "pack") dest = `/dashboard/konto?upgrade=${plan}`;
+      if (plan) dest = `/dashboard/konto?upgrade=${plan}`;
       if (code) dest = `/dashboard/konto?kode=${encodeURIComponent(code)}`;
       // Full navigation so the dashboard renders with the new session (and no stale router cache).
       window.location.assign(dest);
@@ -77,7 +79,7 @@ export function AuthForm({ mode, showDemo = false }: { mode: "login" | "signup";
       </p>
       {plan && isSignup && !code && (
         <p className="mt-4 rounded-xl bg-brand-50 px-3.5 py-2.5 text-sm text-brand-800">
-          {plan === "pro" ? a.chosePro : plan === "pack" ? a.chosePack : a.choseSingle}
+          {plan === "pack" ? a.chosePack : a.choseSingle}
         </p>
       )}
       {code && (

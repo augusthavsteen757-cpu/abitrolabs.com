@@ -3,7 +3,8 @@ import { Lock, Sparkles } from "lucide-react";
 import { CheckoutButton } from "./CheckoutButton";
 import { getDict } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
-import { PRO_PRICE_DKK, SINGLE_PRICE_DKK, isBeta } from "@/lib/plans";
+import { PACK3_PRICE_DKK, SINGLE_PRICE_DKK, isBeta } from "@/lib/plans";
+import { isPackAvailable } from "@/lib/billing";
 import { BetaNotice } from "./BetaNotice";
 
 type Props = {
@@ -20,6 +21,7 @@ export async function Paywall({ title, text, quoteId, showSingle = true, compact
   if (isBeta()) return <BetaNotice cta={false} usedUp />;
   const d = await getDict();
   const t = d.paywall;
+  const pack = isPackAvailable();
   return (
     <div className={compact ? "rounded-2xl border border-brand-200 bg-brand-50/60 p-5" : "card overflow-hidden"}>
       <div className={compact ? "" : "bg-gradient-to-br from-brand-50 to-white p-6 sm:p-8"}>
@@ -32,18 +34,7 @@ export async function Paywall({ title, text, quoteId, showSingle = true, compact
             <p className="mt-1 text-[15px] text-ink-soft">{text}</p>
           </div>
         </div>
-        <div className={`mt-5 grid gap-3 ${showSingle ? "sm:grid-cols-2" : ""}`}>
-          <div className="rounded-xl border border-brand-700 bg-brand-900 p-4 text-white">
-            <p className="flex items-center gap-1.5 text-sm font-semibold">
-              <Sparkles className="h-4 w-4 text-brand-300" /> Pro
-            </p>
-            <p className="mt-1 text-sm text-brand-100">{t.proText}</p>
-            <div className="mt-3">
-              <CheckoutButton kind="PRO_MONTHLY" className="btn-light" dark>
-                {fmt(t.upgrade, { price: PRO_PRICE_DKK })}
-              </CheckoutButton>
-            </div>
-          </div>
+        <div className={`mt-5 grid gap-3 ${showSingle && pack ? "sm:grid-cols-2" : ""}`}>
           {showSingle && (
             <div className="rounded-xl border border-line bg-white p-4">
               <p className="text-sm font-semibold">{t.single}</p>
@@ -53,6 +44,19 @@ export async function Paywall({ title, text, quoteId, showSingle = true, compact
               <div className="mt-3">
                 <CheckoutButton kind="SINGLE" quoteId={quoteId} className="btn-secondary">
                   {fmt(t.buy, { price: SINGLE_PRICE_DKK })}
+                </CheckoutButton>
+              </div>
+            </div>
+          )}
+          {pack && (
+            <div className="rounded-xl border border-brand-700 bg-brand-900 p-4 text-white">
+              <p className="flex items-center gap-1.5 text-sm font-semibold">
+                <Sparkles className="h-4 w-4 text-brand-300" /> {d.plans.pack.name}
+              </p>
+              <p className="mt-1 text-sm text-brand-100">{d.plans.pack.tagline}</p>
+              <div className="mt-3">
+                <CheckoutButton kind="PACK3" quoteId={quoteId} className="btn-light" dark>
+                  {fmt(t.buy, { price: PACK3_PRICE_DKK })}
                 </CheckoutButton>
               </div>
             </div>

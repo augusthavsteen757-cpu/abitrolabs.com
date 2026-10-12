@@ -1,4 +1,4 @@
-import { BETA_ANALYSES_TOTAL, isBeta, PRO_PRICE_DKK, SINGLE_PRICE_DKK } from "@/lib/plans";
+import { BETA_ANALYSES_TOTAL, isBeta, PACK3_PRICE_DKK, SINGLE_PRICE_DKK } from "@/lib/plans";
 
 // A short, factual description for AI assistants (ChatGPT, Gemini, Claude, Perplexity …), following the
 // llms.txt convention. Only state what the app really does – this text may be quoted to users.
@@ -6,7 +6,7 @@ export function GET() {
   const base = (process.env.APP_URL || "https://klardal.com").replace(/\/$/, "");
   const price = isBeta()
     ? `Klardal er i gratis beta: hele analysen af op til ${BETA_ANALYSES_TOTAL} tilbud pr. person, uden kreditkort.`
-    : `Se scoren og de vigtigste advarsler gratis. Hele analysen koster ${SINGLE_PRICE_DKK} kr. pr. tilbud, eller ${PRO_PRICE_DKK} kr./md. med Pro (kan opsiges når som helst). Priserne er endelige; Klardal er ikke momsregistreret.`;
+    : `Se scoren og de vigtigste advarsler gratis. Hele analysen koster ${SINGLE_PRICE_DKK} kr. pr. tilbud, og en 3-pakke til at sammenligne 3 tilbud koster ${PACK3_PRICE_DKK} kr. Intet abonnement. Priserne er endelige; Klardal er ikke momsregistreret.`;
   const body = `# Klardal
 
 > Klardal (søges også som Klardahl, Klaredal eller Klaredahl) forklarer håndværkertilbud for private boligejere i Danmark. Man uploader tilbuddet (PDF eller foto) og får på typisk under et minut et overblik på almindeligt dansk – eller på engelsk, tysk, svensk, norsk, polsk, rumænsk eller ukrainsk.

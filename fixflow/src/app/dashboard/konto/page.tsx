@@ -4,7 +4,7 @@ import { Check, Sparkles, FlaskConical, Receipt, CheckCircle2 } from "lucide-rea
 import { db } from "@/db";
 import { payments, quotes } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
-import { PACK3_PRICE_DKK, PRO_PRICE_DKK, SINGLE_PRICE_DKK, getUsage, isBeta } from "@/lib/plans";
+import { PACK3_PRICE_DKK, SINGLE_PRICE_DKK, getUsage, isBeta } from "@/lib/plans";
 import { getDict, getI18n } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
 import { INTL_LOCALE } from "@/i18n/config";
@@ -108,57 +108,32 @@ export default async function AccountPage({
         </p>
       )}
 
-      {/* Plans */}
-      <div className="mt-6 grid gap-5 md:grid-cols-2">
-        <section
-          className={cn(
-            "flex flex-col rounded-2xl border p-6",
-            upgrade === "pro" ? "border-brand-700 bg-brand-900 text-white shadow-lift ring-4 ring-brand-300/40" : "border-line bg-white shadow-card",
-          )}
-        >
+      {/* Pro can no longer be bought – this box only shows for an account that still has it, so it can be cancelled or resumed. */}
+      {isPro && (
+        <section className="card mt-6 p-6" data-testid="legacy-pro">
           <div className="flex items-center justify-between">
-            <h2 className={cn("text-xl font-semibold", upgrade === "pro" && "text-white")}>Pro</h2>
-            {isPro && <span className="badge bg-brand-300 text-brand-950">{t.active}</span>}
+            <h2 className="text-xl font-semibold">Pro</h2>
+            <span className="badge bg-brand-300 text-brand-950">{t.active}</span>
           </div>
-          <p className="mt-2 flex items-baseline gap-1">
-            <span className="num font-display text-3xl font-semibold">{PRO_PRICE_DKK} kr.</span>
-            <span className={upgrade === "pro" ? "text-brand-100" : "text-ink-muted"}>{d.common.perMonth}</span>
-          </p>
-          <ul className="mt-4 flex-1 space-y-2 text-sm">
-            {d.plans.pro.features.map((f) => (
-              <li key={f} className="flex gap-2">
-                <Check className={cn("mt-0.5 h-4 w-4 shrink-0", upgrade === "pro" ? "text-brand-300" : "text-brand-600")} />
-                <span className={upgrade === "pro" ? "text-brand-50" : "text-ink-soft"}>{f}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-6">
-            {isPro && user.planEndsAt ? (
+          <div className="mt-4 sm:w-72">
+            {user.planEndsAt ? (
               <div>
-                <p className={cn("mb-3 text-sm", upgrade === "pro" ? "text-brand-100" : "text-ink-soft")}>
-                  {fmt(t.cancelled, { date: date(user.planEndsAt) })}
-                </p>
-                <CheckoutButton kind="RESUME" dark={upgrade === "pro"} className={upgrade === "pro" ? "btn-light" : "btn-primary"}>
+                <p className="mb-3 text-sm text-ink-soft">{fmt(t.cancelled, { date: date(user.planEndsAt) })}</p>
+                <CheckoutButton kind="RESUME" className="btn-primary">
                   {t.resume}
                 </CheckoutButton>
               </div>
-            ) : isPro ? (
-              <CheckoutButton
-                kind="CANCEL"
-                className="btn-secondary"
-                dark={upgrade === "pro"}
-                confirmText={fmt(t.cancelConfirm, { date: date(usage.periodEnd) })}
-              >
-                {t.cancel}
-              </CheckoutButton>
             ) : (
-              <CheckoutButton kind="PRO_MONTHLY" dark={upgrade === "pro"} className={upgrade === "pro" ? "btn-light" : "btn-primary"} redirectTo="/dashboard/konto">
-                {t.upgrade}
+              <CheckoutButton kind="CANCEL" className="btn-secondary" confirmText={fmt(t.cancelConfirm, { date: date(usage.periodEnd) })}>
+                {t.cancel}
               </CheckoutButton>
             )}
           </div>
         </section>
+      )}
 
+      {/* What can be bought: one analysis or a 3-pakke */}
+      <div className={cn("mt-6 grid gap-5", pack && "md:grid-cols-2")}>
         <section
           className={cn(
             "flex flex-col rounded-2xl border p-6",
@@ -189,35 +164,42 @@ export default async function AccountPage({
             </CheckoutButton>
           </div>
         </section>
-      </div>
 
-      {pack && (
-        <section
-          className={cn(
-            "mt-5 flex flex-col gap-4 rounded-2xl border p-6 sm:flex-row sm:items-center sm:justify-between",
-            upgrade === "pack" ? "border-brand-700 bg-brand-900 text-white shadow-lift ring-4 ring-brand-300/40" : "border-line bg-white shadow-card",
-          )}
-          data-testid="pack3"
-        >
-          <div className="min-w-0">
+        {pack && (
+          <section
+            className={cn(
+              "flex flex-col rounded-2xl border p-6",
+              upgrade === "pack" ? "border-brand-700 bg-brand-900 text-white shadow-lift ring-4 ring-brand-300/40" : "border-line bg-white shadow-card",
+            )}
+            data-testid="pack3"
+          >
             <h2 className={cn("text-xl font-semibold", upgrade === "pack" && "text-white")}>{d.plans.pack.name}</h2>
             <p className={cn("mt-1 text-sm", upgrade === "pack" ? "text-brand-100" : "text-ink-soft")}>{d.plans.pack.tagline}</p>
             <p className="mt-2">
               <span className="num font-display text-3xl font-semibold">{PACK3_PRICE_DKK} kr.</span>
             </p>
-          </div>
-          <div className="sm:w-72">
-            <CheckoutButton
-              kind="PACK3"
-              dark={upgrade === "pack"}
-              className={upgrade === "pack" ? "btn-light" : "btn-secondary"}
-              redirectTo="/dashboard/konto"
-            >
-              {t.buyPack}
-            </CheckoutButton>
-          </div>
-        </section>
-      )}
+            <ul className="mt-4 flex-1 space-y-2 text-sm">
+              {d.plans.pack.features.map((f) => (
+                <li key={f} className="flex gap-2">
+                  <Check className={cn("mt-0.5 h-4 w-4 shrink-0", upgrade === "pack" ? "text-brand-300" : "text-brand-600")} />
+                  <span className={upgrade === "pack" ? "text-brand-50" : "text-ink-soft"}>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6">
+              <CheckoutButton
+                kind="PACK3"
+                dark={upgrade === "pack"}
+                quoteId={quote?.id}
+                className={upgrade === "pack" ? "btn-light" : "btn-secondary"}
+                redirectTo={quote ? `/dashboard/tilbud/${quote.id}` : "/dashboard/konto"}
+              >
+                {t.buyPack}
+              </CheckoutButton>
+            </div>
+          </section>
+        )}
+      </div>
 
       <RedeemCode initialCode={(sp.kode ?? "").slice(0, 64)} />
         </>

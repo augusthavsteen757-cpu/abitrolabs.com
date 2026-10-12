@@ -68,8 +68,17 @@ try {
   await page.goto(BASE);
   await page.getByRole("heading", { name: /Forstå dit håndværkertilbud/ }).waitFor();
   await shot(page, "landing");
-  assert((await page.innerText("body")).includes("Kan jeg opsige Pro?"), "outside the beta the FAQ explains cancelling Pro");
-  log("landing page");
+  const landing = await page.innerText("body");
+  assert(landing.includes("Er der et abonnement?"), "outside the beta the FAQ says there is no subscription");
+  assert(!/\bPro\b/.test(landing) && !/kr\.\s*\/\s*md\./.test(landing), "no Pro and no monthly price on the landing page");
+  await page.goto(`${BASE}/priser`);
+  const pricing = await page.innerText("body");
+  assert(!/\bPro\b/.test(pricing), "no Pro on the pricing page");
+  assert(pricing.includes("49 kr.") && pricing.includes("99 kr.") && pricing.includes("Sammenlign 3 tilbud"), "pricing page: 49 kr. single, 99 kr. 3-pakke for comparing");
+  await page.goto(`${BASE}/handelsbetingelser`);
+  assert(!/\bPro\b|abonnementet fornyes/i.test(await page.innerText("main")), "no Pro in the terms");
+  await page.goto(BASE);
+  log("landing, pricing and terms page – no Pro");
 
   // Visitors on a phone can go straight to a feature from the top menu: sign up, then land on it.
   const visitor = await newPage(390, 844);
@@ -136,7 +145,16 @@ try {
   // The free analysis is used up → upload shows paywall
   await page.goto(`${BASE}/dashboard/upload`);
   await page.getByText("Du har brugt din gratis analyse").waitFor();
-  log("upload paywall when no analyses left");
+  const paywall = await page.innerText("main");
+  assert(!/\bPro\b/.test(paywall), "the paywall offers no Pro");
+  await page.getByRole("button", { name: "Gå til betaling – 99 kr.", exact: true }).waitFor();
+  log("upload paywall when no analyses left: single or 3-pakke, no Pro");
+
+  // Pro can no longer be bought, not even by calling the API directly.
+  const proRes = await page.request.post(`${BASE}/api/billing/checkout`, { headers: { origin: BASE }, data: { kind: "PRO_MONTHLY", consent: true } });
+  assert(proRes.status() === 400, `buying Pro is refused (got ${proRes.status()})`);
+  assert((await proRes.json()).error === "Ugyldigt køb.", "refused as an invalid purchase");
+  log("checkout refuses Pro");
 
   // Buy single analysis from the quote page → unlocks this quote
   await page.goto(quoteUrl);
@@ -144,7 +162,9 @@ try {
   await buyBox.getByRole("button", { name: "Gå til betaling – 49 kr.", exact: true }).click();
   await buyBox.getByText("Sæt flueben").waitFor();
   log("purchase requires consent to immediate delivery");
-  await buyBox.getByRole("checkbox").nth(1).check();
+  // The single purchase is the first option, the 3-pakke the second.
+  await buyBox.getByRole("button", { name: "Gå til betaling – 99 kr.", exact: true }).waitFor();
+  await buyBox.getByRole("checkbox").nth(0).check();
   await buyBox.getByRole("button", { name: "Gå til betaling – 49 kr.", exact: true }).click();
   await page.getByText("Skriv besked").waitFor({ timeout: 15_000 });
   const after = await page.locator("section:has(h2:has-text('Spørgsmål til håndværkeren')) ol > li").count();
@@ -244,10 +264,12 @@ try {
 
   await buyer.goto(`${BASE}/dashboard/sammenlign`);
   await buyer.getByText(/Skift tilbud \(2 valgt\)/).waitFor();
-  assert((await buyer.getByText("Sammenligning kræver Pro").count()) === 0, "no paywall with 2 unlocked quotes");
-  log("without Pro, the 2 unlocked quotes can be compared");
+  assert((await buyer.getByText("Sammenligning kræver 2 tilbud").count()) === 0, "no paywall with 2 unlocked quotes");
+  log("the 2 unlocked quotes can be compared");
 
   await buyer.goto(`${BASE}/dashboard/konto`);
+  assert((await buyer.getByTestId("legacy-pro").count()) === 0, "no Pro box for an account without Pro");
+  assert(!/\bPro\b/.test(await buyer.innerText("main")), "the account page offers no Pro");
   const pack = buyer.getByTestId("pack3");
   await pack.getByRole("checkbox").check();
   await pack.getByRole("button", { name: "Køb 3-pakken" }).click();
@@ -420,7 +442,7 @@ try {
   await demo.getByText(/Opsagt\. Pro fortsætter til/).waitFor();
   await demo.getByRole("button", { name: "Genoptag Pro" }).click();
   await demo.getByRole("button", { name: "Opsig Pro" }).waitFor();
-  log("cancel Pro keeps access to period end, and resume");
+  log("a legacy Pro account (seeded) can still cancel and resume");
   await shot(demo, "account");
   log("account page");
 

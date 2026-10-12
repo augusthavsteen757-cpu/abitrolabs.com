@@ -16,7 +16,7 @@ import { createRequire } from "node:module";
 import { unusedPurchases, withdrawalQuote } from "../src/lib/purchases";
 import { normalizeCode, parsePartnerCodes } from "../src/lib/code-format";
 import type { Payment } from "../src/db/schema";
-import { PACK3_PRICE_DKK, PRO_PRICE_DKK, SINGLE_PRICE_DKK } from "../src/lib/plans";
+import { PACK3_PRICE_DKK, SINGLE_PRICE_DKK } from "../src/lib/plans";
 
 let passed = 0;
 const test = (name: string, fn: () => void) => {
@@ -195,16 +195,44 @@ test("new texts exist in every language: 3-pakke, codes and their errors", () =>
       assert.ok(v.length > 2, lang);
     assert.ok(d.code.doneOther.includes("{n}") && d.code.doneOne.includes("{n}"), `${lang}: code count`);
     const summary = d.lang.legalSummary[0];
-    for (const price of [PRO_PRICE_DKK, SINGLE_PRICE_DKK, PACK3_PRICE_DKK])
+    for (const price of [SINGLE_PRICE_DKK, PACK3_PRICE_DKK])
       assert.ok(new RegExp(`(?<!\\d)${price}(?!\\d)`).test(summary), `${lang}: legal summary names ${price} kr.`);
     assert.ok(!/(?<!\d)199(?!\d)/.test(summary), `${lang}: old 3-pakke price`);
+  }
+});
+
+test("Pro is gone: no text a customer reads before buying offers Pro or a monthly price", () => {
+  for (const [lang, d] of Object.entries(DICTS)) {
+    const texts = [
+      ...d.lang.legalSummary,
+      d.pricingPage.text,
+      d.pricingPage.note,
+      JSON.stringify(d.plans),
+      JSON.stringify(d.faq),
+      JSON.stringify(d.paywall),
+      JSON.stringify(d.checkout),
+      d.beta.later,
+      d.nav.upgrade,
+      d.upload.usedFreeText,
+      d.compare.lockedTitle,
+      d.compare.lockedText,
+      d.account.withdrawText,
+      d.settings.deleteText,
+      d.errors.noAnalysesLeft,
+      d.errors.needUnlock,
+    ];
+    for (const v of texts) {
+      assert.ok(!/\bPro\b/.test(v), `${lang}: mentions Pro: ${v.slice(0, 120)}`);
+      assert.ok(!/\/\s?(md|mo|month|Monat|mån|mnd|mies|lună|міс)\b/i.test(v), `${lang}: monthly price: ${v.slice(0, 120)}`);
+    }
+    assert.ok(!("pro" in d.plans), `${lang}: plans.pro`);
   }
 });
 
 test("Klardal's own prices never claim VAT (Klardal is not VAT-registered)", () => {
   const vat = /moms|\bVAT\b|MwSt|Mehrwertsteuer|\bmva\b|merverdiavgift|\bTVA\b|ПДВ/i;
   for (const [lang, d] of Object.entries(DICTS))
-    for (const v of [d.lang.legalSummary[0], d.home.pricingText, d.pricingPage.note, d.checkout.consentPro])
+    for (const v of [d.lang.legalSummary[0], d.home.pricingText, d.pricingPage.note, d.checkout.consentSingle, d.checkout.consentPack])
       assert.ok(!vat.test(v), `${lang}: ${v}`);
 });
 

@@ -78,7 +78,7 @@ export function DashboardNav({ name, email, plan, used, limit, remaining, credit
           </div>
           {credits > 0 && <p className="mt-2 text-xs text-ink-muted">{fmt(d.nav.extraCredits, { n: credits })}</p>}
           {plan === "FREE" && !beta && (
-            <Link href="/dashboard/konto?upgrade=pro" className="mt-3 block text-xs font-semibold text-brand-700 hover:underline">
+            <Link href="/dashboard/konto" className="mt-3 block text-xs font-semibold text-brand-700 hover:underline">
               {d.nav.upgrade}
             </Link>
           )}

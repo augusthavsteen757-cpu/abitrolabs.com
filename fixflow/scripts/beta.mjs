@@ -13,7 +13,8 @@ const ok = (c, m) => { if (!c) throw new Error("FAIL: " + m); console.log("  ✓
 await p.goto(B);
 ok(await p.getByTestId("beta-notice").isVisible(), "landing shows beta notice instead of prices");
 ok(!(await p.innerText("body")).includes("Vælg Pro"), "no Pro purchase button on landing");
-ok(!(await p.innerText("body")).includes("Kan jeg opsige Pro?"), "FAQ hides the Pro question while nothing can be bought");
+ok(!(await p.innerText("body")).includes("Er der et abonnement?"), "FAQ hides the payment question while nothing can be bought");
+ok(!/\bPro\b/.test(await p.innerText("body")), "no Pro anywhere on the landing page");
 // COMPANY_FOOTER_ADDRESS=0 (set by test-all): CVR in the footer without the address – the legal pages keep it.
 const footer = await p.locator("footer").innerText();
 ok(footer.includes("CVR under registrering") && footer.includes("kontakt@klardal.com") && !footer.includes("Strandhuse"), "footer shows CVR and e-mail without the address");

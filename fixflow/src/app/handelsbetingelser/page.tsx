@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { COMPANY, WITHDRAWAL_DAYS } from "@/lib/company";
-import { BETA_ANALYSES_TOTAL, PACK3_CREDITS, PACK3_PRICE_DKK, PRO_ANALYSES_PER_PERIOD, PRO_PRICE_DKK, SINGLE_PRICE_DKK, isBeta } from "@/lib/plans";
+import { BETA_ANALYSES_TOTAL, PACK3_CREDITS, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, isBeta } from "@/lib/plans";
 
 export const metadata: Metadata = { title: "Handelsbetingelser" };
 export const dynamic = "force-dynamic";
-
-const proPerDay = (PRO_PRICE_DKK / 30).toFixed(2).replace(".", ",");
 
 export default function TermsPage() {
   return (
@@ -48,7 +46,7 @@ export default function TermsPage() {
           <p>
             Klardal er lige nu i en gratis betaperiode. Du får hele analysen af op til {BETA_ANALYSES_TOTAL} tilbud uden
             betaling, og der kan ikke købes noget. Vi giver dig besked på e-mail i god tid, før betaperioden slutter.
-            Betalte abonnementer starter aldrig automatisk – du skal selv vælge at købe. Priserne nedenfor gælder først
+            Der starter aldrig en betaling automatisk – du skal selv vælge at købe. Priserne nedenfor gælder først
             efter betaperioden.
           </p>
         </>
@@ -60,16 +58,13 @@ export default function TermsPage() {
           <strong>Gratis:</strong> 1 analyse med Tilbudsscore og et udvalg af resultaterne. Resten af analysen er låst.
         </li>
         <li>
-          <strong>Pro:</strong> {PRO_PRICE_DKK} kr. pr. måned, {PRO_ANALYSES_PER_PERIOD} analyser pr.
-          betalingsperiode (1 måned). <strong>Abonnementet fornyes automatisk hver måned</strong>, indtil du opsiger det.
-        </li>
-        <li>
           <strong>Engangskøb:</strong> {SINGLE_PRICE_DKK} kr. for én komplet analyse eller oplåsning af et
           tilbud, du allerede har fået analyseret.
         </li>
         <li>
           <strong>3-pakke:</strong> {PACK3_PRICE_DKK} kr. for {PACK3_CREDITS} komplette analyser. Hver analyse
-          bruges på samme måde som et engangskøb. Ubrugte analyser udløber ikke.
+          bruges på samme måde som et engangskøb, og pakken er beregnet til at sammenligne op til 3 tilbud på samme opgave.
+          Ubrugte analyser udløber ikke.
         </li>
         <li>
           <strong>Kode fra en partner:</strong> Har du fået en kode fra en virksomhed, der samarbejder med Klardal (fx en
@@ -78,28 +73,26 @@ export default function TermsPage() {
           betaler for analyserne, men får ingen oplysninger om dig eller dine tilbud.
         </li>
         <li>
-          <strong>Sammenligning:</strong> Med Pro kan du sammenligne alle dine analyserede tilbud. Uden Pro kan du
-          sammenligne de tilbud, du har låst op med et engangskøb, en 3-pakke eller en kode.
+          <strong>Sammenligning:</strong> Du kan sammenligne de tilbud, du har låst op med et engangskøb, en 3-pakke
+          eller en kode.
         </li>
       </ul>
       <p>
-        Alle priser er i danske kroner og er de endelige priser. Klardal er ikke momsregistreret, så der lægges ikke moms oven i. Betaling sker med kort via Stripe. Ubrugte analyser i Pro overføres ikke
-        til næste periode. Når du har købt, får du en ordrebekræftelse på e-mail med dit samtykke, oplysninger om
+        Alle priser er i danske kroner og er de endelige priser. Klardal er ikke momsregistreret, så der lægges ikke moms oven i. Betaling sker med kort via Stripe. Der er intet abonnement, og intet fornyes
+        automatisk. Når du har købt, får du en ordrebekræftelse på e-mail med dit samtykke, oplysninger om
         fortrydelsesret og et link til disse betingelser.
       </p>
 
-      <h2>Opsigelse</h2>
+      <h2>Sletning af konto</h2>
       <p>
-        Du kan opsige Pro når som helst med knappen »Opsig Pro« på din kontoside. Du beholder Pro til udgangen af den
-        periode, du har betalt for, og bliver ikke trukket igen. Du kan også slette din konto når som helst; et
-        Pro-abonnement stopper da med det samme uden refusion af resten af perioden (vil du have penge tilbage inden for
-        fortrydelsesfristen, så brug »Fortryd købet« først).
+        Du kan slette din konto når som helst på din kontoside. Vil du have penge tilbage for et køb inden for
+        fortrydelsesfristen, så brug »Fortryd købet« først.
       </p>
 
       <h2>Fortrydelsesret</h2>
       <p>
-        Du har {WITHDRAWAL_DAYS} dages fortrydelsesret, når du køber Pro, et engangskøb eller en 3-pakke. Fristen løber fra den dag, du
-        køber. En automatisk månedlig fornyelse af Pro er ikke et nyt køb og giver ikke en ny fortrydelsesfrist.
+        Du har {WITHDRAWAL_DAYS} dages fortrydelsesret, når du køber et engangskøb eller en 3-pakke. Fristen løber fra den dag, du
+        køber.
       </p>
       <ul>
         <li>
@@ -113,11 +106,6 @@ export default function TermsPage() {
           og for den bortfalder fortrydelsesretten. Fortryder du inden for {WITHDRAWAL_DAYS} dage, får du{" "}
           {(PACK3_PRICE_DKK / PACK3_CREDITS).toFixed(2).replace(".", ",")} kr. tilbage pr. ubrugt analyse ({PACK3_PRICE_DKK} kr. ÷{" "}
           {PACK3_CREDITS}, afrundet til hele øre), og de ubrugte analyser fjernes fra din konto.
-        </li>
-        <li>
-          <strong>Pro:</strong> Når du køber, anmoder du om, at Pro starter med det samme. Fortryder du inden for{" "}
-          {WITHDRAWAL_DAYS} dage, betaler du for den del, du har brugt: {proPerDay} kr. pr. påbegyndt dag ({PRO_PRICE_DKK}{" "}
-          kr. ÷ 30). Resten får du tilbage, og Pro stopper med det samme.
         </li>
       </ul>
       <p>
@@ -150,8 +138,8 @@ export default function TermsPage() {
         <li>Du er ansvarlig for at holde din adgangskode hemmelig.</li>
       </ul>
       <p>
-        Vi kan lukke en konto, der bruges i strid med betingelserne. Du får besked med en begrundelse, og har du betalt for
-        en periode, du ikke får, får du pengene tilbage for den.
+        Vi kan lukke en konto, der bruges i strid med betingelserne. Du får besked med en begrundelse, og har du købt
+        analyser, du ikke har brugt, får du pengene tilbage for dem.
       </p>
 
       <h2>Mangler og ansvar</h2>
@@ -173,7 +161,8 @@ export default function TermsPage() {
       <h2>Ændringer og lovvalg</h2>
       <p>
         Vi giver dig besked på e-mail mindst 30 dage før væsentlige ændringer af betingelserne eller priserne. Vil du ikke
-        acceptere ændringen, kan du opsige Pro, før den træder i kraft. Dansk ret gælder, men du beholder den beskyttelse,
+        acceptere ændringen, kan du slette din konto, før den træder i kraft, og få pengene tilbage for analyser, du har
+        købt og ikke brugt. Dansk ret gælder, men du beholder den beskyttelse,
         du har efter ufravigelige regler i det land, du bor i.
       </p>
     </LegalPage>

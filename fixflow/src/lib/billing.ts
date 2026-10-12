@@ -240,7 +240,7 @@ async function sendOrderConfirmation(userId: string, p: Payment) {
     lines.push(
       "",
       "Dit samtykke:",
-      `»${p.consentText ?? (pro ? da.checkout.consentPro : p.kind === "PACK3" ? da.checkout.consentPack : da.checkout.consentSingle)}«`,
+      `»${p.consentText ?? (p.kind === "PACK3" ? da.checkout.consentPack : da.checkout.consentSingle)}«`,
       p.consentAt ? `Givet ${p.consentAt.toLocaleString("da-DK", { timeZone: "Europe/Copenhagen" })}.` : "",
       "",
       "Fortrydelsesret:",
