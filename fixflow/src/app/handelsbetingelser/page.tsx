@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { COMPANY, WITHDRAWAL_DAYS } from "@/lib/company";
-import { BETA_ANALYSES_TOTAL, PRO_ANALYSES_PER_PERIOD, PRO_PRICE_DKK, SINGLE_PRICE_DKK, isBeta } from "@/lib/plans";
+import { BETA_ANALYSES_TOTAL, PACK3_CREDITS, PACK3_PRICE_DKK, PRO_ANALYSES_PER_PERIOD, PRO_PRICE_DKK, SINGLE_PRICE_DKK, isBeta } from "@/lib/plans";
 
 export const metadata: Metadata = { title: "Handelsbetingelser" };
 export const dynamic = "force-dynamic";
@@ -60,16 +60,30 @@ export default function TermsPage() {
           <strong>Gratis:</strong> 1 analyse med Tilbudsscore og et udvalg af resultaterne. Resten af analysen er låst.
         </li>
         <li>
-          <strong>Pro:</strong> {PRO_PRICE_DKK} kr. pr. måned inkl. moms, {PRO_ANALYSES_PER_PERIOD} analyser pr.
+          <strong>Pro:</strong> {PRO_PRICE_DKK} kr. pr. måned, {PRO_ANALYSES_PER_PERIOD} analyser pr.
           betalingsperiode (1 måned). <strong>Abonnementet fornyes automatisk hver måned</strong>, indtil du opsiger det.
         </li>
         <li>
-          <strong>Engangskøb:</strong> {SINGLE_PRICE_DKK} kr. inkl. moms for én komplet analyse eller oplåsning af et
+          <strong>Engangskøb:</strong> {SINGLE_PRICE_DKK} kr. for én komplet analyse eller oplåsning af et
           tilbud, du allerede har fået analyseret.
+        </li>
+        <li>
+          <strong>3-pakke:</strong> {PACK3_PRICE_DKK} kr. for {PACK3_CREDITS} komplette analyser. Hver analyse
+          bruges på samme måde som et engangskøb. Ubrugte analyser udløber ikke.
+        </li>
+        <li>
+          <strong>Kode fra en partner:</strong> Har du fået en kode fra en virksomhed, der samarbejder med Klardal (fx en
+          ejendomsmægler), kan du indløse den på din kontoside og få gratis analyser. Hver kode kan bruges én gang pr.
+          konto og et begrænset antal gange i alt. Analyser fra en kode bruges før dem, du selv har købt. Virksomheden
+          betaler for analyserne, men får ingen oplysninger om dig eller dine tilbud.
+        </li>
+        <li>
+          <strong>Sammenligning:</strong> Med Pro kan du sammenligne alle dine analyserede tilbud. Uden Pro kan du
+          sammenligne de tilbud, du har låst op med et engangskøb, en 3-pakke eller en kode.
         </li>
       </ul>
       <p>
-        Alle priser er i danske kroner inkl. moms. Betaling sker med kort via Stripe. Ubrugte analyser i Pro overføres ikke
+        Alle priser er i danske kroner og er de endelige priser. Klardal er ikke momsregistreret, så der lægges ikke moms oven i. Betaling sker med kort via Stripe. Ubrugte analyser i Pro overføres ikke
         til næste periode. Når du har købt, får du en ordrebekræftelse på e-mail med dit samtykke, oplysninger om
         fortrydelsesret og et link til disse betingelser.
       </p>
@@ -84,7 +98,7 @@ export default function TermsPage() {
 
       <h2>Fortrydelsesret</h2>
       <p>
-        Du har {WITHDRAWAL_DAYS} dages fortrydelsesret, når du køber Pro eller et engangskøb. Fristen løber fra den dag, du
+        Du har {WITHDRAWAL_DAYS} dages fortrydelsesret, når du køber Pro, et engangskøb eller en 3-pakke. Fristen løber fra den dag, du
         køber. En automatisk månedlig fornyelse af Pro er ikke et nyt køb og giver ikke en ny fortrydelsesfrist.
       </p>
       <ul>
@@ -93,6 +107,12 @@ export default function TermsPage() {
           fortrydelsesretten, når analysen er leveret (forbrugeraftalelovens § 18, stk. 2, nr. 13). Bruger du købet – låser
           et tilbud op eller analyserer et nyt – bortfalder fortrydelsesretten for det køb. Har du ikke brugt det, kan du
           fortryde og få hele beløbet tilbage.
+        </li>
+        <li>
+          <strong>3-pakke:</strong> Som ved engangskøb, men for hver analyse for sig: en analyse, du har brugt, er leveret,
+          og for den bortfalder fortrydelsesretten. Fortryder du inden for {WITHDRAWAL_DAYS} dage, får du{" "}
+          {(PACK3_PRICE_DKK / PACK3_CREDITS).toFixed(2).replace(".", ",")} kr. tilbage pr. ubrugt analyse ({PACK3_PRICE_DKK} kr. ÷{" "}
+          {PACK3_CREDITS}, afrundet til hele øre), og de ubrugte analyser fjernes fra din konto.
         </li>
         <li>
           <strong>Pro:</strong> Når du køber, anmoder du om, at Pro starter med det samme. Fortryder du inden for{" "}

@@ -13,6 +13,9 @@ import { DEMO_EMAIL, DEMO_PASSWORD } from "../src/lib/demo";
 import { ARTICLES } from "../src/content/articles";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { unusedPurchases, withdrawalQuote } from "../src/lib/purchases";
+import { normalizeCode, parsePartnerCodes } from "../src/lib/code-format";
+import type { Payment } from "../src/db/schema";
 
 let passed = 0;
 const test = (name: string, fn: () => void) => {
@@ -142,6 +145,63 @@ test("React hydration fix applies to Next's bundled React, stays valid JS and re
     new Function(out); // throws on a syntax error
   }
   assert.throws(() => loader.call({ resourcePath: "x" }, "function replaySuspendedUnitOfWork(a) {}"), /review the patch/);
+});
+
+const pay = (id: string, kind: Payment["kind"], amountDkk: number, daysAgo: number, extra: Partial<Payment> = {}): Payment => ({
+  id, userId: "u", kind, amountDkk, provider: "stripe", reference: id, consentAt: null, consentText: null,
+  paymentIntent: null, renewal: false, refundedAt: null, refundedOere: null,
+  createdAt: new Date(Date.now() - daysAgo * 86400000), ...extra,
+});
+
+test("unused purchases: the newest purchases count as unused, a pack can be partly used", () => {
+  const all = [pay("old", "SINGLE", 99, 5), pay("pack", "PACK3", 199, 3), pay("new", "SINGLE", 99, 1)];
+  assert.deepEqual([...unusedPurchases({ extraCredits: 5 }, all)], [["new", 1], ["pack", 3], ["old", 1]]);
+  assert.deepEqual([...unusedPurchases({ extraCredits: 3 }, all)], [["new", 1], ["pack", 2]]);
+  assert.deepEqual([...unusedPurchases({ extraCredits: 0 }, all)], []);
+  assert.deepEqual([...unusedPurchases({ extraCredits: -2 }, all)], [], "never negative");
+  const refunded = [pay("pack", "PACK3", 199, 3, { refundedAt: new Date() }), pay("s", "SINGLE", 99, 2)];
+  assert.deepEqual([...unusedPurchases({ extraCredits: 1 }, refunded)], [["s", 1]], "refunded purchases are skipped");
+  assert.deepEqual([...unusedPurchases({ extraCredits: 3 }, [pay("pro", "PRO_MONTHLY", 49, 1)])], [], "Pro has no credits");
+});
+
+test("withdrawal: a pack refunds its unused analyses pro rata, a used one can't be withdrawn", () => {
+  const pack = pay("pack", "PACK3", 199, 2);
+  assert.deepEqual(withdrawalQuote(pack, new Map([["pack", 3]])), { refundOere: 19900, credits: 3 });
+  assert.deepEqual(withdrawalQuote(pack, new Map([["pack", 2]])), { refundOere: 13267, credits: 2 });
+  assert.deepEqual(withdrawalQuote(pack, new Map([["pack", 1]])), { refundOere: 6633, credits: 1 });
+  assert.deepEqual(withdrawalQuote(pack, new Map()), { reason: "withdrawUsed" });
+  assert.deepEqual(withdrawalQuote(pay("p", "PACK3", 199, 15), new Map([["p", 3]])), { reason: "withdrawExpired" });
+  assert.deepEqual(withdrawalQuote(pay("s", "SINGLE", 99, 1), new Map([["s", 1]])), { refundOere: 9900, credits: 1 });
+  const pro = withdrawalQuote(pay("pro", "PRO_MONTHLY", 49, 0.5), new Map());
+  assert.ok("refundOere" in pro && pro.refundOere === 4900 - Math.round(4900 / 30), "Pro: pays for each started day");
+});
+
+test("partner codes: typed codes are normalized, bad entries in PARTNER_CODES are skipped", () => {
+  assert.equal(normalizeCode(" maegler-svb 2026 "), "MAEGLERSVB2026");
+  assert.equal(normalizeCode("æøå"), "");
+  assert.deepEqual(parsePartnerCodes("Maegler-SVB=50, ENERGI=20:2,bad,X=5,NUL=0,BIG=999999,TOOMANY=5:11, ENERGI=30"), [
+    { code: "MAEGLERSVB", maxUses: 50, credits: 1 },
+    { code: "ENERGI", maxUses: 30, credits: 1 },
+  ]);
+  assert.deepEqual(parsePartnerCodes(undefined), []);
+  assert.deepEqual(parsePartnerCodes(""), []);
+});
+
+test("new texts exist in every language: 3-pakke, codes and their errors", () => {
+  for (const [lang, d] of Object.entries(DICTS)) {
+    assert.equal(d.plans.pack.features.length, 4, lang);
+    for (const v of [d.checkout.consentPack, d.code.title, d.code.button, d.errors.codeInvalid, d.errors.codeUsedUp, d.errors.codeAlreadyUsed, d.errors.codeBeta])
+      assert.ok(v.length > 2, lang);
+    assert.ok(d.code.doneOther.includes("{n}") && d.code.doneOne.includes("{n}"), `${lang}: code count`);
+    assert.ok(d.lang.legalSummary[0].includes("199"), `${lang}: legal summary names the 3-pakke price`);
+  }
+});
+
+test("Klardal's own prices never claim VAT (Klardal is not VAT-registered)", () => {
+  const vat = /moms|\bVAT\b|MwSt|Mehrwertsteuer|\bmva\b|merverdiavgift|\bTVA\b|ПДВ/i;
+  for (const [lang, d] of Object.entries(DICTS))
+    for (const v of [d.lang.legalSummary[0], d.home.pricingText, d.pricingPage.note, d.checkout.consentPro])
+      assert.ok(!vat.test(v), `${lang}: ${v}`);
 });
 
 test("articles: unique URL-safe slugs, search-friendly title and description lengths, valid dates", () => {

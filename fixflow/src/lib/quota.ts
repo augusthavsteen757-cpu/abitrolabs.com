@@ -4,10 +4,11 @@ import { db } from "@/db";
 import { users, type User } from "@/db/schema";
 import { currentPeriod, isBeta, planLimit } from "./plans";
 
-export type QuotaSource = "plan" | "credit";
+export type QuotaSource = "plan" | "gift" | "credit";
 
 /**
- * Consumes one analysis: plan quota first, then extra credits. Returns null if none left.
+ * Consumes one analysis: plan quota first, then partner-code (gift) credits, then bought credits. Returns null if
+ * none left. Gift credits go before bought ones, so a bought analysis stays unused – and refundable – for longer.
  * Each step is a single conditional UPDATE, so parallel uploads can never over- or under-charge.
  */
 export async function consumeAnalysis(user: User): Promise<QuotaSource | null> {
@@ -32,10 +33,21 @@ export async function consumeAnalysis(user: User): Promise<QuotaSource | null> {
   if (plan.length) return "plan";
   if (isBeta()) return null; // no extra purchases in the beta – the cap is the cap
 
+  return takeCredit(user.id);
+}
+
+/** Takes one gift credit, or else one bought credit. Each step is a single conditional UPDATE. */
+async function takeCredit(userId: string): Promise<"gift" | "credit" | null> {
+  const gift = await db
+    .update(users)
+    .set({ giftCredits: sql`${users.giftCredits} - 1` })
+    .where(and(eq(users.id, userId), gt(users.giftCredits, 0)))
+    .returning({ id: users.id });
+  if (gift.length) return "gift";
   const credit = await db
     .update(users)
     .set({ extraCredits: sql`${users.extraCredits} - 1` })
-    .where(and(eq(users.id, user.id), gt(users.extraCredits, 0)))
+    .where(and(eq(users.id, userId), gt(users.extraCredits, 0)))
     .returning({ id: users.id });
   return credit.length ? "credit" : null;
 }
@@ -46,6 +58,11 @@ export async function refundAnalysis(userId: string, source: QuotaSource) {
       .update(users)
       .set({ periodUsed: sql`max(0, ${users.periodUsed} - 1)` })
       .where(eq(users.id, userId));
+  } else if (source === "gift") {
+    await db
+      .update(users)
+      .set({ giftCredits: sql`${users.giftCredits} + 1` })
+      .where(eq(users.id, userId));
   } else {
     await db
       .update(users)
@@ -54,11 +71,7 @@ export async function refundAnalysis(userId: string, source: QuotaSource) {
   }
 }
 
+/** Spends one credit (gift first) to unlock an already analysed quote. */
 export async function spendCredit(userId: string): Promise<boolean> {
-  const res = await db
-    .update(users)
-    .set({ extraCredits: sql`${users.extraCredits} - 1` })
-    .where(and(eq(users.id, userId), gt(users.extraCredits, 0)))
-    .returning({ id: users.id });
-  return res.length > 0;
+  return (await takeCredit(userId)) !== null;
 }

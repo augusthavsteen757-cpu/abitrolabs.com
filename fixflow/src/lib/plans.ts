@@ -2,6 +2,9 @@ import type { User } from "@/db/schema";
 
 export const PRO_PRICE_DKK = 49;
 export const SINGLE_PRICE_DKK = 99;
+/** 3-pakke: three complete analyses for people who get several quotes for the same job. */
+export const PACK3_PRICE_DKK = 199;
+export const PACK3_CREDITS = 3;
 export const PRO_ANALYSES_PER_PERIOD = 10;
 export const FREE_ANALYSES_TOTAL = 1;
 export const PERIOD_DAYS = 30;
@@ -60,14 +63,15 @@ export function getUsage(user: User, now = new Date()): Usage {
     used: p.periodUsed,
     limit,
     planRemaining,
-    credits: user.extraCredits,
-    remaining: planRemaining + user.extraCredits,
+    credits: user.extraCredits + user.giftCredits,
+    remaining: planRemaining + user.extraCredits + user.giftCredits,
     periodEnd: p.periodEnd,
   };
 }
 
-export function canCompare(user: Pick<User, "plan">) {
-  return isBeta() || user.plan === "PRO";
+/** Pro (and the beta) compares any analysed quotes; others can compare quotes they have unlocked, if they have two. */
+export function canCompare(user: Pick<User, "plan">, unlockedQuotes = 0) {
+  return isBeta() || user.plan === "PRO" || unlockedQuotes >= 2;
 }
 
 export function hasFullAccess(user: Pick<User, "plan">, quote: { unlocked: boolean }) {

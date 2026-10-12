@@ -5,13 +5,13 @@ import { randomBytes } from "crypto";
 import { requireApiUser } from "@/lib/auth";
 import { handle, jsonError } from "@/lib/api";
 import { rateLimit } from "@/lib/rate-limit";
-import { resumePro, cancelPro, createStripeCheckout, fulfill, isSimulationAllowed, isStripeEnabled } from "@/lib/billing";
+import { resumePro, cancelPro, createStripeCheckout, fulfill, isPackAvailable, isSimulationAllowed, isStripeEnabled } from "@/lib/billing";
 import { isDemoMode } from "@/lib/ai";
 import { isBeta } from "@/lib/plans";
 import { getDict } from "@/i18n/server";
 
 const schema = z.object({
-  kind: z.enum(["PRO_MONTHLY", "SINGLE", "CANCEL", "RESUME"]),
+  kind: z.enum(["PRO_MONTHLY", "SINGLE", "PACK3", "CANCEL", "RESUME"]),
   quoteId: z.string().max(64).nullish(),
   consent: z.boolean().optional(),
 });
@@ -36,12 +36,13 @@ export const POST = handle(async (req: Request) => {
     return NextResponse.json({ ok: true });
   }
   if (kind === "PRO_MONTHLY" && user.plan === "PRO") return jsonError(da.errors.alreadyPro);
+  if (kind === "PACK3" && !isPackAvailable()) return jsonError(da.errors.paymentsOffline, 503);
   // Forbrugeraftaleloven: explicit consent to immediate delivery before the purchase.
   if (parsed.data.consent !== true) return jsonError(da.errors.needConsent);
   await rateLimit(`checkout:${user.id}`, 20, 60 * 60);
   // The exact wording the customer saw and accepted (in their language) is kept as proof.
   const t = (await getDict()).checkout;
-  const consentText = kind === "PRO_MONTHLY" ? t.consentPro : t.consentSingle;
+  const consentText = kind === "PRO_MONTHLY" ? t.consentPro : kind === "PACK3" ? t.consentPack : t.consentSingle;
 
   if (isStripeEnabled()) {
     // Never take real money while the app can only produce example analyses.

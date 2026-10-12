@@ -10,6 +10,8 @@ export const users = sqliteTable("users", {
   passwordHash: text("password_hash").notNull(),
   plan: text("plan", { enum: ["FREE", "PRO"] }).notNull().default("FREE"),
   extraCredits: integer("extra_credits").notNull().default(0),
+  /** Analyses given by a partner code (not bought by the user, so never refunded). Used before bought credits. */
+  giftCredits: integer("gift_credits").notNull().default(0),
   periodStart: integer("period_start", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
   periodUsed: integer("period_used").notNull().default(0),
   /** Set when Pro is cancelled: Pro keeps working until this date, then the account falls back to Gratis. */
@@ -48,7 +50,7 @@ export const quotes = sqliteTable(
     vatChoice: text("vat_choice", { enum: ["excl", "incl"] }),
     /** Which AI model made the analysis and what it used (for cost tracking and spotting model drift). */
     /** Which quota paid for the running analysis – lets a crashed analysis be refunded later. */
-    chargedSource: text("charged_source", { enum: ["plan", "credit"] }),
+    chargedSource: text("charged_source", { enum: ["plan", "gift", "credit"] }),
     aiModel: text("ai_model"),
     aiInputTokens: integer("ai_input_tokens"),
     aiOutputTokens: integer("ai_output_tokens"),
@@ -103,7 +105,7 @@ export const payments = sqliteTable(
     id: text("id").primaryKey().$defaultFn(newId),
     // Nullable: payment records are kept for bookkeeping (bogføringsloven, 5 år) after account deletion.
     userId: text("user_id").references(() => users.id, { onDelete: "set null" }),
-    kind: text("kind", { enum: ["PRO_MONTHLY", "SINGLE"] }).notNull(),
+    kind: text("kind", { enum: ["PRO_MONTHLY", "SINGLE", "PACK3"] }).notNull(),
     amountDkk: integer("amount_dkk").notNull(),
     provider: text("provider", { enum: ["stripe", "simulated"] }).notNull(),
     reference: text("reference"),
@@ -120,6 +122,34 @@ export const payments = sqliteTable(
     createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
   },
   (t) => [index("payments_user_idx").on(t.userId), uniqueIndex("payments_reference_idx").on(t.reference)],
+);
+
+/**
+ * Partner codes: a business pays Klardal (by invoice) for a number of analyses and hands the code to its customers.
+ * Defined in the PARTNER_CODES environment variable and synced at startup (see lib/codes.ts).
+ */
+export const partnerCodes = sqliteTable("partner_codes", {
+  code: text("code").primaryKey(),
+  maxUses: integer("max_uses").notNull(),
+  uses: integer("uses").notNull().default(0),
+  /** Analyses each redemption gives. */
+  credits: integer("credits").notNull().default(1),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+});
+
+/** One row per user per code: a code can be redeemed once per account. */
+export const codeRedemptions = sqliteTable(
+  "code_redemptions",
+  {
+    code: text("code")
+      .notNull()
+      .references(() => partnerCodes.code, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+  },
+  (t) => [primaryKey({ columns: [t.code, t.userId] })],
 );
 
 /** Fixed-window rate limit counters (works across server instances because it lives in the database). */

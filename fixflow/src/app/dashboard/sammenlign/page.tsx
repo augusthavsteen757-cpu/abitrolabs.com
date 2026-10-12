@@ -133,7 +133,9 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   const intl = INTL_LOCALE[locale];
   const km = (n: number) => fmt(t.km, { n: Math.round(n).toLocaleString(intl) });
 
-  if (!canCompare(user)) {
+  const all = (await listQuotes(user.id)).filter((q) => q.status === "DONE" && q.analysisJson);
+  const unlocked = all.filter((q) => q.unlocked);
+  if (!canCompare(user, unlocked.length)) {
     return (
       <div className="mx-auto max-w-2xl animate-fade-up">
         <h1 className="text-3xl font-semibold sm:text-4xl">{t.title}</h1>
@@ -149,7 +151,8 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
     );
   }
 
-  const quotes = (await listQuotes(user.id)).filter((q) => q.status === "DONE" && q.analysisJson);
+  // Without Pro, only quotes the user has unlocked (engangskøb, 3-pakke or a code) can be compared.
+  const quotes = canCompare(user) ? all : unlocked;
   const items = quotes.map((q) => ({
     id: q.id,
     label: shortName(q.contractorName, d.common.unknownFirm) + (q.title ? ` – ${q.title}` : ""),
