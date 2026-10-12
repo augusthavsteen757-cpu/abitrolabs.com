@@ -325,7 +325,7 @@ export const en: Dict = {
     errEmpty: "The file is empty.",
     errChoose: "Choose at least one file first.",
     errFailed: "Upload failed. Please try again.",
-    aiNote: "The analysis is made by AI and may contain errors. CPR numbers in PDFs are removed automatically – on photos, black them out yourself.",
+    aiNote: "The analysis is made automatically by AI – no professional reviews it – and may contain errors. CPR numbers in PDFs are removed automatically – on images you must cover them yourself.",
     defaultProject: "My project",
   },
   paywall: {
@@ -340,6 +340,8 @@ export const en: Dict = {
     consentSingle: "I request access straight away and acknowledge that I lose my right of withdrawal once the analysis has been delivered (when I use the purchase).",
     consentPack: "I request access straight away and acknowledge that I lose my right of withdrawal for each analysis once it has been delivered (when I use it). I can withdraw from unused analyses within 14 days.",
     terms: "Terms of sale",
+    acceptTerms: "I also accept Klardal’s",
+    termsLink: "terms and conditions",
     needConsent: "Tick the box to confirm you want access straight away.",
     failed: "The payment couldn’t be completed.",
   },

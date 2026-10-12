@@ -325,7 +325,7 @@ export const sv: Dict = {
     errEmpty: "Filen är tom.",
     errChoose: "Välj minst en fil först.",
     errFailed: "Uppladdningen misslyckades. Försök igen.",
-    aiNote: "Analysen görs av AI och kan innehålla fel. CPR-nummer i PDF:er tas bort automatiskt – på bilder behöver du stryka över dem själv.",
+    aiNote: "Analysen görs automatiskt av AI – ingen fackperson går igenom den – och kan innehålla fel. CPR-nummer i PDF:er tas bort automatiskt – på bilder måste du själv täcka över dem.",
     defaultProject: "Mitt projekt",
   },
   paywall: {
@@ -340,6 +340,8 @@ export const sv: Dict = {
     consentSingle: "Jag begär att få tillgång direkt och bekräftar att jag förlorar min ångerrätt när analysen har levererats (när jag använder köpet).",
     consentPack: "Jag begär att få tillgång direkt och bekräftar att jag förlorar min ångerrätt för varje analys när den har levererats (när jag använder den). Oanvända analyser kan jag ångra inom 14 dagar.",
     terms: "Köpvillkor",
+    acceptTerms: "Jag godkänner också Klardals",
+    termsLink: "köpvillkor",
     needConsent: "Kryssa i rutan för att bekräfta att du vill ha tillgång direkt.",
     failed: "Betalningen kunde inte genomföras.",
   },

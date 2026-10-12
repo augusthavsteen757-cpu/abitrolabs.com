@@ -42,7 +42,8 @@ export const POST = handle(async (req: Request) => {
   await rateLimit(`checkout:${user.id}`, 20, 60 * 60);
   // The exact wording the customer saw and accepted (in their language) is kept as proof.
   const t = (await getDict()).checkout;
-  const consentText = kind === "PACK3" ? t.consentPack : t.consentSingle;
+  // The exact sentence the customer ticked, incl. accepting the terms.
+  const consentText = `${kind === "PACK3" ? t.consentPack : t.consentSingle} ${t.acceptTerms} ${t.termsLink}.`;
 
   if (isStripeEnabled()) {
     // Never take real money while the app can only produce example analyses.

@@ -325,7 +325,7 @@ export const nb: Dict = {
     errEmpty: "Filen er tom.",
     errChoose: "Velg minst én fil først.",
     errFailed: "Opplastingen mislyktes. Prøv igjen.",
-    aiNote: "Analysen lages av AI og kan inneholde feil. CPR-numre i PDF-er fjernes automatisk – på bilder må du stryke over dem selv.",
+    aiNote: "Analysen lages automatisk av KI – ingen fagperson går gjennom den – og kan inneholde feil. CPR-numre i PDF-er fjernes automatisk – på bilder må du selv dekke dem til.",
     defaultProject: "Mitt prosjekt",
   },
   paywall: {
@@ -340,6 +340,8 @@ export const nb: Dict = {
     consentSingle: "Jeg ber om å få tilgang med en gang og erkjenner at jeg mister angreretten min når analysen er levert (når jeg bruker kjøpet).",
     consentPack: "Jeg ber om å få tilgang med en gang og erkjenner at jeg mister angreretten for hver analyse når den er levert (når jeg bruker den). Ubrukte analyser kan jeg angre innen 14 dager.",
     terms: "Salgsvilkår",
+    acceptTerms: "Jeg godtar også Klardals",
+    termsLink: "kjøpsvilkår",
     needConsent: "Huk av for å bekrefte at du vil ha tilgang med en gang.",
     failed: "Betalingen kunne ikke gjennomføres.",
   },

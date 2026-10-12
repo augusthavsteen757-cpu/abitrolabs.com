@@ -273,6 +273,21 @@ test("job context: only fixed choices and a sane year are kept, and nothing free
   }
 });
 
+test("legal texts: AI without human review, errors in the trial period, terms accepted at checkout", () => {
+  const terms = readFileSync(new URL("../src/app/handelsbetingelser/page.tsx", import.meta.url), "utf8");
+  assert.ok(terms.includes("Der sidder ikke et menneske") && terms.includes("fagperson"), "terms: no human review (AI Act transparency)");
+  assert.ok(terms.includes("der kan forekomme fejl og perioder, hvor tjenesten"), "terms: errors/downtime in the trial period");
+  assert.ok(terms.includes("Ubrugte analyser udløber ikke") && terms.includes("Der er intet abonnement"), "terms: no expiry, no subscription");
+  const privacy = readFileSync(new URL("../src/app/privatlivspolitik/page.tsx", import.meta.url), "utf8");
+  assert.ok(privacy.includes("ikke til at træne") && privacy.includes("litra b"), "privacy: no training, legal basis");
+  assert.ok(!privacy.includes("sender vi kun teksten"), "privacy matches what is sent (textless pages go along as images)");
+  for (const [lang, d] of Object.entries(DICTS)) {
+    assert.ok(d.checkout.acceptTerms.length > 5 && d.checkout.termsLink.length > 5, `${lang}: accept terms at checkout`);
+    assert.ok(d.upload.aiNote.length > 60, `${lang}: AI note`);
+  }
+  assert.match(DICTS.da.upload.aiNote, /ingen fagperson/);
+});
+
 test("Klardal's own prices never claim VAT (Klardal is not VAT-registered)", () => {
   const vat = /moms|\bVAT\b|MwSt|Mehrwertsteuer|\bmva\b|merverdiavgift|\bTVA\b|ПДВ/i;
   for (const [lang, d] of Object.entries(DICTS))

@@ -325,7 +325,7 @@ export const de: Dict = {
     errEmpty: "Die Datei ist leer.",
     errChoose: "Wähle zuerst mindestens eine Datei.",
     errFailed: "Upload fehlgeschlagen. Bitte versuche es erneut.",
-    aiNote: "Die Analyse wird von KI erstellt und kann Fehler enthalten. CPR-Nummern in PDFs werden automatisch entfernt – auf Fotos musst du sie selbst schwärzen.",
+    aiNote: "Die Analyse wird automatisch von KI erstellt – keine Fachperson prüft sie – und kann Fehler enthalten. CPR-Nummern in PDFs werden automatisch entfernt – auf Bildern musst du sie selbst abdecken.",
     defaultProject: "Mein Projekt",
   },
   paywall: {
@@ -340,6 +340,8 @@ export const de: Dict = {
     consentSingle: "Ich verlange, sofort Zugang zu erhalten, und nehme zur Kenntnis, dass ich mein Widerrufsrecht verliere, sobald die Analyse geliefert ist (wenn ich den Kauf nutze).",
     consentPack: "Ich verlange, sofort Zugang zu erhalten, und nehme zur Kenntnis, dass ich mein Widerrufsrecht für jede Analyse verliere, sobald sie geliefert ist (wenn ich sie nutze). Ungenutzte Analysen kann ich innerhalb von 14 Tagen widerrufen.",
     terms: "AGB",
+    acceptTerms: "Ich akzeptiere außerdem Klardals",
+    termsLink: "Geschäftsbedingungen",
     needConsent: "Setze das Häkchen, um zu bestätigen, dass du sofort Zugang möchtest.",
     failed: "Die Zahlung konnte nicht durchgeführt werden.",
   },

@@ -162,6 +162,7 @@ try {
   const buyBox = page.locator("section#laas-op");
   await buyBox.getByRole("button", { name: "Gå til betaling – 49 kr.", exact: true }).click();
   await buyBox.getByText("Sæt flueben").waitFor();
+  assert((await buyBox.innerText()).includes("Jeg accepterer også Klardals handelsbetingelser."), "the buyer accepts the terms explicitly");
   log("purchase requires consent to immediate delivery");
   // The single purchase is the first option, the 3-pakke the second.
   await buyBox.getByRole("button", { name: "Gå til betaling – 99 kr.", exact: true }).waitFor();

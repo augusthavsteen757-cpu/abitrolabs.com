@@ -323,7 +323,7 @@ export const da = {
     errEmpty: "Filen er tom.",
     errChoose: "Vælg mindst én fil først.",
     errFailed: "Upload mislykkedes. Prøv igen.",
-    aiNote: "Analysen laves af AI og kan indeholde fejl. CPR-numre i PDF'er fjernes automatisk – på billeder skal du selv overstrege dem.",
+    aiNote: "Analysen laves automatisk af AI – ingen fagperson ser den igennem – og kan indeholde fejl. CPR-numre i PDF'er fjernes automatisk – på billeder skal du selv overstrege dem.",
     defaultProject: "Mit projekt",
   },
   paywall: {
@@ -338,6 +338,8 @@ export const da = {
     consentSingle: "Jeg anmoder om at få adgang med det samme og anerkender, at jeg mister min fortrydelsesret, når analysen er leveret (når jeg bruger købet).",
     consentPack: "Jeg anmoder om at få adgang med det samme og anerkender, at jeg mister min fortrydelsesret for hver analyse, når den er leveret (når jeg bruger den). Ubrugte analyser kan jeg fortryde inden for 14 dage.",
     terms: "Handelsbetingelser",
+    acceptTerms: "Jeg accepterer også Klardals",
+    termsLink: "handelsbetingelser",
     needConsent: "Sæt flueben for at bekræfte, at du vil have adgang med det samme.",
     failed: "Betalingen kunne ikke gennemføres.",
   },

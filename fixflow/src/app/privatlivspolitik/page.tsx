@@ -112,7 +112,9 @@ export default function PrivacyPage() {
       <h2>AI-analyse og overførsel til USA</h2>
       <p>
         Når du uploader et tilbud, sender vi det til Anthropic, PBC i USA, som laver analysen med kunstig intelligens.
-        Indeholder en PDF et CPR-nummer, sender vi kun teksten – uden CPR-nummeret – og ikke selve filen. Når du laver en
+        Analysen laves automatisk – ingen medarbejder hos Klardal læser dit tilbud for at lave den.
+        Indeholder en PDF et CPR-nummer, sender vi teksten uden CPR-nummeret i stedet for selve filen. Sider uden tekst
+        (fx skærmbilleder og fotos) sendes som billeder – på dem skal du selv overstrege CPR-nummeret. Når du laver en
         besked til håndværkeren, sender vi analysen, dit navn og det emne, du har valgt.
       </p>
       <p>

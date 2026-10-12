@@ -325,7 +325,7 @@ export const ro: Dict = {
     errEmpty: "Fișierul este gol.",
     errChoose: "Alege mai întâi cel puțin un fișier.",
     errFailed: "Încărcarea a eșuat. Încearcă din nou.",
-    aiNote: "Analiza este făcută de AI și poate conține erori. Numerele CPR din PDF-uri sunt eliminate automat – pe poze trebuie să le acoperi singur.",
+    aiNote: "Analiza este făcută automat de AI – niciun specialist nu o verifică – și poate conține erori. Numerele CPR din PDF-uri sunt eliminate automat – pe imagini trebuie să le acoperi singur.",
     defaultProject: "Proiectul meu",
   },
   paywall: {
@@ -340,6 +340,8 @@ export const ro: Dict = {
     consentSingle: "Solicit acces imediat și iau la cunoștință că îmi pierd dreptul de retragere atunci când analiza este livrată (când folosesc achiziția).",
     consentPack: "Solicit acces imediat și iau la cunoștință că îmi pierd dreptul de retragere pentru fiecare analiză după ce a fost livrată (când o folosesc). Mă pot retrage din analizele nefolosite în 14 zile.",
     terms: "Termeni și condiții",
+    acceptTerms: "Accept, de asemenea,",
+    termsLink: "termenii și condițiile Klardal",
     needConsent: "Bifează căsuța ca să confirmi că vrei acces imediat.",
     failed: "Plata nu a putut fi finalizată.",
   },

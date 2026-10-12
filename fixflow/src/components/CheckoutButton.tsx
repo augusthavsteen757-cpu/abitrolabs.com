@@ -77,8 +77,8 @@ export function CheckoutButton({ kind, quoteId, className, children, redirectTo,
             className="mt-0.5 h-4 w-4 shrink-0 accent-brand-500"
           />
           <span>
-            {kind === "PACK3" ? d.checkout.consentPack : d.checkout.consentSingle}{" "}
-            <Link href="/handelsbetingelser" target="_blank" className="underline">{d.checkout.terms}</Link>
+            {kind === "PACK3" ? d.checkout.consentPack : d.checkout.consentSingle} {d.checkout.acceptTerms}{" "}
+            <Link href="/handelsbetingelser" target="_blank" className="underline">{d.checkout.termsLink}</Link>.
           </span>
         </label>
       )}

@@ -20,8 +20,9 @@ export default function TermsPage() {
       <p>
         Klardal er en digital tjeneste, der forklarer håndværkertilbud, peger på uklare punkter og mulige ekstraudgifter
         og hjælper dig med at stille spørgsmål. <strong>Analysen laves automatisk med kunstig intelligens (AI)</strong>,
-        og Tilbudsscoren beregnes derefter efter faste regler ud fra AI&apos;ens gennemgang. Beskeder til håndværkeren er
-        udkast skrevet med AI, som du selv læser igennem og sender.
+        og Tilbudsscoren beregnes derefter efter faste regler ud fra AI&apos;ens gennemgang. Der sidder ikke et menneske
+        eller en fagperson og gennemgår dit tilbud eller analysen. Beskeder til håndværkeren er udkast skrevet med AI, som
+        du selv læser igennem og sender.
       </p>
       <p>
         <strong>Analysen er vejledende.</strong> Den bygger kun på det, der står i det dokument, du uploader, og er ikke
@@ -49,7 +50,8 @@ export default function TermsPage() {
             Klardal er lige nu i en gratis prøveperiode. Du får hele analysen af op til {BETA_ANALYSES_TOTAL} tilbud uden
             betaling, og der kan ikke købes noget. Vi giver dig besked på e-mail i god tid, før prøveperioden slutter.
             Der starter aldrig en betaling automatisk – du skal selv vælge at købe. Priserne nedenfor gælder først
-            efter prøveperioden.
+            efter prøveperioden. Klardal er stadig under udvikling, så der kan forekomme fejl og perioder, hvor tjenesten
+            ikke virker.
           </p>
         </>
       )}

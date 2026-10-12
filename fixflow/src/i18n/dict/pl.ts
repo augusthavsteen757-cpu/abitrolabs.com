@@ -321,7 +321,7 @@ export const pl: Dict = {
     errEmpty: "Plik jest pusty.",
     errChoose: "Najpierw wybierz co najmniej jeden plik.",
     errFailed: "Wgrywanie nie powiodło się. Spróbuj ponownie.",
-    aiNote: "Analizę wykonuje AI i może ona zawierać błędy. Numery CPR w plikach PDF są usuwane automatycznie – na zdjęciach zakryj je sam.",
+    aiNote: "Analizę wykonuje automatycznie AI – nie sprawdza jej żaden specjalista – i może zawierać błędy. Numery CPR w plikach PDF są usuwane automatycznie – na zdjęciach musisz je zakryć sam.",
     defaultProject: "Mój projekt",
   },
   paywall: {
@@ -336,6 +336,8 @@ export const pl: Dict = {
     consentSingle: "Proszę o natychmiastowy dostęp i przyjmuję do wiadomości, że tracę prawo odstąpienia od umowy z chwilą dostarczenia analizy (gdy wykorzystam zakup).",
     consentPack: "Proszę o natychmiastowy dostęp i przyjmuję do wiadomości, że tracę prawo odstąpienia od umowy dla każdej analizy po jej dostarczeniu (gdy z niej skorzystam). Od niewykorzystanych analiz mogę odstąpić w ciągu 14 dni.",
     terms: "Regulamin",
+    acceptTerms: "Akceptuję również",
+    termsLink: "regulamin Klardal",
     needConsent: "Zaznacz pole, aby potwierdzić, że chcesz uzyskać dostęp od razu.",
     failed: "Nie udało się zrealizować płatności.",
   },
