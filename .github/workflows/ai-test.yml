@@ -1,0 +1,42 @@
+# AI-test for Klardal: uploads fixed test quotes to the live site and checks that the real AI analysis
+# still catches what it should (e.g. "efter regning", several quotes in one upload, flat + load-bearing walls).
+# Start it by hand: Actions → AI-test → Run workflow. Costs ~6 kr. in AI usage per run; the test accounts
+# it creates are deleted again at the end.
+name: AI-test
+
+on:
+  workflow_dispatch:
+    inputs:
+      site:
+        description: "Hvilken side skal testes?"
+        type: choice
+        default: https://klardal.com
+        options:
+          - https://klardal.com
+          - https://klardal-preview.onrender.com
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-test
+  cancel-in-progress: false
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # The test script lives with the app code on the branch that is deployed.
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/sharp-hawking-bec4k1
+          sparse-checkout: fixflow/eval
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run AI-test
+        working-directory: fixflow
+        env:
+          BASE_URL: ${{ inputs.site }}
+        run: node eval/run-eval.mjs
