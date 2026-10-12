@@ -71,5 +71,9 @@ ok(forgot.includes('data-testid="forgot-offline"') && forgot.includes("mailto:")
 const forgotApi = await fetch(BASE + "/api/auth/forgot", { method: "POST", headers: { origin: BASE, "content-type": "application/json" }, body: JSON.stringify({ email: "a@b.dk" }) });
 ok((await forgotApi.json()).emailEnabled === false, "forgot API reports that e-mail is off");
 
+// Usage counts: anonymous visitors cannot report events.
+const anonEvent = await fetch(BASE + "/api/events", { method: "POST", headers: { origin: BASE, "content-type": "application/json" }, body: JSON.stringify({ name: "message_copied" }) });
+ok(anonEvent.status === 401, `usage events need a logged-in user (${anonEvent.status})`);
+
 console.log(failed ? `\n${failed} check(s) failed` : "\nAll checks passed");
 process.exit(failed ? 1 : 0);

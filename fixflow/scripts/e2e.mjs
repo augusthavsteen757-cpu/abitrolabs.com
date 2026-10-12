@@ -9,6 +9,7 @@
 import { chromium } from "playwright-core";
 import path from "path";
 import { mkdirSync } from "fs";
+import { PDFDocument, StandardFonts } from "pdf-lib";
 
 const BASE = process.env.BASE_URL || "http://localhost:3000";
 // Same as src/lib/demo.ts DEMO_PASSWORD (the seeded demo account; demo mode only).
@@ -112,6 +113,7 @@ try {
   await page.getByText("Det skal du være opmærksom på").waitFor();
   // Demo analyses must never pass for a real review of the user's quote.
   await page.locator("[data-testid=demo-notice]").getByText("Eksempel – ikke en analyse af dit tilbud").waitFor();
+  assert((await page.locator("[data-testid=cpr-hidden]").count()) === 0, "no CPR notice for a quote without a CPR number");
   const quoteUrl = page.url();
   log("upload → analysis page renders");
 
@@ -309,6 +311,23 @@ try {
   await demo.waitForFunction(() => document.querySelector("[aria-checked=true]")?.textContent?.includes("Dit valg"));
   log("unclear VAT: user choice is saved and used on analysis, overview and comparison");
 
+  // A CPR number in a PDF is removed before the AI reads it, and the user is told.
+  const cprDoc = await PDFDocument.create();
+  const cprFont = await cprDoc.embedFont(StandardFonts.Helvetica);
+  const cprPage = cprDoc.addPage();
+  ["Tilbud: maling af stue", "Kunde: Jens Hansen, CPR 120385-1234", "Maling 18.500 kr."].forEach((l, i) => cprPage.drawText(l, { x: 50, y: 750 - i * 20, size: 12, font: cprFont }));
+  await demo.goto(`${BASE}/dashboard/upload`);
+  await demo.setInputFiles("[data-testid=file-input]", { name: "tilbud-maling.pdf", mimeType: "application/pdf", buffer: Buffer.from(await cprDoc.save()) });
+  await demo.click("button[type=submit]");
+  await demo.waitForURL(/\/dashboard\/tilbud\//, { timeout: 60_000 });
+  const cprNotice = await demo.locator("[data-testid=cpr-hidden]").innerText();
+  assert(cprNotice.includes("fandt et CPR-nummer") && !(await demo.content()).includes("120385"), `CPR notice shown and number never in the page (${cprNotice})`);
+  await shot(demo, "cpr-hidden");
+  const cprQuoteId = demo.url().split("/").pop();
+  const del = await demo.evaluate(async (id) => (await fetch(`/api/quotes/${id}`, { method: "DELETE" })).status, cprQuoteId);
+  assert(del === 200, `test quote deleted (${del})`);
+  log("CPR number in a PDF is removed before the AI and the user is told");
+
   // Open Eksempel VVS quote and use "Spørg håndværkeren"
   await demo.goto(`${BASE}/dashboard`);
   await demo.getByRole("link", { name: /Eksempel VVS/ }).click();
@@ -333,6 +352,21 @@ try {
   assert(!/\d{4}-\d{2}-\d{2}/.test(msgText) && /\d{1,2}\. \p{L}+ \d{4}/u.test(msgText), `message date is written out in Danish (${msgText.slice(0, 120)})`);
   await shot(demo, "message");
   log("message generated and saved");
+
+  // Anonymous usage counts: copy the message and the questions, then the admin page shows every event.
+  await demo.locator("article").filter({ hasText: "Før vi kan skrive under" }).first().getByRole("button", { name: "Kopiér" }).click();
+  await demo.getByRole("button", { name: "Kopiér alle" }).click();
+  await demo.waitForTimeout(500);
+  const badEvent = (await demo.request.post(`${BASE}/api/events`, { headers: { origin: BASE }, data: { name: "analysis_done" } })).status();
+  assert(badEvent === 400, `the browser can only report copy events (${badEvent})`);
+  await demo.goto(`${BASE}/dashboard/sammenlign`);
+  await demo.goto(`${BASE}/dashboard/admin`);
+  const usage = await demo.locator("[data-testid=admin-totals]").innerText();
+  for (const label of ["Analyse fuldført", "Sammenligning åbnet", "Besked genereret", "Besked kopieret", "Spørgsmål kopieret"]) {
+    const row = usage.split("\n").find((l) => l.startsWith(label)) ?? "";
+    assert(/\t[1-9]/.test(row), `admin shows "${label}" counted (${row})`);
+  }
+  log("anonymous usage counts reach the admin page");
 
   // Find contractors nearby (demo firms) and build a quote request
   await demo.goto(`${BASE}/dashboard/find`);
@@ -359,7 +393,7 @@ try {
 
   /* ---------------- 3. Mobile overflow check at 390px ---------------- */
   const mobile = await newPage(390, 844);
-  const routesPublic = ["/", "/priser", "/login", "/opret", "/handelsbetingelser", "/privatlivspolitik", "/findes-ikke"];
+  const routesPublic = ["/", "/priser", "/login", "/opret", "/handelsbetingelser", "/privatlivspolitik", "/artikler", "/artikler/hvad-koster-et-nyt-badevaerelse", "/findes-ikke"];
   for (const r of routesPublic) {
     await mobile.goto(`${BASE}${r}`);
     await mobile.waitForLoadState("networkidle");
@@ -389,6 +423,9 @@ try {
   await intruder.check("input[name=acceptTerms]");
   await intruder.click("button[type=submit]");
   await intruder.waitForURL(`${BASE}/dashboard`);
+  const adminProbe = await intruder.goto(`${BASE}/dashboard/admin`);
+  assert(adminProbe.status() === 404, `usage numbers are hidden from other users (${adminProbe.status()})`);
+  await intruder.goto(`${BASE}/dashboard`);
   const probes = await intruder.evaluate(async (id) => {
     const j = { "content-type": "application/json" };
     const r = async (url, init) => (await fetch(url, init)).status;

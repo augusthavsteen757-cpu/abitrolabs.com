@@ -11,6 +11,7 @@ import {
   MessageSquareText,
   HelpCircle,
   ShieldAlert,
+  ShieldCheck,
   Building2,
   ChevronDown,
 } from "lucide-react";
@@ -247,6 +248,13 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         </div>
       )}
 
+      {!!analysis.cprHidden && (
+        <p className="mt-5 flex items-start gap-2 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900" data-testid="cpr-hidden">
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+          <span>{analysis.cprHidden === 1 ? t.cprHiddenOne : fmt(t.cprHiddenMany, { n: analysis.cprHidden })}</span>
+        </p>
+      )}
+
       {/* Kort sagt: one sentence that tells the user what to do */}
       <section className={cn("card mt-6 p-5 sm:p-6")} aria-label={t.scoreTitle}>
         <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">{t.summary}</h2>
@@ -419,7 +427,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Step n={5} title={t.questionsTitle} />
           {visibleQuestions.length > 0 && (
-            <CopyButton label={t.copyAll} text={visibleQuestions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")} />
+            <CopyButton label={t.copyAll} event="questions_copied" text={visibleQuestions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")} />
           )}
         </div>
         <div className="card mt-4">

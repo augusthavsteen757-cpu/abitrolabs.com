@@ -183,6 +183,21 @@ export const fileChunks = sqliteTable(
   (t) => [primaryKey({ columns: [t.key, t.idx] })],
 );
 
+/**
+ * Anonymous usage counts for the beta: only which feature was used and on which day. No user, time of
+ * day, IP address or cookie is stored, so a row cannot be traced back to a person (see lib/events.ts).
+ */
+export const usageEvents = sqliteTable(
+  "usage_events",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    /** Date in Danish time, YYYY-MM-DD. */
+    day: text("day").notNull(),
+  },
+  (t) => [index("usage_events_day_idx").on(t.day, t.name)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Quote = typeof quotes.$inferSelect;
 export type ContractorMessage = typeof contractorMessages.$inferSelect;

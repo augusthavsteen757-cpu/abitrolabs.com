@@ -36,7 +36,7 @@ const nextConfig = {
   poweredByHeader: false,
   // Our file limit is 10 MB; leave room for the multipart overhead so such files get our own error message.
   experimental: { middlewareClientMaxBodySize: "12mb" },
-  serverExternalPackages: ["@libsql/client", "libsql", "bcryptjs"],
+  serverExternalPackages: ["@libsql/client", "libsql", "bcryptjs", "pdfjs-dist"],
   // Backport of a React 19.3 hydration fix into Next's bundled React – see scripts/react-hydration-fix-loader.cjs.
   webpack(config, { isServer, dev }) {
     if (isServer) return config;

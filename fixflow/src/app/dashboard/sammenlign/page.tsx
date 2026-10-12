@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { listQuotes } from "@/lib/quotes";
 import { distanceKm, locatePostalCode, postalCodeFromText } from "@/lib/geo";
 import { canCompare } from "@/lib/plans";
+import { track } from "@/lib/events";
 import {
   CATEGORIES,
   CHECK_KEYS,
@@ -222,6 +223,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   const cheapest = [...rows].sort((x, y) => x.a.totals.inclVat - y.a.totals.inclVat)[0];
   const clearest = [...rows].sort((x, y) => y.a.score.total - x.a.score.total)[0];
   const safest = [...rows].sort((x, y) => x.worst - y.worst)[0];
+  await track("compare_opened");
   const insights = buildInsights(rows, d, km);
   const scoreLbl = (r: Row) => scoreLabel(r.a.score.total, d.score);
   const match = bestMatch(rows);

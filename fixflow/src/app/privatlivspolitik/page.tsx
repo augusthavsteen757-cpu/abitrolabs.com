@@ -5,12 +5,13 @@ import { COMPANY } from "@/lib/company";
 export const metadata: Metadata = { title: "Privatlivspolitik" };
 export const dynamic = "force-dynamic";
 
-const TRANSFER =
-  "Overførslen sker på grundlag af EU-Kommissionens standardkontraktbestemmelser og – hvis udbyderen er certificeret – EU-US Data Privacy Framework.";
+// UDKAST – skal godkendes af August. Tjekket på dataprivacyframework.gov 11/10-2026: Render er aktiv (EU-US DPF);
+// Anthropic og ChiselStrike (Turso) står ikke på listen.
+const US_ACCESS = "Selskabet er amerikansk, så adgang fra USA (fx ved support) er en overførsel til et tredjeland.";
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privatlivspolitik">
+    <LegalPage title="Privatlivspolitik" summary="privacy">
       <p>
         Her kan du læse, hvilke oplysninger Klardal behandler om dig, hvorfor, og hvilke rettigheder du har. Vi indsamler
         kun det, der er nødvendigt for at levere tjenesten.
@@ -30,8 +31,9 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>Tilbud du uploader</strong> og analysen af dem. Et tilbud kan indeholde dit navn og din adresse samt
-          håndværkerens oplysninger. Upload kun tilbud, du selv har modtaget, og overstreg gerne CPR-nummer og andre
-          følsomme oplysninger først.
+          håndværkerens oplysninger. Upload kun tilbud, du selv har modtaget. Står der et CPR-nummer i en PDF, fjerner vi
+          det automatisk, før tilbuddet sendes til AI-analyse. På billeder og scannede PDF&apos;er kan vi ikke finde det,
+          så overstreg selv CPR-nummer og andre følsomme oplysninger.
         </li>
         <li><strong>Beskeder</strong>, du laver med beskedgeneratoren (udkastet indeholder dit navn).</li>
         <li>
@@ -46,6 +48,12 @@ export default function PrivacyPage() {
           <strong>Tekniske oplysninger:</strong> din IP-adresse og, ved loginforsøg, den indtastede e-mail gemmes i højst
           1 time for at beskytte mod misbrug. Vores hostingudbyder fører tekniske logfiler med IP-adresser i en kort
           periode. Vi registrerer også, hvornår du sidst har været aktiv (bruges til at slette inaktive konti).
+        </li>
+        <li>
+          <strong>Anonym brugsstatistik:</strong> vi tæller, hvor mange gange om dagen udvalgte funktioner bruges (fx
+          &quot;analyse fuldført&quot; eller &quot;besked kopieret&quot;), så vi kan forbedre Klardal. Tællingen gemmes kun
+          med funktionens navn og datoen – uden navn, e-mail, IP-adresse, klokkeslæt eller cookies – og kan ikke føres
+          tilbage til dig.
         </li>
       </ul>
 
@@ -69,16 +77,18 @@ export default function PrivacyPage() {
       <p>Vi bruger disse databehandlere, som kun må behandle oplysningerne efter vores instruks og under en databehandleraftale:</p>
       <ul>
         <li>
-          <strong>Render Services, Inc. (USA)</strong> – drift af serveren, der står i Frankfurt (EU). {TRANSFER}
+          <strong>Render Services, Inc. (USA)</strong> – drift af serveren, der står i Frankfurt (EU). {US_ACCESS} Render
+          er certificeret under EU-US Data Privacy Framework, som overførslen sker på grundlag af
+          (databeskyttelsesforordningens art. 45).
         </li>
         <li>
           <strong>ChiselStrike, Inc. (Turso, USA)</strong> – database med din konto, dine analyser og dine uploadede filer,
-          opbevaret hos Amazon Web Services i Stockholm (EU). {TRANSFER}
+          opbevaret hos Amazon Web Services i Stockholm (EU). {US_ACCESS} Den sker på grundlag af EU-Kommissionens
+          standardkontraktbestemmelser (art. 46, stk. 2, litra c).
         </li>
         <li>
-          <strong>Anthropic (USA)</strong> – AI-analyse af dine tilbud og udkast til beskeder. {TRANSFER} Efter
-          Anthropics kommercielle vilkår bruges indholdet ikke til at træne deres modeller, og det gemmes kun i en
-          begrænset periode.
+          <strong>Anthropic, PBC (USA)</strong> – AI-analyse af dine tilbud og udkast til beskeder. Se afsnittet om
+          AI-analyse og overførsel til USA nedenfor.
         </li>
         <li>
           <strong>Brevo (Sendinblue SAS, Frankrig)</strong> – afsendelse af ordrebekræftelser og andre e-mails om din
@@ -92,6 +102,23 @@ export default function PrivacyPage() {
       <p>
         Når du søger efter håndværkere, slår vi offentlige virksomhedsoplysninger op i CVR-registret (Erhvervsstyrelsen).
         Søgningen indeholder kun fag og postnummer – ikke oplysninger om dig.
+      </p>
+
+      <h2>AI-analyse og overførsel til USA</h2>
+      <p>
+        Når du uploader et tilbud, sender vi det til Anthropic, PBC i USA, som laver analysen med kunstig intelligens.
+        Indeholder en PDF et CPR-nummer, sender vi kun teksten – uden CPR-nummeret – og ikke selve filen. Når du laver en
+        besked til håndværkeren, sender vi analysen, dit navn og det emne, du har valgt.
+      </p>
+      <p>
+        USA ligger uden for EU/EØS, så det er en <strong>overførsel til et tredjeland</strong>. Den sker på grundlag af
+        vores databehandleraftale med Anthropic, som indeholder EU-Kommissionens standardkontraktbestemmelser
+        (databeskyttelsesforordningens art. 46, stk. 2, litra c). Anthropic er ikke certificeret under EU-US Data
+        Privacy Framework. Du kan få en kopi af standardkontraktbestemmelserne ved at skrive til os.
+      </p>
+      <p>
+        Anthropic må kun bruge indholdet til at levere analysen til os. Efter Anthropics kommercielle vilkår bruges det
+        ikke til at træne deres AI-modeller, og det slettes hos Anthropic efter en begrænset periode.
       </p>
 
       <h2>Hvor længe gemmer vi oplysningerne?</h2>

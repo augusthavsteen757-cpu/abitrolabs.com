@@ -198,6 +198,20 @@ Demo-data indlæses ikke automatisk i containeren. Vil du have demo-brugeren med
 - **Nedbrud:** analyser, der hænger i over 10 minutter (genstart, nedbrud), bliver automatisk markeret som mislykkede og refunderet.
 - **Logning:** hver analyse logges som JSON (model, tokens, tid, resultat – ingen persondata). Fejl logges uden databaseparametre.
 
+## Brugstal (anonyme)
+
+Klardal tæller seks hændelser: analyse fuldført, tilbud nr. 2 i samme projekt, sammenligning åbnet, besked
+genereret, besked kopieret og spørgsmål kopieret. Hver tælling gemmes i tabellen `usage_events` kun som
+(navn, dag) – ingen bruger, intet klokkeslæt, ingen IP og ingen cookies – så der kræves ikke samtykke.
+
+- **Admin-side:** `/dashboard/admin` for de e-mails, der står i `ADMIN_EMAILS` (kommasepareret). Andre får 404.
+- **SQL-udtræk** (fx i Turso-konsollen):
+
+```sql
+SELECT day, name, COUNT(*) AS antal FROM usage_events
+WHERE day >= date('now', '-30 day') GROUP BY day, name ORDER BY day DESC, name;
+```
+
 ## Sprog
 
 Appen findes på dansk, engelsk, svensk, norsk, tysk, polsk, ukrainsk og rumænsk. Sproget vælges i sprogvælgeren

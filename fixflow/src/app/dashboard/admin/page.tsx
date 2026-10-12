@@ -1,0 +1,87 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { requireUser } from "@/lib/auth";
+import { EVENTS, danishDay, eventCounts, eventTotals, type EventName } from "@/lib/events";
+
+export const metadata: Metadata = { title: "Brugstal", robots: { index: false } };
+export const dynamic = "force-dynamic";
+
+/** Only for the e-mail addresses in ADMIN_EMAILS (comma-separated). Everyone else gets a 404. */
+const isAdmin = (email: string) =>
+  (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean)
+    .includes(email.toLowerCase());
+
+const daysAgo = (n: number) => danishDay(new Date(Date.now() - n * 86_400_000));
+
+export default async function AdminPage() {
+  const user = await requireUser();
+  if (!isAdmin(user.email)) notFound();
+
+  const [rows, totals] = await Promise.all([eventCounts(daysAgo(29)), eventTotals()]);
+  const names = Object.keys(EVENTS) as EventName[];
+  const sum = (name: string, from: string) => rows.filter((r) => r.name === name && r.day >= from).reduce((s, r) => s + Number(r.count), 0);
+  const days = Array.from({ length: 14 }, (_, i) => daysAgo(i));
+  const cell = "px-3 py-2 text-right tabular-nums";
+
+  return (
+    <div className="animate-fade-up">
+      <h1 className="text-3xl font-semibold">Brugstal</h1>
+      <p className="mt-2 max-w-2xl text-sm text-ink-soft">
+        Anonyme tællinger: kun hvilken funktion og hvilken dag – ingen bruger, intet klokkeslæt, ingen IP-adresse og
+        ingen cookies. Dage er dansk tid.
+      </p>
+
+      <div className="card mt-6 overflow-x-auto">
+        <table className="w-full min-w-[34rem] text-sm" data-testid="admin-totals">
+          <thead className="text-left text-ink-muted">
+            <tr>
+              <th className="px-3 py-2">Hændelse</th>
+              <th className={cell}>I dag</th>
+              <th className={cell}>7 dage</th>
+              <th className={cell}>30 dage</th>
+              <th className={cell}>I alt</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {names.map((n) => (
+              <tr key={n}>
+                <th scope="row" className="px-3 py-2 text-left font-medium">{EVENTS[n]}</th>
+                <td className={cell}>{sum(n, daysAgo(0))}</td>
+                <td className={cell}>{sum(n, daysAgo(6))}</td>
+                <td className={cell}>{sum(n, daysAgo(29))}</td>
+                <td className={cell}>{Number(totals.find((t) => t.name === n)?.count ?? 0)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 className="mt-10 text-xl font-semibold">De sidste 14 dage</h2>
+      <div className="card mt-3 overflow-x-auto">
+        <table className="w-full min-w-[40rem] text-sm">
+          <thead className="text-left text-ink-muted">
+            <tr>
+              <th className="px-3 py-2">Dag</th>
+              {names.map((n) => (
+                <th key={n} className={cell}>{EVENTS[n]}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {days.map((day) => (
+              <tr key={day}>
+                <th scope="row" className="px-3 py-2 text-left font-medium tabular-nums">{day}</th>
+                {names.map((n) => (
+                  <td key={n} className={cell}>{Number(rows.find((r) => r.name === n && r.day === day)?.count ?? 0)}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

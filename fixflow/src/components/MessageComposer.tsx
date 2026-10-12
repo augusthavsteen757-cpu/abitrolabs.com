@@ -146,7 +146,7 @@ export function MessageComposer({
                 <p className="min-w-0 text-xs text-ink-muted">
                   <span className="font-medium text-ink-soft">{m.topic}</span> · {formatShortDate(m.createdAt, INTL_LOCALE[locale])}
                 </p>
-                <CopyButton text={m.body} className="shrink-0" />
+                <CopyButton text={m.body} className="shrink-0" event="message_copied" />
               </div>
               <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed">{m.body}</p>
             </article>

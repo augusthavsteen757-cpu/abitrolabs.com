@@ -14,8 +14,16 @@ await p.goto(B);
 ok(await p.getByTestId("beta-notice").isVisible(), "landing shows beta notice instead of prices");
 ok(!(await p.innerText("body")).includes("Vælg Pro"), "no Pro purchase button on landing");
 ok(!(await p.innerText("body")).includes("Kan jeg opsige Pro?"), "FAQ hides the Pro question while nothing can be bought");
+// COMPANY_FOOTER_ADDRESS=0 (set by test-all): CVR in the footer without the address – the legal pages keep it.
+const footer = await p.locator("footer").innerText();
+ok(footer.includes("CVR under registrering") && footer.includes("kontakt@klardal.com") && !footer.includes("Strandhuse"), "footer shows CVR and e-mail without the address");
+for (const legal of ["/handelsbetingelser", "/privatlivspolitik"]) {
+  const page = await ctx.newPage(); await page.goto(B + legal);
+  ok((await page.innerText("main")).includes("Strandhuse 93, 5700 Svendborg"), `${legal} still shows the address`);
+  await page.close();
+}
 await p.goto(B + "/opret");
-const email = `beta${Date.now()}@eksempel.dk`;
+const email = "beta-tester@eksempel.dk"; // fresh database per run; also ADMIN_EMAILS in test-all
 await p.fill("#name", "Beta Tester"); await p.fill("#email", email); await p.fill("#password", "Kaffekande-Solsikke-77");
 await p.locator("input[type=checkbox]").first().check();
 await p.click("button[type=submit]"); await p.waitForURL(B + "/dashboard");
@@ -32,6 +40,11 @@ for (let i = 0; i < 5; i++) {
     ok(!html.includes("Gå til betaling"), "no checkout on analysis page");
   }
 }
+await p.goto(B + "/dashboard/admin");
+const usage = await p.getByTestId("admin-totals").innerText();
+const row = (label) => usage.split("\n").find((l) => l.startsWith(label)) ?? "";
+ok(/\t5\t5\t5\t5$/.test(row("Analyse fuldført")), `5 analyses counted (${row("Analyse fuldført")})`);
+ok(/\t1\t1\t1\t1$/.test(row("Tilbud nr. 2 i samme projekt")), `second quote in the same project counted once, not per upload (${row("Tilbud nr. 2 i samme projekt")})`);
 await p.goto(B + "/dashboard/upload");
 await p.getByText("Du har brugt dine 5 gratis analyser").waitFor();
 ok(true, "after 5 analyses: beta limit message, no purchase");

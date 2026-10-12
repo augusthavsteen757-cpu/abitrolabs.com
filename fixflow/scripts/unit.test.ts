@@ -10,6 +10,7 @@ import { fmt } from "../src/i18n/fmt";
 import { formatKr } from "../src/lib/format";
 import { passwordProblem } from "../src/lib/password";
 import { DEMO_EMAIL, DEMO_PASSWORD } from "../src/lib/demo";
+import { ARTICLES } from "../src/content/articles";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { unusedPurchases, withdrawalQuote } from "../src/lib/purchases";
@@ -201,6 +202,18 @@ test("Klardal's own prices never claim VAT (Klardal is not VAT-registered)", () 
   for (const [lang, d] of Object.entries(DICTS))
     for (const v of [d.lang.legalSummary[0], d.home.pricingText, d.pricingPage.note, d.checkout.consentPro])
       assert.ok(!vat.test(v), `${lang}: ${v}`);
+});
+
+test("articles: unique URL-safe slugs, search-friendly title and description lengths, valid dates", () => {
+  assert.equal(new Set(ARTICLES.map((a) => a.slug)).size, ARTICLES.length);
+  for (const a of ARTICLES) {
+    assert.match(a.slug, /^[a-z0-9]+(-[a-z0-9]+)*$/, a.slug);
+    assert.ok(a.title.length <= 60, `${a.slug}: title ${a.title.length} chars`);
+    assert.ok(a.description.length >= 50 && a.description.length <= 160, `${a.slug}: description ${a.description.length} chars`);
+    for (const d of [a.published, a.updated]) assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(d)), `${a.slug}: ${d}`);
+    assert.ok(a.updated >= a.published, `${a.slug}: updated before published`);
+    assert.ok(a.draft || !/PLADSHOLDER/.test(JSON.stringify(a)), `${a.slug}: placeholder text in a published article`);
+  }
 });
 
 console.log(`\n${passed} tests passed`);

@@ -3,8 +3,10 @@ import { getI18n } from "@/i18n/server";
 import { MarketingFooter, MarketingHeader } from "./MarketingShell";
 import { isCompanyConfigured, LEGAL_UPDATED } from "@/lib/company";
 
-export async function LegalPage({ title, children }: { title: string; children: React.ReactNode }) {
+/** summary="privacy" shows a plain-language summary of the privacy policy to everyone (also in Danish). */
+export async function LegalPage({ title, summary = "terms", children }: { title: string; summary?: "terms" | "privacy"; children: React.ReactNode }) {
   const { locale, d } = await getI18n();
+  const points = summary === "privacy" ? d.lang.privacySummary : locale !== "da" ? d.lang.legalSummary : null;
   return (
     <>
       <MarketingHeader />
@@ -15,11 +17,11 @@ export async function LegalPage({ title, children }: { title: string; children: 
             <span>{d.lang.legalDanishOnly}</span>
           </p>
         )}
-        {locale !== "da" && (
-          <section lang={locale} className="mb-8 rounded-xl border border-brand-200 bg-brand-50 p-4 text-sm text-ink-soft">
+        {points && (
+          <section lang={locale} className="mb-8 rounded-xl border border-brand-200 bg-brand-50 p-4 text-sm text-ink-soft" data-testid="legal-summary">
             <h2 className="font-semibold text-ink">{d.lang.legalSummaryTitle}</h2>
             <ul className="mt-2 list-disc space-y-1 pl-5">
-              {d.lang.legalSummary.map((line) => (
+              {points.map((line) => (
                 <li key={line}>{line}</li>
               ))}
             </ul>
