@@ -528,7 +528,7 @@ export const sv: Dict = {
     priceHint: {
       fast_pris: "Fast pris är säkrast. Då vet du vad det kostar.",
       tilbud: "En offert är bindande. Kontrollera ändå det finstilta.",
-      overslag: "En uppskattning är inget fast pris. Priset får normalt höjas med högst 10–15 %.",
+      overslag: "En uppskattning är inget fast pris. Den får inte överskridas väsentligt, men lagen anger ingen fast gräns.",
       uklart: "Det framgår inte om priset är fast eller kan höjas.",
     },
     termsFlags: "{n} saker om pris och villkor är värda att titta på.",

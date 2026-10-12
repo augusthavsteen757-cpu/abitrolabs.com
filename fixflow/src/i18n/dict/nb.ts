@@ -528,7 +528,7 @@ export const nb: Dict = {
     priceHint: {
       fast_pris: "Fast pris er det tryggeste. Da vet du hva det koster.",
       tilbud: "Et tilbud er bindende. Sjekk likevel det med liten skrift.",
-      overslag: "Et overslag er ikke en fast pris. Prisen kan normalt stige med høyst 10–15 %.",
+      overslag: "Et overslag er ikke en fast pris. Det må ikke overskrides vesentlig, men loven setter ingen fast grense.",
       uklart: "Det står ikke klart om prisen er fast eller kan stige.",
     },
     termsFlags: "{n} ting om pris og vilkår er verdt å se på.",

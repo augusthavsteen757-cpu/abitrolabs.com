@@ -129,7 +129,7 @@ export const DEMO_QUOTES: DemoQuote[] = [
           severity: "medium",
           type: "terms",
           title: "Det er et overslag – ikke en fast pris",
-          explanation: "Et overslag er ikke bindende. Efter almindelig praksis må det normalt ikke overskrides væsentligt (ofte 10–15 %), men du har ikke samme sikkerhed som ved en fast pris.",
+          explanation: "Et overslag er ikke bindende. Det må ikke overskrides væsentligt, men der er ingen fast procentgrænse, så du har ikke samme sikkerhed som ved en fast pris.",
           relatedItem: null,
           estimatedExtraMin: null,
           estimatedExtraMax: null,

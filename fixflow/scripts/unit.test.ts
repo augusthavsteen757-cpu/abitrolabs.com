@@ -156,4 +156,9 @@ test("articles: unique URL-safe slugs, search-friendly title and description len
   }
 });
 
+test("no fixed percentage is promised as the legal limit for an overslag (there is none)", () => {
+  const texts = [JSON.stringify(DICTS), JSON.stringify(ARTICLES), readFileSync(new URL("../src/lib/ai.ts", import.meta.url), "utf8")];
+  for (const t of texts) assert.ok(!/10\s*[–-]\s*15\s*%/.test(t), "found a 10–15 % overslag limit");
+});
+
 console.log(`\n${passed} tests passed`);

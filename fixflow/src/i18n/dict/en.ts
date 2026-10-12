@@ -528,7 +528,7 @@ export const en: Dict = {
     priceHint: {
       fast_pris: "A fixed price is the safest. Then you know what it costs.",
       tilbud: "A quote is binding. Still check the small print.",
-      overslag: "An estimate is not a fixed price. The price may typically rise by at most 10–15%.",
+      overslag: "An estimate is not a fixed price. It must not be exceeded significantly, but the law sets no fixed limit.",
       uklart: "It isn’t clear whether the price is fixed or can go up.",
     },
     termsFlags: "{n} things about price and terms are worth a look.",

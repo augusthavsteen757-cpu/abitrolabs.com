@@ -526,7 +526,7 @@ export const da = {
     priceHint: {
       fast_pris: "Fast pris er det sikreste. Så ved du, hvad det koster.",
       tilbud: "Et tilbud er bindende. Tjek dog det med småt.",
-      overslag: "Et overslag er ikke en fast pris. Prisen må typisk højst stige 10–15 %.",
+      overslag: "Et overslag er ikke en fast pris. Det må ikke overskrides væsentligt, men der er ingen fast grænse i loven.",
       uklart: "Det står ikke klart, om prisen er fast, eller om den kan stige.",
     },
     termsFlags: "{n} ting om pris og vilkår bør du se på.",

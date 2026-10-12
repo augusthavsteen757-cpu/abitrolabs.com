@@ -524,7 +524,7 @@ export const pl: Dict = {
     priceHint: {
       fast_pris: "Stała cena jest najbezpieczniejsza. Wiesz wtedy, ile zapłacisz.",
       tilbud: "Oferta jest wiążąca. Mimo to sprawdź drobny druk.",
-      overslag: "Kosztorys szacunkowy to nie stała cena. Cena może zwykle wzrosnąć najwyżej o 10–15%.",
+      overslag: "Kosztorys szacunkowy to nie stała cena. Nie może zostać znacznie przekroczony, ale prawo nie określa stałego limitu.",
       uklart: "Nie wiadomo, czy cena jest stała, czy może wzrosnąć.",
     },
     termsFlags: "Warto sprawdzić {n} rzeczy dotyczące ceny i warunków.",

@@ -53,7 +53,7 @@ export const ARTICLES: Article[] = [
       {
         heading: "Overslag eller fast pris?",
         paragraphs: [
-          "En fast pris er bindende. Et overslag er et skøn, som ikke må overskrides væsentligt – i praksis typisk ikke mere end 10–15 %. Bed om fast pris, hvis du kan.",
+          "En fast pris er bindende. Et overslag er et skøn: det må ikke overskrides væsentligt, men der er ingen fast grænse i loven. Bliver det dyrere, skal håndværkeren sige til i god tid. Bed om fast pris, hvis du kan.",
         ],
       },
       {

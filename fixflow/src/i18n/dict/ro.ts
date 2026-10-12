@@ -528,7 +528,7 @@ export const ro: Dict = {
     priceHint: {
       fast_pris: "Prețul fix este cel mai sigur. Atunci știi cât costă.",
       tilbud: "O ofertă fermă este obligatorie. Verifică totuși ce scrie mărunt.",
-      overslag: "Un deviz estimativ nu este un preț fix. De obicei, prețul poate crește cu cel mult 10–15 %.",
+      overslag: "Un deviz estimativ nu este un preț fix. Nu poate fi depășit semnificativ, dar legea nu stabilește o limită fixă.",
       uklart: "Nu este clar dacă prețul este fix sau poate crește.",
     },
     termsFlags: "Merită să te uiți la {n} lucruri despre preț și condiții.",

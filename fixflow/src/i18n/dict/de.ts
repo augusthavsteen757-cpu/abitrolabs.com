@@ -528,7 +528,7 @@ export const de: Dict = {
     priceHint: {
       fast_pris: "Ein Festpreis ist am sichersten. Dann weißt du, was es kostet.",
       tilbud: "Ein Angebot ist verbindlich. Prüfe trotzdem das Kleingedruckte.",
-      overslag: "Ein Kostenvoranschlag ist kein Festpreis. Der Preis darf meist höchstens um 10–15 % steigen.",
+      overslag: "Ein Kostenvoranschlag ist kein Festpreis. Er darf nicht wesentlich überschritten werden, aber das Gesetz nennt keine feste Grenze.",
       uklart: "Es ist nicht klar, ob der Preis fest ist oder steigen kann.",
     },
     termsFlags: "{n} Dinge zu Preis und Bedingungen solltest du dir ansehen.",
