@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Trophy, Eye, ShieldCheck, Lightbulb, CheckCircle2, XCircle, Columns3, Sparkles } from "lucide-react";
+import { Trophy, Eye, ShieldCheck, Lightbulb, CheckCircle2, XCircle, Columns3, Sparkles, ChevronDown, ArrowRight, Plus } from "lucide-react";
+import { SeverityBadge } from "@/components/Severity";
+import { scoreBand } from "@/lib/score";
 import { requireUser } from "@/lib/auth";
 import { listQuotes } from "@/lib/quotes";
 import { distanceKm, locatePostalCode, postalCodeFromText } from "@/lib/geo";
@@ -125,7 +127,7 @@ function buildInsights(rows: Row[], d: Dict, km: (n: number) => string): string[
   return out.map((x) => (x.endsWith(".") ? x : `${x}.`));
 }
 
-export default async function ComparePage({ searchParams }: { searchParams: Promise<{ ids?: string }> }) {
+export default async function ComparePage({ searchParams }: { searchParams: Promise<{ ids?: string; fejlet?: string }> }) {
   const sp = await searchParams;
   const user = await requireUser();
   const { locale, d } = await getI18n();
@@ -202,7 +204,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
           <Columns3 className="h-8 w-8 text-brand-600" />
           <h2 className="mt-4 text-xl font-semibold">{t.needTwoTitle}</h2>
           <p className="mt-2 max-w-md text-ink-soft">{t.needTwoText}</p>
-          <Link href="/dashboard/upload" className="btn-primary mt-6">{t.upload}</Link>
+          <Link href="/dashboard/sammenlign/ny" className="btn-primary mt-6">{t.newCta}</Link>
         </div>
       </div>
     );
@@ -227,11 +229,13 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   const insights = buildInsights(rows, d, km);
   const scoreLbl = (r: Row) => scoreLabel(r.a.score.total, d.score);
   const match = bestMatch(rows);
+  const q = d.quote;
+  const failed = Number(sp.fejlet) || 0;
 
-  const winners = [
-    { icon: Trophy, label: t.cheapest, row: cheapest, value: formatKr(cheapest.a.totals.inclVat), sub: t.inclVat },
-    { icon: Eye, label: t.clearest, row: clearest, value: `${clearest.a.score.total}/100`, sub: scoreLbl(clearest) },
-    { icon: ShieldCheck, label: t.safest, row: safest, value: formatKr(safest.worst), sub: t.worstSub },
+  const reasons = [
+    { icon: Trophy, text: fmt(t.reasonCheapest, { name: cheapest.name, value: formatKr(cheapest.a.totals.inclVat) }) },
+    { icon: Eye, text: fmt(t.reasonClearest, { name: clearest.name, value: `${clearest.a.score.total}/100` }) },
+    { icon: ShieldCheck, text: fmt(t.reasonSafest, { name: safest.name, value: formatKr(safest.worst) }) },
   ];
 
   const usedCats = CATEGORIES.filter((c) => rows.some((r) => r.cats[c] > 0));
@@ -240,15 +244,23 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   return (
     <div className="animate-fade-up">
       {header}
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <Link href="/dashboard/sammenlign/ny" className="btn-secondary px-3 py-1.5 text-sm" data-testid="compare-new">
+          <Plus className="h-4 w-4" /> {t.newCta}
+        </Link>
+        <details>
+          <summary className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-brand-700 hover:underline">
+            {fmt(t.change, { n: rows.length })}
+          </summary>
+          <div className="mt-3">
+            <ComparePicker items={pickerItems} selected={rows.map((r) => r.id)} />
+          </div>
+        </details>
+      </div>
 
-      <details className="mt-6">
-        <summary className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-brand-700 hover:underline">
-          {fmt(t.change, { n: rows.length })}
-        </summary>
-        <div className="mt-3">
-          <ComparePicker items={pickerItems} selected={rows.map((r) => r.id)} />
-        </div>
-      </details>
+      {failed > 0 && (
+        <p role="status" className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">{fmt(t.someFailed, { n: failed })}</p>
+      )}
 
       {rows.some((r) => (r.a.currency ?? "DKK") !== "DKK") && (
         <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -256,55 +268,140 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
         </p>
       )}
 
-      <section className="mt-6 rounded-2xl border border-brand-700 bg-brand-900 p-5 text-white shadow-lift sm:p-6">
-        <p className="flex items-center gap-2 text-sm font-semibold text-brand-300">
-          <Sparkles className="h-4 w-4" /> {t.bestMatch}
-        </p>
-        <p className="mt-2 font-display text-2xl font-semibold text-white">{match.best.name}</p>
-        <p className="mt-1 text-sm text-brand-100">
-          {fmt(t.bestLine, { price: formatKr(match.best.a.totals.inclVat), score: match.best.a.score.total, worst: formatKr(match.best.worst) })}
-          {match.best.distance != null && fmt(t.bestDistance, { km: km(match.best.distance) })}
-        </p>
-        <p className="mt-3 text-xs leading-relaxed text-brand-200">
-          {fmt(t.bestExplain, { p: match.useDist ? 50 : 60, c: match.useDist ? 35 : 40, dist: match.useDist ? t.bestExplainDist : "" })}
-          {!origin && (
-            <>
-              {" "}
-              <Link href="/dashboard/konto#postnummer" className="font-semibold text-white underline">{t.addPostal}</Link> {t.addPostalTail}
-            </>
-          )}
-        </p>
-        <p className="mt-3 rounded-lg bg-white/10 px-3 py-2 text-sm text-white" data-testid="best-disclaimer">{t.bestDisclaimer}</p>
+      {/* 1. The quotes – tap one to unfold its review */}
+      <section className="mt-8">
+        <Step n={1} title={t.stepQuotes} sub={t.stepQuotesSub} />
+        <div className="mt-4 space-y-3" data-testid="compare-quotes">
+          {rows.map((r) => {
+            const flags = [...r.a.flags].sort((x, y) => SEVERITY_ORDER[x.severity] - SEVERITY_ORDER[y.severity]).slice(0, 4);
+            const questions = r.a.questions.slice(0, 3);
+            return (
+              <details key={r.id} className="card group overflow-hidden" data-testid="compare-quote">
+                <summary className="flex cursor-pointer list-none items-center gap-3 p-4 sm:p-5 [&::-webkit-details-marker]:hidden">
+                  <ScoreRing score={r.a.score.total} size={48} srText={fmt(q.scoreAria, { score: r.a.score.total })} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block break-words font-semibold leading-snug">{r.name}</span>
+                    <span className="num mt-0.5 block text-sm text-ink-soft">
+                      {formatKr(r.a.totals.inclVat)} · {fmt(t.worstShort, { w: formatKr(r.worst) })}
+                    </span>
+                  </span>
+                  <ChevronDown className="h-5 w-5 shrink-0 text-ink-muted transition-transform group-open:rotate-180" aria-hidden />
+                </summary>
+                <div className="space-y-5 border-t border-line px-4 pb-5 pt-4 sm:px-5">
+                  <p className="font-semibold leading-snug">{q.verdict[scoreBand(r.a.score.total)]}</p>
+                  <dl className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <dt className="text-ink-muted">{t.rowPriceType}</dt>
+                      <dd className="font-medium">{d.labels.priceType[r.a.priceType]}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-ink-muted">{t.rowExtra}</dt>
+                      <dd className="num font-medium">{formatRange(r.a.extraCostRisk.min * 1.25, r.a.extraCostRisk.max * 1.25)}</dd>
+                    </div>
+                  </dl>
+                  {flags.length > 0 && (
+                    <div>
+                      <h3 className="font-sans text-base font-semibold">{q.flagsTitle}</h3>
+                      <ul className="mt-2 space-y-2.5">
+                        {flags.map((f, i) => (
+                          <li key={i}>
+                            <SeverityBadge severity={f.severity} label={d.labels.severity[f.severity]} />
+                            <p className="mt-1 text-[15px] font-medium leading-snug">{f.title}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {questions.length > 0 && (
+                    <div>
+                      <h3 className="font-sans text-base font-semibold">{q.questionsTitle}</h3>
+                      <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-[15px] leading-snug text-ink-soft">
+                        {questions.map((x, i) => (
+                          <li key={i}>{x.question}</li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+                  <Link href={`/dashboard/tilbud/${r.id}`} className="btn-primary px-4 py-2 text-sm">
+                    {t.openFull} <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </details>
+            );
+          })}
+        </div>
       </section>
 
-      <div className="mt-4 grid gap-4 md:grid-cols-3">
-        {winners.map((w) => (
-          <div key={w.label} className="card p-5">
-            <p className="flex items-center gap-2 text-sm font-semibold text-brand-700">
-              <w.icon className="h-4 w-4" /> {w.label}
-            </p>
-            <p className="mt-3 break-words font-semibold">{w.row.name}</p>
-            <p className="num mt-1 font-display text-2xl font-semibold">{w.value}</p>
-            <p className="text-sm text-ink-muted">{w.sub}</p>
-          </div>
-        ))}
-      </div>
+      {/* 2. What the differences mean */}
+      {insights.length > 0 && (
+        <section className="mt-10">
+          <Step n={2} title={t.insightsTitle} />
+          <ul className="card mt-4 space-y-3 p-5 sm:p-6">
+            {insights.slice(0, 3).map((line, i) => (
+              <li key={i} className="flex gap-3 text-[15px] leading-relaxed text-ink-soft">
+                <Lightbulb className="mt-1 h-4 w-4 shrink-0 text-amber-500" aria-hidden />
+                {line}
+              </li>
+            ))}
+            {insights.length > 3 && (
+              <li>
+                <details>
+                  <summary className="cursor-pointer text-sm font-semibold text-brand-700 hover:underline">
+                    {fmt(q.showAllFlags, { n: insights.length })}
+                  </summary>
+                  <ul className="mt-3 space-y-3">
+                    {insights.slice(3).map((line, i) => (
+                      <li key={i} className="flex gap-3 text-[15px] leading-relaxed text-ink-soft">
+                        <Lightbulb className="mt-1 h-4 w-4 shrink-0 text-amber-500" aria-hidden />
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </li>
+            )}
+          </ul>
+        </section>
+      )}
 
-      <section className="card mt-6 p-5 sm:p-6">
-        <h2 className="flex items-center gap-2 text-xl font-semibold">
-          <Lightbulb className="h-5 w-5 text-amber-500" /> {t.insightsTitle}
-        </h2>
-        <ul className="mt-4 space-y-3">
-          {insights.map((line, i) => (
-            <li key={i} className="flex gap-3 text-[15px] leading-relaxed text-ink-soft">
-              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
-              {line}
-            </li>
-          ))}
-        </ul>
+      {/* 3. Our recommendation – last, after the user has seen the quotes */}
+      <section className="mt-10">
+        <Step n={insights.length > 0 ? 3 : 2} title={t.recommendTitle} />
+        <div className="mt-4 rounded-2xl border border-brand-700 bg-brand-900 p-5 text-white shadow-lift sm:p-6" data-testid="recommendation">
+          <p className="flex items-center gap-2 text-sm font-semibold text-brand-300">
+            <Sparkles className="h-4 w-4" /> {t.bestMatch}
+          </p>
+          <p className="mt-2 break-words font-display text-2xl font-semibold text-white">{match.best.name}</p>
+          <p className="mt-1 text-sm text-brand-100">
+            {fmt(t.bestLine, { price: formatKr(match.best.a.totals.inclVat), score: match.best.a.score.total, worst: formatKr(match.best.worst) })}
+            {match.best.distance != null && fmt(t.bestDistance, { km: km(match.best.distance) })}
+          </p>
+          <ul className="mt-4 space-y-1.5 text-sm text-brand-50">
+            {reasons.map((x) => (
+              <li key={x.text} className="flex items-start gap-2">
+                <x.icon className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" aria-hidden /> {x.text}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs leading-relaxed text-brand-200">
+            {fmt(t.bestExplain, { p: match.useDist ? 50 : 60, c: match.useDist ? 35 : 40, dist: match.useDist ? t.bestExplainDist : "" })}
+            {!origin && (
+              <>
+                {" "}
+                <Link href="/dashboard/konto#postnummer" className="font-semibold text-white underline">{t.addPostal}</Link> {t.addPostalTail}
+              </>
+            )}
+          </p>
+          <p className="mt-3 rounded-lg bg-white/10 px-3 py-2 text-sm text-white" data-testid="best-disclaimer">{t.bestDisclaimer}</p>
+        </div>
       </section>
 
-      <section className="card mt-6 overflow-hidden">
+      {/* All the numbers, for those who want them */}
+      <details className="mt-10" data-testid="all-numbers">
+        <summary className="inline-flex cursor-pointer items-center gap-2 font-semibold text-brand-700 hover:underline">
+          <Columns3 className="h-4 w-4" /> {t.allNumbers}
+        </summary>
+      <section className="card mt-4 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
@@ -402,9 +499,26 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
           </table>
         </div>
       </section>
+      </details>
       <p className="mt-4 text-xs text-ink-muted">
         {t.footnote}
       </p>
+    </div>
+  );
+}
+
+const SEVERITY_ORDER = { high: 0, medium: 1, low: 2 } as const;
+
+function Step({ n, title, sub }: { n: number; title: string; sub?: string }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="num mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-semibold text-white" aria-hidden>
+        {n}
+      </span>
+      <div className="min-w-0">
+        <h2 className="text-xl font-semibold leading-snug sm:text-2xl">{title}</h2>
+        {sub && <p className="mt-0.5 text-sm text-ink-muted">{sub}</p>}
+      </div>
     </div>
   );
 }

@@ -141,11 +141,11 @@ try {
   // Buy single analysis from the quote page → unlocks this quote
   await page.goto(quoteUrl);
   const buyBox = page.locator("section#laas-op");
-  await buyBox.getByRole("button", { name: /Gå til betaling – 99 kr\./ }).click();
+  await buyBox.getByRole("button", { name: "Gå til betaling – 49 kr.", exact: true }).click();
   await buyBox.getByText("Sæt flueben").waitFor();
   log("purchase requires consent to immediate delivery");
   await buyBox.getByRole("checkbox").nth(1).check();
-  await buyBox.getByRole("button", { name: /Gå til betaling – 99 kr\./ }).click();
+  await buyBox.getByRole("button", { name: "Gå til betaling – 49 kr.", exact: true }).click();
   await page.getByText("Skriv besked").waitFor({ timeout: 15_000 });
   const after = await page.locator("section:has(h2:has-text('Spørgsmål til håndværkeren')) ol > li").count();
   assert(after === 8, `all 8 questions after unlock (saw ${after})`);
@@ -167,10 +167,10 @@ try {
   await page.getByTestId("withdraw").waitFor({ timeout: 15_000 });
   // EU withdrawal function (from 19 June 2026): an unambiguous "withdraw" button, then a "confirm withdrawal" step.
   await page.getByRole("button", { name: "Fortryd aftalen her" }).click();
-  await page.getByText(/Du får 99 kr\. tilbage/).waitFor();
+  await page.getByText(/Du får 49 kr\. tilbage/).waitFor();
   await page.getByRole("button", { name: "Bekræft fortrydelse" }).click();
   await page.getByText("Købet er fortrudt").waitFor();
-  await page.getByText(/Fortrudt – 99 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
+  await page.getByText(/Fortrudt – 49 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
   log("unused purchase can be withdrawn in the app with full refund");
 
   await page.goto(quoteUrl);
@@ -261,12 +261,12 @@ try {
 
   await buyer.goto(`${BASE}/dashboard/konto`);
   await buyer.getByTestId("withdraw").click();
-  await buyer.getByText(/Du får 132,67 kr\. tilbage/).waitFor();
+  await buyer.getByText(/Du får 66 kr\. tilbage/).waitFor();
   await buyer.getByTestId("withdraw").click();
   await buyer.getByText("Købet er fortrudt").waitFor();
-  await buyer.getByText(/Fortrudt – 132,67 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
+  await buyer.getByText(/Fortrudt – 66 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
   assert((await buyer.getByText(/Ekstra analyser til gode/).count()) === 0, "the 2 unused analyses are removed");
-  log("withdrawing a partly used 3-pakke refunds the 2 unused analyses (132,67 kr.)");
+  log("withdrawing a partly used 3-pakke refunds the 2 unused analyses (66 kr.)");
   await noOverflow(buyer, "konto with code + pack");
   await buyer.context().close();
 
@@ -280,14 +280,47 @@ try {
   await demo.getByRole("link", { name: /Sammenlign 3 tilbud/ }).click();
   await demo.waitForURL(/sammenlign\?ids=/);
   await demo.getByText("Det bør du vide").waitFor();
-  await demo.getByText("Lavest værste scenarie").waitFor();
-  await demo.getByText("Vores bud på bedste valg").waitFor();
+  // The quotes come first as cards that unfold; the recommendation comes last.
+  const cards = demo.getByTestId("compare-quote");
+  assert((await cards.count()) === 3, "three quote cards");
+  assert(!(await cards.first().getByRole("link", { name: "Se hele analysen" }).isVisible()), "cards start folded");
+  await cards.first().locator("summary").click();
+  await cards.first().getByRole("link", { name: "Se hele analysen" }).waitFor();
+  await cards.first().getByText("Spørgsmål til håndværkeren").waitFor();
+  const lastCard = await cards.last().boundingBox();
+  const rec = demo.getByTestId("recommendation");
+  assert((await rec.boundingBox()).y > lastCard.y, "recommendation comes after the quotes");
+  await rec.getByText("Vores bud på bedste valg").waitFor();
+  await rec.getByText(/Lavest værste scenarie: /).waitFor();
   await demo.locator("[data-testid=best-disclaimer]").getByText(/ikke en vurdering af håndværkerens faglige kvalitet/).waitFor();
+  assert(!(await demo.getByRole("rowheader", { name: "Afstand fra dig" }).isVisible()), "all numbers start folded");
+  await demo.getByTestId("all-numbers").locator("summary").click();
   await demo.getByRole("rowheader", { name: "Afstand fra dig" }).waitFor();
   const cols = await demo.locator("table thead th").count();
   assert(cols === 4, `comparison table has 3 quotes (+label col), saw ${cols - 1}`);
   await shot(demo, "compare");
-  log("demo user compares 3 quotes");
+  log("demo user compares 3 quotes: folded cards first, recommendation last, numbers on request");
+
+  // Upload 2–3 quotes at once and land on their comparison.
+  await demo.goto(`${BASE}/dashboard/upload`);
+  await demo.getByTestId("compare-link").click();
+  await demo.waitForURL(`${BASE}/dashboard/sammenlign/ny`);
+  const many = ["eksempel-vvs-badevaerelse.pdf", "eksempel-bad-badevaerelse.pdf", "eksempel-byg.pdf", "eksempel-vinduer.pdf"].map((f) => `sample-quotes/${f}`);
+  await demo.setInputFiles("[data-testid=compare-file-input]", many);
+  await demo.getByText("Du kan sammenligne højst 3 tilbud ad gangen.").waitFor();
+  await demo.setInputFiles("[data-testid=compare-file-input]", many.slice(0, 1));
+  assert(await demo.getByRole("button", { name: "Sammenlign tilbuddene" }).isDisabled(), "one quote is not enough");
+  await demo.setInputFiles("[data-testid=compare-file-input]", many.slice(1, 3));
+  await demo.getByText("3 af 3 tilbud valgt").waitFor();
+  await demo.fill("#compare-project", "E2E sammenligning");
+  await demo.getByRole("button", { name: "Sammenlign tilbuddene" }).click();
+  await demo.getByTestId("compare-progress").waitFor();
+  await demo.waitForURL(/\/dashboard\/sammenlign\?ids=[^,]+,[^,]+,[^,&]+$/, { timeout: 90_000 });
+  assert((await demo.getByTestId("compare-quote").count()) === 3, "lands on the comparison of the 3 new quotes");
+  await demo.getByTestId("recommendation").waitFor();
+  const newIds = new URL(demo.url()).searchParams.get("ids").split(",");
+  for (const id of newIds) assert((await demo.request.delete(`${BASE}/api/quotes/${id}`, { headers: { origin: BASE } })).status() === 200, "cleanup");
+  log("upload 3 quotes at once → straight to their comparison");
 
   // Unclear VAT: the user picks, and the analysis, the overview and the comparison all follow the choice.
   await demo.goto(`${BASE}/dashboard`);
@@ -304,7 +337,7 @@ try {
   await demo.goto(`${BASE}/dashboard`);
   assert((await demo.getByRole("link", { name: /Eksempel Byg/ }).innerText()).includes("98.000 kr."), "overview price follows the choice");
   await demo.goto(`${BASE}/dashboard/sammenlign`);
-  assert((await demo.locator("table").innerText()).includes("98.000 kr."), "comparison follows the choice");
+  assert((await demo.getByTestId("compare-quotes").innerText()).includes("98.000 kr."), "comparison follows the choice");
   // Back to the default so the rest of the test sees the seeded numbers.
   await demo.goto(`${BASE}/dashboard`);
   await demo.getByRole("link", { name: /Eksempel Byg/ }).click();

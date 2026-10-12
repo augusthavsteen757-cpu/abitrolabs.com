@@ -13,7 +13,7 @@ const MAX = 10 * 1024 * 1024;
 const MAX_EDGE = 2576;
 
 /** Shrinks large photos in the browser (JPEG, max 2576 px) before upload. Returns the original if not needed. */
-async function shrinkImage(file: File): Promise<File> {
+export async function shrinkImage(file: File): Promise<File> {
   if (!file.type.startsWith("image/")) return file;
   try {
     const bmp = await createImageBitmap(file);
