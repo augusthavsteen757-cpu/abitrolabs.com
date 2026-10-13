@@ -6,7 +6,7 @@ import { cn, formatBytes } from "@/lib/format";
 import { useI18n } from "@/i18n/client";
 import { fmt, plural } from "@/i18n/fmt";
 import type { Dict } from "@/i18n/dict/da";
-import { HOUSING, LOAD_BEARING } from "@/lib/job-context";
+import { HOUSING, JOB_NOTE_MAX, JOB_TYPES, LOAD_BEARING } from "@/lib/job-context";
 
 const ACCEPT = "application/pdf,image/jpeg,image/png,image/webp";
 const MAX = 10 * 1024 * 1024;
@@ -63,6 +63,8 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
   const file = files[0] ?? null;
   const [preview, setPreview] = useState<string | null>(null);
   const [project, setProject] = useState(projects[0] ?? "");
+  const [jobTypes, setJobTypes] = useState<string[]>([]);
+  const [jobNote, setJobNote] = useState("");
   const [housing, setHousing] = useState("");
   const [builtYear, setBuiltYear] = useState("");
   const [loadBearing, setLoadBearing] = useState("");
@@ -109,6 +111,8 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
     const fd = new FormData();
     for (const f of files) fd.append("file", await shrinkImage(f, files.length > 1));
     fd.append("projectName", project.trim());
+    if (jobTypes.length) fd.append("jobTypes", jobTypes.join(","));
+    if (jobNote.trim()) fd.append("jobNote", jobNote.trim());
     if (housing) fd.append("housing", housing);
     if (builtYear.trim()) fd.append("builtYear", builtYear.trim());
     if (loadBearing) fd.append("loadBearing", loadBearing);
@@ -317,6 +321,36 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
           <span className="mt-0.5 block text-xs font-normal text-ink-muted">{t.contextHelp}</span>
         </summary>
         <div className="grid gap-4 border-t border-line px-4 py-4 sm:grid-cols-2">
+          <fieldset className="sm:col-span-2">
+            <legend className="label">{t.jobTypes}</legend>
+            <div className="flex flex-wrap gap-2" data-testid="job-types">
+              {JOB_TYPES.map((j) => {
+                const on = jobTypes.includes(j);
+                return (
+                  <label key={j} className={cn("cursor-pointer rounded-lg border px-3 py-2 text-sm", on ? "border-brand-600 bg-brand-50 text-brand-800" : "border-line")}>
+                    <input
+                      type="checkbox"
+                      checked={on}
+                      onChange={() => setJobTypes(on ? jobTypes.filter((x) => x !== j) : [...jobTypes, j])}
+                      className="sr-only"
+                    />
+                    {t.jobTypeOptions[j]}
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+          <div className="sm:col-span-2">
+            <label htmlFor="jobNote" className="label">{t.jobNote}</label>
+            <input
+              id="jobNote"
+              value={jobNote}
+              onChange={(e) => setJobNote(e.target.value)}
+              maxLength={JOB_NOTE_MAX}
+              className="input"
+              placeholder={t.jobNotePlaceholder}
+            />
+          </div>
           <div>
             <label htmlFor="housing" className="label">{t.housing}</label>
             <select id="housing" value={housing} onChange={(e) => setHousing(e.target.value)} className="input">

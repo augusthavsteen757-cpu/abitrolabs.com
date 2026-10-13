@@ -379,6 +379,9 @@ try {
   await demo.fill("#project", "E2E flere filer");
   // Optional facts about the job travel with the quote (and on to the AI).
   await demo.getByTestId("job-context").locator("summary").click();
+  await demo.getByTestId("job-types").getByText("Badeværelse", { exact: true }).click();
+  await demo.getByTestId("job-types").getByText("VVS og varme", { exact: true }).click();
+  await demo.fill("#jobNote", "Nyt bad med gulvvarme");
   await demo.selectOption("#housing", "apartment");
   await demo.fill("#builtYear", "19x65");
   assert((await demo.inputValue("#builtYear")) === "1965", "year field keeps digits only");
@@ -391,6 +394,8 @@ try {
   const quotesAfter = await listQuotes();
   assert(quotesAfter.length === quotesBefore.length + 1, `several files make ONE quote (${quotesBefore.length} → ${quotesAfter.length})`);
   const multiQuote = (await (await demo.request.get(`${BASE}/api/quotes/${multiId}`)).json()).quote;
+  const savedCtx = JSON.parse(multiQuote.jobContext ?? "null");
+  assert(savedCtx?.jobTypes?.join(",") === "bathroom,plumbing" && savedCtx.jobNote === "Nyt bad med gulvvarme", `job type and note saved (${multiQuote.jobContext})`);
   assert(JSON.parse(multiQuote.jobContext ?? "null")?.housing === "apartment" && JSON.parse(multiQuote.jobContext).builtYear === 1965 && JSON.parse(multiQuote.jobContext).loadBearing === "yes", `job context is saved (${multiQuote.jobContext})`);
   const original = await demo.request.get(`${BASE}/api/quotes/${multiId}/file`);
   assert(original.headers()["content-type"] === "application/pdf", "the combined original is a PDF");

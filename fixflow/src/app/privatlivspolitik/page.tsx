@@ -36,8 +36,9 @@ export default function PrivacyPage() {
           så overstreg selv CPR-nummer og andre følsomme oplysninger.
         </li>
         <li>
-          <strong>Oplysninger om opgaven</strong>, hvis du vælger at give dem ved upload: boligtype, byggeår og om
-          arbejdet berører bærende konstruktioner. De gemmes sammen med tilbuddet og sendes med til AI-analysen, så den
+          <strong>Oplysninger om opgaven</strong>, hvis du vælger at give dem ved upload: hvilken type arbejde det er,
+          en kort beskrivelse (højst 100 tegn), boligtype, byggeår og om arbejdet berører bærende konstruktioner. Skriv
+          ikke personlige oplysninger i beskrivelsen. De gemmes sammen med tilbuddet og sendes med til AI-analysen, så den
           kan tage højde for dem.
         </li>
         <li><strong>Beskeder</strong>, du laver med beskedgeneratoren (udkastet indeholder dit navn).</li>
