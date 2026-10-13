@@ -4,7 +4,7 @@ import { Check, Sparkles, FlaskConical, Receipt, CheckCircle2 } from "lucide-rea
 import { db } from "@/db";
 import { payments, quotes } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
-import { PACK3_PRICE_DKK, SINGLE_PRICE_DKK, getUsage, isBeta } from "@/lib/plans";
+import { PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaEndText, getUsage, isBeta } from "@/lib/plans";
 import { getDict, getI18n } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
 import { INTL_LOCALE } from "@/i18n/config";
@@ -99,7 +99,7 @@ export default async function AccountPage({
       </section>
 
       {beta ? (
-        <p className="mt-6 rounded-xl bg-brand-50 px-4 py-3 text-sm text-brand-800">{d.beta.accountText}</p>
+        <p className="mt-6 rounded-xl bg-brand-50 px-4 py-3 text-sm text-brand-800">{fmt(d.beta.accountText, { date: betaEndText(intl) })}</p>
       ) : (
         <>
       {quote && (

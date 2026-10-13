@@ -15,10 +15,13 @@ ok(await p.getByTestId("beta-notice").isVisible(), "landing shows beta notice in
 ok(!(await p.innerText("body")).includes("Vælg Pro"), "no Pro purchase button on landing");
 ok(!(await p.innerText("body")).includes("Er der et abonnement?"), "FAQ hides the payment question while nothing can be bought");
 ok(!/\bPro\b/.test(await p.innerText("body")), "no Pro anywhere on the landing page");
+ok((await p.getByTestId("beta-banner").innerText()).includes("Gratis prøveperiode – slutter 19. oktober 2026."), "banner on every page states when the trial ends");
 await p.goto(B + "/priser");
 const plansBox = p.getByTestId("beta-plans");
 const plansText = await plansBox.innerText();
 ok(/0 kr\.[\s\S]*Gratis nu[\s\S]*Efter prøveperioden: 49 kr\.[\s\S]*Efter prøveperioden: 99 kr\./.test(plansText), "pricing page: both plans free now, with the later price stated");
+ok((await p.getByTestId("beta-later").innerText()).startsWith("Prøveperioden slutter 19. oktober 2026."), "pricing box states the end date");
+ok((await p.getByTestId("beta-notice").innerText()).includes("Gratis frem til 19. oktober 2026"), "pricing box title has the end date");
 ok((await plansBox.locator("s, del, .line-through").count()) === 0, "no struck-through 'before' price (never charged – would be misleading)");
 await p.goto(B);
 // COMPANY_FOOTER_ADDRESS=0 (set by test-all): CVR in the footer without the address – the legal pages keep it.
@@ -58,7 +61,7 @@ ok(true, "after 5 analyses: beta limit message, no purchase");
 await p.goto(B + "/dashboard/sammenlign");
 ok(!(await p.innerText("body")).includes("Sammenligning er en del af Pro"), "compare available in beta");
 await p.goto(B + "/dashboard/konto");
-ok((await p.innerText("body")).includes("Du er med i prøveperioden"), "account page shows beta text");
+ok((await p.innerText("body")).includes("Du er med i prøveperioden, som slutter 19. oktober 2026."), "account page shows the trial end date");
 ok((await p.locator("text=Køb én analyse").count()) === 0, "no purchase buttons on account page");
 const r = await p.evaluate(async () => (await fetch("/api/billing/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind: "SINGLE", consent: true }) })).status);
 ok(r === 503, "checkout API refuses purchases in beta");
@@ -68,6 +71,7 @@ const fr = await p.evaluate(async () => (await fetch("/api/contractors?trade=vvs
 ok(fr === 503, "contractor API off in beta without CVR");
 await p.goto(B + "/handelsbetingelser");
 ok((await p.innerText("body")).includes("Gratis prøveperiode"), "terms describe the beta");
+ok((await p.innerText("body")).includes("gratis prøveperiode, som slutter den 19. oktober 2026"), "terms state the trial end date");
 // A user who had Pro and a test payment from before the beta (the seeded demo user) gets the beta deal:
 // 5 in total, no Pro, no period – and test payments are never shown on a production build without
 // ALLOW_SIMULATED_PAYMENTS (klardal.com).

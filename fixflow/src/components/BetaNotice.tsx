@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
-import { getDict } from "@/i18n/server";
+import { getI18n } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
-import { BETA_ANALYSES_TOTAL, PACK3_PRICE_DKK, SINGLE_PRICE_DKK } from "@/lib/plans";
+import { BETA_ANALYSES_TOTAL, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaEndText } from "@/lib/plans";
+import { INTL_LOCALE } from "@/i18n/config";
 
 /** Shown instead of prices and purchase options while the app runs as a free beta. */
 export async function BetaNotice({ cta = true, usedUp = false }: { cta?: boolean; usedUp?: boolean }) {
-  const d = await getDict();
+  const { locale, d } = await getI18n();
   const t = d.beta;
+  const date = betaEndText(INTL_LOCALE[locale]);
   // What will cost money later – shown as free now, with the later price stated plainly (no struck-through
   // "before" price: these prices have never been charged, so that would be misleading).
   const plans = [
@@ -21,7 +23,7 @@ export async function BetaNotice({ cta = true, usedUp = false }: { cta?: boolean
         <span className="badge bg-brand-700 text-white">
           <Sparkles className="h-3.5 w-3.5" /> {t.badge}
         </span>
-        <h3 className="mt-4 font-sans text-xl font-semibold">{usedUp ? fmt(t.usedUpTitle, { n }) : t.title}</h3>
+        <h3 className="mt-4 font-sans text-xl font-semibold">{usedUp ? fmt(t.usedUpTitle, { n }) : fmt(t.title, { date })}</h3>
         <p className="mt-2 text-[15px] text-ink-soft">{usedUp ? fmt(t.usedUpText, { n }) : fmt(t.text, { n })}</p>
         {cta && !usedUp && (
           <div className="mt-5 grid gap-3 sm:grid-cols-2" data-testid="beta-plans">
@@ -38,7 +40,7 @@ export async function BetaNotice({ cta = true, usedUp = false }: { cta?: boolean
             ))}
           </div>
         )}
-        {!usedUp && <p className="mt-4 text-sm text-ink-muted">{t.later}</p>}
+        {!usedUp && <p className="mt-4 text-sm text-ink-muted" data-testid="beta-later">{fmt(t.later, { date })}</p>}
         {cta && !usedUp && (
           <Link href="/opret" className="btn-primary mt-5 inline-flex">
             {t.cta}

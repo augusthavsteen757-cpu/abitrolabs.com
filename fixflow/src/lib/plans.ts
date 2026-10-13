@@ -11,6 +11,12 @@ export const PERIOD_DAYS = 30;
 
 /** Free beta: everyone gets the full analysis, a fixed number of analyses per person, and nothing can be bought. */
 export const isBeta = () => process.env.BETA_FREE === "1";
+/** Last day of the free trial period (inclusive), shown everywhere the trial is mentioned. */
+export const BETA_END_DATE = process.env.BETA_END_DATE || "2026-10-19";
+/** "19. oktober 2026" in the reader's language. */
+export function betaEndText(intlLocale: string) {
+  return new Date(`${BETA_END_DATE}T12:00:00Z`).toLocaleDateString(intlLocale, { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Copenhagen" });
+}
 export const BETA_ANALYSES_TOTAL = Number.parseInt(process.env.BETA_ANALYSES ?? "", 10) || 5;
 
 
