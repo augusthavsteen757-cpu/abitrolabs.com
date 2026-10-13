@@ -120,7 +120,7 @@ try {
   await shot(page, "scanning");
   await page.waitForURL(/\/dashboard\/tilbud\//, { timeout: 60_000 });
   await page.getByRole("heading", { name: "Renovering af badeværelse" }).waitFor();
-  await page.getByText("Det skal du være opmærksom på").waitFor();
+  await page.getByText("Det bør du se på").waitFor();
   // Demo analyses must never pass for a real review of the user's quote.
   await page.locator("[data-testid=demo-notice]").getByText("Eksempel – ikke en analyse af dit tilbud").waitFor();
   assert((await page.locator("[data-testid=cpr-hidden]").count()) === 0, "no CPR notice for a quote without a CPR number");
@@ -138,7 +138,7 @@ try {
   const apiJson = await page.evaluate(async (u) => (await fetch(`/api/quotes/${u.split("/").pop()}`)).text(), page.url());
   assert(!apiJson.includes("tilbuddets største enkeltpost"), "API does not leak locked details");
   log("locked details never reach the browser (page + API)");
-  const visibleQuestions = await page.locator("section:has(h2:has-text('Spørgsmål til håndværkeren')) ol > li").count();
+  const visibleQuestions = await page.locator("section:has(h2:has-text('Spørg om det her')) ol > li").count();
   assert(visibleQuestions === 1, `free user sees 1 question (saw ${visibleQuestions})`);
   await shot(page, "analysis-free");
   log("free user sees preview with locked details");
@@ -169,16 +169,20 @@ try {
   await buyBox.getByRole("checkbox").nth(0).check();
   await buyBox.getByRole("button", { name: "Gå til betaling – 49 kr.", exact: true }).click();
   await page.getByText("Skriv besked").waitFor({ timeout: 15_000 });
-  const after = await page.locator("section:has(h2:has-text('Spørgsmål til håndværkeren')) ol > li").count();
+  const after = await page.locator("section:has(h2:has-text('Spørg om det her')) ol > li").count();
   assert(after === 8, `all 8 questions after unlock (saw ${after})`);
   assert((await page.content()).includes("tilbuddets største enkeltpost"), "unlocked details are shown");
   // Overview first: at most 3 warnings and 3 questions are open; the rest is behind "Vis alle".
-  const openFlags = await page.locator("section:has(h2:has-text('Det skal du være opmærksom på')) > div > article").count();
+  const openFlags = await page.locator("section:has(h2:has-text('Det bør du se på')) > div > article").count();
   assert(openFlags <= 3, `at most 3 warnings open (saw ${openFlags})`);
   await page.getByTestId("more-questions").locator("summary").getByText(/Vis alle 8 spørgsmål/).waitFor();
   assert(!(await page.getByTestId("more-questions").evaluate((el) => el.open)), "extra questions start folded");
-  await page.getByTestId("more-items").locator("summary").getByText(/Se alle \d+ poster/).waitFor();
-  await page.getByTestId("checks").getByText("Det mangler:").waitFor();
+  // The line items live under "Flere detaljer", folded; what is missing is shown right away.
+  await page.locator("details summary", { hasText: "Hvad prisen dækker" }).waitFor();
+  assert(!(await page.getByTestId("items").isVisible()), "line items start folded");
+  await page.getByTestId("checks").getByText("Hvornår arbejdet starter og slutter").waitFor();
+  for (const h of ["Vores vurdering", "Pris", "Det bør du se på", "Det mangler i tilbuddet", "Spørg om det her", "Send en besked", "Flere detaljer"])
+    await page.getByRole("heading", { name: h, exact: true }).waitFor();
   await page.getByTestId("more-questions").locator("summary").click();
   assert(await page.getByTestId("more-questions").evaluate((el) => el.open), "'Vis alle' opens the rest");
   await shot(page, "analysis-unlocked");
@@ -261,7 +265,7 @@ try {
     await p.fill("#project", "Badeværelse");
     await p.click("button[type=submit]");
     await p.waitForURL(/\/dashboard\/tilbud\//, { timeout: 60_000 });
-    await p.getByText("Det skal du være opmærksom på").waitFor();
+    await p.getByText("Det bør du se på").waitFor();
     return p.url();
   };
   const freeUrl = await uploadAs(buyer, "eksempel-byg.pdf");
@@ -319,7 +323,7 @@ try {
   assert(!(await cards.first().getByRole("link", { name: "Se hele analysen" }).isVisible()), "cards start folded");
   await cards.first().locator("summary").click();
   await cards.first().getByRole("link", { name: "Se hele analysen" }).waitFor();
-  await cards.first().getByText("Spørgsmål til håndværkeren").waitFor();
+  await cards.first().getByText("Spørg om det her").waitFor();
   const lastCard = await cards.last().boundingBox();
   const rec = demo.getByTestId("recommendation");
   assert((await rec.boundingBox()).y > lastCard.y, "recommendation comes after the quotes");
@@ -382,7 +386,7 @@ try {
   await shot(demo, "upload-multi");
   await demo.click("button[type=submit]");
   await demo.waitForURL(/\/dashboard\/tilbud\//, { timeout: 90_000 });
-  await demo.getByText("Det skal du være opmærksom på").waitFor();
+  await demo.getByText("Det bør du se på").waitFor();
   const multiId = demo.url().split("/").pop();
   const quotesAfter = await listQuotes();
   assert(quotesAfter.length === quotesBefore.length + 1, `several files make ONE quote (${quotesBefore.length} → ${quotesAfter.length})`);

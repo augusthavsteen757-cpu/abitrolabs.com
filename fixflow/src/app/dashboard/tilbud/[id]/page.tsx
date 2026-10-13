@@ -280,9 +280,6 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           <ScoreRing score={score.total} size={92} label={score.label} srText={fmt(t.scoreAria, { score: score.total })} />
           <p className={cn("min-w-0 text-lg font-semibold leading-snug", color.text)} data-testid="verdict">{verdictText}</p>
         </div>
-        <p className="mt-3 text-xs text-ink-muted">
-          {t.scoreNote} {t.scoreScale}
-        </p>
         {writtenIn && <p className="mt-3 text-xs text-ink-muted">{fmt(t.analysisLanguageNote, { language: writtenIn })}</p>}
         {foreign && (
           <p className="mt-3 rounded-xl bg-sky-50 px-3.5 py-2.5 text-sm text-sky-900">
@@ -306,7 +303,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
 
       {/* 1. Hvad koster det? */}
       <section className="mt-10">
-        <Step n={1} title={t.priceTitle} />
+        <Heading title={t.priceTitle} />
         <div className="card mt-4 p-5 sm:p-6" data-testid="price">
           <dl className="space-y-3">
             <div>
@@ -347,7 +344,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
 
       {/* 2. Det skal du være opmærksom på */}
       <section className="mt-10">
-        <Step n={2} title={t.flagsTitle} />
+        <Heading title={t.flagsTitle} />
         {flags.length === 0 ? (
           <p className="card mt-4 p-5 text-ink-soft">{t.noFlags}</p>
         ) : (
@@ -362,10 +359,79 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         )}
       </section>
 
-      {/* 3. Hvad betaler du for? */}
+      {/* 4. Står det vigtigste i tilbuddet? */}
       <section className="mt-10">
-        <Step n={3} title={t.itemsTitle} />
-        <div className="card mt-4 p-5 sm:p-6">
+        <Heading title={t.checklistTitle} />
+        <div className="card mt-4 p-5 sm:p-6" data-testid="checks">
+          {missingChecks.length === 0 ? (
+            <p className="flex items-center gap-2 font-medium text-brand-800">
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-brand-600" aria-hidden /> {t.checksAllPresent}
+            </p>
+          ) : (
+            <ul className="space-y-3">{missingChecks.map(checkRow)}</ul>
+          )}
+          {presentChecks.length > 0 && (
+            <More label={fmt(t.checksPresent, { n: presentChecks.length })} testId="more-checks">
+              <ul className="space-y-3">{presentChecks.map(checkRow)}</ul>
+            </More>
+          )}
+        </div>
+      </section>
+
+      {/* 5. Det skal du spørge om – first understand, then act */}
+      <section className="mt-10">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Heading title={t.questionsTitle} />
+          {visibleQuestions.length > 0 && (
+            <CopyButton label={t.copyAll} event="questions_copied" text={visibleQuestions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")} />
+          )}
+        </div>
+        <div className="card mt-4">
+          <ol className="divide-y divide-line">{visibleQuestions.slice(0, SHOWN).map((q, i) => question(q, i + 1))}</ol>
+          {visibleQuestions.length > SHOWN && (
+            <div className="border-t border-line px-4 pb-3">
+              <More label={fmt(t.showAllQuestions, { n: visibleQuestions.length })} testId="more-questions">
+                <ol className="divide-y divide-line">{visibleQuestions.slice(SHOWN).map((q, i) => question(q, i + 1 + SHOWN))}</ol>
+              </More>
+            </div>
+          )}
+        </div>
+        {hiddenCount > 0 && (
+          <a href="#laas-op" className="card mt-3 flex items-center gap-4 p-4 hover:shadow-lift">
+            <Locked lines={2} label={fmt(t.moreQuestions, { n: hiddenCount })} className="flex-1" asLink={false} />
+          </a>
+        )}
+      </section>
+
+      {/* Message composer */}
+      <section className="mt-10" id="besked">
+        <Heading title={t.messageTitle} />
+        <p className="mt-1 text-sm text-ink-muted">{t.messageIntro}</p>
+        <div className="mt-4">
+          {full ? (
+            <Suspense>
+              <MessageComposer
+                quoteId={quote.id}
+                suggestions={suggestions}
+                initialMessages={messages.map((m) => ({ ...m, createdAt: m.createdAt.toISOString() }))}
+              />
+            </Suspense>
+          ) : (
+            <a href="#laas-op" className="card flex flex-col gap-3 p-5 hover:shadow-lift">
+              <p className="text-sm text-ink-soft">{t.messageLocked}</p>
+              <Locked lines={4} label={t.unlockMessages} asLink={false} />
+            </a>
+          )}
+        </div>
+      </section>
+
+      {/* The technical part, folded away */}
+      <section className="mt-10">
+        <SectionTitle>{t.detailsTitle}</SectionTitle>
+        <div className="card mt-4 divide-y divide-line">
+
+          <Fold title={t.itemsTitle} meta={fmt(t.showAllItems, { n: view.lineItems.length })}>
+            <div data-testid="items">
             {catTotal > 0 && (
               <>
                 <div className="flex h-3 overflow-hidden rounded-full bg-paper" role="img" aria-label={t.categoryAria}>
@@ -389,8 +455,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             {view.lineItems.length === 0 ? (
               <p className="mt-3 text-sm text-ink-muted">{t.noItems}</p>
             ) : (
-              <More label={fmt(t.showAllItems, { n: view.lineItems.length })} testId="more-items">
-              <ul className="divide-y divide-line rounded-xl border border-line">
+              <ul className="mt-4 divide-y divide-line rounded-xl border border-line">
                 {view.lineItems.map((item, i) => (
                   <li key={i} className="p-3.5">
                     <div className="flex items-start justify-between gap-3">
@@ -422,85 +487,10 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                   <span className="num font-semibold">{money(analysis.totals.exclVat)}</span>
                 </li>
               </ul>
-              </More>
             )}
             <p className="mt-2 text-xs text-ink-muted">{vatUnclear && quote.vatChoice === "incl" ? t.itemsNoteConverted : t.itemsNote}</p>
-        </div>
-      </section>
-
-      {/* 4. Står det vigtigste i tilbuddet? */}
-      <section className="mt-10">
-        <Step n={4} title={t.checklistTitle} sub={fmt(t.checklistCount, { n: analysis.checks.filter((c) => c.present).length })} />
-        <div className="card mt-4 p-5 sm:p-6" data-testid="checks">
-          {missingChecks.length === 0 ? (
-            <p className="flex items-center gap-2 font-medium text-brand-800">
-              <CheckCircle2 className="h-5 w-5 shrink-0 text-brand-600" aria-hidden /> {t.checksAllPresent}
-            </p>
-          ) : (
-            <>
-              <p className="text-sm font-semibold text-red-800">{t.checksMissing}</p>
-              <ul className="mt-2 space-y-3">{missingChecks.map(checkRow)}</ul>
-            </>
-          )}
-          {presentChecks.length > 0 && (
-            <More label={fmt(t.checksPresent, { n: presentChecks.length })} testId="more-checks">
-              <ul className="space-y-3">{presentChecks.map(checkRow)}</ul>
-            </More>
-          )}
-        </div>
-      </section>
-
-      {/* 5. Det skal du spørge om – first understand, then act */}
-      <section className="mt-10">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Step n={5} title={t.questionsTitle} />
-          {visibleQuestions.length > 0 && (
-            <CopyButton label={t.copyAll} event="questions_copied" text={visibleQuestions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")} />
-          )}
-        </div>
-        <div className="card mt-4">
-          <ol className="divide-y divide-line">{visibleQuestions.slice(0, SHOWN).map((q, i) => question(q, i + 1))}</ol>
-          {visibleQuestions.length > SHOWN && (
-            <div className="border-t border-line px-4 pb-3">
-              <More label={fmt(t.showAllQuestions, { n: visibleQuestions.length })} testId="more-questions">
-                <ol className="divide-y divide-line">{visibleQuestions.slice(SHOWN).map((q, i) => question(q, i + 1 + SHOWN))}</ol>
-              </More>
-            </div>
-          )}
-        </div>
-        {hiddenCount > 0 && (
-          <a href="#laas-op" className="card mt-3 flex items-center gap-4 p-4 hover:shadow-lift">
-            <Locked lines={2} label={fmt(t.moreQuestions, { n: hiddenCount })} className="flex-1" asLink={false} />
-          </a>
-        )}
-      </section>
-
-      {/* Message composer */}
-      <section className="mt-10" id="besked">
-        <Step n={6} title={t.messageTitle} />
-        <p className="mt-1 text-sm text-ink-muted">{t.messageIntro}</p>
-        <div className="mt-4">
-          {full ? (
-            <Suspense>
-              <MessageComposer
-                quoteId={quote.id}
-                suggestions={suggestions}
-                initialMessages={messages.map((m) => ({ ...m, createdAt: m.createdAt.toISOString() }))}
-              />
-            </Suspense>
-          ) : (
-            <a href="#laas-op" className="card flex flex-col gap-3 p-5 hover:shadow-lift">
-              <p className="text-sm text-ink-soft">{t.messageLocked}</p>
-              <Locked lines={4} label={t.unlockMessages} asLink={false} />
-            </a>
-          )}
-        </div>
-      </section>
-
-      {/* The technical part, folded away */}
-      <section className="mt-10">
-        <SectionTitle>{t.detailsTitle}</SectionTitle>
-        <div className="card mt-4 divide-y divide-line">
+                    </div>
+          </Fold>
 
           {view.rules.length > 0 && (
             <Fold title={t.rulesTitle}>
@@ -551,6 +541,9 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           </Fold>
 
           <Fold title={t.scoreDetails}>
+            <p className="mb-4 text-sm text-ink-muted">
+              {t.scoreNote} {t.scoreScale}
+            </p>
             <ul className="space-y-4">
               {score.breakdown.map((b) => (
                 <li key={b.key}>
@@ -589,19 +582,9 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
   );
 }
 
-/** A numbered heading, so the page reads like a short guide from top to bottom. */
-function Step({ n, title, sub }: { n: number; title: string; sub?: string }) {
-  return (
-    <div className="flex items-start gap-3">
-      <span className="num mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-semibold text-white" aria-hidden>
-        {n}
-      </span>
-      <div className="min-w-0">
-        <h2 className="text-xl font-semibold leading-snug sm:text-2xl">{title}</h2>
-        {sub && <p className="mt-0.5 text-sm text-ink-muted">{sub}</p>}
-      </div>
-    </div>
-  );
+/** A plain section heading – short words, no numbers, so the page reads as an overview. */
+function Heading({ title }: { title: string }) {
+  return <h2 className="text-xl font-semibold leading-snug sm:text-2xl">{title}</h2>;
 }
 
 /** A collapsed section – closed by default so the page stays short on a phone. */
