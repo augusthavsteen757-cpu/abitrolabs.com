@@ -243,6 +243,8 @@ export const da = {
     text: "Lige nu er Klardal gratis: du får hele analysen af op til {n} tilbud. Der er intet at betale, og du skal ikke bruge kreditkort.",
     later: "Når prøveperioden slutter, får du besked i god tid. Herefter vil en analyse koste 49 kr., og en 3-pakke til at sammenligne 3 tilbud 99 kr. – kun hvis du selv vælger at købe.",
     cta: "Opret gratis konto",
+    freeNow: "Gratis nu",
+    afterTrial: "Efter prøveperioden: {price} kr.",
     usedUpTitle: "Du har brugt dine {n} gratis analyser",
     usedUpText: "Tak fordi du tester Klardal! I prøveperioden kan hver person få {n} analyser. Skriv til os, hvis du har brug for flere.",
     accountText: "Du er med i prøveperioden. Alt er gratis, og der kan ikke købes noget lige nu.",

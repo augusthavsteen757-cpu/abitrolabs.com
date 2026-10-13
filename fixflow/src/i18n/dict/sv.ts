@@ -245,6 +245,8 @@ export const sv: Dict = {
     text: "Just nu är Klardal gratis: du får hela analysen av upp till {n} offerter. Det finns inget att betala och du behöver inget kreditkort.",
     later: "Vi meddelar dig i god tid innan provperioden slutar. Därefter kostar en analys 49 kr. och ett 3-paket för att jämföra 3 offerter 99 kr. – bara om du själv väljer att köpa.",
     cta: "Skapa gratis konto",
+    freeNow: "Gratis nu",
+    afterTrial: "Efter provperioden: {price} kr.",
     usedUpTitle: "Du har använt dina {n} gratis analyser",
     usedUpText: "Tack för att du testar Klardal! Under provperioden kan varje person få {n} analyser. Skriv till oss om du behöver fler.",
     accountText: "Du är med i provperioden. Allt är gratis och inget kan köpas just nu.",

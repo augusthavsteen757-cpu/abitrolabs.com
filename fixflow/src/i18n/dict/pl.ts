@@ -241,6 +241,8 @@ export const pl: Dict = {
     text: "Obecnie Klardal jest bezpłatny: otrzymujesz pełną analizę maksymalnie {n} wycen. Nic nie płacisz i nie potrzebujesz karty kredytowej.",
     later: "Poinformujemy Cię z wyprzedzeniem, zanim okres próbny się zakończy. Potem analiza będzie kosztować 49 kr., a pakiet 3 analiz do porównania 3 wycen 99 kr. – tylko jeśli sam zdecydujesz się na zakup.",
     cta: "Załóż darmowe konto",
+    freeNow: "Teraz za darmo",
+    afterTrial: "Po okresie próbnym: {price} kr.",
     usedUpTitle: "Wykorzystałeś swoje {n} darmowe analizy",
     usedUpText: "Dziękujemy za testowanie Klardal! W okresie próbnym każda osoba może otrzymać {n} analiz. Napisz do nas, jeśli potrzebujesz więcej.",
     accountText: "Uczestniczysz w okresie próbnym. Wszystko jest bezpłatne i obecnie nic nie można kupić.",

@@ -245,6 +245,8 @@ export const nb: Dict = {
     text: "Akkurat nå er Klardal gratis: du får hele analysen av opptil {n} tilbud. Det er ingenting å betale, og du trenger ikke kredittkort.",
     later: "Vi gir deg beskjed i god tid før prøveperioden slutter. Deretter vil én analyse koste 49 kr. og en 3-pakke for å sammenligne 3 tilbud 99 kr. – bare hvis du selv velger å kjøpe.",
     cta: "Opprett gratis konto",
+    freeNow: "Gratis nå",
+    afterTrial: "Etter prøveperioden: {price} kr.",
     usedUpTitle: "Du har brukt dine {n} gratis analyser",
     usedUpText: "Takk for at du tester Klardal! I prøveperioden kan hver person få {n} analyser. Skriv til oss hvis du trenger flere.",
     accountText: "Du er med i prøveperioden. Alt er gratis, og ingenting kan kjøpes akkurat nå.",
