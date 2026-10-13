@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { hashPassword, passwordProblem, setSessionCookie } from "@/lib/auth";
 import { handle, jsonError } from "@/lib/api";
+import { BETA_ANALYSES_TOTAL } from "@/lib/plans";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 const schema = z.object({
@@ -35,7 +36,7 @@ export const POST = handle(async (req: Request) => {
 
   const [user] = await db
     .insert(users)
-    .values({ name, email, passwordHash: await hashPassword(password), acceptedTermsAt: new Date() })
+    .values({ name, email, passwordHash: await hashPassword(password), acceptedTermsAt: new Date(), betaLimit: BETA_ANALYSES_TOTAL })
     .returning();
   await setSessionCookie(user);
   return NextResponse.json({ ok: true });

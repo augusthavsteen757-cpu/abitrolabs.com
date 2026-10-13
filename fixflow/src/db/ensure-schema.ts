@@ -39,6 +39,7 @@ const TABLES = [
 const COLUMNS: [string, string, string][] = [
   ["users", "gift_credits", "integer DEFAULT 0 NOT NULL"],
   ["quotes", "job_context", "text"],
+  ["users", "beta_limit", "integer"],
 ];
 
 export async function ensureSchema() {

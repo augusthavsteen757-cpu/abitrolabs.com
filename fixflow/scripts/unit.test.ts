@@ -16,8 +16,8 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { unusedPurchases, withdrawalQuote } from "../src/lib/purchases";
 import { normalizeCode, parsePartnerCodes } from "../src/lib/code-format";
-import type { Payment } from "../src/db/schema";
-import { PACK3_PRICE_DKK, SINGLE_PRICE_DKK } from "../src/lib/plans";
+import type { Payment, User } from "../src/db/schema";
+import { BETA_ANALYSES_LEGACY, BETA_ANALYSES_TOTAL, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaLimitOf, getUsage, planLimit } from "../src/lib/plans";
 
 let passed = 0;
 const test = (name: string, fn: () => void) => {
@@ -335,6 +335,25 @@ test("articles: unique URL-safe slugs, search-friendly title and description len
 test("no fixed percentage is promised as the legal limit for an overslag (there is none)", () => {
   const texts = [JSON.stringify(DICTS), JSON.stringify(ARTICLES), readFileSync(new URL("../src/lib/ai.ts", import.meta.url), "utf8")];
   for (const t of texts) assert.ok(!/10\s*[–-]\s*15\s*%/.test(t), "found a 10–15 % overslag limit");
+});
+
+test("trial: new accounts get 3, accounts from before keep the 5 they were promised", () => {
+  assert.equal(BETA_ANALYSES_TOTAL, 3);
+  assert.equal(BETA_ANALYSES_LEGACY, 5);
+  assert.equal(betaLimitOf({ betaLimit: null }), 5);
+  assert.equal(betaLimitOf({ betaLimit: 3 }), 3);
+  const prev = process.env.BETA_FREE;
+  process.env.BETA_FREE = "1";
+  try {
+    assert.equal(planLimit({ plan: "FREE", betaLimit: null }), 5);
+    assert.equal(planLimit({ plan: "PRO", betaLimit: 3 }), 3);
+    const user = (betaLimit: number | null) => ({ plan: "FREE", extraCredits: 0, giftCredits: 0, periodStart: new Date(), periodUsed: 3, betaLimit }) as User;
+    assert.equal(getUsage(user(3)).remaining, 0);
+    assert.equal(getUsage(user(null)).remaining, 2);
+  } finally {
+    if (prev === undefined) delete process.env.BETA_FREE;
+    else process.env.BETA_FREE = prev;
+  }
 });
 
 console.log(`\n${passed} tests passed`);

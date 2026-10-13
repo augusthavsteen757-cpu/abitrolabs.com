@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { getI18n } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
-import { BETA_ANALYSES_TOTAL, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaEndText } from "@/lib/plans";
+import { BETA_ANALYSES_TOTAL, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaEndText, betaLimitOf } from "@/lib/plans";
+import { getCurrentUser } from "@/lib/auth";
 import { INTL_LOCALE } from "@/i18n/config";
 
 /** Shown instead of prices and purchase options while the app runs as a free beta. */
@@ -16,7 +17,9 @@ export async function BetaNotice({ cta = true, usedUp = false }: { cta?: boolean
     { key: "single", plan: d.plans.single, price: SINGLE_PRICE_DKK },
     { key: "pack", plan: d.plans.pack, price: PACK3_PRICE_DKK },
   ];
-  const n = BETA_ANALYSES_TOTAL;
+  // A signed-in user sees their own number (older accounts keep 5); everyone else the number for new accounts.
+  const user = await getCurrentUser();
+  const n = user ? betaLimitOf(user) : BETA_ANALYSES_TOTAL;
   return (
     <div className="card overflow-hidden" data-testid="beta-notice">
       <div className="bg-gradient-to-br from-brand-50 to-white p-6 sm:p-8">

@@ -24,6 +24,8 @@ export const users = sqliteTable("users", {
   /** Last time the user was active (at most updated daily). Inactive accounts are deleted after 3 years. */
   lastSeenAt: integer("last_seen_at", { mode: "timestamp_ms" }),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+  /** Free trial analyses promised when the account was created (empty for accounts from before this was stored = 5). */
+  betaLimit: integer("beta_limit"),
 });
 
 export const quotes = sqliteTable(

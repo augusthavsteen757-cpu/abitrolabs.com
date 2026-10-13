@@ -17,7 +17,14 @@ export const BETA_END_DATE = process.env.BETA_END_DATE || "2026-10-19";
 export function betaEndText(intlLocale: string) {
   return new Date(`${BETA_END_DATE}T12:00:00Z`).toLocaleDateString(intlLocale, { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Copenhagen" });
 }
-export const BETA_ANALYSES_TOTAL = Number.parseInt(process.env.BETA_ANALYSES ?? "", 10) || 5;
+/** Free analyses in the trial for accounts created now. */
+export const BETA_ANALYSES_TOTAL = 3;
+/**
+ * Accounts created before the trial went from 5 to 3 analyses keep the 5 they were promised. New accounts get
+ * their number stored at signup (users.beta_limit); older rows have none and so fall back to this.
+ */
+export const BETA_ANALYSES_LEGACY = 5;
+export const betaLimitOf = (user: Pick<User, "betaLimit">) => user.betaLimit ?? BETA_ANALYSES_LEGACY;
 
 
 const PERIOD_MS = PERIOD_DAYS * 24 * 60 * 60 * 1000;
@@ -35,8 +42,8 @@ export function currentPeriod(user: Pick<User, "periodStart" | "periodUsed">, no
 }
 
 /** In the beta everyone has the same deal (no Pro, no periods, no extra purchases). */
-export function planLimit(user: Pick<User, "plan">) {
-  if (isBeta()) return BETA_ANALYSES_TOTAL;
+export function planLimit(user: Pick<User, "plan" | "betaLimit">) {
+  if (isBeta()) return betaLimitOf(user);
   if (user.plan === "PRO") return PRO_ANALYSES_PER_PERIOD;
   return FREE_ANALYSES_TOTAL;
 }

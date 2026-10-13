@@ -29,8 +29,6 @@ services:
         sync: false
       - key: BETA_FREE
         value: "1"
-      - key: BETA_ANALYSES
-        value: "5"
       - key: COMPANY_NAME
         sync: false
       - key: COMPANY_CVR

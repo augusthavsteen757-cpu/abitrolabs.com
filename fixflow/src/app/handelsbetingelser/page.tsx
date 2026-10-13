@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { COMPANY, WITHDRAWAL_DAYS } from "@/lib/company";
-import { BETA_ANALYSES_TOTAL, PACK3_CREDITS, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaEndText, isBeta } from "@/lib/plans";
+import { BETA_ANALYSES_LEGACY, BETA_ANALYSES_TOTAL, PACK3_CREDITS, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaEndText, isBeta } from "@/lib/plans";
 
 export const metadata: Metadata = { title: "Handelsbetingelser" };
 export const dynamic = "force-dynamic";
@@ -48,7 +48,8 @@ export default function TermsPage() {
           <h2>Gratis prøveperiode</h2>
           <p>
             Klardal er lige nu i en gratis prøveperiode, som slutter den {betaEndText("da-DK")}. Du får hele analysen af op til {BETA_ANALYSES_TOTAL} tilbud uden
-            betaling, og der kan ikke købes noget. Vi giver dig besked på e-mail i god tid, før prøveperioden slutter.
+            betaling, og der kan ikke købes noget. Oprettede du din konto, før antallet blev sat ned fra{" "}
+            {BETA_ANALYSES_LEGACY} til {BETA_ANALYSES_TOTAL}, beholder du de {BETA_ANALYSES_LEGACY}. Vi giver dig besked på e-mail i god tid, før prøveperioden slutter.
             Der starter aldrig en betaling automatisk – du skal selv vælge at købe. Priserne nedenfor gælder først
             efter prøveperioden. Klardal er stadig under udvikling, så der kan forekomme fejl og perioder, hvor tjenesten
             ikke virker.
