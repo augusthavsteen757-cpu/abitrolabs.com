@@ -382,6 +382,8 @@ try {
   await demo.getByTestId("job-context").locator("summary").click();
   await demo.getByTestId("job-types").getByText("Badeværelse", { exact: true }).click();
   await demo.getByTestId("job-types").getByText("VVS og varme", { exact: true }).click();
+  await demo.getByTestId("job-subtypes").getByText("Fliser", { exact: true }).click();
+  await demo.getByTestId("job-subtypes").getByText("Radiatorer og gulvvarme", { exact: true }).click();
   await demo.fill("#jobNote", "Nyt bad med gulvvarme");
   await demo.selectOption("#housing", "apartment");
   await demo.fill("#builtYear", "19x65");
@@ -397,6 +399,7 @@ try {
   const multiQuote = (await (await demo.request.get(`${BASE}/api/quotes/${multiId}`)).json()).quote;
   const savedCtx = JSON.parse(multiQuote.jobContext ?? "null");
   assert(savedCtx?.jobTypes?.join(",") === "bathroom,plumbing" && savedCtx.jobNote === "Nyt bad med gulvvarme", `job type and note saved (${multiQuote.jobContext})`);
+  assert(savedCtx?.jobSubTypes?.join(",") === "bathroom.tiles,plumbing.radiators", `sub-types saved (${multiQuote.jobContext})`);
   assert(JSON.parse(multiQuote.jobContext ?? "null")?.housing === "apartment" && JSON.parse(multiQuote.jobContext).builtYear === 1965 && JSON.parse(multiQuote.jobContext).loadBearing === "yes", `job context is saved (${multiQuote.jobContext})`);
   const original = await demo.request.get(`${BASE}/api/quotes/${multiId}/file`);
   assert(original.headers()["content-type"] === "application/pdf", "the combined original is a PDF");

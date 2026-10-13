@@ -6,7 +6,7 @@ import { cn, formatBytes } from "@/lib/format";
 import { useI18n } from "@/i18n/client";
 import { fmt, plural } from "@/i18n/fmt";
 import type { Dict } from "@/i18n/dict/da";
-import { HOUSING, JOB_NOTE_MAX, JOB_TYPES, LOAD_BEARING } from "@/lib/job-context";
+import { HOUSING, JOB_NOTE_MAX, JOB_SUBTYPES, JOB_TYPES, LOAD_BEARING } from "@/lib/job-context";
 
 const ACCEPT = "application/pdf,image/jpeg,image/png,image/webp";
 const MAX = 10 * 1024 * 1024;
@@ -64,6 +64,7 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
   const [preview, setPreview] = useState<string | null>(null);
   const [project, setProject] = useState(projects[0] ?? "");
   const [jobTypes, setJobTypes] = useState<string[]>([]);
+  const [jobSubTypes, setJobSubTypes] = useState<string[]>([]);
   const [jobNote, setJobNote] = useState("");
   const [housing, setHousing] = useState("");
   const [builtYear, setBuiltYear] = useState("");
@@ -112,6 +113,8 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
     for (const f of files) fd.append("file", await shrinkImage(f, files.length > 1));
     fd.append("projectName", project.trim());
     if (jobTypes.length) fd.append("jobTypes", jobTypes.join(","));
+    const subs = jobSubTypes.filter((x) => jobTypes.includes(x.split(".")[0]));
+    if (subs.length) fd.append("jobSubTypes", subs.join(","));
     if (jobNote.trim()) fd.append("jobNote", jobNote.trim());
     if (housing) fd.append("housing", housing);
     if (builtYear.trim()) fd.append("builtYear", builtYear.trim());
@@ -340,6 +343,34 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
               })}
             </div>
           </fieldset>
+          {jobTypes.length > 0 && (
+            // More precise choices for each ticked type (e.g. Gulve → Gulvtæppe).
+            <fieldset className="space-y-3 sm:col-span-2" data-testid="job-subtypes">
+              <legend className="label">{t.jobSubLabel}</legend>
+              {JOB_TYPES.filter((j) => jobTypes.includes(j)).map((j) => (
+                <div key={j}>
+                  <p className="mb-1.5 text-xs font-semibold text-ink-muted">{t.jobTypeOptions[j]}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {JOB_SUBTYPES[j].map((sub) => {
+                      const key = `${j}.${sub}`;
+                      const on = jobSubTypes.includes(key);
+                      return (
+                        <label key={key} className={cn("cursor-pointer rounded-lg border px-2.5 py-1.5 text-sm", on ? "border-brand-600 bg-brand-50 text-brand-800" : "border-line")}>
+                          <input
+                            type="checkbox"
+                            checked={on}
+                            onChange={() => setJobSubTypes(on ? jobSubTypes.filter((x) => x !== key) : [...jobSubTypes, key])}
+                            className="sr-only"
+                          />
+                          {t.jobSubOptions[key as keyof typeof t.jobSubOptions]}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </fieldset>
+          )}
           <div className="sm:col-span-2">
             <label htmlFor="jobNote" className="label">{t.jobNote}</label>
             <input
