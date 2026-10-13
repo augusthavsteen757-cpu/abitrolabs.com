@@ -62,7 +62,7 @@ await p.goto(B + "/dashboard/sammenlign");
 ok(!(await p.innerText("body")).includes("Sammenligning er en del af Pro"), "compare available in beta");
 await p.goto(B + "/dashboard/konto");
 ok((await p.innerText("body")).includes("Du er med i prøveperioden, som slutter 19. oktober 2026."), "account page shows the trial end date");
-ok((await p.locator("text=Køb én analyse").count()) === 0, "no purchase buttons on account page");
+ok((await p.locator("text=Køb 1 analyse").count()) === 0, "no purchase buttons on account page");
 const r = await p.evaluate(async () => (await fetch("/api/billing/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind: "SINGLE", consent: true }) })).status);
 ok(r === 503, "checkout API refuses purchases in beta");
 await p.goto(B + "/dashboard/find");

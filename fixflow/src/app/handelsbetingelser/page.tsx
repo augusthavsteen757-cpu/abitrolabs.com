@@ -59,15 +59,15 @@ export default function TermsPage() {
       <h2>Priser og betaling</h2>
       <ul>
         <li>
-          <strong>Gratis:</strong> 1 analyse med Tilbudsscore og et udvalg af resultaterne. Resten af analysen er låst.
+          <strong>Gratis:</strong> 1 analyse med Tilbudsscore og et udvalg af resultaterne. Resten af analysen kræver køb.
         </li>
         <li>
-          <strong>Engangskøb:</strong> {SINGLE_PRICE_DKK} kr. for én komplet analyse eller oplåsning af et
-          tilbud, du allerede har fået analyseret.
+          <strong>1 analyse:</strong> {SINGLE_PRICE_DKK} kr. for én komplet analyse – af et nyt tilbud eller af et tilbud,
+          du allerede har uploadet gratis (så du ser hele analysen).
         </li>
         <li>
-          <strong>3-pakke:</strong> {PACK3_PRICE_DKK} kr. for {PACK3_CREDITS} komplette analyser. Hver analyse
-          bruges på samme måde som et engangskøb, og pakken er beregnet til at sammenligne op til 3 tilbud på samme opgave.
+          <strong>3 analyser:</strong> {PACK3_PRICE_DKK} kr. for {PACK3_CREDITS} komplette analyser. Hver analyse
+          bruges på samme måde som ved køb af 1 analyse, og købet er beregnet til at sammenligne op til 3 tilbud på samme opgave.
           Ubrugte analyser udløber ikke.
         </li>
         <li>
@@ -77,8 +77,8 @@ export default function TermsPage() {
           betaler for analyserne, men får ingen oplysninger om dig eller dine tilbud.
         </li>
         <li>
-          <strong>Sammenligning:</strong> Du kan sammenligne de tilbud, du har låst op med et engangskøb, en 3-pakke
-          eller en kode.
+          <strong>Sammenligning:</strong> Du kan sammenligne de tilbud, hvor du har hele analysen – købt eller
+          med en kode.
         </li>
       </ul>
       <p>
@@ -95,18 +95,18 @@ export default function TermsPage() {
 
       <h2>Fortrydelsesret</h2>
       <p>
-        Du har {WITHDRAWAL_DAYS} dages fortrydelsesret, når du køber et engangskøb eller en 3-pakke. Fristen løber fra den dag, du
+        Du har {WITHDRAWAL_DAYS} dages fortrydelsesret, når du køber 1 eller 3 analyser. Fristen løber fra den dag, du
         køber.
       </p>
       <ul>
         <li>
-          <strong>Engangskøb:</strong> Når du køber, anmoder du om adgang med det samme og anerkender, at du mister
-          fortrydelsesretten, når analysen er leveret (forbrugeraftalelovens § 18, stk. 2, nr. 13). Bruger du købet – låser
-          et tilbud op eller analyserer et nyt – bortfalder fortrydelsesretten for det køb. Har du ikke brugt det, kan du
+          <strong>1 analyse:</strong> Når du køber, anmoder du om adgang med det samme og anerkender, at du mister
+          fortrydelsesretten, når analysen er leveret (forbrugeraftalelovens § 18, stk. 2, nr. 13). Bruger du købet – på et
+          tilbud, du allerede har uploadet, eller på et nyt – bortfalder fortrydelsesretten for det køb. Har du ikke brugt det, kan du
           fortryde og få hele beløbet tilbage.
         </li>
         <li>
-          <strong>3-pakke:</strong> Som ved engangskøb, men for hver analyse for sig: en analyse, du har brugt, er leveret,
+          <strong>3 analyser:</strong> Som ved køb af 1 analyse, men for hver analyse for sig: en analyse, du har brugt, er leveret,
           og for den bortfalder fortrydelsesretten. Fortryder du inden for {WITHDRAWAL_DAYS} dage, får du{" "}
           {(PACK3_PRICE_DKK / PACK3_CREDITS).toFixed(2).replace(".", ",")} kr. tilbage pr. ubrugt analyse ({PACK3_PRICE_DKK} kr. ÷{" "}
           {PACK3_CREDITS}, afrundet til hele øre), og de ubrugte analyser fjernes fra din konto.

@@ -218,8 +218,8 @@ async function firstInvoicePaymentIntent(subscriptionId: string): Promise<string
 
 const PRODUCT_NAME: Record<CheckoutKind, string> = {
   PRO_MONTHLY: "Klardal Pro – 1 måned",
-  SINGLE: "Klardal engangskøb – 1 komplet analyse",
-  PACK3: "Klardal 3-pakke – 3 komplette analyser",
+  SINGLE: "Klardal – 1 analyse",
+  PACK3: "Klardal – 3 analyser",
 };
 
 /** Who the customer bought from – in every receipt and confirmation (forbrugeraftaleloven § 8 and § 17). */

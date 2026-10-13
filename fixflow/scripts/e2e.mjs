@@ -75,7 +75,8 @@ try {
   await page.goto(`${BASE}/priser`);
   const pricing = await page.innerText("body");
   assert(!/\bPro\b/.test(pricing), "no Pro on the pricing page");
-  assert(pricing.includes("49 kr.") && pricing.includes("99 kr.") && pricing.includes("Sammenlign 3 tilbud"), "pricing page: 49 kr. single, 99 kr. 3-pakke for comparing");
+  assert(pricing.includes("49 kr.") && pricing.includes("99 kr.") && pricing.includes("1 analyse") && pricing.includes("3 analyser") && pricing.includes("Til 3 tilbud på samme opgave"), "pricing page: 1 analyse 49 kr., 3 analyser 99 kr. for comparing");
+  assert(!/Engangskøb|3-pakke|[Kk]redit(?!kort)|[Ll]ås .*op|[Ll]åst/.test(pricing), "pricing page uses plain words (no 'engangskøb', '3-pakke', 'kredit', 'lås op')");
   await page.goto(`${BASE}/handelsbetingelser`);
   assert(!/\bPro\b|abonnementet fornyes/i.test(await page.innerText("main")), "no Pro in the terms");
   await page.goto(BASE);
@@ -189,16 +190,16 @@ try {
   log("single purchase unlocks the quote");
 
   await page.goto(`${BASE}/dashboard/konto`);
-  await page.getByText("Engangskøb – 1 analyse").waitFor();
+  await page.locator("p.font-medium", { hasText: /^1 analyse$/ }).first().waitFor(); // payment history
   await page.getByText("Testtilstand:").waitFor();
   log("payment history shows simulated purchase");
   await page.getByText("Brugt – kan ikke fortrydes").waitFor();
   log("used single purchase cannot be withdrawn");
 
   // Buy an extra analysis and withdraw it ("Fortryd købet").
-  const buyOne = page.locator("div.w-full", { has: page.getByRole("button", { name: "Køb én analyse" }) });
+  const buyOne = page.locator("div.w-full", { has: page.getByRole("button", { name: "Køb 1 analyse" }) });
   await buyOne.getByRole("checkbox").check();
-  await buyOne.getByRole("button", { name: "Køb én analyse" }).click();
+  await buyOne.getByRole("button", { name: "Køb 1 analyse" }).click();
   await page.getByTestId("withdraw").waitFor({ timeout: 15_000 });
   // EU withdrawal function (from 19 June 2026): an unambiguous "withdraw" button, then a "confirm withdrawal" step.
   await page.getByRole("button", { name: "Fortryd aftalen her" }).click();
@@ -243,7 +244,7 @@ try {
   await buyer.getByTestId("code-submit").click();
   await buyer.getByText("Koden er indløst. Du har fået 2 gratis analyser.").waitFor();
   await buyer.waitForURL(`${BASE}/dashboard/konto`);
-  await buyer.getByText(/Ekstra analyser til gode: 2\./).waitFor();
+  await buyer.getByText(/Analyser tilbage: 2\./).waitFor();
   log("partner code gives 2 gift analyses");
   for (const [typed, msg] of [["e2e partner", "Du har allerede brugt den kode."], ["FINDES-IKKE", "Koden findes ikke. Tjek at den er skrevet rigtigt."]]) {
     await buyer.getByTestId("code-input").fill(typed);
@@ -256,7 +257,7 @@ try {
   });
   assert(double.every((s) => s === 400), `parallel re-redeems are refused: ${double}`);
   await buyer.reload();
-  await buyer.getByText(/Ekstra analyser til gode: 2\./).waitFor();
+  await buyer.getByText(/Analyser tilbage: 2\./).waitFor();
   log("a code can't be used twice, also with parallel requests; unknown codes are refused");
 
   const uploadAs = async (p, file) => {
@@ -270,7 +271,7 @@ try {
   };
   const freeUrl = await uploadAs(buyer, "eksempel-byg.pdf");
   // The free analysis is locked; with gift analyses on the account, the page offers to unlock it with one.
-  await buyer.getByRole("button", { name: "Lås tilbuddet op" }).waitFor();
+  await buyer.getByRole("button", { name: "Brug 1 analyse her" }).waitFor();
   assert((await buyer.getByText("Skriv besked").count()) === 0, "the free analysis is locked");
   for (const f of ["eksempel-vinduer.pdf", "eksempel-vvs-badevaerelse.pdf"]) {
     await uploadAs(buyer, f);
@@ -288,11 +289,11 @@ try {
   assert(!/\bPro\b/.test(await buyer.innerText("main")), "the account page offers no Pro");
   const pack = buyer.getByTestId("pack3");
   await pack.getByRole("checkbox").check();
-  await pack.getByRole("button", { name: "Køb 3-pakken" }).click();
-  await buyer.getByText("3-pakke – 3 analyser").waitFor({ timeout: 15_000 });
-  await buyer.getByText(/Ekstra analyser til gode: 3\./).waitFor();
+  await pack.getByRole("button", { name: "Køb 3 analyser" }).click();
+  await buyer.locator("p.font-medium", { hasText: /^3 analyser$/ }).first().waitFor({ timeout: 15_000 }); // payment history
+  await buyer.getByText(/Analyser tilbage: 3\./).waitFor();
   await buyer.goto(freeUrl);
-  await buyer.getByRole("button", { name: "Lås tilbuddet op" }).click();
+  await buyer.getByRole("button", { name: "Brug 1 analyse her" }).click();
   await buyer.getByText("Skriv en besked").first().waitFor({ timeout: 15_000 });
   log("3-pakke adds 3 analyses; one unlocks the free analysis");
 
@@ -302,7 +303,7 @@ try {
   await buyer.getByTestId("withdraw").click();
   await buyer.getByText("Købet er fortrudt").waitFor();
   await buyer.getByText(/Fortrudt – 66 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
-  assert((await buyer.getByText(/Ekstra analyser til gode/).count()) === 0, "the 2 unused analyses are removed");
+  assert((await buyer.getByText(/Analyser tilbage:/).count()) === 0, "the 2 unused analyses are removed");
   log("withdrawing a partly used 3-pakke refunds the 2 unused analyses (66 kr.)");
   await noOverflow(buyer, "konto with code + pack");
   await buyer.context().close();
