@@ -449,6 +449,7 @@ export const nb: Dict = {
     important: "Viktig",
     moreQuestions: "{n} spørsmål til",
     messageTitle: "Send en melding",
+    messageOpen: "Skriv en melding",
     messageIntro: "Velg hva du vil spørre om, så skriver vi en høflig melding du kan sende.",
     messageLocked: "Få en ferdig, høflig melding til håndverkeren med ett klikk når du låser opp analysen.",
     unlockMessages: "Lås opp meldinger",

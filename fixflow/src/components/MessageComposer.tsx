@@ -41,6 +41,9 @@ export function MessageComposer({
   useEffect(() => {
     if (!spoerg) return;
     setTopic(spoerg);
+    // The composer sits in a folded box on the quote page: open it first.
+    const box = sectionRef.current?.closest("details");
+    if (box && !box.open) box.open = true;
     sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     textareaRef.current?.focus({ preventScroll: true });
   }, [spoerg]);

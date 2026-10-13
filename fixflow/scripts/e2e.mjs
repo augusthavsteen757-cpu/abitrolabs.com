@@ -168,7 +168,7 @@ try {
   await buyBox.getByRole("button", { name: "Gå til betaling – 99 kr.", exact: true }).waitFor();
   await buyBox.getByRole("checkbox").nth(0).check();
   await buyBox.getByRole("button", { name: "Gå til betaling – 49 kr.", exact: true }).click();
-  await page.getByText("Skriv besked").waitFor({ timeout: 15_000 });
+  await page.getByText("Skriv en besked").waitFor({ timeout: 15_000 });
   const after = await page.locator("section:has(h2:has-text('Spørg om det her')) ol > li").count();
   assert(after === 8, `all 8 questions after unlock (saw ${after})`);
   assert((await page.content()).includes("tilbuddets største enkeltpost"), "unlocked details are shown");
@@ -274,7 +274,7 @@ try {
   assert((await buyer.getByText("Skriv besked").count()) === 0, "the free analysis is locked");
   for (const f of ["eksempel-vinduer.pdf", "eksempel-vvs-badevaerelse.pdf"]) {
     await uploadAs(buyer, f);
-    await buyer.getByText("Skriv besked").first().waitFor();
+    await buyer.getByText("Skriv en besked").first().waitFor();
   }
   log("free analysis first, then the gift analyses – which are fully unlocked");
 
@@ -293,7 +293,7 @@ try {
   await buyer.getByText(/Ekstra analyser til gode: 3\./).waitFor();
   await buyer.goto(freeUrl);
   await buyer.getByRole("button", { name: "Lås tilbuddet op" }).click();
-  await buyer.getByText("Skriv besked").first().waitFor({ timeout: 15_000 });
+  await buyer.getByText("Skriv en besked").first().waitFor({ timeout: 15_000 });
   log("3-pakke adds 3 analyses; one unlocks the free analysis");
 
   await buyer.goto(`${BASE}/dashboard/konto`);
@@ -502,10 +502,12 @@ try {
   const flagTitle = "El-arbejdet afregnes efter forbrug";
   // Only the 3 most important findings are open; the rest sit behind "Vis alle N punkter".
   if (!(await demo.locator("article", { hasText: flagTitle }).isVisible())) await demo.getByText(/Vis alle \d+ punkter/).click();
-  await demo
-    .locator("article", { hasText: flagTitle })
-    .getByRole("link", { name: "Spørg håndværkeren" })
-    .click();
+  // A warning shows title and amount; the explanation and "Spørg håndværkeren" open with a tap.
+  const flagCard = demo.locator("article", { hasText: flagTitle });
+  assert(!(await flagCard.getByRole("link", { name: "Spørg håndværkeren" }).isVisible()), "the explanation starts folded");
+  assert(!(await demo.getByTestId("message-box").evaluate((el) => el.open)), "the message box starts folded");
+  await flagCard.locator("summary").click();
+  await flagCard.getByRole("link", { name: "Spørg håndværkeren" }).click();
   await demo.waitForFunction((t) => document.querySelector("#topic")?.value === t, flagTitle);
   log("“Spørg håndværkeren” prefills the composer after mount");
   await demo.getByRole("radio", { name: "Bestemt" }).click();

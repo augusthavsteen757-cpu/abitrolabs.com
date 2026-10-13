@@ -170,21 +170,27 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
     const flagLocked = lock?.flags.includes(i) ?? false;
     const hasExtra = f.estimatedExtraMax != null && f.estimatedExtraMax > 0;
     return (
-      <article key={i} className={cn("card border-l-4 p-4 sm:p-5", s.border)}>
-        <div className="flex items-start gap-3">
-          <s.icon className={cn("mt-0.5 h-5 w-5 shrink-0", s.iconColor)} aria-hidden />
-          <div className="min-w-0 flex-1">
-            <SeverityBadge severity={f.severity} label={L.severity[f.severity]} />
-            <h3 className="mt-1.5 font-sans text-base font-semibold leading-snug">{f.title}</h3>
+      // Title and amount at a glance; the explanation opens with a tap (keeps the page short on a phone).
+      <article key={i} className={cn("card border-l-4", s.border)}>
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-start gap-3 p-4 sm:p-5">
+            <s.icon className={cn("mt-0.5 h-5 w-5 shrink-0", s.iconColor)} aria-hidden />
+            <span className="min-w-0 flex-1">
+              <SeverityBadge severity={f.severity} label={L.severity[f.severity]} />
+              <span className="mt-1.5 block font-sans text-base font-semibold leading-snug">{f.title}</span>
+              {hasExtra && (
+                <span className="num mt-1 block text-sm font-medium text-ink">
+                  {fmt(t.extraLine, { range: formatRange((f.estimatedExtraMin ?? 0) * 1.25, (f.estimatedExtraMax ?? 0) * 1.25, cur) })}
+                </span>
+              )}
+            </span>
+            <ChevronDown className="mt-1 h-5 w-5 shrink-0 text-ink-muted transition group-open:rotate-180" aria-hidden />
+          </summary>
+          <div className="-mt-2 px-4 pb-4 pl-12 sm:px-5 sm:pb-5 sm:pl-[3.25rem]">
             {flagLocked ? (
-              <Locked lines={2} label={t.seeExplanation} className="mt-2" />
+              <Locked lines={2} label={t.seeExplanation} />
             ) : (
-              <p className="mt-1 text-[15px] leading-relaxed text-ink-soft">{f.explanation}</p>
-            )}
-            {hasExtra && (
-              <p className="num mt-2 text-sm font-medium text-ink">
-                {fmt(t.extraLine, { range: formatRange((f.estimatedExtraMin ?? 0) * 1.25, (f.estimatedExtraMax ?? 0) * 1.25, cur) })}
-              </p>
+              <p className="text-[15px] leading-relaxed text-ink-soft">{f.explanation}</p>
             )}
             <Link
               href={full ? `?spoerg=${encodeURIComponent(f.title)}#besked` : "#besked"}
@@ -194,7 +200,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
               <MessageSquareText className="h-4 w-4" /> {t.askContractor}
             </Link>
           </div>
-        </div>
+        </details>
       </article>
     );
   };
@@ -212,7 +218,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
       )}
       <div className="min-w-0">
         <p className="font-medium">{L.check[c.key]}</p>
-        {c.note && <p className="text-sm text-ink-muted">{c.note}</p>}
+        {c.note && <p className="hidden text-sm text-ink-muted sm:block">{c.note}</p>}
       </div>
     </li>
   );
@@ -224,7 +230,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
       </span>
       <div className="min-w-0 flex-1">
         <p className="font-medium leading-snug">{q.question}</p>
-        {q.why && <p className="mt-1 text-sm text-ink-muted">{q.why}</p>}
+        {q.why && <p className="mt-1 hidden text-sm text-ink-muted sm:block">{q.why}</p>}
       </div>
     </li>
   );
@@ -328,7 +334,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           {worstCase != null && (
             <p className="num mt-4 rounded-xl bg-red-50 px-3.5 py-2.5 text-red-900">{fmt(t.worstCase, { amount: money(worstCase) })}</p>
           )}
-          {!lock?.extra && view.extraCostRisk.explanation && <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{view.extraCostRisk.explanation}</p>}
+          {!lock?.extra && view.extraCostRisk.explanation && <p className="mt-3 hidden text-[15px] leading-relaxed text-ink-soft sm:block">{view.extraCostRisk.explanation}</p>}
         </div>
       </section>
 
@@ -409,13 +415,21 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
         <p className="mt-1 text-sm text-ink-muted">{t.messageIntro}</p>
         <div className="mt-4">
           {full ? (
-            <Suspense>
-              <MessageComposer
-                quoteId={quote.id}
-                suggestions={suggestions}
-                initialMessages={messages.map((m) => ({ ...m, createdAt: m.createdAt.toISOString() }))}
-              />
-            </Suspense>
+            // Folded until wanted – it opens by itself when "Spørg håndværkeren" is used on a warning.
+            <details className="group" data-testid="message-box">
+              <summary className="btn-secondary w-full cursor-pointer list-none">
+                <MessageSquareText className="h-4 w-4" /> {t.messageOpen}
+              </summary>
+              <div className="mt-4">
+                <Suspense>
+                  <MessageComposer
+                    quoteId={quote.id}
+                    suggestions={suggestions}
+                    initialMessages={messages.map((m) => ({ ...m, createdAt: m.createdAt.toISOString() }))}
+                  />
+                </Suspense>
+              </div>
+            </details>
           ) : (
             <a href="#laas-op" className="card flex flex-col gap-3 p-5 hover:shadow-lift">
               <p className="text-sm text-ink-soft">{t.messageLocked}</p>

@@ -449,6 +449,7 @@ export const de: Dict = {
     important: "Wichtig",
     moreQuestions: "{n} weitere Fragen",
     messageTitle: "Nachricht senden",
+    messageOpen: "Nachricht schreiben",
     messageIntro: "Wähle, was du fragen möchtest – wir schreiben eine höfliche Nachricht, die du senden kannst.",
     messageLocked: "Erhalte mit einem Klick eine fertige, höfliche Nachricht an den Handwerker, sobald du die Analyse freischaltest.",
     unlockMessages: "Nachrichten freischalten",

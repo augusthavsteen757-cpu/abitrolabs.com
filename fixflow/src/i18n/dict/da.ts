@@ -447,6 +447,7 @@ export const da = {
     important: "Vigtig",
     moreQuestions: "{n} spørgsmål mere",
     messageTitle: "Send en besked",
+    messageOpen: "Skriv en besked",
     messageIntro: "Vælg hvad du vil spørge om, så skriver vi en høflig besked, du kan sende.",
     messageLocked: "Få en færdig, høflig besked til håndværkeren med ét klik, når du låser analysen op.",
     unlockMessages: "Lås op for beskeder",

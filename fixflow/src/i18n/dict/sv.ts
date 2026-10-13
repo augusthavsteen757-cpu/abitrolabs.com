@@ -449,6 +449,7 @@ export const sv: Dict = {
     important: "Viktig",
     moreQuestions: "{n} frågor till",
     messageTitle: "Skicka ett meddelande",
+    messageOpen: "Skriv ett meddelande",
     messageIntro: "Välj vad du vill fråga om, så skriver vi ett artigt meddelande som du kan skicka.",
     messageLocked: "Få ett färdigt, artigt meddelande till hantverkaren med ett klick när du låser upp analysen.",
     unlockMessages: "Lås upp meddelanden",

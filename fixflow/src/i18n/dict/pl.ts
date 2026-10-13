@@ -445,6 +445,7 @@ export const pl: Dict = {
     important: "Ważne",
     moreQuestions: "Więcej pytań: {n}",
     messageTitle: "Wyślij wiadomość",
+    messageOpen: "Napisz wiadomość",
     messageIntro: "Wybierz, o co chcesz zapytać, a napiszemy uprzejmą wiadomość do wysłania.",
     messageLocked: "Po odblokowaniu analizy otrzymasz jednym kliknięciem gotową, uprzejmą wiadomość do wykonawcy.",
     unlockMessages: "Odblokuj wiadomości",

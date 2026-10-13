@@ -449,6 +449,7 @@ export const ro: Dict = {
     important: "Important",
     moreQuestions: "încă {n} întrebări",
     messageTitle: "Trimite un mesaj",
+    messageOpen: "Scrie un mesaj",
     messageIntro: "Alege ce vrei să întrebi, iar noi scriem un mesaj politicos pe care îl poți trimite.",
     messageLocked: "Primește un mesaj politicos, gata de trimis meșterului, dintr-un clic, după ce deblochezi analiza.",
     unlockMessages: "Deblochează mesajele",

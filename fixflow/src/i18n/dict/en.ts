@@ -449,6 +449,7 @@ export const en: Dict = {
     important: "Important",
     moreQuestions: "{n} more questions",
     messageTitle: "Send a message",
+    messageOpen: "Write a message",
     messageIntro: "Choose what you want to ask, and we’ll write a polite message you can send.",
     messageLocked: "Get a ready-made, polite message for the contractor in one click when you unlock the analysis.",
     unlockMessages: "Unlock messages",
