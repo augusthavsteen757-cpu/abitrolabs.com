@@ -314,7 +314,7 @@ export const en: Dict = {
     choose: "Choose …",
     housingOptions: { house: "Detached house", rowhouse: "Terraced house", apartment: "Owner-occupied flat", summerhouse: "Holiday home", farm: "Farm property" },
     builtYear: "Year built (approx.)",
-    loadBearing: "Does the work affect load-bearing walls or structures?",
+    loadBearing: "Will walls that hold up the house be changed?",
     loadBearingOptions: { yes: "Yes", no: "No", unknown: "Don’t know" },
     previewAlt: "Preview",
     removeFile: "Remove file",

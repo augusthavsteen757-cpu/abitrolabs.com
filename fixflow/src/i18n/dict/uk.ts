@@ -313,7 +313,7 @@ export const uk: Dict = {
     choose: "Виберіть …",
     housingOptions: { house: "Окремий будинок", rowhouse: "Таунхаус", apartment: "Власна квартира", summerhouse: "Дачний будинок", farm: "Сільська садиба" },
     builtYear: "Рік побудови (прибл.)",
-    loadBearing: "Чи зачіпає робота несучі стіни або конструкції?",
+    loadBearing: "Чи змінюватимуть стіни, які тримають будинок?",
     loadBearingOptions: { yes: "Так", no: "Ні", unknown: "Не знаю" },
     previewAlt: "Попередній перегляд",
     removeFile: "Видалити файл",

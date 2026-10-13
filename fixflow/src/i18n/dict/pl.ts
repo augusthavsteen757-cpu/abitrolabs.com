@@ -310,7 +310,7 @@ export const pl: Dict = {
     choose: "Wybierz …",
     housingOptions: { house: "Dom jednorodzinny", rowhouse: "Szeregowiec", apartment: "Mieszkanie własnościowe", summerhouse: "Dom letniskowy", farm: "Gospodarstwo rolne" },
     builtYear: "Rok budowy (ok.)",
-    loadBearing: "Czy prace dotyczą ścian nośnych lub konstrukcji?",
+    loadBearing: "Czy będą zmieniane ściany, które podtrzymują dom?",
     loadBearingOptions: { yes: "Tak", no: "Nie", unknown: "Nie wiem" },
     previewAlt: "Podgląd",
     removeFile: "Usuń plik",

@@ -314,7 +314,7 @@ export const ro: Dict = {
     choose: "Alege …",
     housingOptions: { house: "Casă", rowhouse: "Casă înșiruită", apartment: "Apartament în proprietate", summerhouse: "Casă de vacanță", farm: "Proprietate agricolă" },
     builtYear: "Anul construcției (aprox.)",
-    loadBearing: "Afectează lucrarea pereți sau structuri portante?",
+    loadBearing: "Se vor modifica pereți care susțin casa?",
     loadBearingOptions: { yes: "Da", no: "Nu", unknown: "Nu știu" },
     previewAlt: "Previzualizare",
     removeFile: "Elimină fișierul",

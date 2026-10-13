@@ -312,7 +312,7 @@ export const da = {
     choose: "Vælg …",
     housingOptions: { house: "Parcelhus/villa", rowhouse: "Rækkehus", apartment: "Ejerlejlighed", summerhouse: "Sommerhus", farm: "Landejendom" },
     builtYear: "Byggeår (ca.)",
-    loadBearing: "Berører arbejdet bærende vægge eller konstruktioner?",
+    loadBearing: "Skal der ændres i vægge, der bærer huset?",
     loadBearingOptions: { yes: "Ja", no: "Nej", unknown: "Ved ikke" },
     previewAlt: "Forhåndsvisning",
     removeFile: "Fjern fil",

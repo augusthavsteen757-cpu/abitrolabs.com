@@ -314,7 +314,7 @@ export const sv: Dict = {
     choose: "Välj …",
     housingOptions: { house: "Villa", rowhouse: "Radhus", apartment: "Ägarlägenhet", summerhouse: "Fritidshus", farm: "Lantbruksfastighet" },
     builtYear: "Byggår (ca.)",
-    loadBearing: "Påverkar arbetet bärande väggar eller konstruktioner?",
+    loadBearing: "Ska väggar som bär upp huset ändras?",
     loadBearingOptions: { yes: "Ja", no: "Nej", unknown: "Vet inte" },
     previewAlt: "Förhandsvisning",
     removeFile: "Ta bort fil",
