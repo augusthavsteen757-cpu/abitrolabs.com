@@ -178,6 +178,10 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             <span className="min-w-0 flex-1">
               <SeverityBadge severity={f.severity} label={L.severity[f.severity]} />
               <span className="mt-1.5 block font-sans text-base font-semibold leading-snug">{f.title}</span>
+              {!flagLocked && f.explanation && (
+                // A two-line preview while closed; the full text is shown when opened.
+                <span className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-soft group-open:hidden">{f.explanation}</span>
+              )}
               {hasExtra && (
                 <span className="num mt-1 block text-sm font-medium text-ink">
                   {fmt(t.extraLine, { range: formatRange((f.estimatedExtraMin ?? 0) * 1.25, (f.estimatedExtraMax ?? 0) * 1.25, cur) })}
@@ -218,7 +222,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
       )}
       <div className="min-w-0">
         <p className="font-medium">{L.check[c.key]}</p>
-        {c.note && <p className="hidden text-sm text-ink-muted sm:block">{c.note}</p>}
+        {c.note && <p className="text-sm text-ink-muted">{c.note}</p>}
       </div>
     </li>
   );
@@ -230,7 +234,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
       </span>
       <div className="min-w-0 flex-1">
         <p className="font-medium leading-snug">{q.question}</p>
-        {q.why && <p className="mt-1 hidden text-sm text-ink-muted sm:block">{q.why}</p>}
+        {q.why && <p className="mt-1 text-sm text-ink-muted">{q.why}</p>}
       </div>
     </li>
   );
@@ -334,7 +338,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           {worstCase != null && (
             <p className="num mt-4 rounded-xl bg-red-50 px-3.5 py-2.5 text-red-900">{fmt(t.worstCase, { amount: money(worstCase) })}</p>
           )}
-          {!lock?.extra && view.extraCostRisk.explanation && <p className="mt-3 hidden text-[15px] leading-relaxed text-ink-soft sm:block">{view.extraCostRisk.explanation}</p>}
+          {!lock?.extra && view.extraCostRisk.explanation && <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{view.extraCostRisk.explanation}</p>}
         </div>
       </section>
 
