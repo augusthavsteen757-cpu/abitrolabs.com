@@ -9,7 +9,7 @@ En trin-for-trin-plan fra "appen virker på min computer" til "kunder kan betale
 ## 1. Virksomheden (uge 1)
 
 - [ ] **Registrér en virksomhed** på [virk.dk](https://virk.dk) – enkeltmandsvirksomhed (gratis) eller ApS (40.000 kr. i kapital). Med ApS hæfter du ikke personligt.
-- [ ] **Momsregistrering**: krævet, når salget overstiger 50.000 kr. på 12 måneder. Priserne i appen er inkl. moms – så gør det fra start.
+- [ ] **Momsregistrering**: krævet, når salget overstiger 50.000 kr. på 12 måneder. Klardal er ikke momsregistreret, så priserne i appen er endelige uden moms. Bliver Klardal momsregistreret, skal priser og tekster rettes først.
 - [ ] **Digitalt bogføringssystem**: bogføringsloven kræver et registreret system (fx Dinero, Billy, e-conomic). Forbind det med Stripe.
 - [ ] **Erhvervsbank-konto** til Stripe-udbetalinger.
 - [ ] **Forsikring**: overvej en erhvervsansvars- og *professionel ansvarsforsikring* – du giver vejledning om store køb. Spørg også om cyberforsikring.
@@ -42,7 +42,7 @@ Du skal selv:
 - [ ] **Advokat**: få bekræftet paragrafhenvisningerne, fortrydelsesknappen (EU-direktiv 2023/2673), ansvarsafsnittet og at Stripes betalingsknap er tydelig nok (Klardal sætter teksten "Du forpligter dig til at betale …" over knappen).
 - [ ] **Fortegnelse over behandlingsaktiviteter** (GDPR art. 30) – et simpelt dokument. Datatilsynet har skabeloner.
 - [ ] **Procedure ved databrud**: hvem gør hvad, og anmeldelse til Datatilsynet inden for 72 timer.
-- [ ] **Markedsføring**: priser skal altid vises inkl. moms (det gør appen). Send aldrig nyhedsbreve uden samtykke (markedsføringslovens § 10). Påstande som "spar 20.000 kr." skal kunne dokumenteres.
+- [ ] **Markedsføring**: priser skal altid være de endelige priser (det er de – Klardal er ikke momsregistreret, så skriv aldrig "inkl. moms"). "Gratis" skal være helt gratis uden binding. Send aldrig nyhedsbreve uden samtykke (markedsføringslovens § 10). Påstande som "spar 20.000 kr." skal kunne dokumenteres.
 - [ ] **Håndværkere**: Klardal viser offentlige CVR-oplysninger og anbefaler ikke bestemte firmaer – hold det sådan. Skriv aldrig negativt om navngivne firmaer i markedsføring.
 - [ ] **AI-forordningen (EU AI Act)**: Klardal er ikke højrisiko. Brugerne får at vide, at analysen og beskederne laves med AI – hold det sådan i al markedsføring.
 
@@ -56,7 +56,7 @@ Du skal selv:
 
 - [ ] Opret en **Stripe**-konto (dansk virksomhed), og gennemfør verificeringen.
 - [ ] Følg afsnittet *Stripe* i `README.md`: to produkter, webhook og miljøvariabler.
-- [ ] Slå **Stripe Tax** eller fast 25 % moms til, og vis CVR på kvitteringer.
+- [ ] Slå **ikke** moms til i Stripe, så længe Klardal ikke er momsregistreret. Vis CVR på kvitteringer.
 - [ ] Test med testkort: køb Pro, køb engangskøb, opsig, fejlet betaling.
 
 ## 5. Find håndværkere (uge 2–3)

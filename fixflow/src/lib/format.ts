@@ -23,17 +23,17 @@ export function formatPct(n: number): string {
   return `${Math.round(n * 100)} %`;
 }
 
-/** Dates in the viewer's language (default Danish). */
+/** Dates in the viewer's language (default Danish), in Danish time – the server itself runs in UTC. */
 export function formatDate(d: Date | string | number | null | undefined, locale = "da-DK"): string {
   if (d == null || d === "") return "–";
   const date = d instanceof Date ? d : new Date(d);
   if (Number.isNaN(date.getTime())) return String(d);
-  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(date);
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Copenhagen" }).format(date);
 }
 
 export function formatShortDate(d: Date | string | number, locale = "da-DK"): string {
   const date = d instanceof Date ? d : new Date(d);
-  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(date);
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", timeZone: "Europe/Copenhagen" }).format(date);
 }
 
 export function formatBytes(n: number): string {

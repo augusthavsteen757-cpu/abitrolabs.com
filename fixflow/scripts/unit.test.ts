@@ -9,7 +9,7 @@ import { MAX_NEGOTIATION_POINTS, negotiationPoints } from "../src/lib/negotiatio
 import { computeScore, scoreBand, scoreLabel } from "../src/lib/score";
 import { DICTS } from "../src/i18n/dict";
 import { fmt } from "../src/i18n/fmt";
-import { formatKr } from "../src/lib/format";
+import { formatDate, formatKr } from "../src/lib/format";
 import { passwordProblem } from "../src/lib/password";
 import { DEMO_EMAIL, DEMO_PASSWORD } from "../src/lib/demo";
 import { ARTICLES } from "../src/content/articles";
@@ -446,6 +446,8 @@ test("free basic analysis: 1 per calendar month in Danish time, its own counter 
   assert.equal(nextMonthStart(new Date("2026-10-20T12:00:00Z")).toISOString(), "2026-10-31T23:00:00.000Z");
   assert.equal(nextMonthStart(new Date("2026-04-20T12:00:00Z")).toISOString(), "2026-04-30T22:00:00.000Z", "summer time");
   assert.equal(nextMonthStart(new Date("2026-12-10T12:00:00Z")).toISOString(), "2026-12-31T23:00:00.000Z", "over new year");
+  assert.equal(formatDate(nextMonthStart(new Date("2026-10-20T12:00:00Z"))), "1. november 2026", "the reset date is shown in Danish time, also on a UTC server");
+  assert.equal(formatDate("2026-10-01"), "1. oktober 2026", "a date from a quote stays the same day");
   const now = new Date("2026-11-05T12:00:00Z");
   const user = (o: Partial<User>) => ({ plan: "FREE", extraCredits: 0, giftCredits: 0, periodStart: new Date(), periodUsed: 3, betaLimit: 3, freeMonth: null, freeUsed: null, ...o }) as User;
   withBeta(false, () => {
@@ -470,6 +472,22 @@ test("free plan and basic analysis texts: no 'before' price and no VAT claim", (
     const texts = [...d.plans.free.features, d.plans.free.tagline, d.upload.basicNote, d.quote.basicIntro];
     for (const v of texts) assert.ok(!/\d+\s*kr\.?\s*(før|before|vorher|innan|før)/i.test(v), `${lang}: ${v}`);
     for (const v of [d.plans.free.tagline, ...d.plans.free.features]) assert.ok(!/inkl\.?\s*moms|incl\.?\s*VAT/i.test(v), `${lang}: ${v}`);
+  }
+});
+
+test("terms and texts describe the free basic check and the full report – and name no other companies", () => {
+  const terms = readFileSync(new URL("../src/app/handelsbetingelser/page.tsx", import.meta.url), "utf8");
+  assert.ok(terms.includes("Gratis basistjek:") && terms.includes("pr. kalendermåned") && terms.includes("ingen binding"), "terms: free basic check, monthly, no commitment");
+  assert.ok(terms.includes("<strong>Rækkefølge:</strong>") && terms.includes("først når du ikke har flere, månedens gratis basistjek"), "terms: bought/code analyses before the free one");
+  assert.ok(terms.includes("Beløb for mulige ekstraudgifter og prisniveau er skøn") && terms.includes("Tjek altid selv det originale tilbud"), "terms: estimates, check the original");
+  const competitors = /TilbudsTjek|TrygtTilbud|\bRimelig\b/;
+  const files = ["../src/app/handelsbetingelser/page.tsx", "../src/app/page.tsx", "../src/app/priser/page.tsx", "../src/lib/billing.ts", "../src/lib/email.ts"];
+  for (const f of files) assert.ok(!competitors.test(readFileSync(new URL(f, import.meta.url), "utf8")), f);
+  assert.ok(!competitors.test(JSON.stringify(DICTS)), "dictionaries");
+  for (const [lang, d] of Object.entries(DICTS)) {
+    assert.ok(d.home.localCall.includes("{phone}"), `${lang}: phone in the call button`);
+    assert.ok(!/\bAI\b|\bKI\b|\bШІ\b/.test(d.home.title), `${lang}: the headline is about the quote, not about AI`);
+    assert.equal(d.lang.legalSummary.length, DICTS.da.lang.legalSummary.length, `${lang}: legal summary items`);
   }
 });
 
