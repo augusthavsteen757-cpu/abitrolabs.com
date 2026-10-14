@@ -126,3 +126,12 @@ export function UnlockWithCreditButton({ id, credits }: { id: string; credits: n
     </div>
   );
 }
+
+/** Opens the browser's print window – where "Gem som PDF" saves the report as a PDF file. */
+export function PrintButton({ label }: { label: string }) {
+  return (
+    <button type="button" onClick={() => window.print()} className="btn-primary print:hidden" data-testid="print-button">
+      {label}
+    </button>
+  );
+}

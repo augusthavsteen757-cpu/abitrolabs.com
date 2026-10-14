@@ -6,7 +6,8 @@ export const SINGLE_PRICE_DKK = 49;
 export const PACK3_PRICE_DKK = 99;
 export const PACK3_CREDITS = 3;
 export const PRO_ANALYSES_PER_PERIOD = 10;
-export const FREE_ANALYSES_TOTAL = 1;
+/** After the trial: free basic analyses (score + the most important red flags) per calendar month. */
+export const FREE_BASIC_PER_MONTH = 1;
 export const PERIOD_DAYS = 30;
 
 /** Free beta: everyone gets the full analysis, a fixed number of analyses per person, and nothing can be bought. */
@@ -45,7 +46,31 @@ export function currentPeriod(user: Pick<User, "periodStart" | "periodUsed">, no
 export function planLimit(user: Pick<User, "plan" | "betaLimit">) {
   if (isBeta()) return betaLimitOf(user);
   if (user.plan === "PRO") return PRO_ANALYSES_PER_PERIOD;
-  return FREE_ANALYSES_TOTAL;
+  return FREE_BASIC_PER_MONTH;
+}
+
+/** "2026-11": the calendar month in Danish time – the free basic analysis resets on the 1st. */
+export function monthKey(now = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Copenhagen", year: "numeric", month: "2-digit" }).formatToParts(now);
+  return `${parts.find((p) => p.type === "year")!.value}-${parts.find((p) => p.type === "month")!.value}`;
+}
+
+/** Midnight (Danish time) on the 1st of the next month – when the free basic analysis is available again. */
+export function nextMonthStart(now = new Date()) {
+  const [y, m] = monthKey(now).split("-").map(Number);
+  const ny = m === 12 ? y + 1 : y;
+  const nm = m === 12 ? 1 : m + 1;
+  // Copenhagen is UTC+1 or UTC+2; try both and keep the one that is the 1st at 00:00 there.
+  for (const offset of [1, 2]) {
+    const d = new Date(Date.UTC(ny, nm - 1, 1, -offset));
+    if (monthKey(d) === `${ny}-${String(nm).padStart(2, "0")}` && monthKey(new Date(d.getTime() - 1)) !== monthKey(d)) return d;
+  }
+  return new Date(Date.UTC(ny, nm - 1, 1));
+}
+
+/** Free basic analyses used this month (the counter belongs to the month it was used in). */
+export function freeUsedThisMonth(user: Pick<User, "freeMonth" | "freeUsed">, now = new Date()) {
+  return user.freeMonth === monthKey(now) ? (user.freeUsed ?? 0) : 0;
 }
 
 export type Usage = {
@@ -59,8 +84,8 @@ export type Usage = {
 };
 
 /**
- * Free users: 1 analysis in total (periodUsed is never reset for them).
- * Pro users: 10 per rolling 30-day period. Extra credits come on top.
+ * Free users: 1 basic analysis per calendar month (its own counter, so trial use doesn't count).
+ * Pro users: 10 per rolling 30-day period. Bought and partner-code analyses come on top.
  */
 export function getUsage(user: User, now = new Date()): Usage {
   const limit = planLimit(user);
@@ -69,7 +94,7 @@ export function getUsage(user: User, now = new Date()): Usage {
     const remaining = Math.max(0, limit - user.periodUsed);
     return { plan: "FREE", used: Math.min(user.periodUsed, limit), limit, planRemaining: remaining, credits: 0, remaining, periodEnd: null };
   }
-  const p = user.plan === "PRO" ? currentPeriod(user, now) : { periodUsed: user.periodUsed, periodEnd: null };
+  const p = user.plan === "PRO" ? currentPeriod(user, now) : { periodUsed: freeUsedThisMonth(user, now), periodEnd: nextMonthStart(now) };
   const planRemaining = Math.max(0, limit - p.periodUsed);
   return {
     plan: user.plan,
@@ -87,6 +112,7 @@ export function canCompare(user: Pick<User, "plan">, unlockedQuotes = 0) {
   return isBeta() || user.plan === "PRO" || unlockedQuotes >= 2;
 }
 
+/** Full report: the beta, Pro, or a quote analysed/opened with a bought or partner-code analysis. Otherwise the free basic analysis. */
 export function hasFullAccess(user: Pick<User, "plan">, quote: { unlocked: boolean }) {
   return isBeta() || user.plan === "PRO" || quote.unlocked;
 }

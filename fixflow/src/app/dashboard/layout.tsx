@@ -13,6 +13,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const d = await getDict();
   return (
     <div className="min-h-screen">
+      {/* Hidden when printing, so "Gem som PDF" on the report gives just the report. */}
+      <div className="print:hidden">
       <DashboardNav
         name={user.name}
         email={user.email}
@@ -23,9 +25,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
         credits={usage.credits}
         beta={isBeta()}
       />
-      <div className="lg:pl-64">
+      </div>
+      <div className="lg:pl-64 print:pl-0">
         {isDemoMode() && (
-          <div className="border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-900 sm:px-8">
+          <div className="border-b border-amber-200 bg-amber-50 print:hidden px-4 py-2.5 text-sm text-amber-900 sm:px-8">
             <p className="mx-auto flex max-w-6xl items-start gap-2">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>

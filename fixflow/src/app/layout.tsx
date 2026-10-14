@@ -30,7 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <I18nProvider locale={locale} d={d}>
           {isBeta() && (
             // The end of the free trial is stated on every page.
-            <p className="bg-brand-800 px-4 py-2 text-center text-sm font-medium text-white" data-testid="beta-banner">
+            <p className="bg-brand-800 px-4 py-2 text-center text-sm font-medium text-white print:hidden" data-testid="beta-banner">
               {fmt(d.beta.banner, { date: betaEndText(INTL_LOCALE[locale]) })}
             </p>
           )}

@@ -53,7 +53,7 @@ function validate(file: File, t: Dict["upload"]): string | null {
   return null;
 }
 
-export function UploadForm({ projects, remaining }: { projects: string[]; remaining: number }) {
+export function UploadForm({ projects, remaining, basic = false }: { projects: string[]; remaining: number; basic?: boolean }) {
   const { d } = useI18n();
   const t = d.upload;
   const STEPS = t.steps;
@@ -435,7 +435,7 @@ export function UploadForm({ projects, remaining }: { projects: string[]; remain
       </button>
       <p className="flex items-center justify-center gap-2 text-center text-xs text-ink-muted">
         <ShieldCheck className="h-4 w-4 text-brand-600" />
-        {plural(remaining, t.remainingOne, t.remainingOther)}
+        <span data-testid="remaining-note">{basic ? t.basicNote : plural(remaining, t.remainingOne, t.remainingOther)}</span>
       </p>
       <p className="text-center text-xs text-ink-muted">{t.aiNote}</p>
     </form>

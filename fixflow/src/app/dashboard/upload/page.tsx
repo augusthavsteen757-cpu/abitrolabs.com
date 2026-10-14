@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Landmark } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { getUsage } from "@/lib/plans";
+import { getUsage, isBeta } from "@/lib/plans";
 import { listQuotes } from "@/lib/quotes";
 import { UploadForm } from "@/components/UploadForm";
 import { Paywall } from "@/components/Paywall";
@@ -42,7 +42,8 @@ export default async function UploadPage() {
             showSingle
           />
         ) : (
-          <UploadForm projects={projects} remaining={usage.remaining} />
+          // No bought or partner-code analyses left: this upload uses the month's free basic analysis.
+          <UploadForm projects={projects} remaining={usage.remaining} basic={!isBeta() && usage.plan === "FREE" && usage.credits === 0} />
         )}
       </div>
     </div>
