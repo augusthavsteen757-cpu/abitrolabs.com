@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -22,6 +23,9 @@ import type { Dict } from "@/i18n/dict";
 const FEATURE_ICONS = [Gauge, TriangleAlert, ListChecks, MessageSquareText, Columns3];
 
 export const dynamic = "force-dynamic";
+
+// Each public page names its own canonical URL (the root layout does not set one, or every page would point here).
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 // Common ways people mistype the name, so search engines can connect them to Klardal.
 const MISSPELLINGS = ["Klardahl", "Klaredahl", "Klaredal"];

@@ -1,3 +1,4 @@
+import { publishedArticles } from "@/content/articles";
 import { BETA_ANALYSES_TOTAL, isBeta, PACK3_PRICE_DKK, SINGLE_PRICE_DKK } from "@/lib/plans";
 
 // A short, factual description for AI assistants (ChatGPT, Gemini, Claude, Perplexity …), following the
@@ -32,7 +33,7 @@ export function GET() {
 - [Opret konto](${base}/opret)
 - [Handelsbetingelser](${base}/handelsbetingelser)
 - [Privatlivspolitik](${base}/privatlivspolitik)
-
+${publishedArticles().map((a) => `- [${a.title}](${base}/artikler/${a.slug})\n`).join("")}
 ## English
 Klardal explains contractor quotes for homeowners in Denmark: upload a quote and get a clarity score, possible extra costs, what is missing, relevant Danish rules, and ready-made questions for the contractor – in 8 languages.
 `;

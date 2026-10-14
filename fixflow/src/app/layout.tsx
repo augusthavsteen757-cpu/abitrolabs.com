@@ -13,7 +13,6 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(base),
     title: { default: d.meta.title, template: "%s · Klardal" },
     description: d.meta.description,
-    alternates: { canonical: "/" },
     openGraph: { type: "website", siteName: "Klardal", title: d.meta.title, description: d.meta.description, url: base },
     // Google Search Console ownership check (set GOOGLE_SITE_VERIFICATION in Render).
     verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,

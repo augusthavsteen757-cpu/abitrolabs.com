@@ -46,7 +46,17 @@ const article = await get("/artikler/hvad-koster-et-nyt-badevaerelse");
 const articleHtml = await article.text();
 ok(article.status === 200 && /<meta name="robots" content="noindex, follow"/.test(articleHtml) && articleHtml.includes('"@type":"Article"') && articleHtml.includes('"@type":"BreadcrumbList"') && articleHtml.includes('<link rel="canonical" href="https://klardal.com/artikler/hvad-koster-et-nyt-badevaerelse"/>'), "article template: title, canonical, Article + breadcrumb data, draft kept out of Google");
 ok(/data-testid="article-cta"[\s\S]*href="\/opret\?next=%2Fdashboard%2Fupload"/.test(articleHtml), "article ends with \"Tjek et tilbud gratis\"");
-ok(!(await (await get("/sitemap.xml")).text()).includes("/artikler"), "draft articles are not in the sitemap");
+const sitemapText = await (await get("/sitemap.xml")).text();
+ok(!sitemapText.includes("/artikler/hvad-koster-et-nyt-badevaerelse") && sitemapText.includes("/artikler/tjek-dit-haandvaerkertilbud"), "draft articles are not in the sitemap, published ones are");
+const guide = await get("/artikler/tjek-dit-haandvaerkertilbud");
+const guideHtml = await guide.text();
+ok(guide.status === 200 && !/noindex/.test(guideHtml) && guideHtml.includes('<link rel="canonical" href="https://klardal.com/artikler/tjek-dit-haandvaerkertilbud"/>'), "published guide can be indexed and has its own canonical");
+// Every public page names itself as canonical – not the front page – or Google drops it as a duplicate.
+for (const p of ["/priser", "/handelsbetingelser", "/privatlivspolitik", "/artikler", "/opret", "/login"]) {
+  const html = await (await get(p)).text();
+  ok(html.includes(`<link rel="canonical" href="https://klardal.com${p}"/>`), `${p} has its own canonical`);
+}
+ok(/<link rel="canonical" href="https:\/\/klardal\.com\/?"\/>/.test(await (await get("/")).text()), "front page canonical");
 ok((await get("/artikler/findes-ikke")).status === 404, "unknown article gives 404");
 const typo = await get("/priser", { headers: { "x-forwarded-host": "www.klardahl.dk" } });
 ok(typo.status === 301 && /\/priser$/.test(typo.headers.get("location") ?? "") && !(typo.headers.get("location") ?? "").includes("klardahl"), `klardahl.dk sends visitors to the main domain (${typo.status})`);

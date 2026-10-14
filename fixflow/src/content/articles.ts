@@ -24,6 +24,77 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "tjek-dit-haandvaerkertilbud",
+    title: "Sådan tjekker du et håndværkertilbud",
+    description:
+      "Fast pris eller overslag, materialer, tidsplan og det, der ikke er med. Se hvad du skal tjekke i et håndværkertilbud, før du skriver under.",
+    published: "2026-10-14",
+    updated: "2026-10-14",
+    draft: false,
+    intro: "Et håndværkertilbud kan se klart ud og alligevel gemme udgifter, der først dukker op undervejs. Her er det, du skal kigge efter, før du siger ja.",
+    sections: [
+      {
+        heading: "Fast pris eller overslag?",
+        paragraphs: [
+          "Det vigtigste er, om der står en fast pris eller et overslag. Et tilbud med fast pris er bindende. Et overslag er et skøn: det må ikke overskrides væsentligt, men der er ingen fast grænse i loven. Bliver det dyrere, skal håndværkeren sige til i god tid.",
+          "Står der »timepris«, »efter regning« eller »ca.«, kender du ikke den endelige pris. Bed om fast pris, hvis du kan.",
+        ],
+      },
+      {
+        heading: "Hvad er med, og hvad er ikke?",
+        paragraphs: ["Mange ekstraregninger kommer fra ting, som ingen skrev ned. Tjek om tilbuddet nævner:"],
+        list: [
+          "Materialer med type og mængde – ikke bare »diverse materialer«.",
+          "Nedrivning, bortskaffelse af affald og oprydning.",
+          "Stillads, lift eller containerleje.",
+          "Følgearbejde som maling, el eller VVS, hvis det er nødvendigt.",
+          "Om prisen er med eller uden moms.",
+        ],
+      },
+      {
+        heading: "Forbehold og »efter regning«",
+        paragraphs: [
+          "Læs forbeholdene. Et forbehold som »skjulte skader afregnes efter regning« kan være rimeligt, men så bør du vide, hvad timeprisen er. Poster uden et fast beløb er dem, der oftest gør regningen større end ventet.",
+        ],
+      },
+      {
+        heading: "Tidsplan og betaling",
+        paragraphs: [],
+        list: [
+          "Står der en start- og slutdato?",
+          "Hvad sker der, hvis arbejdet bliver forsinket?",
+          "Betaler du i rater, der passer til, hvor langt arbejdet er? Betal ikke det hele forud.",
+        ],
+      },
+      {
+        heading: "Tjek firmaet",
+        paragraphs: [],
+        list: [
+          "Slå firmaet op på CVR-registret (datacvr.virk.dk).",
+          "El, vand, afløb og gas kræver autorisation. Den kan du tjekke hos Sikkerhedsstyrelsen.",
+          "Spørg om garanti, og om firmaet er med i en garantiordning eller et ankenævn.",
+          "Få altid aftalen skriftligt.",
+        ],
+      },
+      {
+        heading: "Sammenlign mindst to tilbud",
+        paragraphs: [
+          "Sammenlign ikke kun slutprisen. Se om tilbuddene dækker det samme arbejde. Det billigste tilbud kan være billigt, fordi noget mangler.",
+        ],
+      },
+      {
+        heading: "Kan man få et tilbud analyseret online?",
+        paragraphs: [
+          "Ja. På Klardal kan du uploade tilbuddet og få det gennemgået. Du får en oversigt over uklare poster, mulige ekstraudgifter og de spørgsmål, du kan stille håndværkeren. Analysen er et hjælpemiddel og et skøn – tjek altid det originale tilbud, før du skriver under.",
+        ],
+      },
+    ],
+    sources: [
+      { label: "Bolius: Tilbud fra håndværkere", url: "https://www.bolius.dk/tilbud-fra-haandvaerkere-17194" },
+      { label: "Tænk: Dette skal du vide, inden du hyrer en håndværker", url: "https://taenk.dk/forbrugerliv/bolig/dette-skal-du-vide-inden-du-hyrer-en-haandvaerker" },
+    ],
+  },
+  {
     slug: "hvad-koster-et-nyt-badevaerelse",
     title: "Hvad koster et nyt badeværelse i 2026?",
     description:

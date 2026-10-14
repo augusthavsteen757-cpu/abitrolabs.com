@@ -11,7 +11,7 @@ import { DEMO_EMAIL, isDemoMode } from "@/lib/demo";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return { title: (await getDict()).auth.loginButton };
+  return { title: (await getDict()).auth.loginButton, alternates: { canonical: "/login" } };
 }
 
 export default async function LoginPage() {
