@@ -424,6 +424,7 @@ export const sv: Dict = {
     indexTitle: "Guider till hantverkarofferter",
     indexText: "Korta guider om priser, offerter och dina rättigheter när du ska få något gjort i hemmet.",
     sources: "Källa",
+    more: "Läs också",
   },
   quote: {
     metaTitle: "Offert",

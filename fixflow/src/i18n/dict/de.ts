@@ -424,6 +424,7 @@ export const de: Dict = {
     indexTitle: "Ratgeber zu Handwerkerangeboten",
     indexText: "Kurze Ratgeber zu Preisen, Angeboten und deinen Rechten, wenn bei dir zu Hause etwas gemacht werden soll.",
     sources: "Quelle",
+    more: "Mehr lesen",
   },
   quote: {
     metaTitle: "Angebot",

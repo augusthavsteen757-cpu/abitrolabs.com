@@ -569,7 +569,7 @@ try {
 
   /* ---------------- 3. Mobile overflow check at 390px ---------------- */
   const mobile = await newPage(390, 844);
-  const routesPublic = ["/", "/priser", "/login", "/opret", "/handelsbetingelser", "/privatlivspolitik", "/artikler", "/artikler/hvad-koster-et-nyt-badevaerelse", "/artikler/tjek-dit-haandvaerkertilbud", "/findes-ikke"];
+  const routesPublic = ["/", "/priser", "/login", "/opret", "/handelsbetingelser", "/privatlivspolitik", "/artikler", "/artikler/hvad-koster-et-nyt-badevaerelse", "/artikler/tjek-dit-haandvaerkertilbud", "/artikler/tilbud-eller-overslag", "/artikler/efter-regning", "/artikler/sammenlign-haandvaerkertilbud", "/findes-ikke"];
   for (const r of routesPublic) {
     await mobile.goto(`${BASE}${r}`);
     await mobile.waitForLoadState("networkidle");

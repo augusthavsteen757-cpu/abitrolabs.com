@@ -424,6 +424,7 @@ export const ro: Dict = {
     indexTitle: "Ghiduri despre ofertele meșterilor",
     indexText: "Ghiduri scurte despre prețuri, oferte și drepturile tale când ai lucrări de făcut în casă.",
     sources: "Sursă",
+    more: "Citește și",
   },
   quote: {
     metaTitle: "Ofertă",

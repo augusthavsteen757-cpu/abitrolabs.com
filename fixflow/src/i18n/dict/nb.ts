@@ -424,6 +424,7 @@ export const nb: Dict = {
     indexTitle: "Guider til håndverkertilbud",
     indexText: "Korte guider om priser, tilbud og rettighetene dine når du skal få gjort noe i hjemmet.",
     sources: "Kilde",
+    more: "Les også",
   },
   quote: {
     metaTitle: "Tilbud",

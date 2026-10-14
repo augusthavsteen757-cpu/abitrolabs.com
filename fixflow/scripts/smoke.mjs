@@ -48,9 +48,12 @@ ok(article.status === 200 && /<meta name="robots" content="noindex, follow"/.tes
 ok(/data-testid="article-cta"[\s\S]*href="\/opret\?next=%2Fdashboard%2Fupload"/.test(articleHtml), "article ends with \"Tjek et tilbud gratis\"");
 const sitemapText = await (await get("/sitemap.xml")).text();
 ok(!sitemapText.includes("/artikler/hvad-koster-et-nyt-badevaerelse") && sitemapText.includes("/artikler/tjek-dit-haandvaerkertilbud"), "draft articles are not in the sitemap, published ones are");
-const guide = await get("/artikler/tjek-dit-haandvaerkertilbud");
-const guideHtml = await guide.text();
-ok(guide.status === 200 && !/noindex/.test(guideHtml) && guideHtml.includes('<link rel="canonical" href="https://klardal.com/artikler/tjek-dit-haandvaerkertilbud"/>'), "published guide can be indexed and has its own canonical");
+for (const slug of ["tjek-dit-haandvaerkertilbud", "tilbud-eller-overslag", "efter-regning", "sammenlign-haandvaerkertilbud"]) {
+  const r = await get(`/artikler/${slug}`);
+  const html = await r.text();
+  ok(r.status === 200 && !/noindex/.test(html) && html.includes(`<link rel="canonical" href="https://klardal.com/artikler/${slug}"/>`) && sitemapText.includes(`/artikler/${slug}`), `guide ${slug}: indexable, own canonical, in sitemap`);
+  ok(/data-testid="article-more"/.test(html) && !html.includes(`href="/artikler/${slug}"`) && html.includes('href="/artikler/hvad-koster') === false, `guide ${slug} links to the other guides, not itself or drafts`);
+}
 // Every public page names itself as canonical – not the front page – or Google drops it as a duplicate.
 for (const p of ["/priser", "/handelsbetingelser", "/privatlivspolitik", "/artikler", "/opret", "/login"]) {
   const html = await (await get(p)).text();
