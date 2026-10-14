@@ -447,7 +447,7 @@ export const en: Dict = {
     scoreScale: "0 = very unclear, 100 = completely clear.",
     priceTitle: "Price",
     summary: "Our assessment",
-    worstCase: "Our estimate: it could end up at around {amount} incl. VAT – possibly more.",
+    worstCase: "In the worst case it could end up at around {amount} incl. VAT. This is a rough estimate, not the expected price.",
     detailsTitle: "More details",
     scoreDetails: "How the number is calculated",
     readMore: "Read more",
@@ -664,7 +664,7 @@ export const en: Dict = {
     insight: {
       cheapVsClear: "{cheap} is cheapest ({price}), but {clear} has the most transparent quote (score {s1} vs {s2}). The price difference is {diff}",
       cheapAndClear: "{name} is both the cheapest and the most transparent. That’s a good starting point",
-      worstCase: "Using our estimate of extra costs, {cheap} could end up at around {w1}, while {safe} would end up at around {w2}. The lowest price isn’t necessarily the cheapest option",
+      worstCase: "In the worst case, {cheap} could end up at around {w1}, while {safe} could end up at around {w2} (rough estimate). The lowest price isn’t necessarily the cheapest option",
       worstSame: "{name} is also cheapest in the worst case ({worst} incl. possible extra costs)",
       distance: "{near} is closest to you ({d1}), {far} furthest away ({d2}). A long distance can mean more travel on the bill and longer waits if something goes wrong",
       unspec: "{pct} of the amount from {name} is in items that aren’t clearly described. Ask for a breakdown",

@@ -356,4 +356,24 @@ test("trial: new accounts get 3, accounts from before keep the 5 they were promi
   }
 });
 
+test("AI prompt: a document called 'tilbud' stays a tilbud, and no made-up prepayment norm", () => {
+  // ai.ts is server-only, so read the prompt as text.
+  const src = readFileSync(new URL("../src/lib/ai.ts", import.meta.url), "utf8");
+  assert.ok(!/over ca\. 25 %/.test(src), "the prompt must not set 25 % as a prepayment limit");
+  assert.match(src, /ingen fast procentgrænse for forudbetaling/);
+  assert.match(src, /Kalder dokumentet sig selv "tilbud"/);
+  assert.match(src, /ikke det værst tænkelige/);
+});
+
+test("worst case is shown as a worst case, never as our expected estimate, in every language", () => {
+  const bad = /Vores skøn|Our estimate|Unsere Schätzung|Vårt anslag|Vår uppskattning|Nasz szacunek|Estimarea noastră|Наша оцінка/;
+  for (const [loc, d] of Object.entries(DICTS)) {
+    const single = d.quote.worstCase;
+    const compare = d.compare.insight.worstCase;
+    assert.ok(single.includes("{amount}"), `${loc}: single keeps {amount}`);
+    for (const k of ["{cheap}", "{w1}", "{safe}", "{w2}"]) assert.ok(compare.includes(k), `${loc}: compare keeps ${k}`);
+    assert.ok(!bad.test(single) && !bad.test(compare), `${loc}: worst case framed as our estimate`);
+  }
+});
+
 console.log(`\n${passed} tests passed`);

@@ -447,7 +447,7 @@ export const nb: Dict = {
     scoreScale: "0 = svært uklart, 100 = helt tydelig.",
     priceTitle: "Pris",
     summary: "Vår vurdering",
-    worstCase: "Vårt anslag: det kan ende på ca. {amount} med mva. – kanskje mer.",
+    worstCase: "I verste fall kan det ende på ca. {amount} med mva. Det er et grovt anslag, ikke forventet pris.",
     detailsTitle: "Flere detaljer",
     scoreDetails: "Slik regnes tallet ut",
     readMore: "Les mer",
@@ -664,7 +664,7 @@ export const nb: Dict = {
     insight: {
       cheapVsClear: "{cheap} er billigst ({price}), men {clear} har det mest oversiktlige tilbudet (score {s1} mot {s2}). Prisforskjellen er {diff}",
       cheapAndClear: "{name} er både billigst og mest oversiktlig. Det er et godt utgangspunkt",
-      worstCase: "Med vårt anslag over ekstrakostnadene kan {cheap} ende på ca. {w1}, mens {safe} ender på ca. {w2}. Den laveste prisen er ikke nødvendigvis den billigste løsningen",
+      worstCase: "I verste fall kan {cheap} ende på ca. {w1}, mens {safe} kan ende på ca. {w2} (grovt anslag). Den laveste prisen er ikke nødvendigvis den billigste løsningen",
       worstSame: "{name} er også billigst i verste fall ({worst} inkl. mulige ekstrakostnader)",
       distance: "{near} ligger nærmest deg ({d1}), {far} lengst unna ({d2}). Lang avstand kan bety mer kjøring på regningen og lengre ventetid ved feil",
       unspec: "{pct} av beløpet hos {name} ligger i poster som ikke er tydelig beskrevet. Be om en spesifikasjon",

@@ -443,7 +443,7 @@ export const pl: Dict = {
     scoreScale: "0 = bardzo niejasna, 100 = całkowicie przejrzysta.",
     priceTitle: "Cena",
     summary: "Nasza ocena",
-    worstCase: "Nasz szacunek: może to wynieść ok. {amount} z VAT – a może więcej.",
+    worstCase: "W najgorszym przypadku może to wynieść ok. {amount} z VAT. To zgrubny szacunek, a nie oczekiwana cena.",
     detailsTitle: "Więcej szczegółów",
     scoreDetails: "Jak liczona jest ocena",
     readMore: "Czytaj dalej",
@@ -660,7 +660,7 @@ export const pl: Dict = {
     insight: {
       cheapVsClear: "{cheap} jest najtańsza ({price}), ale {clear} ma najbardziej przejrzystą wycenę (ocena {s1} wobec {s2}). Różnica w cenie wynosi {diff}",
       cheapAndClear: "{name} jest zarówno najtańsza, jak i najbardziej przejrzysta. To dobry punkt wyjścia",
-      worstCase: "Według naszego szacunku dodatkowych kosztów {cheap} może wynieść ok. {w1}, a {safe} ok. {w2}. Najniższa cena nie zawsze oznacza najtańsze rozwiązanie",
+      worstCase: "W najgorszym przypadku {cheap} może wynieść ok. {w1}, a {safe} ok. {w2} (zgrubny szacunek). Najniższa cena nie zawsze oznacza najtańsze rozwiązanie",
       worstSame: "{name} jest najtańsza także w najgorszym przypadku ({worst} z możliwymi dodatkowymi kosztami)",
       distance: "{near} jest najbliżej Ciebie ({d1}), {far} najdalej ({d2}). Duża odległość może oznaczać wyższe koszty dojazdu i dłuższe czekanie na poprawki",
       unspec: "{pct} kwoty u {name} przypada na pozycje, które nie są jasno opisane. Poproś o specyfikację",

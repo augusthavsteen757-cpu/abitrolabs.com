@@ -447,7 +447,7 @@ export const de: Dict = {
     scoreScale: "0 = sehr unklar, 100 = völlig eindeutig.",
     priceTitle: "Preis",
     summary: "Unsere Einschätzung",
-    worstCase: "Unsere Schätzung: Es kann bei etwa {amount} inkl. MwSt. landen – vielleicht mehr.",
+    worstCase: "Im schlimmsten Fall kann es bei etwa {amount} inkl. MwSt. landen. Das ist eine grobe Schätzung, nicht der erwartete Preis.",
     detailsTitle: "Weitere Details",
     scoreDetails: "So wird die Zahl berechnet",
     readMore: "Mehr lesen",
@@ -664,7 +664,7 @@ export const de: Dict = {
     insight: {
       cheapVsClear: "{cheap} ist am günstigsten ({price}), aber {clear} hat das transparenteste Angebot (Score {s1} gegenüber {s2}). Der Preisunterschied beträgt {diff}",
       cheapAndClear: "{name} ist sowohl am günstigsten als auch am transparentesten. Ein guter Ausgangspunkt",
-      worstCase: "Mit unserer Schätzung der Zusatzkosten kann {cheap} bei etwa {w1} landen, während {safe} bei etwa {w2} liegt. Der niedrigste Preis ist nicht unbedingt die günstigste Lösung",
+      worstCase: "Im schlimmsten Fall kann {cheap} bei etwa {w1} landen, während {safe} bei etwa {w2} landen kann (grobe Schätzung). Der niedrigste Preis ist nicht unbedingt die günstigste Lösung",
       worstSame: "{name} ist auch im schlimmsten Fall am günstigsten ({worst} inkl. möglicher Zusatzkosten)",
       distance: "{near} ist am nächsten bei dir ({d1}), {far} am weitesten entfernt ({d2}). Eine weite Entfernung kann mehr Fahrtkosten auf der Rechnung und längere Wartezeiten bei Mängeln bedeuten",
       unspec: "{pct} des Betrags bei {name} entfallen auf Posten, die nicht klar beschrieben sind. Bitte um eine Aufschlüsselung",
