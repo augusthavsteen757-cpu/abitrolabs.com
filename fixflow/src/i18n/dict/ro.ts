@@ -447,7 +447,7 @@ export const ro: Dict = {
     scoreScale: "0 = foarte neclară, 100 = complet limpede.",
     priceTitle: "Preț",
     summary: "Evaluarea noastră",
-    worstCase: "Estimarea noastră: poate ajunge la aproximativ {amount} cu TVA – poate chiar mai mult.",
+    worstCase: "În cel mai rău caz poate ajunge la aproximativ {amount} cu TVA. Este o estimare aproximativă, nu prețul așteptat.",
     detailsTitle: "Mai multe detalii",
     scoreDetails: "Cum se calculează cifra",
     readMore: "Citește mai mult",
@@ -664,7 +664,7 @@ export const ro: Dict = {
     insight: {
       cheapVsClear: "{cheap} este cea mai ieftină ({price}), dar {clear} are oferta cea mai transparentă (scor {s1} față de {s2}). Diferența de preț este {diff}",
       cheapAndClear: "{name} este atât cea mai ieftină, cât și cea mai transparentă. Este un bun punct de plecare",
-      worstCase: "Cu estimarea noastră a costurilor suplimentare, {cheap} poate ajunge la aproximativ {w1}, iar {safe} la aproximativ {w2}. Cel mai mic preț nu e neapărat cea mai ieftină soluție",
+      worstCase: "În cel mai rău caz, {cheap} poate ajunge la aproximativ {w1}, iar {safe} la aproximativ {w2} (estimare aproximativă). Cel mai mic preț nu e neapărat cea mai ieftină soluție",
       worstSame: "{name} este cea mai ieftină și în cel mai rău caz ({worst} cu posibilele costuri suplimentare)",
       distance: "{near} este cel mai aproape de tine ({d1}), {far} cel mai departe ({d2}). O distanță mare poate însemna mai mult transport pe factură și timp de așteptare mai lung la defecte",
       unspec: "{pct} din suma de la {name} se află în poziții care nu sunt descrise clar. Cere o specificație",

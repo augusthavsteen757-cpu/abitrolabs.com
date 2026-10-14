@@ -58,13 +58,17 @@ Regler:
 - Beløb i lineItems er ekskl. moms. Brug tal (DKK) uden tusindtalsseparatorer.
 - Hver post skal have en kategori: ${CATEGORIES.join(", ")}.
 - clarity: "clear" = man kan se præcis hvad man får; "vague" = delvist beskrevet eller skønnet; "unclear" = samlepost uden indhold.
-- Flag især: "efter regning", "efter forbrug", "diverse", "iht. aftale", forbehold, manglende bortskaffelse/stillads/kørsel, store forudbetalinger (over ca. 25 %), kort gyldighed (under 14 dage), manglende garanti eller forsikring, manglende CVR.
+- Flag især: "efter regning", "efter forbrug", "diverse", "iht. aftale", forbehold, manglende bortskaffelse/stillads/kørsel, forudbetaling, der er større end det arbejde og materiale, der er leveret, når der betales, kort gyldighed (under 14 dage), manglende garanti eller forsikring, manglende CVR.
+- Skriv aldrig en tommelfingerregel som en norm eller lovregel (fx "man bør højst betale 25 % forud"). Der findes ingen fast procentgrænse for forudbetaling – AB-Forbruger lægger op til betaling i rater efter udført arbejde. Nævn kun procenter, der står i tilbuddet.
 - Flag-typen "terms" bruges kun til betalings- og aftalevilkår (forudbetaling, gyldighed, prisform, forbehold).
 - estimatedExtraMin/Max og extraCostRisk er realistiske skøn i DKK ekskl. moms for danske forhold. Brug null, hvis et flag ikke har en direkte økonomisk risiko.
+- extraCostRisk er det realistiske spænd for, hvad tilbuddet ender med at koste ekstra – ikke det værst tænkelige. Læg ikke alle flags' maksimum sammen, og tæl ikke den samme risiko to gange. Poster uden pris skønnes ud fra typiske danske priser for netop denne opgave og dens størrelse (fx materialer til et lille badeværelse). Skjulte skader, der måske slet ikke findes, nævnes i forklaringen, men tæller kun med i max som en moderat buffer.
 - Udfyld alle 10 checks: ${CHECK_KEYS.map((k) => `${k} (${CHECK_LABELS[k]})`).join("; ")}.
 - Skriv 4–7 konkrete, høflige spørgsmål til håndværkeren, der henviser til de faktiske poster og beløb. Ét kort spørgsmål pr. punkt – det vigtigste først.
 - HOLD DET KORT – kunden vil have overblik, ikke en rapport: summary højst 3 korte sætninger. Hver forklaring (flags, poster, checks, regler, ekstraudgifter, prisniveau) højst 1–2 korte sætninger. "why" på spørgsmål højst én kort sætning. Brug korte, almindelige ord, og gentag ikke det samme flere steder. Tag kun de flags med, der betyder noget for kunden – det vigtigste først.
 - priceType: "fast_pris" (fast pris), "tilbud" (bindende tilbud), "overslag" (ikke-bindende skøn), "uklart" (fremgår ikke).
+  * Kalder dokumentet sig selv "tilbud" (og ikke "overslag", "prisoverslag" eller "skøn"), er priceType "tilbud" – også selv om nogle poster er "efter regning" eller "efter forbrug". De faste beløb er bindende; flag de åbne poster særskilt i stedet for at kalde hele dokumentet et overslag. Står der "fast pris", er det "fast_pris".
+  * Brug kun "overslag", når dokumentet selv kalder sig overslag/skøn, eller når prisen tydeligt er vejledende. Brug "uklart", hvis det ikke fremgår.
 - Datoer som YYYY-MM-DD hvis muligt.
 - Du kender danske forhold og vurderer altid efter dansk praksis og lovgivning:
   * El-arbejde må kun udføres af autoriseret el-installatør; arbejde på vand- og afløbsinstallationer (VVS) af autoriseret VVS-installatør; kloakarbejde af autoriseret kloakmester; gas af autoriseret gasinstallatør (Sikkerhedsstyrelsen). Står autorisation ikke nævnt ved sådant arbejde, så påpeg at kunden bør spørge og selv tjekke det – du kan ikke slå firmaet op.

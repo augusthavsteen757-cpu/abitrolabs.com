@@ -5,7 +5,7 @@
  *
  *   BASE_URL=https://klardal.com node eval/run-eval.mjs
  *
- * Needs BETA_FREE=1 (or enough analyses) on the target. Uses 6 analyses (~6 kr.) per run.
+ * Needs BETA_FREE=1 (or enough analyses) on the target. Uses 7 analyses (~7 kr.) per run.
  */
 import { appendFileSync, readFileSync } from "fs";
 import path from "path";
@@ -87,6 +87,23 @@ const cases = [
     file: ["koekken-overslag.pdf", "sum-mismatch.pdf"],
     check(q) {
       return { "rejected as several quotes": q.status === "FAILED" && /flere forskellige tilbud/i.test(q.error ?? "") };
+    },
+  },
+  {
+    // Says TILBUD, but several posts are "efter regning": still a binding tilbud, and the extra-cost
+    // estimate must be realistic (not a worst case that is larger than the whole quote).
+    file: "badevaerelse-tilbud.pdf",
+    check(q) {
+      const a = q.analysis;
+      const text = JSON.stringify([a.flags, a.questions, a.rules, a.summary]);
+      return {
+        "status DONE": q.status === "DONE",
+        "price type = tilbud": a.priceType === "tilbud",
+        "flags 'efter regning'": /regning/i.test(text),
+        "flags the 40 % prepayment": /40|forudbetal/i.test(text),
+        "no made-up 25 % norm": !/25 ?%/.test(text),
+        "extra-cost max not above the quote itself": a.extraCostRisk.max <= (a.totals.exclVat ?? 0),
+      };
     },
   },
   {

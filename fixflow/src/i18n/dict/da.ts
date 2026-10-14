@@ -445,7 +445,7 @@ export const da = {
     scoreScale: "0 = meget uklart, 100 = helt tydeligt.",
     priceTitle: "Pris",
     summary: "Vores vurdering",
-    worstCase: "Vores skøn: det kan ende på ca. {amount} med moms – måske mere.",
+    worstCase: "I værste fald kan det ende på ca. {amount} med moms. Det er et groft skøn, ikke den forventede pris.",
     detailsTitle: "Flere detaljer",
     scoreDetails: "Sådan er tallet regnet ud",
     readMore: "Læs mere",
@@ -662,7 +662,7 @@ export const da = {
     insight: {
       cheapVsClear: "{cheap} er billigst ({price}), men {clear} har det mest gennemsigtige tilbud (score {s1} mod {s2}). Prisforskellen er {diff}",
       cheapAndClear: "{name} er både billigst og mest gennemsigtigt. Det er et godt udgangspunkt",
-      worstCase: "Med vores skøn over ekstraudgifterne kan {cheap} ende på ca. {w1}, mens {safe} ender på ca. {w2}. Den laveste pris er ikke nødvendigvis den billigste løsning",
+      worstCase: "I værste fald kan {cheap} ende på ca. {w1}, mens {safe} kan ende på ca. {w2} (groft skøn). Den laveste pris er ikke nødvendigvis den billigste løsning",
       worstSame: "{name} er også billigst i værste fald ({worst} inkl. mulige ekstraudgifter)",
       distance: "{near} ligger tættest på dig ({d1}), {far} længst væk ({d2}). Lang afstand kan betyde mere kørsel på regningen og længere ventetid ved fejl",
       unspec: "{pct} af beløbet hos {name} ligger i poster, der ikke er tydeligt beskrevet. Bed om en specifikation",
