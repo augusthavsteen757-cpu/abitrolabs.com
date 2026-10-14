@@ -7,8 +7,8 @@ import { currentPeriod, isBeta, planLimit } from "./plans";
 export type QuotaSource = "plan" | "gift" | "credit";
 
 /**
- * Consumes one analysis: plan quota first, then partner-code (gift) credits, then bought credits. Returns null if
- * none left. Gift credits go before bought ones, so a bought analysis stays unused – and refundable – for longer.
+ * Consumes one analysis. Free users with partner-code (gift) or bought credits use those first, so they get the
+ * full analysis; otherwise the plan quota (free half-shown analyses, or Pro), then credits. Returns null if none left. Gift credits go before bought ones, so a bought analysis stays unused – and refundable – for longer.
  * Each step is a single conditional UPDATE, so parallel uploads can never over- or under-charge.
  */
 export async function consumeAnalysis(user: User): Promise<QuotaSource | null> {
@@ -23,6 +23,12 @@ export async function consumeAnalysis(user: User): Promise<QuotaSource | null> {
         .set({ periodStart: p.periodStart, periodUsed: 0 })
         .where(and(eq(users.id, user.id), eq(users.periodStart, user.periodStart)));
     }
+  }
+
+  // Someone who has bought analyses (or got them from a partner code) gets a full analysis, not the free half.
+  if (!isBeta() && user.plan !== "PRO") {
+    const credit = await takeCredit(user.id);
+    if (credit) return credit;
   }
 
   const plan = await db

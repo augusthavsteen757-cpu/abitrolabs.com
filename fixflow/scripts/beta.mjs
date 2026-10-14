@@ -19,7 +19,7 @@ ok((await p.getByTestId("beta-banner").innerText()).includes("Gratis prøveperio
 await p.goto(B + "/priser");
 const plansBox = p.getByTestId("beta-plans");
 const plansText = await plansBox.innerText();
-ok(/0 kr\.[\s\S]*Gratis nu[\s\S]*Efter prøveperioden: 49 kr\.[\s\S]*Efter prøveperioden: 99 kr\./.test(plansText), "pricing page: both plans free now, with the later price stated");
+ok(/0 kr\.[\s\S]*Gratis nu[\s\S]*Efter prøveperioden: 29 kr\.[\s\S]*Efter prøveperioden: 49 kr\./.test(plansText), "pricing page: both plans free now, with the later price stated");
 ok((await p.getByTestId("beta-later").innerText()).startsWith("Prøveperioden slutter 19. oktober 2026."), "pricing box states the end date");
 ok((await p.getByTestId("beta-notice").innerText()).includes("Gratis frem til 19. oktober 2026"), "pricing box title has the end date");
 ok((await p.getByTestId("beta-notice").innerText()).includes("op til 3 tilbud"), "new accounts are offered 3 free analyses");

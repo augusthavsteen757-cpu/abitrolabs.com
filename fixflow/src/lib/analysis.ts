@@ -404,7 +404,8 @@ export function worstCase(a: Pick<QuoteAnalysis, "totals" | "extraCostRisk">): n
 /* Free preview: the important details stay on the server until paid. */
 /* ------------------------------------------------------------------ */
 
-export const FREE_PREVIEW = { flags: 1, itemExplanations: 2, questions: 1 } as const;
+/** Without a purchase, half of each list is shown (rounded up, at least 1); extra costs, price level and rules stay locked. */
+export const freeShare = (n: number) => Math.max(1, Math.ceil(n / 2));
 
 export type LockInfo = {
   /** Indexes of flags whose explanation and extra-cost estimate are hidden. */
@@ -424,22 +425,22 @@ export type LockInfo = {
 export function redactForFree(a: QuoteAnalysis): { analysis: QuoteAnalysis; lock: LockInfo } {
   const lock: LockInfo = { flags: [], items: [], extra: true, questions: 0 };
   const flags = a.flags.map((f, i) => {
-    if (i < FREE_PREVIEW.flags) return f;
+    if (i < freeShare(a.flags.length)) return f;
     lock.flags.push(i);
     return { ...f, explanation: "", relatedItem: null, estimatedExtraMin: null, estimatedExtraMax: null };
   });
   const lineItems = a.lineItems.map((it, i) => {
-    if (i < FREE_PREVIEW.itemExplanations) return it;
+    if (i < freeShare(a.lineItems.length)) return it;
     lock.items.push(i);
     return { ...it, explanation: "", note: null };
   });
-  lock.questions = Math.max(0, a.questions.length - FREE_PREVIEW.questions);
+  lock.questions = Math.max(0, a.questions.length - freeShare(a.questions.length));
   return {
     analysis: {
       ...a,
       flags,
       lineItems,
-      questions: a.questions.slice(0, FREE_PREVIEW.questions),
+      questions: a.questions.slice(0, freeShare(a.questions.length)),
       extraCostRisk: { min: 0, max: 0, explanation: "" },
       priceLevel: { level: "ukendt", explanation: "" },
       rules: (a.rules ?? []).map((x) => ({ ...x, note: "" })),

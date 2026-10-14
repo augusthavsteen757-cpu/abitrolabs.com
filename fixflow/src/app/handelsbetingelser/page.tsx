@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { COMPANY, WITHDRAWAL_DAYS } from "@/lib/company";
-import { BETA_ANALYSES_LEGACY, BETA_ANALYSES_TOTAL, PACK3_CREDITS, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaEndText, isBeta } from "@/lib/plans";
+import { BETA_ANALYSES_LEGACY, BETA_ANALYSES_TOTAL, FREE_ANALYSES_TOTAL, PACK3_CREDITS, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaEndText, isBeta } from "@/lib/plans";
 
 export const metadata: Metadata = { title: "Handelsbetingelser" };
 export const dynamic = "force-dynamic";
@@ -60,7 +60,8 @@ export default function TermsPage() {
       <h2>Priser og betaling</h2>
       <ul>
         <li>
-          <strong>Gratis:</strong> 1 analyse med Tilbudsscore og et udvalg af resultaterne. Resten af analysen kræver køb.
+          <strong>Gratis:</strong> op til {FREE_ANALYSES_TOTAL} analyser, hvor du ser Tilbudsscore, en kort forklaring og cirka halvdelen af
+          punkterne og spørgsmålene. Mulige ekstraudgifter og resten af analysen kræver køb.
         </li>
         <li>
           <strong>1 analyse:</strong> {SINGLE_PRICE_DKK} kr. for én komplet analyse – af et nyt tilbud eller af et tilbud,

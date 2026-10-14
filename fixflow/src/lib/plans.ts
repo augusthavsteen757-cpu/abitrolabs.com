@@ -1,12 +1,13 @@
 import type { User } from "@/db/schema";
 
 export const PRO_PRICE_DKK = 49;
-export const SINGLE_PRICE_DKK = 49;
-/** 3-pakke: three complete analyses for people who get several quotes for the same job. */
-export const PACK3_PRICE_DKK = 99;
+export const SINGLE_PRICE_DKK = 29;
+/** 3-pakke ("sammenligning"): three complete analyses for people who compare several quotes for the same job. */
+export const PACK3_PRICE_DKK = 49;
 export const PACK3_CREDITS = 3;
 export const PRO_ANALYSES_PER_PERIOD = 10;
-export const FREE_ANALYSES_TOTAL = 1;
+/** Free (half-shown) analyses per account; the rest of each analysis is unlocked by buying. */
+export const FREE_ANALYSES_TOTAL = 3;
 export const PERIOD_DAYS = 30;
 
 /** Free beta: everyone gets the full analysis, a fixed number of analyses per person, and nothing can be bought. */
@@ -59,7 +60,7 @@ export type Usage = {
 };
 
 /**
- * Free users: 1 analysis in total (periodUsed is never reset for them).
+ * Free users: 3 analyses in total, each shown in half (periodUsed is never reset for them).
  * Pro users: 10 per rolling 30-day period. Extra credits come on top.
  */
 export function getUsage(user: User, now = new Date()): Usage {
