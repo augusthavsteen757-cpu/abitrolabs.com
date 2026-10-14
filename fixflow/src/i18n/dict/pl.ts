@@ -420,6 +420,7 @@ export const pl: Dict = {
     indexTitle: "Poradniki o wycenach fachowców",
     indexText: "Krótkie poradniki o cenach, wycenach i twoich prawach, gdy zlecasz prace w domu.",
     sources: "Źródło",
+    more: "Czytaj także",
   },
   quote: {
     metaTitle: "Wycena",

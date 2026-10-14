@@ -424,6 +424,7 @@ export const en: Dict = {
     indexTitle: "Guides to contractor quotes",
     indexText: "Short guides to prices, quotes and your rights when you need work done in your home.",
     sources: "Source",
+    more: "Read more",
   },
   quote: {
     metaTitle: "Quote",

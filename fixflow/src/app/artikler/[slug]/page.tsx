@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getI18n } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
 import { INTL_LOCALE } from "@/i18n/config";
-import { articleBySlug, type Article } from "@/content/articles";
+import { publishedArticles, articleBySlug, type Article } from "@/content/articles";
 
 export const dynamic = "force-dynamic";
 
@@ -122,6 +122,22 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             {d.home.ctaPrimary} <ArrowRight className="h-4 w-4" />
           </Link>
         </aside>
+
+        {/* Links between the guides, so readers and search engines find the rest. */}
+        {publishedArticles().some((o) => o.slug !== a.slug) && (
+          <nav className="mt-10" data-testid="article-more">
+            <h2 className="text-xl font-semibold">{t.more}</h2>
+            <ul className="mt-3 space-y-2">
+              {publishedArticles()
+                .filter((o) => o.slug !== a.slug)
+                .map((o) => (
+                  <li key={o.slug}>
+                    <Link href={`/artikler/${o.slug}`} className="font-medium text-brand-700 hover:underline">{o.title}</Link>
+                  </li>
+                ))}
+            </ul>
+          </nav>
+        )}
       </main>
       <MarketingFooter />
     </>

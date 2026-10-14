@@ -46,7 +46,20 @@ const article = await get("/artikler/hvad-koster-et-nyt-badevaerelse");
 const articleHtml = await article.text();
 ok(article.status === 200 && /<meta name="robots" content="noindex, follow"/.test(articleHtml) && articleHtml.includes('"@type":"Article"') && articleHtml.includes('"@type":"BreadcrumbList"') && articleHtml.includes('<link rel="canonical" href="https://klardal.com/artikler/hvad-koster-et-nyt-badevaerelse"/>'), "article template: title, canonical, Article + breadcrumb data, draft kept out of Google");
 ok(/data-testid="article-cta"[\s\S]*href="\/opret\?next=%2Fdashboard%2Fupload"/.test(articleHtml), "article ends with \"Tjek et tilbud gratis\"");
-ok(!(await (await get("/sitemap.xml")).text()).includes("/artikler"), "draft articles are not in the sitemap");
+const sitemapText = await (await get("/sitemap.xml")).text();
+ok(!sitemapText.includes("/artikler/hvad-koster-et-nyt-badevaerelse") && sitemapText.includes("/artikler/tjek-dit-haandvaerkertilbud"), "draft articles are not in the sitemap, published ones are");
+for (const slug of ["tjek-dit-haandvaerkertilbud", "tilbud-eller-overslag", "efter-regning", "sammenlign-haandvaerkertilbud"]) {
+  const r = await get(`/artikler/${slug}`);
+  const html = await r.text();
+  ok(r.status === 200 && !/noindex/.test(html) && html.includes(`<link rel="canonical" href="https://klardal.com/artikler/${slug}"/>`) && sitemapText.includes(`/artikler/${slug}`), `guide ${slug}: indexable, own canonical, in sitemap`);
+  ok(/data-testid="article-more"/.test(html) && !html.includes(`href="/artikler/${slug}"`) && html.includes('href="/artikler/hvad-koster') === false, `guide ${slug} links to the other guides, not itself or drafts`);
+}
+// Every public page names itself as canonical – not the front page – or Google drops it as a duplicate.
+for (const p of ["/priser", "/handelsbetingelser", "/privatlivspolitik", "/artikler", "/opret", "/login"]) {
+  const html = await (await get(p)).text();
+  ok(html.includes(`<link rel="canonical" href="https://klardal.com${p}"/>`), `${p} has its own canonical`);
+}
+ok(/<link rel="canonical" href="https:\/\/klardal\.com\/?"\/>/.test(await (await get("/")).text()), "front page canonical");
 ok((await get("/artikler/findes-ikke")).status === 404, "unknown article gives 404");
 const typo = await get("/priser", { headers: { "x-forwarded-host": "www.klardahl.dk" } });
 ok(typo.status === 301 && /\/priser$/.test(typo.headers.get("location") ?? "") && !(typo.headers.get("location") ?? "").includes("klardahl"), `klardahl.dk sends visitors to the main domain (${typo.status})`);

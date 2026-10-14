@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getDict } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return { title: (await getDict()).header.pricing };
+  return { title: (await getDict()).header.pricing, alternates: { canonical: "/priser" } };
 }
 export const dynamic = "force-dynamic";
 

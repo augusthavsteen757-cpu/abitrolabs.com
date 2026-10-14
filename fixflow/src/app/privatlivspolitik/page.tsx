@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { COMPANY } from "@/lib/company";
 
-export const metadata: Metadata = { title: "Privatlivspolitik" };
+export const metadata: Metadata = { title: "Privatlivspolitik", alternates: { canonical: "/privatlivspolitik" } };
 export const dynamic = "force-dynamic";
 
 // UDKAST – skal godkendes af August. Tjekket på dataprivacyframework.gov 11/10-2026: Render er aktiv (EU-US DPF);

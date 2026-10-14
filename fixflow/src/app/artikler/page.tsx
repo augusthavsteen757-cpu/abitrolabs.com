@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
   const t = (await getDict()).article;
   // An empty list is not worth showing in search results.
-  return { title: t.indexTitle, description: t.indexText, robots: publishedArticles().length ? undefined : { index: false } };
+  return { title: t.indexTitle, description: t.indexText, alternates: { canonical: "/artikler" }, robots: publishedArticles().length ? undefined : { index: false } };
 }
 
 export default async function ArticlesPage() {

@@ -3,7 +3,7 @@ import { LegalPage } from "@/components/LegalPage";
 import { COMPANY, WITHDRAWAL_DAYS } from "@/lib/company";
 import { BETA_ANALYSES_LEGACY, BETA_ANALYSES_TOTAL, PACK3_CREDITS, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaEndText, isBeta } from "@/lib/plans";
 
-export const metadata: Metadata = { title: "Handelsbetingelser" };
+export const metadata: Metadata = { title: "Handelsbetingelser", alternates: { canonical: "/handelsbetingelser" } };
 export const dynamic = "force-dynamic";
 
 export default function TermsPage() {

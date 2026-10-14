@@ -5,7 +5,7 @@ import { AuthForm } from "@/components/AuthForm";
 import { getDict } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return { title: (await getDict()).auth.signupButton };
+  return { title: (await getDict()).auth.signupButton, alternates: { canonical: "/opret" } };
 }
 
 export default async function SignupPage() {

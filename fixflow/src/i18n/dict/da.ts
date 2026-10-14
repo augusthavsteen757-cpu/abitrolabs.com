@@ -422,6 +422,7 @@ export const da = {
     indexTitle: "Guides til håndværkertilbud",
     indexText: "Korte guides til priser, tilbud og dine rettigheder, når du skal have lavet noget i hjemmet.",
     sources: "Kilde",
+    more: "Læs også",
   },
   quote: {
     metaTitle: "Tilbud",

@@ -4,6 +4,7 @@ import { Logo } from "./Logo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { COMPANY } from "@/lib/company";
 import { getDict } from "@/i18n/server";
+import { publishedArticles } from "@/content/articles";
 
 export async function MarketingHeader({ loggedIn = false }: { loggedIn?: boolean }) {
   const d = await getDict();
@@ -68,6 +69,7 @@ export async function MarketingFooter() {
         </div>
         <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-soft">
           <Link href="/priser" className="hover:text-ink">{d.footer.pricing}</Link>
+          {publishedArticles().length > 0 && <Link href="/artikler" className="hover:text-ink">{d.article.indexTitle}</Link>}
           <Link href="/login" className="hover:text-ink">{d.footer.login}</Link>
           <Link href="/opret" className="hover:text-ink">{d.footer.signup}</Link>
           <Link href="/handelsbetingelser" className="hover:text-ink">{d.footer.terms}</Link>
