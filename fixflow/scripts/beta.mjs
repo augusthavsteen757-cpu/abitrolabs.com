@@ -42,6 +42,7 @@ ok((await p.innerText("body")).includes("Gratis prøveperiode"), "nav shows beta
 ok(!(await p.innerText("body")).includes("Opgradér til Pro"), "no upgrade link");
 for (let i = 0; i < 3; i++) {
   await p.goto(B + "/dashboard/upload");
+  if (i === 0) ok(!(await p.getByTestId("remaining-note").innerText()).includes("basistjek"), "the trial upload doesn't talk about the basic check");
   await p.setInputFiles("[data-testid=file-input]", "sample-quotes/eksempel-vvs-badevaerelse.pdf");
   await p.getByRole("button", { name: "Analysér tilbuddet" }).click();
   await p.waitForURL(/tilbud\//, { timeout: 30000 });
@@ -49,6 +50,8 @@ for (let i = 0; i < 3; i++) {
     const html = await p.innerText("body");
     ok((await p.content()).includes("tilbuddets største enkeltpost"), "free beta user sees full (unlocked) analysis");
     ok(!html.includes("Gå til betaling"), "no checkout on analysis page");
+    ok((await p.getByTestId("basic-badge").count()) === 0 && (await p.getByTestId("negotiation").count()) === 1, "the trial still gives the full report (no basic check), with negotiation points");
+    ok((await p.getByTestId("pdf-link").count()) === 1, "the trial includes the PDF report");
   }
 }
 await p.goto(B + "/dashboard/admin");

@@ -40,6 +40,8 @@ const COLUMNS: [string, string, string][] = [
   ["users", "gift_credits", "integer DEFAULT 0 NOT NULL"],
   ["quotes", "job_context", "text"],
   ["users", "beta_limit", "integer"],
+  ["users", "free_month", "text"],
+  ["users", "free_used", "integer"],
 ];
 
 export async function ensureSchema() {

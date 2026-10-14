@@ -4,11 +4,12 @@
 import assert from "node:assert/strict";
 import { DEMO_QUOTES } from "../src/lib/demo-data";
 import { HOUSING, JOB_NOTE_MAX, JOB_SUBTYPES, JOB_TYPES, LOAD_BEARING, jobContextForAi, parseJobContext, readJobContext } from "../src/lib/job-context";
-import { analysisOfQuote, applyVatChoice, normalizeAnalysis, parseStoredAnalysis, priceOfQuote, refusalOf, scoreOfQuote } from "../src/lib/analysis";
+import { FREE_BASIC_FLAGS, analysisOfQuote, applyVatChoice, flagsBySeverity, normalizeAnalysis, parseStoredAnalysis, priceOfQuote, redactForFree, refusalOf, scoreOfQuote } from "../src/lib/analysis";
+import { MAX_NEGOTIATION_POINTS, negotiationPoints } from "../src/lib/negotiation";
 import { computeScore, scoreBand, scoreLabel } from "../src/lib/score";
 import { DICTS } from "../src/i18n/dict";
 import { fmt } from "../src/i18n/fmt";
-import { formatKr } from "../src/lib/format";
+import { formatDate, formatKr } from "../src/lib/format";
 import { passwordProblem } from "../src/lib/password";
 import { DEMO_EMAIL, DEMO_PASSWORD } from "../src/lib/demo";
 import { ARTICLES } from "../src/content/articles";
@@ -17,7 +18,7 @@ import { createRequire } from "node:module";
 import { unusedPurchases, withdrawalQuote } from "../src/lib/purchases";
 import { normalizeCode, parsePartnerCodes } from "../src/lib/code-format";
 import type { Payment, User } from "../src/db/schema";
-import { BETA_ANALYSES_LEGACY, BETA_ANALYSES_TOTAL, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaLimitOf, getUsage, planLimit } from "../src/lib/plans";
+import { BETA_ANALYSES_LEGACY, BETA_ANALYSES_TOTAL, FREE_BASIC_PER_MONTH, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaLimitOf, freeUsedThisMonth, getUsage, hasFullAccess, monthKey, nextMonthStart, planLimit } from "../src/lib/plans";
 
 let passed = 0;
 const test = (name: string, fn: () => void) => {
@@ -353,6 +354,140 @@ test("trial: new accounts get 3, accounts from before keep the 5 they were promi
   } finally {
     if (prev === undefined) delete process.env.BETA_FREE;
     else process.env.BETA_FREE = prev;
+  }
+});
+
+const withBeta = (on: boolean, fn: () => void) => {
+  const prev = process.env.BETA_FREE;
+  if (on) process.env.BETA_FREE = "1";
+  else delete process.env.BETA_FREE;
+  try {
+    fn();
+  } finally {
+    if (prev === undefined) delete process.env.BETA_FREE;
+    else process.env.BETA_FREE = prev;
+  }
+};
+const demoAnalysis = (i: number) => {
+  const a = normalizeAnalysis(DEMO_QUOTES[i].raw);
+  return { ...a, score: computeScore(a) };
+};
+
+test("free basic analysis: score, summary, price and the 3 most serious flags – nothing else leaves the server", () => {
+  for (let i = 0; i < DEMO_QUOTES.length; i++) {
+    const a = demoAnalysis(i);
+    const { analysis: v, lock } = redactForFree(a);
+    const expected = flagsBySeverity(a.flags).slice(0, FREE_BASIC_FLAGS);
+    assert.deepEqual(v.flags.map((f) => f.title), expected.map((f) => f.title), "the most serious flags, in order");
+    assert.ok(v.flags.every((f, k) => f.explanation === expected[k].explanation), "with their explanation");
+    assert.ok(v.flags.every((f) => f.estimatedExtraMin == null && f.estimatedExtraMax == null), "no kroner amounts per flag");
+    assert.equal(lock.hiddenFlags, a.flags.length - v.flags.length);
+    assert.equal(lock.missingChecks, a.checks.filter((c) => !c.present).length);
+    assert.equal(lock.questions, a.questions.length);
+    assert.deepEqual([v.checks, v.questions, v.rules], [[], [], []]);
+    assert.deepEqual(v.extraCostRisk, { min: 0, max: 0, explanation: "" });
+    assert.equal(v.priceLevel.explanation, "");
+    assert.ok(v.lineItems.every((it) => it.explanation === "" && it.note === null));
+    // What the basic analysis does show.
+    assert.equal(v.summary, a.summary);
+    assert.deepEqual(v.totals, a.totals);
+    const hidden = flagsBySeverity(a.flags).slice(FREE_BASIC_FLAGS);
+    const json = JSON.stringify(v);
+    for (const f of hidden) assert.ok(!json.includes(f.explanation) || !f.explanation, `hidden flag text leaked: ${f.title}`);
+    for (const q of a.questions) assert.ok(!json.includes(q.question), `question leaked: ${q.question}`);
+  }
+});
+
+test("flags by severity: high before medium before low, ties keep the AI's order", () => {
+  const f = (severity: "high" | "medium" | "low", title: string) => ({ severity, title });
+  assert.deepEqual(flagsBySeverity([f("low", "a"), f("high", "b"), f("medium", "c"), f("high", "d")]).map((x) => x.title), ["b", "d", "c", "a"]);
+});
+
+test("negotiation points: fixed rules from the analysis, at most 6, never twice the same", () => {
+  const base = { priceType: "fast_pris" as const, flags: [], checks: [], extraCostRisk: { min: 0, max: 0, explanation: "" } };
+  assert.deepEqual(negotiationPoints(base), []);
+  const p = negotiationPoints({
+    priceType: "overslag",
+    flags: [
+      { severity: "low", type: "hidden_cost", title: "Lille ting", explanation: "", relatedItem: null, estimatedExtraMin: null, estimatedExtraMax: null },
+      { severity: "high", type: "hidden_cost", title: "El efter regning", explanation: "", relatedItem: null, estimatedExtraMin: null, estimatedExtraMax: null },
+      { severity: "medium", type: "terms", title: "Forudbetaling", explanation: "", relatedItem: null, estimatedExtraMin: null, estimatedExtraMax: null },
+    ],
+    checks: [
+      { key: "payment", present: false, note: "" },
+      { key: "timeline", present: false, note: "" },
+      { key: "cvr", present: true, note: "" },
+    ],
+    extraCostRisk: { min: 0, max: 5000, explanation: "" },
+  });
+  assert.deepEqual(p, [
+    { key: "fixedPrice" },
+    { key: "clarifyFlag", title: "El efter regning" },
+    { key: "paymentAfterWork" },
+    { key: "timeline" },
+    { key: "extraWorkInWriting" },
+  ]);
+  for (let i = 0; i < DEMO_QUOTES.length; i++) {
+    const pts = negotiationPoints(demoAnalysis(i));
+    assert.ok(pts.length <= MAX_NEGOTIATION_POINTS);
+    const keys = pts.filter((x) => x.key !== "clarifyFlag").map((x) => x.key);
+    assert.equal(new Set(keys).size, keys.length);
+  }
+  for (const [lang, d] of Object.entries(DICTS)) {
+    for (const [k, v] of Object.entries(d.quote.negotiation)) assert.ok(v.trim(), `${lang}: ${k}`);
+    assert.match(d.quote.negotiation.clarifyFlag, /\{title\}/, `${lang}: clarifyFlag needs {title}`);
+  }
+});
+
+test("free basic analysis: 1 per calendar month in Danish time, its own counter (trial use doesn't count)", () => {
+  assert.equal(FREE_BASIC_PER_MONTH, 1);
+  assert.equal(monthKey(new Date("2026-10-31T22:30:00Z")), "2026-10", "23:30 on 31 Oct in Denmark (CET)");
+  assert.equal(monthKey(new Date("2026-10-31T23:30:00Z")), "2026-11", "00:30 on 1 Nov in Denmark");
+  assert.equal(nextMonthStart(new Date("2026-10-20T12:00:00Z")).toISOString(), "2026-10-31T23:00:00.000Z");
+  assert.equal(nextMonthStart(new Date("2026-04-20T12:00:00Z")).toISOString(), "2026-04-30T22:00:00.000Z", "summer time");
+  assert.equal(nextMonthStart(new Date("2026-12-10T12:00:00Z")).toISOString(), "2026-12-31T23:00:00.000Z", "over new year");
+  assert.equal(formatDate(nextMonthStart(new Date("2026-10-20T12:00:00Z"))), "1. november 2026", "the reset date is shown in Danish time, also on a UTC server");
+  assert.equal(formatDate("2026-10-01"), "1. oktober 2026", "a date from a quote stays the same day");
+  const now = new Date("2026-11-05T12:00:00Z");
+  const user = (o: Partial<User>) => ({ plan: "FREE", extraCredits: 0, giftCredits: 0, periodStart: new Date(), periodUsed: 3, betaLimit: 3, freeMonth: null, freeUsed: null, ...o }) as User;
+  withBeta(false, () => {
+    assert.equal(freeUsedThisMonth(user({ freeMonth: "2026-10", freeUsed: 1 }), now), 0, "last month's use doesn't count");
+    const fresh = getUsage(user({}), now);
+    assert.deepEqual([fresh.limit, fresh.used, fresh.remaining], [1, 0, 1], "trial analyses (periodUsed 3) don't count");
+    assert.equal(fresh.periodEnd?.toISOString(), "2026-11-30T23:00:00.000Z");
+    const used = getUsage(user({ freeMonth: "2026-11", freeUsed: 1 }), now);
+    assert.deepEqual([used.used, used.remaining], [1, 0]);
+    assert.equal(getUsage(user({ freeMonth: "2026-11", freeUsed: 1, extraCredits: 2, giftCredits: 1 }), now).remaining, 3, "bought + code on top");
+    assert.equal(hasFullAccess({ plan: "FREE" }, { unlocked: false }), false, "free basic quote is not the full report");
+    assert.equal(hasFullAccess({ plan: "FREE" }, { unlocked: true }), true);
+  });
+  withBeta(true, () => {
+    assert.equal(hasFullAccess({ plan: "FREE" }, { unlocked: false }), true, "the trial still gives everyone the full report");
+    assert.equal(getUsage(user({}), now).limit, 3, "the trial keeps its own number");
+  });
+});
+
+test("free plan and basic analysis texts: no 'before' price and no VAT claim", () => {
+  for (const [lang, d] of Object.entries(DICTS)) {
+    const texts = [...d.plans.free.features, d.plans.free.tagline, d.upload.basicNote, d.quote.basicIntro];
+    for (const v of texts) assert.ok(!/\d+\s*kr\.?\s*(før|before|vorher|innan|før)/i.test(v), `${lang}: ${v}`);
+    for (const v of [d.plans.free.tagline, ...d.plans.free.features]) assert.ok(!/inkl\.?\s*moms|incl\.?\s*VAT/i.test(v), `${lang}: ${v}`);
+  }
+});
+
+test("terms and texts describe the free basic check and the full report – and name no other companies", () => {
+  const terms = readFileSync(new URL("../src/app/handelsbetingelser/page.tsx", import.meta.url), "utf8");
+  assert.ok(terms.includes("Gratis basistjek:") && terms.includes("pr. kalendermåned") && terms.includes("ingen binding"), "terms: free basic check, monthly, no commitment");
+  assert.ok(terms.includes("<strong>Rækkefølge:</strong>") && terms.includes("først når du ikke har flere, månedens gratis basistjek"), "terms: bought/code analyses before the free one");
+  assert.ok(terms.includes("Beløb for mulige ekstraudgifter og prisniveau er skøn") && terms.includes("Tjek altid selv det originale tilbud"), "terms: estimates, check the original");
+  const competitors = /TilbudsTjek|TrygtTilbud|\bRimelig\b/;
+  const files = ["../src/app/handelsbetingelser/page.tsx", "../src/app/page.tsx", "../src/app/priser/page.tsx", "../src/lib/billing.ts", "../src/lib/email.ts"];
+  for (const f of files) assert.ok(!competitors.test(readFileSync(new URL(f, import.meta.url), "utf8")), f);
+  assert.ok(!competitors.test(JSON.stringify(DICTS)), "dictionaries");
+  for (const [lang, d] of Object.entries(DICTS)) {
+    assert.ok(d.home.localCall.includes("{phone}"), `${lang}: phone in the call button`);
+    assert.ok(!/\bAI\b|\bKI\b|\bШІ\b/.test(d.home.title), `${lang}: the headline is about the quote, not about AI`);
+    assert.equal(d.lang.legalSummary.length, DICTS.da.lang.legalSummary.length, `${lang}: legal summary items`);
   }
 });
 

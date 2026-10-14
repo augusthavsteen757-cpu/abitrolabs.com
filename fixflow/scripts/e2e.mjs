@@ -67,18 +67,27 @@ try {
   /* ---------------- 1. Signup → upload → analysis → paywall → buy → unlock ---------------- */
   const page = await newPage();
   await page.goto(BASE);
-  await page.getByRole("heading", { name: /Forstå dit håndværkertilbud/ }).waitFor();
+  await page.getByRole("heading", { name: "Tjek dit håndværkertilbud, før du skriver under." }).waitFor();
   await shot(page, "landing");
   const landing = await page.innerText("body");
   assert(landing.includes("Er der et abonnement?"), "outside the beta the FAQ says there is no subscription");
+  assert(landing.includes("Hvad er gratis?"), "outside the beta the FAQ explains what is free");
+  await page.getByTestId("local-hero").getByText("Lokalt firma på Fyn").waitFor();
+  assert((await page.getByRole("link", { name: "Ring 60 88 39 74" }).first().getAttribute("href")) === "tel:+4560883974", "tap-to-call link");
+  await page.getByTestId("local").getByText("Et lokalt firma på Fyn").waitFor();
+  assert(!/inkl\.? moms/i.test(landing), "no 'inkl. moms' on the landing page (Klardal is not VAT-registered)");
   assert(!/\bPro\b/.test(landing) && !/kr\.\s*\/\s*md\./.test(landing), "no Pro and no monthly price on the landing page");
   await page.goto(`${BASE}/priser`);
   const pricing = await page.innerText("body");
   assert(!/\bPro\b/.test(pricing), "no Pro on the pricing page");
   assert(pricing.includes("49 kr.") && pricing.includes("99 kr.") && pricing.includes("1 analyse") && pricing.includes("3 analyser") && pricing.includes("Til 3 tilbud på samme opgave"), "pricing page: 1 analyse 49 kr., 3 analyser 99 kr. for comparing");
   assert(!/Engangskøb|3-pakke|[Kk]redit(?!kort)|[Ll]ås .*op|[Ll]åst/.test(pricing), "pricing page uses plain words (no 'engangskøb', '3-pakke', 'kredit', 'lås op')");
+  assert(pricing.includes("Gratis basistjek") && pricing.includes("1 tilbud gratis hver måned") && pricing.includes("intet kort, ingen binding"), "pricing page: free basic check every month, no card, no commitment");
+  assert(pricing.includes("Forhandlingspunkter") && pricing.includes("Rapporten som PDF"), "pricing page: what the full report adds");
+  assert(!/inkl\.? moms|før-pris|førpris/i.test(pricing), "no 'inkl. moms' and no 'before' price on the pricing page");
   await page.goto(`${BASE}/handelsbetingelser`);
   assert(!/\bPro\b|abonnementet fornyes/i.test(await page.innerText("main")), "no Pro in the terms");
+  assert((await page.innerText("main")).includes("Gratis basistjek:") && (await page.innerText("main")).includes("Telefon: 60 88 39 74"), "terms describe the free basic check and give the phone number");
   await page.goto(BASE);
   log("landing, pricing and terms page – no Pro");
 
@@ -114,6 +123,7 @@ try {
   await page.goto(`${BASE}/dashboard/upload`);
   const dk = await page.locator("[data-testid=danish-only]").innerText();
   if (!/danske regler/.test(dk) || !/andet land/.test(dk)) throw new Error("upload page must say analyses follow Danish rules: " + dk);
+  assert((await page.getByTestId("remaining-note").innerText()).startsWith("Dette bliver månedens gratis basistjek"), "the upload says it will be the free basic check");
   await page.setInputFiles("[data-testid=file-input]", "sample-quotes/eksempel-vvs-badevaerelse.pdf");
   await page.fill("#project", "Nyt badeværelse");
   await page.click("button[type=submit]");
@@ -130,23 +140,35 @@ try {
 
   const scoreText = await page.locator("text=Tilbudsscore 36 ud af 100").count();
   assert(scoreText > 0, "score 36 shown");
-  await page.getByText("7 spørgsmål mere", { exact: true }).waitFor();
-  await page.getByRole("heading", { name: "Se hele analysen" }).waitFor();
-  // The paid details must not be in the page at all (not just blurred)
+  // The free basic check: score, summary, price and the 3 most serious red flags with their explanation.
+  await page.getByTestId("basic-badge").getByText("Gratis basistjek").waitFor();
+  const basicFlags = await page.locator("section:has(h2:has-text('Det bør du se på')) article").count();
+  assert(basicFlags === 3, `3 red flags in the basic check (saw ${basicFlags})`);
+  assert((await page.content()).includes("tilbuddets største enkeltpost"), "the top flags come with their explanation");
+  await page.getByTestId("hidden-flags").getByText("+ 2 punkter mere i den fulde rapport").waitFor();
+  await page.getByRole("heading", { name: "Det får du i den fulde rapport" }).waitFor();
+  await page.getByRole("heading", { name: "Få den fulde rapport" }).waitFor();
+  for (const h of ["Det mangler i tilbuddet", "Spørg om det her", "Det kan du forhandle om", "Send en besked", "Flere detaljer"])
+    assert((await page.getByRole("heading", { name: h, exact: true }).count()) === 0, `"${h}" is part of the full report`);
+  // The paid details must not be in the page at all (not just hidden)
   const lockedHtml = await page.content();
-  assert(!lockedHtml.includes("tilbuddets største enkeltpost"), "locked flag explanation is not sent to the browser");
-  assert(!lockedHtml.includes("36.250"), "locked extra-cost amount is not sent to the browser");
+  assert(!lockedHtml.includes("Nedrivning af et badeværelse giver flere kubikmeter"), "a 4th flag's explanation is not sent to the browser");
+  assert(!lockedHtml.includes("36.250"), "the total extra-cost estimate is not sent to the browser");
+  assert(!/Kan koste/.test(await page.locator("main").innerText()), "no kroner amounts on the basic flags");
+  assert(!lockedHtml.includes("Er I medlem af en garantiordning eller Byggeriets Ankenævn"), "questions for the contractor are not sent to the browser");
   const apiJson = await page.evaluate(async (u) => (await fetch(`/api/quotes/${u.split("/").pop()}`)).text(), page.url());
-  assert(!apiJson.includes("tilbuddets største enkeltpost"), "API does not leak locked details");
-  log("locked details never reach the browser (page + API)");
-  const visibleQuestions = await page.locator("section:has(h2:has-text('Spørg om det her')) ol > li").count();
-  assert(visibleQuestions === 1, `free user sees 1 question (saw ${visibleQuestions})`);
+  assert(!apiJson.includes("Nedrivning af et badeværelse giver flere kubikmeter") && !apiJson.includes('"question"'), "API does not leak the full report");
+  log("basic check: score + 3 most serious flags; the full report never reaches the browser (page + API)");
+  await page.goto(`${quoteUrl}/rapport`);
+  await page.waitForURL((u) => u.pathname === new URL(quoteUrl).pathname);
+  log("the PDF report is part of the full report (basic check is sent back)");
+  await page.goto(quoteUrl);
   await shot(page, "analysis-free");
-  log("free user sees preview with locked details");
 
-  // The free analysis is used up → upload shows paywall
+  // The free basic check of the month is used up → upload shows paywall
   await page.goto(`${BASE}/dashboard/upload`);
-  await page.getByText("Du har brugt din gratis analyse").waitFor();
+  await page.getByText("Du har brugt månedens gratis basistjek").waitFor();
+  await page.getByText(/fra den 1\. i næste måned/).waitFor();
   const paywall = await page.innerText("main");
   assert(!/\bPro\b/.test(paywall), "the paywall offers no Pro");
   await page.getByRole("button", { name: "Gå til betaling – 99 kr.", exact: true }).waitFor();
@@ -170,6 +192,9 @@ try {
   await buyBox.getByRole("checkbox").nth(0).check();
   await buyBox.getByRole("button", { name: "Gå til betaling – 49 kr.", exact: true }).click();
   await page.getByText("Skriv en besked").waitFor({ timeout: 15_000 });
+  assert((await page.getByTestId("basic-badge").count()) === 0, "no basic badge on the full report");
+  await page.getByTestId("negotiation").getByText("Bed om en fast pris i stedet for et overslag").waitFor();
+  await page.getByTestId("negotiation").getByText("Bed om en fast pris eller en præcis beskrivelse af: El-arbejdet afregnes efter forbrug").waitFor();
   const after = await page.locator("section:has(h2:has-text('Spørg om det her')) ol > li").count();
   assert(after === 8, `all 8 questions after unlock (saw ${after})`);
   assert((await page.content()).includes("tilbuddets største enkeltpost"), "unlocked details are shown");
@@ -182,12 +207,26 @@ try {
   await page.locator("details summary", { hasText: "Hvad prisen dækker" }).waitFor();
   assert(!(await page.getByTestId("items").isVisible()), "line items start folded");
   await page.getByTestId("checks").getByText("Hvornår arbejdet starter og slutter").waitFor();
-  for (const h of ["Vores vurdering", "Pris", "Det bør du se på", "Det mangler i tilbuddet", "Spørg om det her", "Send en besked", "Flere detaljer"])
+  for (const h of ["Vores vurdering", "Pris", "Det bør du se på", "Det mangler i tilbuddet", "Spørg om det her", "Det kan du forhandle om", "Send en besked", "Flere detaljer"])
     await page.getByRole("heading", { name: h, exact: true }).waitFor();
   await page.getByTestId("more-questions").locator("summary").click();
   assert(await page.getByTestId("more-questions").evaluate((el) => el.open), "'Vis alle' opens the rest");
   await shot(page, "analysis-unlocked");
-  log("single purchase unlocks the quote");
+  log("single purchase unlocks the quote: all flags, questions, negotiation points");
+  await page.getByTestId("pdf-link").click();
+  await page.waitForURL(/\/rapport$/);
+  const report = await page.getByTestId("report").innerText();
+  for (const x of ["Rapport fra Klardal", "Nedrivning af et badeværelse giver flere kubikmeter", "Det kan du forhandle om", "Det mangler i tilbuddet", "Tjek beløb og vilkår i det originale tilbud"])
+    assert(report.includes(x), `report has "${x}"`);
+  await page.getByTestId("print-button").waitFor();
+  await page.emulateMedia({ media: "print" });
+  assert(!(await page.getByTestId("print-button").isVisible()), "the print button is not printed");
+  assert(!(await page.locator("aside").first().isVisible()), "the app menu is not printed");
+  const pdf = await page.pdf({ format: "A4" });
+  assert(pdf.length > 10_000 && pdf.subarray(0, 4).toString() === "%PDF", "the report prints to a PDF");
+  await page.emulateMedia({ media: "screen" });
+  await noOverflow(page, "report");
+  log("full report as a printable page that saves as a PDF (menus hidden)");
 
   await page.goto(`${BASE}/dashboard/konto`);
   await page.locator("p.font-medium", { hasText: /^1 analyse$/ }).first().waitFor(); // payment history
@@ -269,15 +308,20 @@ try {
     await p.getByText("Det bør du se på").waitFor();
     return p.url();
   };
-  const freeUrl = await uploadAs(buyer, "eksempel-byg.pdf");
-  // The free analysis is locked; with gift analyses on the account, the page offers to unlock it with one.
-  await buyer.getByRole("button", { name: "Brug 1 analyse her" }).waitFor();
-  assert((await buyer.getByText("Skriv besked").count()) === 0, "the free analysis is locked");
-  for (const f of ["eksempel-vinduer.pdf", "eksempel-vvs-badevaerelse.pdf"]) {
+  // Partner-code analyses go first and give the full report; the free basic check comes last.
+  await buyer.goto(`${BASE}/dashboard/upload`);
+  assert((await buyer.getByTestId("remaining-note").innerText()).startsWith("Du har 3 analyser tilbage"), "with a code the upload is not the basic check");
+  for (const f of ["eksempel-vinduer.pdf", "eksempel-byg.pdf"]) {
     await uploadAs(buyer, f);
     await buyer.getByText("Skriv en besked").first().waitFor();
+    assert((await buyer.getByTestId("basic-badge").count()) === 0, "partner-code analysis is the full report");
   }
-  log("free analysis first, then the gift analyses – which are fully unlocked");
+  await buyer.goto(`${BASE}/dashboard/upload`);
+  assert((await buyer.getByTestId("remaining-note").innerText()).startsWith("Dette bliver månedens gratis basistjek"), "after the code: the free basic check");
+  const freeUrl = await uploadAs(buyer, "eksempel-vvs-badevaerelse.pdf");
+  await buyer.getByTestId("basic-badge").waitFor();
+  assert((await buyer.getByText("Skriv en besked").count()) === 0, "the free basic check has no message box");
+  log("partner-code analyses first (full report), then the free basic check");
 
   await buyer.goto(`${BASE}/dashboard/sammenlign`);
   await buyer.getByText(/Skift tilbud \(2 valgt\)/).waitFor();
@@ -624,6 +668,7 @@ try {
   assert(usedUp.status === 400 && usedUp.error === "Koden er brugt op.", `a used-up code is refused for others: ${JSON.stringify(usedUp)}`);
   const page404 = await intruder.goto(`${BASE}${quoteHref}`);
   assert(page404.status() === 404, "quote page of another user is 404");
+  assert((await intruder.goto(`${BASE}${quoteHref}/rapport`)).status() === 404, "PDF report of another user is 404");
   await mobile.goto(`${BASE}${quoteHref}`);
   await mobile.waitForLoadState("networkidle");
   assert((await mobile.locator("h1").count()) > 0, "demo quote still exists after intruder attempts");
@@ -639,11 +684,16 @@ try {
     };
     const statuses = await Promise.all([make(), make(), make()]);
     const list = await (await fetch("/api/quotes")).json();
-    return { statuses, before: pdf.quotes.length, states: list.quotes.map((q) => q.status) };
+    return { statuses, before: pdf.quotes.length, states: list.quotes.map((q) => q.status), full: list.quotes.map((q) => q.fullAccess) };
   });
   assert(race.statuses.filter((s) => s === 201).length === 1, `exactly one parallel upload accepted (${race.statuses})`);
   assert(!race.states.some((st) => st === "PENDING" || st === "ANALYZING"), `no stuck quotes after parallel uploads (${race.states})`);
-  log("parallel uploads never charge twice or leave stuck quotes");
+  assert(race.full.every((f) => f === false), `a free user's upload is the basic check, not the full report (${race.full})`);
+  // The accepted upload is a broken PDF: the analysis fails, and the month's free basic check is given back.
+  const doneCount = race.states.filter((st) => st === "DONE").length;
+  await intruder.goto(`${BASE}/dashboard/konto`);
+  await intruder.getByText(new RegExp(`${doneCount} af 1 gratis basistjek brugt i denne måned · nulstilles 1\\. `)).waitFor();
+  log("parallel uploads never charge twice or leave stuck quotes (one free basic check a month, also with 3 at once)");
 
   // Open redirect: a crafted ?next= must not send a freshly logged-in user to another site.
   await intruder.context().clearCookies();

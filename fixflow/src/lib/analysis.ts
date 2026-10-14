@@ -401,48 +401,54 @@ export function worstCase(a: Pick<QuoteAnalysis, "totals" | "extraCostRisk">): n
 }
 
 /* ------------------------------------------------------------------ */
-/* Free preview: the important details stay on the server until paid. */
+/* Free basic analysis: the paid details stay on the server until paid. */
 /* ------------------------------------------------------------------ */
 
-export const FREE_PREVIEW = { flags: 1, itemExplanations: 2, questions: 1 } as const;
+/** The free basic analysis shows this many red flags – the most serious first – with their explanation. */
+export const FREE_BASIC_FLAGS = 3;
 
 export type LockInfo = {
-  /** Indexes of flags whose explanation and extra-cost estimate are hidden. */
-  flags: number[];
-  /** Indexes of line items whose explanation is hidden. */
-  items: number[];
-  /** The total extra-cost estimate and the price level are hidden. */
-  extra: boolean;
-  /** How many questions are hidden. */
+  /** Red flags left out of the basic analysis (only the number is shown). */
+  hiddenFlags: number;
+  /** Points missing from the quote (the checklist), left out – only the number is shown. */
+  missingChecks: number;
+  /** Questions for the contractor, left out – only the number is shown. */
   questions: number;
 };
 
+const SEVERITY_RANK = { high: 0, medium: 1, low: 2 } as const;
+
+/** Most serious first; equal ones keep the AI's order. */
+export function flagsBySeverity<T extends { severity: keyof typeof SEVERITY_RANK }>(flags: T[]): T[] {
+  return flags
+    .map((f, i) => ({ f, i }))
+    .sort((a, b) => SEVERITY_RANK[a.f.severity] - SEVERITY_RANK[b.f.severity] || a.i - b.i)
+    .map((x) => x.f);
+}
+
 /**
- * Removes the paid details from an analysis. The real text never leaves the server for a locked
- * quote – the page only shows blurred placeholders – so it can't be read with developer tools.
+ * The free basic analysis: score, summary, total price and the most serious red flags with their explanation.
+ * Everything else is removed here, on the server – it is never sent to the browser, so it can't be read with
+ * developer tools, the API or the data export.
  */
 export function redactForFree(a: QuoteAnalysis): { analysis: QuoteAnalysis; lock: LockInfo } {
-  const lock: LockInfo = { flags: [], items: [], extra: true, questions: 0 };
-  const flags = a.flags.map((f, i) => {
-    if (i < FREE_PREVIEW.flags) return f;
-    lock.flags.push(i);
-    return { ...f, explanation: "", relatedItem: null, estimatedExtraMin: null, estimatedExtraMax: null };
-  });
-  const lineItems = a.lineItems.map((it, i) => {
-    if (i < FREE_PREVIEW.itemExplanations) return it;
-    lock.items.push(i);
-    return { ...it, explanation: "", note: null };
-  });
-  lock.questions = Math.max(0, a.questions.length - FREE_PREVIEW.questions);
+  const sorted = flagsBySeverity(a.flags);
+  const flags = sorted.slice(0, FREE_BASIC_FLAGS).map((f) => ({ ...f, estimatedExtraMin: null, estimatedExtraMax: null }));
+  const lock: LockInfo = {
+    hiddenFlags: sorted.length - flags.length,
+    missingChecks: a.checks.filter((c) => !c.present).length,
+    questions: a.questions.length,
+  };
   return {
     analysis: {
       ...a,
       flags,
-      lineItems,
-      questions: a.questions.slice(0, FREE_PREVIEW.questions),
+      lineItems: a.lineItems.map((it) => ({ ...it, explanation: "", note: null })),
+      checks: [],
+      questions: [],
       extraCostRisk: { min: 0, max: 0, explanation: "" },
       priceLevel: { level: "ukendt", explanation: "" },
-      rules: (a.rules ?? []).map((x) => ({ ...x, note: "" })),
+      rules: [],
     },
     lock,
   };

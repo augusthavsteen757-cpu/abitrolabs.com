@@ -106,7 +106,8 @@ export async function runAnalysis(user: User, quote: Quote, locale: Locale = DEF
     const data = await readStoredFile(quote.fileKey);
     const { analysis, meta } = await analyzeQuote(data, quote.mimeType, quote.fileName, locale, readJobContext(quote.jobContext));
     // Analyses made in the free beta stay fully open when the beta ends.
-    const unlocked = quote.unlocked || user.plan === "PRO" || source !== "plan" || isBeta();
+    // The free basic analysis is the only one that isn't the full report (Pro's plan quota is full).
+    const unlocked = quote.unlocked || user.plan === "PRO" || source === "gift" || source === "credit" || isBeta();
     const [updated] = await db
       .update(quotes)
       .set({

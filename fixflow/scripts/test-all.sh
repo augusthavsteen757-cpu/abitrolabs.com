@@ -32,7 +32,7 @@ run build npm run build
 start ALLOW_LOCAL_DB=1 ALLOW_SIMULATED_PAYMENTS=1 ALLOW_DEMO_MODE=1 ADMIN_EMAILS=demo@klardal.dk PARTNER_CODES=E2E-PARTNER=1:2 &&
   run e2e env BASE_URL=$BASE CHROMIUM_PATH=$CHROMIUM_PATH node scripts/e2e.mjs
 
-start BETA_FREE=1 ALLOW_LOCAL_DB=1 ALLOW_DEMO_MODE=1 COMPANY_NAME=Klardal "COMPANY_CVR=under registrering" \
+start BETA_FREE=1 ALLOW_LOCAL_DB=1 ALLOW_DEMO_MODE=1 APP_URL=https://klardal.com COMPANY_NAME=Klardal "COMPANY_CVR=under registrering" \
   "COMPANY_ADDRESS=Strandhuse 93, 5700 Svendborg" CONTACT_EMAIL=kontakt@klardal.com COMPANY_FOOTER_ADDRESS=0 ADMIN_EMAILS=beta-tester@eksempel.dk &&
   run beta env BASE_URL=$BASE CHROMIUM_PATH=$CHROMIUM_PATH node scripts/beta.mjs &&
   run smoke env BASE_URL=$BASE node scripts/smoke.mjs

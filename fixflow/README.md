@@ -82,16 +82,23 @@ Alle firmanavne, CVR-numre og kontaktoplysninger er opdigtede.
 
 Defineret i `src/lib/plans.ts`.
 
-| Plan            | Pris        | Indhold                                                                                         |
-| --------------- | ----------- | ----------------------------------------------------------------------------------------------- |
-| **Gratis**      | 0 kr.       | 1 analyse i alt: score, flag, forklaringer, 3 spørgsmål. Ingen beskedgenerator/sammenligning.   |
-| **Pro**         | 49 kr./md.  | 10 analyser pr. 30-dages periode, sammenligning, alle spørgsmål, beskedgenerator, historik.     |
-| **Engangskøb**  | 99 kr.      | +1 kredit = én komplet analyse. Kan også låse et allerede analyseret tilbud op.                 |
-| **3-pakke**     | 199 kr.     | +3 kreditter. Ubrugte analyser kan fortrydes pro rata i 14 dage.                                |
-| **Partnerkode** | betales af partneren | Gratis analyser (gave-kreditter) fra `PARTNER_CODES`. Bruges før købte kreditter.      |
+Når `BETA_FREE` er slået fra (se [docs/gratis-basis-og-fuld-rapport.md](./docs/gratis-basis-og-fuld-rapport.md)):
 
-- Plan-kvoten bruges før kreditter, og gave-kreditter fra koder før købte kreditter (så købte forbliver fortrydelige længst).
-- Uden Pro kan man sammenligne de tilbud, man har låst op, når man har mindst to.
+| Niveau               | Pris                 | Indhold                                                                                                   |
+| -------------------- | -------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Gratis basistjek** | 0 kr.                | 1 tilbud pr. kalendermåned: score, kort vurdering, pris og de 3 alvorligste røde flag. Kræver kun en konto. |
+| **1 analyse**        | 49 kr.               | Fuld rapport: alle flag med beløb, tjekliste, spørgsmål og besked, forhandlingspunkter, detaljer, PDF.      |
+| **3 analyser**       | 99 kr.               | 3 fulde rapporter + sammenligning. Ubrugte kan fortrydes pro rata i 14 dage.                              |
+| **Partnerkode**      | betales af partneren | Fulde rapporter (gave-kreditter) fra `PARTNER_CODES`.                                                      |
+
+- Rækkefølge for gratis-brugere: gave-kreditter (kode) → købte kreditter → månedens gratis basistjek. Så giver en kode eller et køb altid den fulde rapport.
+- Det gratis basistjek tælles i `users.free_month`/`free_used` (dansk tid) – adskilt fra prøveperiodens tæller.
+- Basistjekket fjerner den fulde rapport på serveren (`redactForFree` i `src/lib/analysis.ts`); den når aldrig browseren, API'et eller dataeksporten.
+- Forhandlingspunkter beregnes med faste regler i `src/lib/negotiation.ts` (ikke af AI'en).
+- PDF: `/dashboard/tilbud/[id]/rapport` er en printvenlig side; browserens »Gem som PDF« laver filen.
+- I prøveperioden (`BETA_FREE=1`) får alle den fulde rapport som hidtil.
+- Gave-kreditter fra koder bruges før købte kreditter (så købte forbliver fortrydelige længst).
+- Man kan sammenligne de tilbud, hvor man har den fulde rapport, når man har mindst to.
 - Partnerkoder: sæt `PARTNER_CODES="KODE=50"` i Render. Kunden indløser på kontosiden eller via `https://klardal.com/opret?kode=KODE`. En kode kan bruges én gang pr. konto.
 - Analyser lavet i betaen bliver låst op ved opstart, mens `BETA_FREE=1`, så de forbliver åbne, når betaen slutter.
 - Analyser lavet med Pro eller en kredit bliver `unlocked`.
@@ -249,8 +256,8 @@ Appen findes på dansk, engelsk, svensk, norsk, tysk, polsk, ukrainsk og rumæns
 
 Uden `STRIPE_SECRET_KEY` er betaling simuleret. Sådan slår du rigtig betaling til:
 
-1. Opret tre produkter i Stripe: **Pro** (49 kr./md., recurring), **Engangskøb** (99 kr., one-time) og **3-pakke** (199 kr., one-time). Notér pris-id'erne.
-2. Sæt `STRIPE_SECRET_KEY`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_SINGLE`, `STRIPE_PRICE_PACK3` og `APP_URL`.
+1. Opret to engangspriser i Stripe: **1 analyse** (49 kr.) og **3 analyser** (99 kr.). Notér pris-id'erne.
+2. Sæt `STRIPE_SECRET_KEY`, `STRIPE_PRICE_SINGLE`, `STRIPE_PRICE_PACK3` og `APP_URL`.
 3. Opret et webhook-endpoint til `https://dit-domæne.dk/api/billing/webhook` med hændelserne `checkout.session.completed`, `invoice.paid` og `customer.subscription.deleted`, og sæt `STRIPE_WEBHOOK_SECRET`.
 4. `/api/billing/checkout` returnerer nu `{ url }` til Stripe Checkout, og webhooken giver Pro/kredit (idempotent via `payments.reference`).
 5. Ved fortrydelse refunderer appen automatisk via Stripe (`/v1/refunds`). Kunden får kvittering og ordrebekræftelse på e-mail (Brevo).

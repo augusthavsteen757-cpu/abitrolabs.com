@@ -117,6 +117,12 @@ async function newAccount() {
     console.error("Signup failed", signup);
     process.exit(1);
   }
+  // After the trial a new account gets the free basic check (top flags only, no questions). A partner code gives
+  // the full report, so every check can run: set EVAL_PARTNER_CODE to a code from PARTNER_CODES.
+  if (process.env.EVAL_PARTNER_CODE) {
+    const code = await call("/api/codes", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code: process.env.EVAL_PARTNER_CODE }) });
+    if (code.status >= 300) console.warn("Partner code not accepted", code.status, code.json?.error);
+  }
 }
 
 /** Removes the test account again (with its quotes and files), so runs leave nothing behind on the site. */
@@ -143,7 +149,12 @@ for (const c of cases) {
     r = await upload(c.file, c.context);
   }
   const q = r.json.quote ?? {};
-  const results = r.status < 300 ? c.check(q) : { [`upload ok (got ${r.status} ${r.json.error ?? ""})`]: false };
+  const results =
+    r.status >= 300
+      ? { [`upload ok (got ${r.status} ${r.json.error ?? ""})`]: false }
+      : q.status === "DONE" && q.fullAccess === false
+        ? { "full report (got the free basic check – set EVAL_PARTNER_CODE)": false }
+        : c.check(q);
   console.log(`\n${[c.file].flat().join(" + ")}  (${Math.round((Date.now() - t0) / 1000)} s)`);
   summary.push(`**${[c.file].flat().join(" + ")}**`);
   for (const [name, ok] of Object.entries(results)) {

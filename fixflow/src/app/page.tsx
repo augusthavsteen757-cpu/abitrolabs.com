@@ -8,7 +8,10 @@ import {
   ListChecks,
   MessageSquareText,
   Columns3,
+  MapPin,
+  Phone,
 } from "lucide-react";
+import { COMPANY, phoneHref } from "@/lib/company";
 import { MarketingFooter, MarketingHeader } from "@/components/MarketingShell";
 import { PricingCards } from "@/components/PricingCards";
 import { isBeta } from "@/lib/plans";
@@ -16,6 +19,7 @@ import { Faq } from "@/components/Faq";
 import { ScoreRing } from "@/components/ScoreRing";
 import { getCurrentUser } from "@/lib/auth";
 import { getDict } from "@/i18n/server";
+import { fmt } from "@/i18n/fmt";
 import type { Dict } from "@/i18n/dict";
 
 // Same order as home.features in the dictionaries.
@@ -113,6 +117,12 @@ export default async function HomePage() {
               <p className="mt-4 flex items-center gap-2 text-sm text-ink-muted">
                 <ShieldCheck className="h-4 w-4 text-brand-600" /> {h.reassurance}
               </p>
+              <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-muted" data-testid="local-hero">
+                <MapPin className="h-4 w-4 text-brand-600" aria-hidden /> {h.localShort} ·
+                <a href={phoneHref(COMPANY.phone)} className="font-semibold text-brand-700 underline underline-offset-2">
+                  {fmt(h.localCall, { phone: COMPANY.phone })}
+                </a>
+              </p>
             </div>
             <HeroMock d={d} />
           </div>
@@ -175,6 +185,23 @@ export default async function HomePage() {
               </div>
             )}
             <PricingCards />
+          </div>
+        </section>
+
+        {/* Who is behind it: a small local company you can call */}
+        <section className="border-t border-line" data-testid="local">
+          <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+            <div className="card flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+              <div className="max-w-2xl">
+                <h2 className="flex items-center gap-2 text-xl font-semibold sm:text-2xl">
+                  <MapPin className="h-5 w-5 text-brand-600" aria-hidden /> {h.localTitle}
+                </h2>
+                <p className="mt-2 text-ink-soft">{h.localText}</p>
+              </div>
+              <a href={phoneHref(COMPANY.phone)} className="btn-secondary shrink-0 px-5 py-3 text-base">
+                <Phone className="h-4 w-4" aria-hidden /> {fmt(h.localCall, { phone: COMPANY.phone })}
+              </a>
+            </div>
           </div>
         </section>
 

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
+import { FREE_BASIC_FLAGS } from "@/lib/analysis";
 import { COMPANY, WITHDRAWAL_DAYS } from "@/lib/company";
-import { BETA_ANALYSES_LEGACY, BETA_ANALYSES_TOTAL, PACK3_CREDITS, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaEndText, isBeta } from "@/lib/plans";
+import { BETA_ANALYSES_LEGACY, BETA_ANALYSES_TOTAL, FREE_BASIC_PER_MONTH, PACK3_CREDITS, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaEndText, isBeta } from "@/lib/plans";
 
 export const metadata: Metadata = { title: "Handelsbetingelser" };
 export const dynamic = "force-dynamic";
@@ -60,28 +61,41 @@ export default function TermsPage() {
       <h2>Priser og betaling</h2>
       <ul>
         <li>
-          <strong>Gratis:</strong> 1 analyse med Tilbudsscore og et udvalg af resultaterne. Resten af analysen kræver køb.
+          <strong>Gratis basistjek:</strong> Du kan få {FREE_BASIC_PER_MONTH} tilbud analyseret gratis pr. kalendermåned. Du ser
+          Tilbudsscoren, vores korte vurdering, den samlede pris og op til {FREE_BASIC_FLAGS} af de vigtigste røde flag med
+          forklaring. Det kræver kun en gratis konto: Der er ingen binding, du skal ikke oplyse et betalingskort, og basistjekket
+          koster aldrig noget. Et basistjek, du ikke bruger, kan ikke gemmes til en senere måned.
         </li>
         <li>
-          <strong>1 analyse:</strong> {SINGLE_PRICE_DKK} kr. for én komplet analyse – af et nyt tilbud eller af et tilbud,
-          du allerede har uploadet gratis (så du ser hele analysen).
+          <strong>1 analyse:</strong> {SINGLE_PRICE_DKK} kr. for den fulde rapport af ét tilbud – et nyt tilbud eller et, du
+          allerede har fået et gratis basistjek af. Den fulde rapport indeholder alle røde flag med mulige ekstraudgifter, hvad
+          der mangler i tilbuddet, spørgsmål og en færdig besked til håndværkeren, forhandlingspunkter, en forklaring af
+          posterne, regler og prisniveau samt en printvenlig udgave, som du kan gemme som PDF.
         </li>
         <li>
-          <strong>3 analyser:</strong> {PACK3_PRICE_DKK} kr. for {PACK3_CREDITS} komplette analyser. Hver analyse
-          bruges på samme måde som ved køb af 1 analyse, og købet er beregnet til at sammenligne op til 3 tilbud på samme opgave.
+          <strong>3 analyser:</strong> {PACK3_PRICE_DKK} kr. for {PACK3_CREDITS} fulde rapporter. Hver analyse bruges på samme
+          måde som ved køb af 1 analyse, og købet er beregnet til at sammenligne op til 3 tilbud på samme opgave.
           Ubrugte analyser udløber ikke.
         </li>
         <li>
           <strong>Kode fra en partner:</strong> Har du fået en kode fra en virksomhed, der samarbejder med Klardal (fx en
-          ejendomsmægler), kan du indløse den på din kontoside og få gratis analyser. Hver kode kan bruges én gang pr.
-          konto og et begrænset antal gange i alt. Analyser fra en kode bruges før dem, du selv har købt. Virksomheden
-          betaler for analyserne, men får ingen oplysninger om dig eller dine tilbud.
+          ejendomsmægler), kan du indløse den på din kontoside og få gratis fulde rapporter. Hver kode kan bruges én gang pr.
+          konto og et begrænset antal gange i alt. Virksomheden betaler for analyserne, men får ingen oplysninger om dig eller
+          dine tilbud.
         </li>
         <li>
-          <strong>Sammenligning:</strong> Du kan sammenligne de tilbud, hvor du har hele analysen – købt eller
+          <strong>Rækkefølge:</strong> Når du uploader et tilbud, bruger vi først analyser fra en kode, derefter analyser, du
+          har købt, og først når du ikke har flere, månedens gratis basistjek. Så får du altid den fulde rapport, når du har
+          en analyse til rådighed.
+        </li>
+        <li>
+          <strong>Sammenligning:</strong> Du kan sammenligne de tilbud, hvor du har den fulde rapport – købt eller
           med en kode.
         </li>
       </ul>
+      <p>
+        Beløb for mulige ekstraudgifter og prisniveau er skøn. Tjek altid selv det originale tilbud, før du skriver under.
+      </p>
       <p>
         Alle priser er i danske kroner og er de endelige priser. Klardal er ikke momsregistreret, så der lægges ikke moms oven i. Betaling sker med kort via Stripe. Der er intet abonnement, og intet fornyes
         automatisk. Når du har købt, får du en ordrebekræftelse på e-mail med dit samtykke, oplysninger om

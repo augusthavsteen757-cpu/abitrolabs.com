@@ -14,6 +14,8 @@ import {
   ShieldCheck,
   Building2,
   ChevronDown,
+  FileDown,
+  Handshake,
 } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { getQuote, listMessages } from "@/lib/quotes";
@@ -26,8 +28,10 @@ import {
   applyVatChoice,
   isVatUnclear,
   redactForFree,
+  flagsBySeverity,
   type Category,
 } from "@/lib/analysis";
+import { negotiationPoints } from "@/lib/negotiation";
 import { hasFullAccess } from "@/lib/plans";
 import { cn, formatDate, formatMoney, formatRange } from "@/lib/format";
 import { ScoreRing, scoreColor } from "@/components/ScoreRing";
@@ -37,7 +41,6 @@ import { MessageComposer } from "@/components/MessageComposer";
 import { VatChoice } from "@/components/VatChoice";
 import { Paywall } from "@/components/Paywall";
 import { ReportAnalysis } from "@/components/ReportAnalysis";
-import { Locked } from "@/components/Locked";
 import { getDict, getI18n } from "@/i18n/server";
 import { fmt } from "@/i18n/fmt";
 import { INTL_LOCALE } from "@/i18n/config";
@@ -112,7 +115,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
   }
 
   const full = hasFullAccess(user, quote);
-  // Free users get a preview: the paid details are removed on the server, never just hidden with CSS.
+  // The free basic analysis: the paid details are removed on the server, never just hidden with CSS.
   const { analysis: view, lock } = full ? { analysis, lock: null } : redactForFree(analysis);
   const origin = await locatePostalCode(user.postalCode);
   const firmPlace = origin ? await locatePostalCode(postalCodeFromText(analysis.contractor.address ?? null)) : null;
@@ -124,8 +127,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
   const money = (n: number | null | undefined) => formatMoney(n, cur);
   const foreign = cur !== "DKK" || view.language !== "da";
   const visibleQuestions = view.questions;
-  const hiddenCount = lock?.questions ?? 0;
-  const lockedFlags = lock?.flags.length ?? 0;
+  const negotiation = full ? negotiationPoints(analysis) : [];
   // Re-computed for display so the wording follows the viewer's language (the points never change).
   const score = computeScore(analysis, d.score);
   const color = scoreColor(score.total);
@@ -155,19 +157,17 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
     t.suggestionFixed,
   ].slice(0, 6);
 
-  // Most important first; the original index is kept because the free-plan lock refers to it.
-  const SEV_ORDER = { high: 0, medium: 1, low: 2 } as const;
-  const flags = view.flags.map((f, i) => ({ f, i })).sort((a, b) => SEV_ORDER[a.f.severity] - SEV_ORDER[b.f.severity]);
+  // Most important first.
+  const flags = flagsBySeverity(view.flags).map((f, i) => ({ f, i }));
   // The quote doesn't say whether prices include VAT: show both readings and let the user pick.
   const vatUnclear = isVatUnclear(analysis);
   const extraMax = view.extraCostRisk.max * 1.25;
-  const worstCase = !lock?.extra && analysis.totals.inclVat != null && extraMax > 0 ? analysis.totals.inclVat + extraMax : null;
+  const worstCase = full && analysis.totals.inclVat != null && extraMax > 0 ? analysis.totals.inclVat + extraMax : null;
   // One plain sentence about what to do, chosen from the score band.
   const verdictText = t.verdict[scoreBand(score.total)];
 
   const flagCard = ({ f, i }: (typeof flags)[number]) => {
     const s = SEVERITY[f.severity];
-    const flagLocked = lock?.flags.includes(i) ?? false;
     const hasExtra = f.estimatedExtraMax != null && f.estimatedExtraMax > 0;
     return (
       // Title and amount at a glance; the explanation opens with a tap (keeps the page short on a phone).
@@ -178,7 +178,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             <span className="min-w-0 flex-1">
               <SeverityBadge severity={f.severity} label={L.severity[f.severity]} />
               <span className="mt-1.5 block font-sans text-base font-semibold leading-snug">{f.title}</span>
-              {!flagLocked && f.explanation && (
+              {f.explanation && (
                 // A two-line preview while closed; the full text is shown when opened.
                 <span className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-soft group-open:hidden">{f.explanation}</span>
               )}
@@ -191,13 +191,9 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             <ChevronDown className="mt-1 h-5 w-5 shrink-0 text-ink-muted transition group-open:rotate-180" aria-hidden />
           </summary>
           <div className="-mt-2 px-4 pb-4 pl-12 sm:px-5 sm:pb-5 sm:pl-[3.25rem]">
-            {flagLocked ? (
-              <Locked lines={2} label={t.seeExplanation} />
-            ) : (
-              <p className="text-[15px] leading-relaxed text-ink-soft">{f.explanation}</p>
-            )}
+            <p className="text-[15px] leading-relaxed text-ink-soft">{f.explanation}</p>
             <Link
-              href={full ? `?spoerg=${encodeURIComponent(f.title)}#besked` : "#besked"}
+              href={full ? `?spoerg=${encodeURIComponent(f.title)}#besked` : "#laas-op"}
               scroll={!full}
               className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:underline"
             >
@@ -249,6 +245,11 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           <span className={cn("badge", priceTypeBadge)}>{L.priceType[analysis.priceType]}</span>
           <span className="badge bg-white text-ink-soft ring-1 ring-line">{quote.projectName}</span>
           {analysis.demo && <span className="badge bg-amber-100 text-amber-900">{t.demoBadge}</span>}
+          {!full && (
+            <span className="badge bg-brand-50 text-brand-800 ring-1 ring-brand-200" data-testid="basic-badge">
+              {t.basicBadge}
+            </span>
+          )}
         </div>
         <h1 className="mt-3 break-words text-2xl font-semibold sm:text-4xl">{analysis.title}</h1>
         <p className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-ink-soft">
@@ -265,6 +266,11 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           <a href={`/api/quotes/${quote.id}/file`} target="_blank" rel="noopener" className="btn-secondary px-3 py-1.5 text-sm">
             <ExternalLink className="h-4 w-4" /> {t.viewOriginal}
           </a>
+          {full && (
+            <Link href={`/dashboard/tilbud/${quote.id}/rapport`} className="btn-secondary px-3 py-1.5 text-sm" data-testid="pdf-link">
+              <FileDown className="h-4 w-4" /> {t.pdfButton}
+            </Link>
+          )}
           <DeleteQuoteButton id={quote.id} />
         </div>
       </header>
@@ -299,6 +305,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           </p>
         )}
         <p className="mt-4 leading-relaxed text-ink-soft">{analysis.summary}</p>
+        {!full && <p className="mt-3 text-sm text-ink-muted">{t.basicIntro}</p>}
         {qualityNotes.length > 0 && (
           <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" data-testid="quality-notes">
             <p className="font-semibold">{t.qualityTitle}</p>
@@ -320,12 +327,12 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
               <dt className="text-sm text-ink-muted">{t.priceIncl}</dt>
               <dd className="num font-display text-3xl font-semibold leading-tight">{money(analysis.totals.inclVat)}</dd>
             </div>
-            <div>
-              <dt className="text-sm text-red-800">{t.extraIncl}</dt>
-              <dd className="num text-lg font-semibold text-red-800">
-                {lock?.extra ? <Locked lines={1} label={t.seeAmount} /> : formatRange(view.extraCostRisk.min * 1.25, extraMax, cur)}
-              </dd>
-            </div>
+            {full && (
+              <div>
+                <dt className="text-sm text-red-800">{t.extraIncl}</dt>
+                <dd className="num text-lg font-semibold text-red-800">{formatRange(view.extraCostRisk.min * 1.25, extraMax, cur)}</dd>
+              </div>
+            )}
           </dl>
           {vatUnclear && (
             <VatChoice
@@ -338,19 +345,9 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           {worstCase != null && (
             <p className="num mt-4 rounded-xl bg-red-50 px-3.5 py-2.5 text-red-900">{fmt(t.worstCase, { amount: money(worstCase) })}</p>
           )}
-          {!lock?.extra && view.extraCostRisk.explanation && <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{view.extraCostRisk.explanation}</p>}
+          {full && view.extraCostRisk.explanation && <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{view.extraCostRisk.explanation}</p>}
         </div>
       </section>
-
-      {!full && (
-        <section id="laas-op" className="mt-6 scroll-mt-24">
-          {user.extraCredits + user.giftCredits > 0 ? (
-            <UnlockWithCreditButton id={quote.id} credits={user.extraCredits + user.giftCredits} />
-          ) : (
-            <Paywall quoteId={quote.id} title={t.unlockTitle} text={t.unlockText} />
-          )}
-        </section>
-      )}
 
       {/* 2. Det skal du være opmærksom på */}
       <section className="mt-10">
@@ -367,7 +364,39 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             )}
           </>
         )}
+        {!!lock?.hiddenFlags && (
+          <a href="#laas-op" className="mt-3 inline-flex text-sm font-semibold text-brand-700 hover:underline" data-testid="hidden-flags">
+            {fmt(t.hiddenFlags, { n: lock.hiddenFlags })}
+          </a>
+        )}
       </section>
+
+      {!full && (
+        // The basic analysis ends here: what the full report adds, and how to get it.
+        <section id="laas-op" className="mt-10 scroll-mt-24" data-testid="full-report-offer">
+          <div className="card p-5 sm:p-6">
+            <Heading title={t.fullTitle} />
+            <ul className="mt-4 space-y-2 text-[15px]">
+              {[t.fullFlags, t.fullChecks, t.fullQuestions, t.fullNegotiation, t.fullDetails, t.fullCompare].map((x) => (
+                <li key={x} className="flex gap-2.5">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" aria-hidden />
+                  <span className="text-ink-soft">{x}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="mt-4">
+            {user.extraCredits + user.giftCredits > 0 ? (
+              <UnlockWithCreditButton id={quote.id} credits={user.extraCredits + user.giftCredits} />
+            ) : (
+              <Paywall quoteId={quote.id} title={t.unlockTitle} text={t.unlockText} />
+            )}
+          </div>
+        </section>
+      )}
+
+      {full && (
+        <>
 
       {/* 4. Står det vigtigste i tilbuddet? */}
       <section className="mt-10">
@@ -406,21 +435,30 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             </div>
           )}
         </div>
-        {hiddenCount > 0 && (
-          <a href="#laas-op" className="card mt-3 flex items-center gap-4 p-4 hover:shadow-lift">
-            <Locked lines={2} label={fmt(t.moreQuestions, { n: hiddenCount })} className="flex-1" asLink={false} />
-          </a>
-        )}
       </section>
+
+      {negotiation.length > 0 && (
+        <section className="mt-10" data-testid="negotiation">
+          <Heading title={t.negotiationTitle} />
+          <p className="mt-1 text-sm text-ink-muted">{t.negotiationIntro}</p>
+          <ol className="card mt-4 divide-y divide-line">
+            {negotiation.map((p, n) => (
+              <li key={`${p.key}-${n}`} className="flex gap-3 p-4">
+                <Handshake className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" aria-hidden />
+                <p className="min-w-0 leading-snug">{fmt(t.negotiation[p.key], { title: p.title ?? "" })}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
 
       {/* Message composer */}
       <section className="mt-10" id="besked">
         <Heading title={t.messageTitle} />
         <p className="mt-1 text-sm text-ink-muted">{t.messageIntro}</p>
         <div className="mt-4">
-          {full ? (
-            // Folded until wanted – it opens by itself when "Spørg håndværkeren" is used on a warning.
-            <details className="group" data-testid="message-box">
+          {/* Folded until wanted – it opens by itself when "Spørg håndværkeren" is used on a warning. */}
+          <details className="group" data-testid="message-box">
               <summary className="btn-secondary w-full cursor-pointer list-none">
                 <MessageSquareText className="h-4 w-4" /> {t.messageOpen}
               </summary>
@@ -434,12 +472,6 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                 </Suspense>
               </div>
             </details>
-          ) : (
-            <a href="#laas-op" className="card flex flex-col gap-3 p-5 hover:shadow-lift">
-              <p className="text-sm text-ink-soft">{t.messageLocked}</p>
-              <Locked lines={4} label={t.unlockMessages} asLink={false} />
-            </a>
-          )}
         </div>
       </section>
 
@@ -483,11 +515,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                       </p>
                       <p className="num shrink-0 font-semibold">{money(item.amount)}</p>
                     </div>
-                    {lock?.items.includes(i) ? (
-                      <Locked lines={1} label={t.seeItem} className="mt-1.5" />
-                    ) : (
-                      item.explanation && <p className="mt-1 text-sm text-ink-soft">{item.explanation}</p>
-                    )}
+                    {item.explanation && <p className="mt-1 text-sm text-ink-soft">{item.explanation}</p>}
                     {(item.note || (item.quantity != null && item.unitPrice != null)) && (
                       <p className="mt-1 flex flex-wrap gap-x-3 text-xs text-ink-muted">
                         {item.quantity != null && item.unitPrice != null && (
@@ -525,7 +553,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="font-medium">{L.rule[rule.key]}</p>
-                      {lock ? <Locked lines={1} label={t.seeNote} className="mt-1" /> : rule.note && <p className="text-sm text-ink-muted">{rule.note}</p>}
+                      {rule.note && <p className="text-sm text-ink-muted">{rule.note}</p>}
                     </div>
                   </li>
                 ))}
@@ -534,10 +562,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           )}
 
           <Fold title={t.priceLevelTitle}>
-            {lock ? (
-              <Locked lines={1} label={t.priceLevelLocked} />
-            ) : (
-              <div className="text-sm">
+            <div className="text-sm">
                 <span
                   className={cn(
                     "badge",
@@ -554,8 +579,7 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
                 </span>
                 {view.priceLevel.explanation && <p className="mt-1.5 text-ink-soft">{view.priceLevel.explanation}</p>}
                 <p className="mt-1 text-xs text-ink-muted">{t.priceLevelNote}</p>
-              </div>
-            )}
+            </div>
           </Fold>
 
           <Fold title={t.scoreDetails}>
@@ -581,6 +605,8 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
           </Fold>
         </div>
       </section>
+        </>
+      )}
 
       <div className="mt-10 border-t border-line pt-5 text-xs leading-relaxed text-ink-muted">
         <p>

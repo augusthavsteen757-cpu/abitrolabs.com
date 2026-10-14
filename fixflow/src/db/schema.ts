@@ -26,6 +26,9 @@ export const users = sqliteTable("users", {
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
   /** Free trial analyses promised when the account was created (empty for accounts from before this was stored = 5). */
   betaLimit: integer("beta_limit"),
+  /** Free basic analysis after the trial: the month it was last used ("2026-11", Danish time) and how many that month. */
+  freeMonth: text("free_month"),
+  freeUsed: integer("free_used"),
 });
 
 export const quotes = sqliteTable(
@@ -54,7 +57,7 @@ export const quotes = sqliteTable(
     jobContext: text("job_context"),
     /** Which AI model made the analysis and what it used (for cost tracking and spotting model drift). */
     /** Which quota paid for the running analysis – lets a crashed analysis be refunded later. */
-    chargedSource: text("charged_source", { enum: ["plan", "gift", "credit"] }),
+    chargedSource: text("charged_source", { enum: ["plan", "free", "gift", "credit"] }),
     aiModel: text("ai_model"),
     aiInputTokens: integer("ai_input_tokens"),
     aiOutputTokens: integer("ai_output_tokens"),

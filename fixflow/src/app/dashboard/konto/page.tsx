@@ -81,7 +81,9 @@ export default async function AccountPage({
             <p className="mt-1 text-sm text-ink-soft">
               {isPro
                 ? `${fmt(t.usagePro, { used: usage.used, limit: usage.limit })}${usage.periodEnd ? fmt(t.resets, { date: date(usage.periodEnd) }) : ""}.`
-                : fmt(beta ? t.usageBeta : t.usageFree, { used: usage.used, limit: usage.limit })}
+                : beta
+                  ? fmt(t.usageBeta, { used: usage.used, limit: usage.limit })
+                  : `${fmt(t.usageFree, { used: usage.used, limit: usage.limit })}${usage.periodEnd ? fmt(t.resets, { date: date(usage.periodEnd) }) : ""}.`}
               {usage.credits > 0 && fmt(t.credits, { n: usage.credits })}
             </p>
           </div>
