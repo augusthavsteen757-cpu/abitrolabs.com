@@ -18,6 +18,7 @@ import { ScoreRing } from "@/components/ScoreRing";
 import { getCurrentUser } from "@/lib/auth";
 import { getDict } from "@/i18n/server";
 import type { Dict } from "@/i18n/dict";
+import { MISSPELLINGS, organizationJsonLd } from "@/lib/organization";
 
 // Same order as home.features in the dictionaries.
 const FEATURE_ICONS = [Gauge, TriangleAlert, ListChecks, MessageSquareText, Columns3];
@@ -27,17 +28,14 @@ export const dynamic = "force-dynamic";
 // Each public page names its own canonical URL (the root layout does not set one, or every page would point here).
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-// Common ways people mistype the name, so search engines can connect them to Klardal.
-const MISSPELLINGS = ["Klardahl", "Klaredahl", "Klaredal"];
-
-// Tells Google the site name and logo shown next to search results (static values only – no user input).
+// Tells Google the site name, logo and what Klardal is (static values only – no user input).
 function siteJsonLd() {
   const url = `${(process.env.APP_URL || "https://klardal.com").replace(/\/$/, "")}/`;
   return {
     "@context": "https://schema.org",
     "@graph": [
-      { "@type": "WebSite", "@id": `${url}#website`, name: "Klardal", alternateName: ["klardal.com", ...MISSPELLINGS], url },
-      { "@type": "Organization", "@id": `${url}#organization`, name: "Klardal", alternateName: MISSPELLINGS, url, logo: `${url}logo.png` },
+      { "@type": "WebSite", "@id": `${url}#website`, name: "Klardal", alternateName: ["klardal.com", ...MISSPELLINGS], url, publisher: { "@id": `${url}#organization` } },
+      organizationJsonLd(url),
     ],
   };
 }

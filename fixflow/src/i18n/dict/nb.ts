@@ -52,6 +52,7 @@ export const nb: Dict = {
     tryFree: "Prøv gratis",
   },
   footer: {
+    about: "Om Klardal",
     tagline: "Trygghet når du bruker mye penger. Klardal forklarer håndverkertilbud etter danske regler.",
     pricing: "Priser",
     login: "Logg inn",

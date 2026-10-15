@@ -48,6 +48,7 @@ export const pl: Dict = {
     tryFree: "Wypróbuj za darmo",
   },
   footer: {
+    about: "O Klardal",
     tagline: "Spokój, gdy wydajesz duże pieniądze. Klardal wyjaśnia wyceny wykonawców według duńskich przepisów.",
     pricing: "Cennik",
     login: "Zaloguj się",

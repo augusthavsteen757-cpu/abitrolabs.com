@@ -52,6 +52,7 @@ export const ro: Dict = {
     tryFree: "Încearcă gratuit",
   },
   footer: {
+    about: "Despre Klardal",
     tagline: "Liniște atunci când cheltui mulți bani. Klardal explică ofertele meșterilor conform regulilor daneze.",
     pricing: "Prețuri",
     login: "Autentificare",

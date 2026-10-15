@@ -52,6 +52,7 @@ export const en: Dict = {
     tryFree: "Try for free",
   },
   footer: {
+    about: "About Klardal",
     tagline: "Peace of mind when you’re spending a lot. Klardal explains contractor quotes according to Danish rules.",
     pricing: "Pricing",
     login: "Log in",

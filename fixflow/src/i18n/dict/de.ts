@@ -52,6 +52,7 @@ export const de: Dict = {
     tryFree: "Kostenlos testen",
   },
   footer: {
+    about: "Über Klardal",
     tagline: "Sicherheit, wenn es um viel Geld geht. Klardal erklärt Handwerkerangebote nach dänischen Regeln.",
     pricing: "Preise",
     login: "Anmelden",
