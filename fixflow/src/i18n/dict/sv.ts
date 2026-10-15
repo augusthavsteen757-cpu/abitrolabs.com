@@ -52,6 +52,7 @@ export const sv: Dict = {
     tryFree: "Prova gratis",
   },
   footer: {
+    about: "Om Klardal",
     tagline: "Trygghet när det handlar om mycket pengar. Klardal förklarar hantverkarofferter enligt danska regler.",
     pricing: "Priser",
     login: "Logga in",

@@ -68,6 +68,7 @@ export async function MarketingFooter() {
           <p className="mt-3 max-w-sm text-sm text-ink-muted">{d.footer.tagline}</p>
         </div>
         <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-soft">
+          <Link href="/om" className="hover:text-ink">{d.footer.about}</Link>
           <Link href="/priser" className="hover:text-ink">{d.footer.pricing}</Link>
           {publishedArticles().length > 0 && <Link href="/artikler" className="hover:text-ink">{d.article.indexTitle}</Link>}
           <Link href="/login" className="hover:text-ink">{d.footer.login}</Link>

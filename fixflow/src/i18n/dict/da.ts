@@ -40,7 +40,7 @@ export const da = {
   meta: {
     title: "Klardal – forstå dit håndværkertilbud",
     description:
-      "Upload dit håndværkertilbud og få det forklaret: skjulte udgifter, uklare poster, danske regler og de spørgsmål, du bør stille, før du skriver under.",
+      "Klardal forklarer dit håndværkertilbud: skjulte udgifter, uklare poster, danske regler og de spørgsmål, du bør stille, før du skriver under.",
   },
   header: {
     howItWorks: "Sådan virker det",
@@ -50,6 +50,7 @@ export const da = {
     tryFree: "Prøv gratis",
   },
   footer: {
+    about: "Om Klardal",
     tagline: "Tryghed, når du bruger mange penge. Klardal forklarer håndværkertilbud efter danske regler.",
     pricing: "Priser",
     login: "Log ind",

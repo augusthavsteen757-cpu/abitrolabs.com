@@ -60,6 +60,14 @@ for (const p of ["/priser", "/handelsbetingelser", "/privatlivspolitik", "/artik
   ok(html.includes(`<link rel="canonical" href="https://klardal.com${p}"/>`), `${p} has its own canonical`);
 }
 ok(/<link rel="canonical" href="https:\/\/klardal\.com\/?"\/>/.test(await (await get("/")).text()), "front page canonical");
+// The brand page answers "hvad er Klardal" – with Organization data, but never the street address.
+const about = await get("/om");
+const aboutHtml = await about.text();
+ok(about.status === 200 && aboutHtml.includes('<link rel="canonical" href="https://klardal.com/om"/>') && aboutHtml.includes("<title>Hvad er Klardal? · Om Klardal</title>") && /data-testid="about-lead"[^>]*>Klardal er en dansk onlinetjeneste/.test(aboutHtml), "/om explains what Klardal is");
+ok(aboutHtml.includes('"@type":"AboutPage"') && aboutHtml.includes('"@type":"Organization"') && aboutHtml.includes('"addressLocality":"Svendborg"') && !/application\/ld\+json[^<]*Strandhuse/.test(aboutHtml), "/om has Organization data with the town, not the street");
+ok(sitemapText.includes("/om<") && llmsText.includes("/om)"), "/om is in the sitemap and llms.txt");
+const homeLd = await (await get("/")).text();
+ok(homeLd.includes('"description":"Klardal er en dansk onlinetjeneste') && homeLd.includes('href="/om"'), "front page: Organization description and footer link to /om");
 ok((await get("/artikler/findes-ikke")).status === 404, "unknown article gives 404");
 const typo = await get("/priser", { headers: { "x-forwarded-host": "www.klardahl.dk" } });
 ok(typo.status === 301 && /\/priser$/.test(typo.headers.get("location") ?? "") && !(typo.headers.get("location") ?? "").includes("klardahl"), `klardahl.dk sends visitors to the main domain (${typo.status})`);

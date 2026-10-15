@@ -29,6 +29,7 @@ export function GET() {
 
 ## Sider
 - [Forside](${base}/)
+- [Om Klardal](${base}/om)
 - [Priser](${base}/priser)
 - [Opret konto](${base}/opret)
 - [Handelsbetingelser](${base}/handelsbetingelser)
