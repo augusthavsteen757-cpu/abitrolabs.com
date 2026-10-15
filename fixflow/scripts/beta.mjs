@@ -4,6 +4,8 @@
  *   BASE_URL=http://localhost:3000 CHROMIUM_PATH=/opt/pw-browsers/chromium node scripts/beta.mjs
  */
 import { chromium } from "playwright-core";
+import { readFileSync } from "node:fs";
+import { PDFDocument, StandardFonts } from "pdf-lib";
 const B = (process.env.BASE_URL || "http://localhost:3000").replace(/\/$/, "");
 const br = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/opt/pw-browsers/chromium" });
 const ctx = await br.newContext({ locale: "da-DK" });
@@ -61,6 +63,13 @@ await p.getByText("Du har brugt dine 3 gratis analyser").waitFor();
 ok(true, "new account: after 3 analyses the beta limit message, no purchase");
 const extra = await p.evaluate(async () => { const f = new FormData(); f.append("file", new Blob(["%PDF-1.4"], { type: "application/pdf" }), "x.pdf"); return (await fetch("/api/quotes", { method: "POST", body: f })).status; });
 ok(extra === 402, `a 4th upload is refused by the API (${extra})`);
+// The invoice check uses the same analyses: with none left the form says so and the API refuses it.
+const lastQuote = await p.evaluate(async () => (await (await fetch("/api/quotes")).json()).quotes[0].id);
+await p.goto(B + `/dashboard/tilbud/${lastQuote}`);
+const invForm = await p.getByTestId("invoice-form").innerText();
+ok(invForm.includes("Du har ikke flere analyser tilbage") && (await p.getByTestId("invoice-form").getByRole("button", { name: "Tjek regningen" }).isDisabled()), "invoice check: no analyses left is said plainly, button disabled");
+const invExtra = await p.evaluate(async (id) => { const f = new FormData(); f.append("file", new Blob(["%PDF-1.4"], { type: "application/pdf" }), "regning.pdf"); return (await fetch(`/api/quotes/${id}/invoice`, { method: "POST", body: f })).status; }, lastQuote);
+ok(invExtra === 402, `invoice check refused by the API when no analyses are left (${invExtra})`);
 await p.goto(B + "/dashboard/sammenlign");
 ok(!(await p.innerText("body")).includes("Sammenligning er en del af Pro"), "compare available in beta");
 await p.goto(B + "/dashboard/konto");
@@ -90,5 +99,62 @@ ok(/3 af 5/.test(acc) && !/af 10/.test(acc), "beta account shows 3 of 5 analyses
 ok(!/Pro – 1 måned|Testbetaling|Fortryd købet|nulstilles/.test(acc), "no Pro plan, period or test payment in the beta");
 const nav = await old.innerText("aside");
 ok(nav.includes("Gratis prøveperiode") && nav.includes("3/5"), "sidebar shows the beta plan with 3/5");
+
+/* Tjek regningen in the beta: costs one of the free analyses, refunded when the document isn't an invoice,
+   a double click runs only one check, and checks can be deleted. */
+{
+  const pdfOf = async (lines) => {
+    const doc = await PDFDocument.create();
+    const font = await doc.embedFont(StandardFonts.Helvetica);
+    const pg = doc.addPage();
+    lines.forEach((l, i) => pg.drawText(l, { x: 50, y: 750 - i * 20, size: 12, font }));
+    return [...(await doc.save())];
+  };
+  const inv = await (await br.newContext({ locale: "da-DK" })).newPage();
+  inv.on("pageerror", (e) => errs.push(e.message));
+  await inv.goto(B + "/opret");
+  await inv.fill("#name", "Regning Tester"); await inv.fill("#email", `regning${Date.now()}@eksempel.dk`); await inv.fill("#password", "Regning-Tester-Kode-55");
+  await inv.locator("input[type=checkbox]").first().check();
+  await inv.click("button[type=submit]"); await inv.waitForURL(B + "/dashboard");
+  const r = await inv.evaluate(async ({ quotePdf, invoice, letter }) => {
+    const send = async (url, name, bytes) => {
+      const fd = new FormData();
+      fd.append("file", new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), name);
+      const res = await fetch(url, { method: "POST", body: fd });
+      return { status: res.status, body: await res.json().catch(() => ({})) };
+    };
+    const q = await send("/api/quotes", "tilbud-vvs.pdf", quotePdf);
+    const id = q.body.quote?.id;
+    const url = `/api/quotes/${id}/invoice`;
+    const notInvoice = await send(url, "ikke-regning.pdf", letter);
+    const first = await send(url, "slutregning.pdf", invoice);
+    const parallel = (await Promise.all([send(url, "regning-a.pdf", invoice), send(url, "regning-b.pdf", invoice)])).map((x) => x.status).sort();
+    const noneLeft = await send(url, "regning-c.pdf", invoice);
+    const list = await (await fetch(url)).json();
+    const del = (await fetch(`${url}/${list.checks[0].id}`, { method: "DELETE" })).status;
+    const delAgain = (await fetch(`${url}/${list.checks[0].id}`, { method: "DELETE" })).status;
+    const after = (await (await fetch(url)).json()).checks.length;
+    return { id, quote: q.status, notInvoice, first: first.status, result: first.body.check?.result, parallel, noneLeft: noneLeft.status, count: list.checks.length, raw: JSON.stringify(list), del, delAgain, after };
+  }, { quotePdf: [...readFileSync(new URL("../sample-quotes/eksempel-vvs-badevaerelse.pdf", import.meta.url))], invoice: await pdfOf(["Faktura 2001", "Slutregning", "I alt 52.000 kr."]), letter: await pdfOf(["Kære nabo", "Husk grillfesten lørdag"]) });
+  ok(r.quote === 201, `beta: quote analysed (${r.quote})`);
+  ok(r.notInvoice.status === 422 && /ligner ikke en regning/.test(r.notInvoice.body.error ?? ""), `beta: a document that isn't an invoice is refused (${r.notInvoice.status})`);
+  ok(r.first === 201 && r.result?.differenceInclVat > 0 && r.result.items.some((i) => i.status === "new"), `beta: invoice compared with the quote (${r.first})`);
+  ok(r.parallel.join() === "201,409", `beta: a double click runs only one check (${r.parallel})`);
+  // 3 free analyses: 1 quote + 2 checks. The refused document was refunded, otherwise one of these would have been 402.
+  ok(r.noneLeft === 402, `beta: the refused document was not charged, and the 3 free analyses are now used (${r.noneLeft})`);
+  ok(r.count === 2 && !/fileKey|aiModel|aiInputTokens/.test(r.raw), "beta: only results are stored and sent, no file key or AI cost data");
+  ok(r.del === 200 && r.delAgain === 404 && r.after === 1, `beta: an invoice check can be deleted once (${r.del}, ${r.delAgain}, ${r.after})`);
+  await inv.goto(B + `/dashboard/tilbud/${r.id}`);
+  const page = await inv.innerText("#regning");
+  ok(page.includes("Er regningen kommet?") && page.includes("ikke juridisk rådgivning") && page.includes("Du har ikke flere analyser tilbage"), "beta: the quote page shows the check, the disclaimer and that no analyses are left");
+  const other = (await inv.evaluate(async () => (await fetch("/api/quotes/xyz/invoice")).status));
+  ok(other === 404, `beta: an unknown quote has no invoice checks (${other})`);
+  const gone = await inv.evaluate(async (id) => {
+    await fetch(`/api/quotes/${id}`, { method: "DELETE" });
+    return (await fetch(`/api/quotes/${id}/invoice`)).status;
+  }, r.id);
+  ok(gone === 404, `beta: a deleted quote has no invoice checks left to show (${gone})`);
+}
+
 ok(errs.length === 0, "no page errors " + errs.join(";"));
 await br.close();

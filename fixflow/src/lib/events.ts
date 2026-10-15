@@ -15,6 +15,7 @@ export const EVENTS = {
   message_generated: "Besked genereret",
   message_copied: "Besked kopieret",
   questions_copied: "Spørgsmål kopieret",
+  invoice_checked: "Regning tjekket",
 } as const;
 export type EventName = keyof typeof EVENTS;
 

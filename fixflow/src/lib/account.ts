@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, inArray, isNull, lt, or } from "drizzle-orm";
 import { db } from "@/db";
-import { analysisReports, contractorMessages, passwordResets, payments, quotes, users, type User } from "@/db/schema";
+import { analysisReports, contractorMessages, invoiceChecks, passwordResets, payments, quotes, users, type User } from "@/db/schema";
 import { deleteStoredFile } from "./storage";
 import { cancelPro } from "./billing";
 
@@ -20,6 +20,7 @@ export async function deleteAccountData(user: User) {
     await db.delete(contractorMessages).where(inArray(contractorMessages.quoteId, ids));
     await db.delete(analysisReports).where(inArray(analysisReports.quoteId, ids));
   }
+  await db.delete(invoiceChecks).where(eq(invoiceChecks.userId, user.id));
   for (const q of qs) await deleteStoredFile(q.fileKey);
   await db.delete(quotes).where(eq(quotes.userId, user.id));
   await db.update(payments).set({ userId: null }).where(eq(payments.userId, user.id));

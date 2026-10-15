@@ -41,6 +41,12 @@ export default function PrivacyPage() {
           ikke personlige oplysninger i beskrivelsen. De gemmes sammen med tilbuddet og sendes med til AI-analysen, så den
           kan tage højde for dem.
         </li>
+        <li>
+          <strong>Regninger</strong>, du lægger op under »Tjek regningen«. Regningen sendes til AI-analyse på samme måde
+          som et tilbud (CPR-numre i en PDF fjernes også her), men selve filen gemmes ikke. Vi gemmer kun resultatet af
+          sammenligningen (fx firmaets navn, poster og beløb) sammen med tilbuddet, og det slettes sammen med tilbuddet
+          eller din konto.
+        </li>
         <li><strong>Beskeder</strong>, du laver med beskedgeneratoren (udkastet indeholder dit navn).</li>
         <li>
           <strong>Køb:</strong> type, beløb, dato, dit samtykke til levering med det samme og evt. fortrydelse.
@@ -93,7 +99,7 @@ export default function PrivacyPage() {
           standardkontraktbestemmelser (art. 46, stk. 2, litra c).
         </li>
         <li>
-          <strong>Anthropic, PBC (USA)</strong> – AI-analyse af dine tilbud og udkast til beskeder. Se afsnittet om
+          <strong>Anthropic, PBC (USA)</strong> – AI-analyse af dine tilbud og regninger og udkast til beskeder. Se afsnittet om
           AI-analyse og overførsel til USA nedenfor.
         </li>
         <li>
@@ -112,7 +118,7 @@ export default function PrivacyPage() {
 
       <h2>AI-analyse og overførsel til USA</h2>
       <p>
-        Når du uploader et tilbud, sender vi det til Anthropic, PBC i USA, som laver analysen med kunstig intelligens.
+        Når du uploader et tilbud eller en regning, sender vi det til Anthropic, PBC i USA, som laver analysen med kunstig intelligens.
         Analysen laves automatisk – ingen medarbejder hos Klardal læser dit tilbud for at lave den.
         Indeholder en PDF et CPR-nummer, sender vi teksten uden CPR-nummeret i stedet for selve filen. Sider uden tekst
         (fx skærmbilleder og fotos) sendes som billeder – på dem skal du selv overstrege CPR-nummeret. Når du laver en
