@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import { DEMO_QUOTES } from "../src/lib/demo-data";
 import { HOUSING, JOB_NOTE_MAX, JOB_SUBTYPES, JOB_TYPES, LOAD_BEARING, jobContextForAi, parseJobContext, readJobContext } from "../src/lib/job-context";
-import { analysisOfQuote, applyVatChoice, normalizeAnalysis, parseStoredAnalysis, priceOfQuote, refusalOf, scoreOfQuote } from "../src/lib/analysis";
+import { analysisOfQuote, applyVatChoice, freeShare, normalizeAnalysis, redactForFree, parseStoredAnalysis, priceOfQuote, refusalOf, scoreOfQuote } from "../src/lib/analysis";
 import { computeScore, scoreBand, scoreLabel } from "../src/lib/score";
 import { DICTS } from "../src/i18n/dict";
 import { fmt } from "../src/i18n/fmt";
@@ -374,6 +374,20 @@ test("worst case is shown as a worst case, never as our expected estimate, in ev
     for (const k of ["{cheap}", "{w1}", "{safe}", "{w2}"]) assert.ok(compare.includes(k), `${loc}: compare keeps ${k}`);
     assert.ok(!bad.test(single) && !bad.test(compare), `${loc}: worst case framed as our estimate`);
   }
+});
+
+test("free view shows half of each list (rounded up), keeps extra costs locked; prices are 29 and 49 kr.", () => {
+  assert.equal(SINGLE_PRICE_DKK, 29);
+  assert.equal(PACK3_PRICE_DKK, 49);
+  assert.deepEqual([0, 1, 2, 3, 4, 5, 9].map(freeShare), [1, 1, 1, 2, 2, 3, 5]);
+  const a = { ...normalizeAnalysis(DEMO_QUOTES[0].raw), score: { total: 0, label: "", breakdown: [] } } as Parameters<typeof redactForFree>[0];
+  const { analysis: v, lock } = redactForFree(a);
+  const half = freeShare(a.flags.length);
+  assert.equal(v.flags.filter((f) => f.explanation).length, half, "explained flags");
+  assert.equal(lock.flags.length, a.flags.length - half);
+  assert.equal(v.questions.length, freeShare(a.questions.length));
+  assert.equal(lock.questions, a.questions.length - freeShare(a.questions.length));
+  assert.ok(lock.extra && v.extraCostRisk.max === 0, "extra costs stay locked");
 });
 
 console.log(`\n${passed} tests passed`);

@@ -75,7 +75,7 @@ try {
   await page.goto(`${BASE}/priser`);
   const pricing = await page.innerText("body");
   assert(!/\bPro\b/.test(pricing), "no Pro on the pricing page");
-  assert(pricing.includes("49 kr.") && pricing.includes("99 kr.") && pricing.includes("1 analyse") && pricing.includes("3 analyser") && pricing.includes("Til 3 tilbud på samme opgave"), "pricing page: 1 analyse 49 kr., 3 analyser 99 kr. for comparing");
+  assert(pricing.includes("29 kr.") && pricing.includes("49 kr.") && pricing.includes("1 analyse") && pricing.includes("3 analyser") && pricing.includes("Til 3 tilbud på samme opgave"), "pricing page: 1 analyse 29 kr., 3 analyser 49 kr. for comparing");
   assert(!/Engangskøb|3-pakke|[Kk]redit(?!kort)|[Ll]ås .*op|[Ll]åst/.test(pricing), "pricing page uses plain words (no 'engangskøb', '3-pakke', 'kredit', 'lås op')");
   await page.goto(`${BASE}/handelsbetingelser`);
   assert(!/\bPro\b|abonnementet fornyes/i.test(await page.innerText("main")), "no Pro in the terms");
@@ -130,27 +130,45 @@ try {
 
   const scoreText = await page.locator("text=Tilbudsscore 36 ud af 100").count();
   assert(scoreText > 0, "score 36 shown");
-  await page.getByText("7 spørgsmål mere", { exact: true }).waitFor();
+  await page.getByText("4 spørgsmål mere", { exact: true }).waitFor();
   await page.getByRole("heading", { name: "Se hele analysen" }).waitFor();
   // The paid details must not be in the page at all (not just blurred)
   const lockedHtml = await page.content();
-  assert(!lockedHtml.includes("tilbuddets største enkeltpost"), "locked flag explanation is not sent to the browser");
+  assert(lockedHtml.includes("tilbuddets største enkeltpost"), "the free half shows the most important warnings explained");
+  assert(!lockedHtml.includes("kubikmeter affald"), "locked flag explanation is not sent to the browser");
   assert(!lockedHtml.includes("36.250"), "locked extra-cost amount is not sent to the browser");
   const apiJson = await page.evaluate(async (u) => (await fetch(`/api/quotes/${u.split("/").pop()}`)).text(), page.url());
-  assert(!apiJson.includes("tilbuddets største enkeltpost"), "API does not leak locked details");
+  assert(!apiJson.includes("kubikmeter affald"), "API does not leak locked details");
   log("locked details never reach the browser (page + API)");
   const visibleQuestions = await page.locator("section:has(h2:has-text('Spørg om det her')) ol > li").count();
-  assert(visibleQuestions === 1, `free user sees 1 question (saw ${visibleQuestions})`);
+  assert(visibleQuestions === 4, `free user sees half the questions: 4 of 8 (saw ${visibleQuestions})`);
   await shot(page, "analysis-free");
   log("free user sees preview with locked details");
 
-  // The free analysis is used up → upload shows paywall
+  // The 3 free (half-shown) analyses are used up → upload shows paywall
+  const extraIds = [];
+  for (let i = 0; i < 2; i++) {
+    const r = await page.request.post(`${BASE}/api/quotes`, {
+      headers: { origin: BASE },
+      multipart: { file: { name: "eksempel-vvs-badevaerelse.pdf", mimeType: "application/pdf", buffer: readFileSync("sample-quotes/eksempel-vvs-badevaerelse.pdf") } },
+    });
+    assert(r.status() === 201, `free analysis ${i + 2} of 3 (${r.status()})`);
+    extraIds.push((await r.json()).quote.id);
+  }
+  const fourth = await page.request.post(`${BASE}/api/quotes`, {
+    headers: { origin: BASE },
+    multipart: { file: { name: "eksempel-vvs-badevaerelse.pdf", mimeType: "application/pdf", buffer: readFileSync("sample-quotes/eksempel-vvs-badevaerelse.pdf") } },
+  });
+  assert(fourth.status() === 402, `a 4th free analysis is refused (${fourth.status()})`);
+  log("3 free analyses, then a purchase is needed");
   await page.goto(`${BASE}/dashboard/upload`);
-  await page.getByText("Du har brugt din gratis analyse").waitFor();
+  await page.getByText("Du har brugt dine gratis analyser").waitFor();
   const paywall = await page.innerText("main");
   assert(!/\bPro\b/.test(paywall), "the paywall offers no Pro");
-  await page.getByRole("button", { name: "Gå til betaling – 99 kr.", exact: true }).waitFor();
+  await page.getByRole("button", { name: "Gå til betaling – 49 kr.", exact: true }).waitFor();
   log("upload paywall when no analyses left: single or 3-pakke, no Pro");
+  // Remove the two extra quotes again, so the rest of the test works on the first one only.
+  for (const id of extraIds) assert((await page.request.delete(`${BASE}/api/quotes/${id}`, { headers: { origin: BASE } })).ok(), "extra quote deleted");
 
   // Pro can no longer be bought, not even by calling the API directly.
   const proRes = await page.request.post(`${BASE}/api/billing/checkout`, { headers: { origin: BASE }, data: { kind: "PRO_MONTHLY", consent: true } });
@@ -161,18 +179,18 @@ try {
   // Buy single analysis from the quote page → unlocks this quote
   await page.goto(quoteUrl);
   const buyBox = page.locator("section#laas-op");
-  await buyBox.getByRole("button", { name: "Gå til betaling – 49 kr.", exact: true }).click();
+  await buyBox.getByRole("button", { name: "Gå til betaling – 29 kr.", exact: true }).click();
   await buyBox.getByText("Sæt flueben").waitFor();
   assert((await buyBox.innerText()).includes("Jeg accepterer også Klardals handelsbetingelser."), "the buyer accepts the terms explicitly");
   log("purchase requires consent to immediate delivery");
   // The single purchase is the first option, the 3-pakke the second.
-  await buyBox.getByRole("button", { name: "Gå til betaling – 99 kr.", exact: true }).waitFor();
+  await buyBox.getByRole("button", { name: "Gå til betaling – 49 kr.", exact: true }).waitFor();
   await buyBox.getByRole("checkbox").nth(0).check();
-  await buyBox.getByRole("button", { name: "Gå til betaling – 49 kr.", exact: true }).click();
+  await buyBox.getByRole("button", { name: "Gå til betaling – 29 kr.", exact: true }).click();
   await page.getByText("Skriv en besked").waitFor({ timeout: 15_000 });
   const after = await page.locator("section:has(h2:has-text('Spørg om det her')) ol > li").count();
   assert(after === 8, `all 8 questions after unlock (saw ${after})`);
-  assert((await page.content()).includes("tilbuddets største enkeltpost"), "unlocked details are shown");
+  assert((await page.content()).includes("kubikmeter affald"), "unlocked details are shown");
   // Overview first: at most 3 warnings and 3 questions are open; the rest is behind "Vis alle".
   const openFlags = await page.locator("section:has(h2:has-text('Det bør du se på')) > div > article").count();
   assert(openFlags <= 3, `at most 3 warnings open (saw ${openFlags})`);
@@ -203,10 +221,10 @@ try {
   await page.getByTestId("withdraw").waitFor({ timeout: 15_000 });
   // EU withdrawal function (from 19 June 2026): an unambiguous "withdraw" button, then a "confirm withdrawal" step.
   await page.getByRole("button", { name: "Fortryd aftalen her" }).click();
-  await page.getByText(/Du får 49 kr\. tilbage/).waitFor();
+  await page.getByText(/Du får 29 kr\. tilbage/).waitFor();
   await page.getByRole("button", { name: "Bekræft fortrydelse" }).click();
   await page.getByText("Købet er fortrudt").waitFor();
-  await page.getByText(/Fortrudt – 49 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
+  await page.getByText(/Fortrudt – 29 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
   log("unused purchase can be withdrawn in the app with full refund");
 
   await page.goto(quoteUrl);
@@ -269,15 +287,15 @@ try {
     await p.getByText("Det bør du se på").waitFor();
     return p.url();
   };
-  const freeUrl = await uploadAs(buyer, "eksempel-byg.pdf");
-  // The free analysis is locked; with gift analyses on the account, the page offers to unlock it with one.
-  await buyer.getByRole("button", { name: "Brug 1 analyse her" }).waitFor();
-  assert((await buyer.getByText("Skriv besked").count()) === 0, "the free analysis is locked");
+  // Gift analyses are used first and are fully unlocked; after them comes a free (half-shown) analysis.
   for (const f of ["eksempel-vinduer.pdf", "eksempel-vvs-badevaerelse.pdf"]) {
     await uploadAs(buyer, f);
     await buyer.getByText("Skriv en besked").first().waitFor();
   }
-  log("free analysis first, then the gift analyses – which are fully unlocked");
+  const freeUrl = await uploadAs(buyer, "eksempel-byg.pdf");
+  await buyer.getByRole("heading", { name: "Se hele analysen" }).waitFor();
+  assert((await buyer.getByText("Skriv en besked").count()) === 0, "the free analysis is locked");
+  log("gift analyses first – fully unlocked – then a free half-shown analysis");
 
   await buyer.goto(`${BASE}/dashboard/sammenlign`);
   await buyer.getByText(/Skift tilbud \(2 valgt\)/).waitFor();
@@ -299,12 +317,12 @@ try {
 
   await buyer.goto(`${BASE}/dashboard/konto`);
   await buyer.getByTestId("withdraw").click();
-  await buyer.getByText(/Du får 66 kr\. tilbage/).waitFor();
+  await buyer.getByText(/Du får 32,67 kr\. tilbage/).waitFor();
   await buyer.getByTestId("withdraw").click();
   await buyer.getByText("Købet er fortrudt").waitFor();
-  await buyer.getByText(/Fortrudt – 66 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
+  await buyer.getByText(/Fortrudt – 32,67 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
   assert((await buyer.getByText(/Analyser tilbage:/).count()) === 0, "the 2 unused analyses are removed");
-  log("withdrawing a partly used 3-pakke refunds the 2 unused analyses (66 kr.)");
+  log("withdrawing a partly used 3-pakke refunds the 2 unused analyses (32,67 kr.)");
   await noOverflow(buyer, "konto with code + pack");
   await buyer.context().close();
 
@@ -629,7 +647,7 @@ try {
   assert((await mobile.locator("h1").count()) > 0, "demo quote still exists after intruder attempts");
   log("another user cannot read, change, unlock, report or delete someone else's quote");
 
-  // Two uploads at the same time with one analysis left: one succeeds, the other is refused cleanly.
+  // Five uploads at the same time: exactly as many succeed as the account has free analyses left (3), the rest are refused cleanly.
   const race = await intruder.evaluate(async () => {
     const pdf = await (await fetch("/api/quotes")).json();
     const make = async () => {
@@ -637,11 +655,12 @@ try {
       fd.append("file", new Blob(["%PDF-1.4\n1 0 obj << /Type /Page >> endobj\n%%EOF"], { type: "application/pdf" }), "tilbud.pdf");
       return (await fetch("/api/quotes", { method: "POST", body: fd })).status;
     };
-    const statuses = await Promise.all([make(), make(), make()]);
+    const statuses = await Promise.all([make(), make(), make(), make(), make()]);
     const list = await (await fetch("/api/quotes")).json();
     return { statuses, before: pdf.quotes.length, states: list.quotes.map((q) => q.status) };
   });
-  assert(race.statuses.filter((s) => s === 201).length === 1, `exactly one parallel upload accepted (${race.statuses})`);
+  assert(race.statuses.filter((s) => s === 201).length === 3 - race.before, `exactly the remaining free analyses accepted (${race.statuses}, ${race.before} before)`);
+  assert(race.statuses.filter((s) => s === 402).length === 2 + race.before, `the rest refused as 'buy more' (${race.statuses})`);
   assert(!race.states.some((st) => st === "PENDING" || st === "ANALYZING"), `no stuck quotes after parallel uploads (${race.states})`);
   log("parallel uploads never charge twice or leave stuck quotes");
 
