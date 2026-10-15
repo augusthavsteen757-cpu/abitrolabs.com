@@ -33,6 +33,26 @@ const TABLES = [
 	\`day\` text NOT NULL
 )`,
   "CREATE INDEX IF NOT EXISTS `usage_events_day_idx` ON `usage_events` (`day`,`name`)",
+  `CREATE TABLE IF NOT EXISTS \`invoice_checks\` (
+	\`id\` text PRIMARY KEY NOT NULL,
+	\`quote_id\` text NOT NULL,
+	\`user_id\` text NOT NULL,
+	\`file_name\` text NOT NULL,
+	\`status\` text DEFAULT 'ANALYZING' NOT NULL,
+	\`error\` text,
+	\`result_json\` text,
+	\`charged_source\` text,
+	\`ai_model\` text,
+	\`ai_input_tokens\` integer,
+	\`ai_output_tokens\` integer,
+	\`ai_ms\` integer,
+	\`created_at\` integer NOT NULL,
+	\`updated_at\` integer NOT NULL,
+	FOREIGN KEY (\`quote_id\`) REFERENCES \`quotes\`(\`id\`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (\`user_id\`) REFERENCES \`users\`(\`id\`) ON UPDATE no action ON DELETE cascade
+)`,
+  "CREATE INDEX IF NOT EXISTS `invoice_checks_quote_idx` ON `invoice_checks` (`quote_id`)",
+  "CREATE INDEX IF NOT EXISTS `invoice_checks_user_idx` ON `invoice_checks` (`user_id`)",
 ];
 
 /** [table, column, definition] – added with ALTER TABLE only when missing. */

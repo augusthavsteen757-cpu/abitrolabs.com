@@ -529,6 +529,36 @@ try {
   await shot(demo, "message");
   log("message generated and saved");
 
+  {
+  // Tjek regningen: compare an invoice with the analysed quote.
+  const invoicePdf = async (lines) => {
+    const doc = await PDFDocument.create();
+    const font = await doc.embedFont(StandardFonts.Helvetica);
+    const pg = doc.addPage();
+    lines.forEach((l, i) => pg.drawText(l, { x: 50, y: 750 - i * 20, size: 12, font }));
+    return Buffer.from(await doc.save());
+  };
+  const invoiceForm = demo.getByTestId("invoice-form");
+  await invoiceForm.scrollIntoViewIfNeeded();
+  const leftBefore = Number((await invoiceForm.innerText()).match(/Du har (\d+) tilbage/)?.[1]);
+  assert(Number.isFinite(leftBefore), "the invoice form says how many analyses are left");
+  await demo.setInputFiles("[data-testid=invoice-file-input]", { name: "slutregning.pdf", mimeType: "application/pdf", buffer: await invoicePdf(["Faktura 1043", "Slutregning badeværelse", "I alt 61.000 kr."]) });
+  await invoiceForm.getByRole("button", { name: "Tjek regningen" }).click();
+  await demo.getByTestId("invoice-result").waitFor({ timeout: 60_000 });
+  const inv = await demo.getByTestId("invoice-result").innerText();
+  assert(/mere end tilbuddet/.test(await demo.getByTestId("invoice-difference").innerText()), "the difference to the quote is shown");
+  assert(inv.includes("Står ikke i tilbuddet") && inv.includes("udskiftning af rådden strøer"), "a line that is not in the quote is listed");
+  assert(inv.includes("Dyrere end i tilbuddet") && /I tilbuddet: [\d.]+ kr\./.test(inv), "a line that costs more shows the quoted amount");
+  assert(inv.includes("ikke juridisk rådgivning") && inv.includes("siger ikke, om du skal betale"), "the invoice check says it is not legal advice");
+  assert(!/skal ikke betale|uberettiget/i.test(inv), "the invoice check never tells the user not to pay");
+  const leftText = await demo.getByTestId("invoice-form").innerText();
+  const leftAfter = /ikke flere analyser/.test(leftText) ? 0 : Number(leftText.match(/Du har (\d+) tilbage/)?.[1]);
+  assert(leftAfter === leftBefore - 1, `an invoice check uses one analysis (${leftBefore} → ${leftAfter})`);
+  await shot(demo, "invoice-check");
+  log("invoice compared with the quote: difference, new and dearer lines, questions and disclaimer");
+  // Double click, a document that isn't an invoice, refunds and delete are tested in scripts/beta.mjs.
+  }
+
   // Anonymous usage counts: copy the message and the questions, then the admin page shows every event.
   await demo.locator("article").filter({ hasText: "Før vi kan skrive under" }).first().getByRole("button", { name: "Kopiér" }).click();
   await demo.getByRole("button", { name: "Kopiér alle" }).click();
@@ -613,6 +643,13 @@ try {
       report: await r(`/api/quotes/${id}/report`, { method: "POST", headers: j, body: JSON.stringify({ message: "test test" }) }),
       unlock: await r(`/api/quotes/${id}/unlock`, { method: "POST" }),
       vat: await r(`/api/quotes/${id}/vat`, { method: "POST", headers: j, body: JSON.stringify({ choice: "incl" }) }),
+      invoices: await r(`/api/quotes/${id}/invoice`),
+      invoice: await (async () => {
+        const fd = new FormData();
+        fd.append("file", new Blob(["%PDF-1.4\n1 0 obj << /Type /Page >> endobj\n%%EOF"], { type: "application/pdf" }), "regning.pdf");
+        return r(`/api/quotes/${id}/invoice`, { method: "POST", body: fd });
+      })(),
+      invoiceDel: await r(`/api/quotes/${id}/invoice/abc`, { method: "DELETE" }),
       del: await r(`/api/quotes/${id}`, { method: "DELETE" }),
     };
   }, otherQuoteId);
@@ -720,8 +757,9 @@ try {
   await langPage.context().addCookies([{ name: "ff_lang", value: "da", domain: host, path: "/" }]);
   log(`all pages render in ${LOCALES.length} more languages without overflow or cut-off text at 390px`);
 
-  // Expected: the 404 page logs a 404 resource, the weak-password test and the wrong partner codes get deliberate 400s.
-  const relevant = errors.filter((e) => !e.includes("/findes-ikke") && !(e.includes("/opret") && e.includes("status of 400")) && !(e.includes("/login") && e.includes("status of 401")) && !(e.includes("status of 404") || e.includes("status of 402")) && !(e.includes("/nulstil") && e.includes("status of 400")) && !((e.includes("/dashboard/konto") || e.includes(`${BASE}/dashboard `)) && e.includes("status of 400")));
+  // Expected: the 404 page logs a 404 resource, the weak-password test and the wrong partner codes get deliberate 400s,
+  // and the invoice test makes a deliberate 409 (double click) and 422 (not an invoice).
+  const relevant = errors.filter((e) => !e.includes("/findes-ikke") && !(e.includes("/opret") && e.includes("status of 400")) && !(e.includes("/login") && e.includes("status of 401")) && !(e.includes("status of 404") || e.includes("status of 402")) && !(e.includes("/dashboard/tilbud/") && /status of (409|422)/.test(e)) && !(e.includes("/nulstil") && e.includes("status of 400")) && !((e.includes("/dashboard/konto") || e.includes(`${BASE}/dashboard `)) && e.includes("status of 400")));
   if (relevant.length) {
     console.error("\nConsole errors:\n" + relevant.join("\n"));
     process.exitCode = 1;

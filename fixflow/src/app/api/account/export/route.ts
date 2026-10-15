@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { contractorMessages, payments, quotes } from "@/db/schema";
+import { contractorMessages, invoiceChecks, payments, quotes } from "@/db/schema";
 import { requireApiUser } from "@/lib/auth";
 import { handle } from "@/lib/api";
 import { parseStoredAnalysis, redactForFree } from "@/lib/analysis";
+import { parseStoredInvoice } from "@/lib/invoice";
 import { hasFullAccess } from "@/lib/plans";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -16,6 +17,7 @@ export const GET = handle(async () => {
   const msgs = qs.length
     ? await db.query.contractorMessages.findMany({ where: inArray(contractorMessages.quoteId, qs.map((q) => q.id)) })
     : [];
+  const invs = await db.query.invoiceChecks.findMany({ where: eq(invoiceChecks.userId, user.id) });
   const pays = await db.query.payments.findMany({ where: eq(payments.userId, user.id) });
   const data = {
     exportedAt: new Date().toISOString(),
@@ -40,6 +42,9 @@ export const GET = handle(async () => {
         return parseStoredAnalysis(q.analysisJson);
       })(),
       messages: msgs.filter((m) => m.quoteId === q.id).map((m) => ({ topic: m.topic, body: m.body, createdAt: m.createdAt })),
+      invoiceChecks: invs
+        .filter((c) => c.quoteId === q.id)
+        .map((c) => ({ fileName: c.fileName, status: c.status, createdAt: c.createdAt, result: parseStoredInvoice(c.resultJson) })),
     })),
     payments: pays.map((p) => ({
       kind: p.kind,

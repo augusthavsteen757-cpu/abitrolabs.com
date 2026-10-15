@@ -25,6 +25,12 @@ export default function TermsPage() {
         du selv læser igennem og sender.
       </p>
       <p>
+        Med <strong>Tjek regningen</strong> kan du lægge regningen fra håndværkeren op og få vist, hvor den er anderledes
+        end tilbuddet, og hvad du kan spørge om. Sammenligningen laves også automatisk med AI og er kun vejledende: Den
+        siger ikke, om du skal betale, og den er ikke juridisk rådgivning. Ekstraarbejde kan være aftalt undervejs, uden at
+        det står i tilbuddet.
+      </p>
+      <p>
         <strong>Analysen er vejledende.</strong> Den bygger kun på det, der står i det dokument, du uploader, og er ikke
         juridisk, teknisk eller økonomisk rådgivning. Vurderingen bygger på danske regler og er beregnet til arbejde i
         Danmark – gælder et tilbud arbejde i et andet land, passer vurderingen af regler, moms og vilkår ikke. Den kan indeholde fejl – fx hvis et dokument er utydeligt. Vi slår
@@ -80,6 +86,10 @@ export default function TermsPage() {
         <li>
           <strong>Sammenligning:</strong> Du kan sammenligne de tilbud, hvor du har hele analysen – købt eller
           med en kode.
+        </li>
+        <li>
+          <strong>Tjek regningen:</strong> Et regningstjek bruger én analyse, på samme måde som et tilbud. Det kræver, at du
+          har hele analysen af tilbuddet. Lykkes tjekket ikke, eller er dokumentet ikke en regning, bliver du ikke trukket.
         </li>
       </ul>
       <p>

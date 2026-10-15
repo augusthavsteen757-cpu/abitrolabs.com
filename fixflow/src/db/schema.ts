@@ -65,6 +65,36 @@ export const quotes = sqliteTable(
   (t) => [index("quotes_user_idx").on(t.userId)],
 );
 
+/**
+ * "Tjek regningen": an invoice compared with the analysed quote it belongs to. Only the result is stored – the
+ * invoice file itself is read once and never saved (data minimisation).
+ */
+export const invoiceChecks = sqliteTable(
+  "invoice_checks",
+  {
+    id: text("id").primaryKey().$defaultFn(newId),
+    quoteId: text("quote_id")
+      .notNull()
+      .references(() => quotes.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    fileName: text("file_name").notNull(),
+    status: text("status", { enum: ["ANALYZING", "DONE", "FAILED"] }).notNull().default("ANALYZING"),
+    error: text("error"),
+    resultJson: text("result_json"),
+    /** Which quota paid for the running check – lets a crashed check be refunded later. */
+    chargedSource: text("charged_source", { enum: ["plan", "gift", "credit"] }),
+    aiModel: text("ai_model"),
+    aiInputTokens: integer("ai_input_tokens"),
+    aiOutputTokens: integer("ai_output_tokens"),
+    aiMs: integer("ai_ms"),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+  },
+  (t) => [index("invoice_checks_quote_idx").on(t.quoteId), index("invoice_checks_user_idx").on(t.userId)],
+);
+
 /** Single-use password reset tokens (only a SHA-256 hash is stored). */
 export const passwordResets = sqliteTable("password_resets", {
   tokenHash: text("token_hash").primaryKey(),
@@ -206,3 +236,4 @@ export type User = typeof users.$inferSelect;
 export type Quote = typeof quotes.$inferSelect;
 export type ContractorMessage = typeof contractorMessages.$inferSelect;
 export type Payment = typeof payments.$inferSelect;
+export type InvoiceCheck = typeof invoiceChecks.$inferSelect;

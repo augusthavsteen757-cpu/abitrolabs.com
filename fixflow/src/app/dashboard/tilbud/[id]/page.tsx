@@ -28,7 +28,11 @@ import {
   redactForFree,
   type Category,
 } from "@/lib/analysis";
-import { hasFullAccess } from "@/lib/plans";
+import { getUsage, hasFullAccess } from "@/lib/plans";
+import { listInvoiceChecks } from "@/lib/invoices";
+import { parseStoredInvoice } from "@/lib/invoice";
+import { InvoiceCheckForm } from "@/components/InvoiceCheck";
+import { InvoiceResultView } from "@/components/InvoiceResult";
 import { cn, formatDate, formatMoney, formatRange } from "@/lib/format";
 import { ScoreRing, scoreColor } from "@/components/ScoreRing";
 import { SEVERITY, SeverityBadge } from "@/components/Severity";
@@ -118,6 +122,12 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
   const firmPlace = origin ? await locatePostalCode(postalCodeFromText(analysis.contractor.address ?? null)) : null;
   const distance = origin && firmPlace ? Math.round(distanceKm(origin, firmPlace)) : null;
   const messages = full ? await listMessages(quote.id) : [];
+  const invoices = full
+    ? (await listInvoiceChecks(user.id, quote.id)).flatMap((c) => {
+        const result = parseStoredInvoice(c.resultJson);
+        return result ? [{ id: c.id, createdAt: c.createdAt, result }] : [];
+      })
+    : [];
   const cats = categoryTotals(analysis);
   const catTotal = Object.values(cats).reduce((s, v) => s + Math.max(0, v), 0);
   const cur = view.currency || "DKK";
@@ -438,6 +448,35 @@ export default async function QuotePage({ params }: { params: Promise<{ id: stri
             <a href="#laas-op" className="card flex flex-col gap-3 p-5 hover:shadow-lift">
               <p className="text-sm text-ink-soft">{t.messageLocked}</p>
               <Locked lines={4} label={t.unlockMessages} asLink={false} />
+            </a>
+          )}
+        </div>
+      </section>
+
+      {/* Tjek regningen: compare the contractor's invoice with this quote */}
+      <section className="mt-10 scroll-mt-24" id="regning">
+        <Heading title={d.invoice.title} />
+        <div className="mt-4 space-y-4">
+          {full ? (
+            <>
+              {invoices.map((c) => (
+                <InvoiceResultView
+                  key={c.id}
+                  d={d}
+                  intl={intl}
+                  quoteId={quote.id}
+                  checkId={c.id}
+                  checkedAt={c.createdAt}
+                  result={c.result}
+                  quote={{ inclVat: analysis.totals.inclVat, currency: cur }}
+                />
+              ))}
+              <InvoiceCheckForm quoteId={quote.id} remaining={getUsage(user).remaining} again={invoices.length > 0} />
+            </>
+          ) : (
+            <a href="#laas-op" className="card flex flex-col gap-3 p-5 hover:shadow-lift">
+              <p className="text-sm text-ink-soft">{d.invoice.locked}</p>
+              <Locked lines={2} label={d.invoice.title} asLink={false} />
             </a>
           )}
         </div>

@@ -17,6 +17,7 @@ import { createRequire } from "node:module";
 import { unusedPurchases, withdrawalQuote } from "../src/lib/purchases";
 import { normalizeCode, parsePartnerCodes } from "../src/lib/code-format";
 import type { Payment, User } from "../src/db/schema";
+import { invoiceDifference, normalizeInvoice } from "../src/lib/invoice";
 import { BETA_ANALYSES_LEGACY, BETA_ANALYSES_TOTAL, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaLimitOf, getUsage, planLimit } from "../src/lib/plans";
 
 let passed = 0;
@@ -373,6 +374,54 @@ test("worst case is shown as a worst case, never as our expected estimate, in ev
     assert.ok(single.includes("{amount}"), `${loc}: single keeps {amount}`);
     for (const k of ["{cheap}", "{w1}", "{safe}", "{w2}"]) assert.ok(compare.includes(k), `${loc}: compare keeps ${k}`);
     assert.ok(!bad.test(single) && !bad.test(compare), `${loc}: worst case framed as our estimate`);
+  }
+});
+
+test("invoice check: Klardal works out the difference and statuses itself", () => {
+  const raw = {
+    contractorName: "Test VVS",
+    totals: { exclVat: 10_000, vat: 2_500, inclVat: 12_500 },
+    currency: "dkk",
+    items: [
+      { description: "Arbejdsløn", invoiceAmount: 6_000, quoteAmount: 5_000, status: "as_quoted", note: "" },
+      { description: "Materialer", invoiceAmount: 2_005, quoteAmount: 2_000, status: "higher", note: "" },
+      { description: "Ekstra rør", invoiceAmount: 2_000, quoteAmount: null, status: "new", note: "" },
+      { description: "", invoiceAmount: 1, quoteAmount: null, status: "new" },
+    ],
+    documentCheck: { isInvoice: true, invoiceKind: "final", sameJob: "yes", readability: "good", unreadableNote: null, suspiciousInstructions: false },
+  };
+  const r = normalizeInvoice(raw, { inclVat: 10_000, currency: "DKK" });
+  assert.equal(r.currency, "DKK");
+  assert.equal(r.items.length, 3, "a line without text is dropped");
+  assert.deepEqual(r.items.map((i) => i.status), ["new", "higher", "as_quoted"], "new first; statuses follow the numbers, not the model");
+  assert.equal(r.differenceInclVat, 2_500);
+  assert.equal(r.newSum, 2_000);
+  assert.equal(r.higherSum, 1_000);
+});
+
+test("invoice check: no total difference for a part invoice, another job or another currency", () => {
+  const base = { totals: { exclVat: 8_000, vat: null, inclVat: null }, currency: "DKK", items: [] };
+  const check = (documentCheck: object, currency = "DKK") =>
+    normalizeInvoice({ ...base, currency, documentCheck: { isInvoice: true, sameJob: "yes", invoiceKind: "final", ...documentCheck } }, { inclVat: 9_000, currency: "DKK" });
+  assert.equal(check({}).invoiceInclVat, 10_000, "incl. VAT worked out as excl. + 25 % when the invoice doesn't state it");
+  assert.equal(check({}).differenceInclVat, 1_000);
+  assert.equal(check({ invoiceKind: "partial" }).differenceInclVat, null);
+  assert.equal(check({ invoiceKind: "unclear" }).differenceInclVat, null);
+  assert.equal(check({ sameJob: "no" }).differenceInclVat, null);
+  assert.equal(check({}, "EUR").differenceInclVat, null);
+  // Recomputed against the quote's current total (e.g. after the user changed the VAT choice).
+  assert.equal(invoiceDifference(check({}), { inclVat: 10_000, currency: "DKK" }), 0);
+  assert.equal(normalizeInvoice(null, { inclVat: null, currency: "DKK" }).documentCheck.isInvoice, true, "broken output never crashes");
+});
+
+test("invoice check prompt never lets the AI give payment or legal advice", () => {
+  const src = readFileSync(new URL("../src/lib/ai.ts", import.meta.url), "utf8");
+  assert.match(src, /Du må ALDRIG skrive, om kunden skal eller ikke skal betale/);
+  assert.match(src, /Ekstraarbejde kan være aftalt mundtligt/);
+  for (const [loc, d] of Object.entries(DICTS)) {
+    assert.ok(d.invoice.costNote.includes("{n}") && d.invoice.resultTitle.includes("{firm}") && d.invoice.inQuote.includes("{amount}"), `${loc}: placeholders kept`);
+    for (const k of ["differenceMore", "differenceLess"] as const) assert.ok(d.invoice[k].includes("{amount}"), `${loc}: ${k} keeps {amount}`);
+    assert.ok(d.invoice.disclaimer.length > 150, `${loc}: the full disclaimer is translated`);
   }
 });
 
