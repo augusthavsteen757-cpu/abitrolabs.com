@@ -67,6 +67,7 @@ ok(about.status === 200 && aboutHtml.includes('<link rel="canonical" href="https
 ok(aboutHtml.includes('"@type":"AboutPage"') && aboutHtml.includes('"@type":"Organization"') && aboutHtml.includes('"addressLocality":"Svendborg"') && !/application\/ld\+json[^<]*Strandhuse/.test(aboutHtml), "/om has Organization data with the town, not the street");
 ok(sitemapText.includes("/om<") && llmsText.includes("/om)"), "/om is in the sitemap and llms.txt");
 const homeLd = await (await get("/")).text();
+ok(homeLd.includes('"@type":"FAQPage"') && homeLd.includes("Kan jeg få mit håndværkertilbud tjekket online?") && homeLd.includes("Få dit håndværkertilbud tjekket online"), "front page answers \"can I get my quote checked online\" in text and FAQ data");
 ok(homeLd.includes('"description":"Klardal er en dansk onlinetjeneste') && homeLd.includes('href="/om"'), "front page: Organization description and footer link to /om");
 ok((await get("/artikler/findes-ikke")).status === 404, "unknown article gives 404");
 const typo = await get("/priser", { headers: { "x-forwarded-host": "www.klardahl.dk" } });

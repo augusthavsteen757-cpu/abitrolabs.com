@@ -85,7 +85,7 @@ export const pl: Dict = {
       { title: "Przeglądamy ją", text: "Zwykle poniżej minuty – i masz jasny przegląd." },
       { title: "Zapytaj wykonawcę", text: "Dostajesz pytania i gotową wiadomość do wysłania." },
     ],
-    whyTitle: "Zyskaj jasny obraz z Klardal",
+    whyTitle: "Sprawdź wycenę fachowca online",
     whyText: "Czytamy ofertę razem z Tobą i pokazujemy, gdzie rachunek może wzrosnąć i o co warto zapytać – zanim podpiszesz. Także w Twoim języku.",
     features: [
       { title: "Od razu zobacz, czy oferta jest jasna", text: "Liczba od 0 do 100 i jedno zdanie o tym, co warto zrobić." },
@@ -142,6 +142,10 @@ export const pl: Dict = {
     },
   },
   faq: [
+    {
+      q: "Czy mogę sprawdzić wycenę fachowca online?",
+      a: "Tak. W Klardal przesyłasz wycenę jako PDF lub zdjęcie. Zwykle w mniej niż minutę dostajesz przegląd: czy cena jest stała, czy szacunkowa, co może ją podnieść, czego brakuje i jakie pytania zadać fachowcowi.",
+    },
     {
       q: "Jak działa Klardal?",
       a: "Wgrywasz wycenę jako PDF lub zdjęcie. Nasza AI ją czyta i pokazuje, co jest niejasne, co może podrożeć i o co warto zapytać wykonawcę.",

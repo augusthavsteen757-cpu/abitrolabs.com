@@ -89,7 +89,7 @@ export const ro: Dict = {
       { title: "O verificăm", text: "De obicei sub un minut și ai o imagine clară." },
       { title: "Întreabă meseriașul", text: "Primești întrebările și un mesaj gata de trimis." },
     ],
-    whyTitle: "Ai o imagine clară cu Klardal",
+    whyTitle: "Verifică online oferta meșterului",
     whyText: "Citim oferta împreună cu tine și îți arătăm unde poate crește factura și ce să întrebi – înainte să semnezi. Și în limba ta.",
     features: [
       { title: "Vezi imediat dacă oferta e clară", text: "Un număr de la 0 la 100 și o propoziție despre ce să faci." },
@@ -146,6 +146,10 @@ export const ro: Dict = {
     },
   },
   faq: [
+    {
+      q: "Pot să-mi verific online oferta de la meșter?",
+      a: "Da. Pe Klardal încarci oferta ca PDF sau fotografie. De obicei în mai puțin de un minut primești o imagine de ansamblu: dacă prețul este fix sau estimativ, ce o poate face mai scumpă, ce lipsește și ce întrebări să-i pui meșterului.",
+    },
     {
       q: "Cum funcționează Klardal?",
       a: "Încarci oferta ca PDF sau poză. AI-ul nostru o citește și îți arată ce e neclar, ce poate costa mai mult și ce ar trebui să-l întrebi pe meseriaș.",

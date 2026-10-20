@@ -87,7 +87,7 @@ export const da = {
       { title: "Vi gennemgår det", text: "Typisk under et minut, så har du et klart overblik." },
       { title: "Spørg håndværkeren", text: "Du får spørgsmålene og en færdig besked, du kan sende." },
     ],
-    whyTitle: "Få overblik med Klardal",
+    whyTitle: "Få dit håndværkertilbud tjekket online",
     whyText: "Vi læser tilbuddet med dig og viser, hvor regningen kan stige, og hvad du bør spørge om – før du skriver under. Også på dit eget sprog.",
     features: [
       { title: "Se med det samme, om tilbuddet er klart", text: "Et tal fra 0 til 100 og én sætning om, hvad du bør gøre." },
@@ -144,6 +144,10 @@ export const da = {
     },
   },
   faq: [
+    {
+      q: "Kan jeg få mit håndværkertilbud tjekket online?",
+      a: "Ja. På Klardal uploader du tilbuddet som PDF eller billede. Typisk under et minut efter får du et overblik: om prisen er fast eller et overslag, hvad der kan gøre det dyrere, hvad der mangler, og hvilke spørgsmål du kan stille håndværkeren.",
+    },
     {
       q: "Hvordan virker Klardal?",
       a: "Du uploader dit tilbud som PDF eller billede. Vores AI læser det og viser dig, hvad der er uklart, hvad der kan blive dyrere, og hvad du bør spørge håndværkeren om.",

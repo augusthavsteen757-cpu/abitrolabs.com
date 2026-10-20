@@ -89,7 +89,7 @@ export const en: Dict = {
       { title: "We go through it", text: "Typically under a minute, and you have a clear overview." },
       { title: "Ask the contractor", text: "You get the questions and a ready-made message to send." },
     ],
-    whyTitle: "Get the full picture with Klardal",
+    whyTitle: "Get your contractor quote checked online",
     whyText: "We read the quote with you and show where the bill could go up and what to ask – before you sign. In your own language too.",
     features: [
       { title: "See straight away if the quote is clear", text: "A number from 0 to 100 and one sentence on what to do." },
@@ -146,6 +146,10 @@ export const en: Dict = {
     },
   },
   faq: [
+    {
+      q: "Can I get my contractor quote checked online?",
+      a: "Yes. On Klardal you upload the quote as a PDF or photo. Usually in under a minute you get an overview: whether the price is fixed or an estimate, what could make it more expensive, what is missing, and which questions to ask the contractor.",
+    },
     {
       q: "How does Klardal work?",
       a: "You upload your quote as a PDF or photo. Our AI reads it and shows you what’s unclear, what could cost more, and what you should ask the contractor.",
