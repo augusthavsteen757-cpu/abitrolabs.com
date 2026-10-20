@@ -24,7 +24,7 @@ export default function PrivacyPage() {
 
       <h2>Hvilke oplysninger behandler vi?</h2>
       <ul>
-        <li><strong>Konto:</strong> navn, e-mail og din adgangskode (gemt som et bcrypt-hash – vi kan ikke se den).</li>
+        <li><strong>Konto:</strong> e-mail og din adgangskode (gemt som et bcrypt-hash – vi kan ikke se den).</li>
         <li>
           <strong>Postnummer</strong>, hvis du angiver det eller søger på det under Find håndværkere. Det gemmes på din
           profil, så vi kan vise afstande.
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
           ikke personlige oplysninger i beskrivelsen. De gemmes sammen med tilbuddet og sendes med til AI-analysen, så den
           kan tage højde for dem.
         </li>
-        <li><strong>Beskeder</strong>, du laver med beskedgeneratoren (udkastet indeholder dit navn).</li>
+        <li><strong>Beskeder</strong>, du laver med beskedgeneratoren (udkastet indeholder dit navn, hvis du har oplyst det).</li>
         <li>
           <strong>Køb:</strong> type, beløb, dato, dit samtykke til levering med det samme og evt. fortrydelse.
           Kortoplysninger håndteres alene af Stripe – vi ser dem aldrig.
@@ -116,7 +116,7 @@ export default function PrivacyPage() {
         Analysen laves automatisk – ingen medarbejder hos Klardal læser dit tilbud for at lave den.
         Indeholder en PDF et CPR-nummer, sender vi teksten uden CPR-nummeret i stedet for selve filen. Sider uden tekst
         (fx skærmbilleder og fotos) sendes som billeder – på dem skal du selv overstrege CPR-nummeret. Når du laver en
-        besked til håndværkeren, sender vi analysen, dit navn og det emne, du har valgt.
+        besked til håndværkeren, sender vi analysen, dit navn (hvis du har oplyst det) og det emne, du har valgt.
       </p>
       <p>
         USA ligger uden for EU/EØS, så det er en <strong>overførsel til et tredjeland</strong>. Den sker på grundlag af
