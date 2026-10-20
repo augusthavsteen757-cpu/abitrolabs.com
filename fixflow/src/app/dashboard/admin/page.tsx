@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { gte, sql } from "drizzle-orm";
+import { db } from "@/db";
+import { quotes, users } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { EVENTS, danishDay, eventCounts, eventTotals, type EventName } from "@/lib/events";
 
@@ -20,7 +23,16 @@ export default async function AdminPage() {
   const user = await requireUser();
   if (!isAdmin(user.email)) notFound();
 
-  const [rows, totals] = await Promise.all([eventCounts(daysAgo(29)), eventTotals()]);
+  // Only creation times are read (no e-mails or names), and only counts are shown.
+  const since = new Date(Date.now() - 15 * 86_400_000);
+  const [rows, totals, newUsers, newQuotes, [userTotal]] = await Promise.all([
+    eventCounts(daysAgo(29)),
+    eventTotals(),
+    db.select({ at: users.createdAt }).from(users).where(gte(users.createdAt, since)),
+    db.select({ at: quotes.createdAt, status: quotes.status }).from(quotes).where(gte(quotes.createdAt, since)),
+    db.select({ count: sql<number>`count(*)` }).from(users),
+  ]);
+  const perDay = (list: { at: Date }[], day: string) => list.filter((r) => danishDay(r.at) === day).length;
   const names = Object.keys(EVENTS) as EventName[];
   const sum = (name: string, from: string) => rows.filter((r) => r.name === name && r.day >= from).reduce((s, r) => s + Number(r.count), 0);
   const days = Array.from({ length: 14 }, (_, i) => daysAgo(i));
@@ -34,7 +46,36 @@ export default async function AdminPage() {
         ingen cookies. Dage er dansk tid.
       </p>
 
-      <div className="card mt-6 overflow-x-auto">
+      <h2 className="mt-8 text-xl font-semibold">Nye konti og tilbud</h2>
+      <p className="mt-1 text-sm text-ink-soft">
+        Konti i alt: <span className="tabular-nums">{Number(userTotal?.count ?? 0)}</span>. Tælles fra databasen, så slettede
+        konti og tilbud er ikke med.
+      </p>
+      <div className="card mt-3 overflow-x-auto">
+        <table className="w-full min-w-[30rem] text-sm" data-testid="admin-signups">
+          <thead className="text-left text-ink-muted">
+            <tr>
+              <th className="px-3 py-2">Dag</th>
+              <th className={cell}>Nye konti</th>
+              <th className={cell}>Tilbud uploadet</th>
+              <th className={cell}>Heraf analyseret</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {days.map((day) => (
+              <tr key={day}>
+                <th scope="row" className="px-3 py-2 text-left font-medium tabular-nums">{day}</th>
+                <td className={cell}>{perDay(newUsers, day)}</td>
+                <td className={cell}>{perDay(newQuotes, day)}</td>
+                <td className={cell}>{perDay(newQuotes.filter((q) => q.status === "DONE"), day)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 className="mt-10 text-xl font-semibold">Brug af funktioner</h2>
+      <div className="card mt-3 overflow-x-auto">
         <table className="w-full min-w-[34rem] text-sm" data-testid="admin-totals">
           <thead className="text-left text-ink-muted">
             <tr>
