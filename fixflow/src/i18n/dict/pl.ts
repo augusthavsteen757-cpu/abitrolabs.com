@@ -63,7 +63,7 @@ export const pl: Dict = {
     lead: "Wgraj wycenę. Pokażemy, co jest niejasne, co może podrożeć i o co zapytać.",
     ctaPrimary: "Sprawdź wycenę za darmo",
     ctaAfterBeta: "Zobacz ocenę wyceny za darmo",
-    ctaFast: "Odpowiedź w mniej niż minutę",
+    ctaFast: "Odpowiedź w kilka minut",
     ctaSecondary: "Jak to działa",
     reassurance: "Za darmo do {date}. Bez karty kredytowej.",
     reassuranceAfterBeta: "Ocena i pierwsza czerwona flaga są za darmo. Bez karty kredytowej.",

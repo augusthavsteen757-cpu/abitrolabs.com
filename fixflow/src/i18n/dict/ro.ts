@@ -67,7 +67,7 @@ export const ro: Dict = {
     lead: "Încarcă oferta. Îți arătăm ce e neclar, ce poate costa mai mult și ce să întrebi.",
     ctaPrimary: "Verifică o ofertă gratuit",
     ctaAfterBeta: "Vezi gratuit scorul ofertei",
-    ctaFast: "Răspuns în mai puțin de un minut",
+    ctaFast: "Răspuns în câteva minute",
     ctaSecondary: "Cum funcționează",
     reassurance: "Gratuit până la {date}. Fără card de credit.",
     reassuranceAfterBeta: "Scorul și primul semnal de alarmă sunt gratuite. Fără card de credit.",

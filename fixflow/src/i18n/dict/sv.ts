@@ -67,7 +67,7 @@ export const sv: Dict = {
     lead: "Ladda upp offerten. Vi visar vad som är otydligt, vad som kan bli dyrare och vad du ska fråga om.",
     ctaPrimary: "Kolla en offert gratis",
     ctaAfterBeta: "Se din offertpoäng gratis",
-    ctaFast: "Svar på under en minut",
+    ctaFast: "Svar på några minuter",
     ctaSecondary: "Så fungerar det",
     reassurance: "Gratis till {date}. Inget kreditkort.",
     reassuranceAfterBeta: "Poängen och den första varningsflaggan är gratis. Inget kreditkort.",

@@ -65,7 +65,7 @@ export const da = {
     lead: "Upload tilbuddet. Vi viser, hvad der er uklart, hvad der kan blive dyrere, og hvad du skal spørge om.",
     ctaPrimary: "Tjek mit tilbud gratis",
     ctaAfterBeta: "Se din tilbudsscore gratis",
-    ctaFast: "Svar på under et minut",
+    ctaFast: "Svar på få minutter",
     ctaSecondary: "Sådan virker det",
     reassurance: "Gratis til {date}. Intet kreditkort.",
     reassuranceAfterBeta: "Scoren og det første røde flag er gratis. Intet kreditkort.",

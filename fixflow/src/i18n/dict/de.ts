@@ -67,7 +67,7 @@ export const de: Dict = {
     lead: "Lade das Angebot hoch. Wir zeigen dir, was unklar ist, was teurer werden kann und was du fragen solltest.",
     ctaPrimary: "Angebot kostenlos prüfen",
     ctaAfterBeta: "Angebotsbewertung kostenlos ansehen",
-    ctaFast: "Antwort in unter einer Minute",
+    ctaFast: "Antwort in wenigen Minuten",
     ctaSecondary: "So funktioniert’s",
     reassurance: "Kostenlos bis {date}. Keine Kreditkarte.",
     reassuranceAfterBeta: "Bewertung und erstes Warnsignal sind kostenlos. Keine Kreditkarte.",

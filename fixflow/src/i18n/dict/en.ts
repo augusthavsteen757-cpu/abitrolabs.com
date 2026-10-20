@@ -67,7 +67,7 @@ export const en: Dict = {
     lead: "Upload the quote. We show you what’s unclear, what could cost more, and what to ask.",
     ctaPrimary: "Check a quote for free",
     ctaAfterBeta: "See your quote score for free",
-    ctaFast: "Answer in under a minute",
+    ctaFast: "Answer in a few minutes",
     ctaSecondary: "How it works",
     reassurance: "Free until {date}. No credit card.",
     reassuranceAfterBeta: "Your score and the first red flag are free. No credit card.",
