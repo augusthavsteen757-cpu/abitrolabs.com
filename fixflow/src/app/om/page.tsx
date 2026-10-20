@@ -4,6 +4,7 @@ import { ArrowRight, Languages } from "lucide-react";
 import { MarketingFooter, MarketingHeader } from "@/components/MarketingShell";
 import { getCurrentUser } from "@/lib/auth";
 import { getI18n } from "@/i18n/server";
+import { isBeta } from "@/lib/plans";
 import { COMPANY, isCompanyConfigured } from "@/lib/company";
 import { ORG_DESCRIPTION, organizationJsonLd } from "@/lib/organization";
 
@@ -76,7 +77,7 @@ export default async function AboutPage() {
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">
           <Link href={cta} className="btn-primary px-6 py-3 text-base">
-            {d.home.ctaPrimary} <ArrowRight className="h-4 w-4" />
+            {isBeta() ? d.home.ctaPrimary : d.home.ctaAfterBeta} <ArrowRight className="h-4 w-4" />
           </Link>
           <Link href="/artikler" className="btn-secondary px-6 py-3 text-base">{d.article.indexTitle}</Link>
         </div>

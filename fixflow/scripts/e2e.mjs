@@ -67,7 +67,7 @@ try {
   /* ---------------- 1. Signup → upload → analysis → paywall → buy → unlock ---------------- */
   const page = await newPage();
   await page.goto(BASE);
-  await page.getByRole("heading", { name: /Forstå dit håndværkertilbud/ }).waitFor();
+  await page.getByRole("heading", { name: /Tjek dit håndværkertilbud/ }).waitFor();
   await shot(page, "landing");
   const landing = await page.innerText("body");
   assert(landing.includes("Er der et abonnement?"), "outside the beta the FAQ says there is no subscription");
