@@ -4,10 +4,18 @@ import { isBeta } from "@/lib/plans";
 
 export async function Faq() {
   const d = await getDict();
+  // Questions about paid plans are hidden while nothing can be bought (beta).
+  const items = d.faq.filter((item) => !(isBeta() && "paidOnly" in item));
+  // The same questions as structured data, so search engines and AI answers can quote them (static texts only).
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({ "@type": "Question", name: item.q, acceptedAnswer: { "@type": "Answer", text: item.a } })),
+  };
   return (
     <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
-      {/* Questions about paid plans are hidden while nothing can be bought (beta). */}
-      {d.faq.filter((item) => !(isBeta() && "paidOnly" in item)).map((item) => (
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      {items.map((item) => (
         <details key={item.q} className="group">
           <summary className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 text-left font-medium text-ink hover:bg-paper/60">
             {item.q}

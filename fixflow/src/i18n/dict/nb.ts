@@ -89,7 +89,7 @@ export const nb: Dict = {
       { title: "Vi går gjennom det", text: "Vanligvis under ett minutt, så har du en tydelig oversikt." },
       { title: "Spør håndverkeren", text: "Du får spørsmålene og en ferdig melding du kan sende." },
     ],
-    whyTitle: "Få oversikt med Klardal",
+    whyTitle: "Få håndverkertilbudet ditt sjekket på nett",
     whyText: "Vi leser tilbudet sammen med deg og viser hvor regningen kan bli høyere, og hva du bør spørre om – før du skriver under. Også på ditt eget språk.",
     features: [
       { title: "Se med en gang om tilbudet er tydelig", text: "Et tall fra 0 til 100 og én setning om hva du bør gjøre." },
@@ -146,6 +146,10 @@ export const nb: Dict = {
     },
   },
   faq: [
+    {
+      q: "Kan jeg få håndverkertilbudet mitt sjekket på nett?",
+      a: "Ja. På Klardal laster du opp tilbudet som PDF eller bilde. Vanligvis på under ett minutt får du en oversikt: om prisen er fast eller et overslag, hva som kan gjøre det dyrere, hva som mangler, og hvilke spørsmål du kan stille håndverkeren.",
+    },
     {
       q: "Hvordan fungerer Klardal?",
       a: "Du laster opp tilbudet som PDF eller bilde. Vår AI leser det og viser deg hva som er uklart, hva som kan bli dyrere, og hva du bør spørre håndverkeren om.",

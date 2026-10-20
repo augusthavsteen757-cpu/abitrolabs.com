@@ -89,7 +89,7 @@ export const sv: Dict = {
       { title: "Vi går igenom den", text: "Oftast under en minut, sedan har du en tydlig överblick." },
       { title: "Fråga hantverkaren", text: "Du får frågorna och ett färdigt meddelande att skicka." },
     ],
-    whyTitle: "Få överblick med Klardal",
+    whyTitle: "Få din hantverkaroffert granskad online",
     whyText: "Vi läser offerten med dig och visar var räkningen kan bli högre och vad du bör fråga om – innan du skriver under. Även på ditt eget språk.",
     features: [
       { title: "Se direkt om offerten är tydlig", text: "Ett tal från 0 till 100 och en mening om vad du bör göra." },
@@ -146,6 +146,10 @@ export const sv: Dict = {
     },
   },
   faq: [
+    {
+      q: "Kan jag få min hantverkaroffert granskad online?",
+      a: "Ja. På Klardal laddar du upp offerten som PDF eller bild. Oftast på under en minut får du en överblick: om priset är fast eller en uppskattning, vad som kan göra det dyrare, vad som saknas och vilka frågor du kan ställa till hantverkaren.",
+    },
     {
       q: "Hur fungerar Klardal?",
       a: "Du laddar upp din offert som PDF eller bild. Vår AI läser den och visar vad som är otydligt, vad som kan bli dyrare och vad du bör fråga hantverkaren om.",

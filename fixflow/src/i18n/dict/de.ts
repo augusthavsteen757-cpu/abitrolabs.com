@@ -89,7 +89,7 @@ export const de: Dict = {
       { title: "Wir gehen es durch", text: "Meist unter einer Minute, dann hast du einen klaren Überblick." },
       { title: "Frag den Handwerker", text: "Du bekommst die Fragen und eine fertige Nachricht zum Senden." },
     ],
-    whyTitle: "Mit Klardal den Überblick behalten",
+    whyTitle: "Handwerkerangebot online prüfen lassen",
     whyText: "Wir lesen das Angebot mit Ihnen und zeigen, wo die Rechnung steigen kann und was Sie fragen sollten – bevor Sie unterschreiben. Auch in Ihrer Sprache.",
     features: [
       { title: "Sofort sehen, ob das Angebot klar ist", text: "Eine Zahl von 0 bis 100 und ein Satz dazu, was Sie tun sollten." },
@@ -146,6 +146,10 @@ export const de: Dict = {
     },
   },
   faq: [
+    {
+      q: "Kann ich mein Handwerkerangebot online prüfen lassen?",
+      a: "Ja. Bei Klardal laden Sie das Angebot als PDF oder Foto hoch. Meist in weniger als einer Minute erhalten Sie einen Überblick: ob der Preis fest oder eine Schätzung ist, was es teurer machen kann, was fehlt und welche Fragen Sie dem Handwerker stellen können.",
+    },
     {
       q: "Wie funktioniert Klardal?",
       a: "Du lädst dein Angebot als PDF oder Foto hoch. Unsere KI liest es und zeigt dir, was unklar ist, was teurer werden kann und was du den Handwerker fragen solltest.",
