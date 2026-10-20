@@ -9,6 +9,8 @@ import {
   ListChecks,
   MessageSquareText,
   Columns3,
+  FileUp,
+  Timer,
 } from "lucide-react";
 import { MarketingFooter, MarketingHeader } from "@/components/MarketingShell";
 import { PricingCards } from "@/components/PricingCards";
@@ -21,9 +23,6 @@ import { INTL_LOCALE } from "@/i18n/config";
 import { fmt } from "@/i18n/fmt";
 import type { Dict } from "@/i18n/dict";
 import { MISSPELLINGS, organizationJsonLd } from "@/lib/organization";
-
-// Words in Danish quotes that can make the bill bigger. Kept in Danish in every language: it is what the quote says.
-const SMALL_PRINT = ["»efter regning«", "»ca.«", "»diverse«", "»ekskl. materialer«", "»forbehold for skjulte skader«"];
 
 // Same order as home.features in the dictionaries.
 const FEATURE_ICONS = [Gauge, TriangleAlert, ListChecks, MessageSquareText, Columns3];
@@ -47,11 +46,9 @@ function siteJsonLd() {
 
 function HeroMock({ d }: { d: Dict }) {
   const m = d.home.mock;
-  // Same example as the video ad (a 54,000 kr. quote that ended at 72,000 kr.), so people who click recognise it.
-  const tagColors = ["bg-red-50 text-red-700 ring-red-200", "bg-red-50 text-red-700 ring-red-200", "bg-amber-50 text-amber-800 ring-amber-200"];
+  const colors = ["bg-red-500", "bg-red-500", "bg-amber-500"];
   return (
     <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-      <p className="mb-3 text-center text-sm font-medium text-ink-muted lg:text-left">{m.exampleTitle}</p>
       <div className="card relative z-10 p-5 shadow-lift sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -67,19 +64,19 @@ function HeroMock({ d }: { d: Dict }) {
           <div className="min-w-0 space-y-2 text-sm">
             <div>
               <p className="text-ink-muted">{m.price}</p>
-              <p className="num font-display text-xl font-semibold">54.000 kr.</p>
+              <p className="num font-display text-xl font-semibold">160.500 kr.</p>
             </div>
             <div>
               <p className="text-ink-muted">{m.extra}</p>
-              <p className="num font-semibold text-red-700">5.000–18.000 kr.</p>
+              <p className="num font-semibold text-red-700">10.000–36.250 kr.</p>
             </div>
           </div>
         </div>
         <ul className="mt-5 space-y-2">
           {m.flags.map((t, i) => (
             <li key={t} className="flex items-center gap-2.5 rounded-xl bg-paper px-3 py-2.5 text-sm">
-              <span className={`badge shrink-0 ring-1 ${tagColors[i % tagColors.length]}`}>{m.tags[i]}</span>
-              <span className="min-w-0 sm:truncate">{t}</span>
+              <span className={`h-2 w-2 shrink-0 rounded-full ${colors[i % colors.length]}`} />
+              <span className="min-w-0 truncate">{t}</span>
             </li>
           ))}
         </ul>
@@ -111,41 +108,38 @@ export default async function HomePage() {
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)] items-center gap-10 px-4 pb-14 pt-8 sm:px-6 sm:pt-16 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pb-24 lg:pt-20">
-            <div className="min-w-0">
-              <p className="mb-3 font-semibold text-red-700">{h.kicker}</p>
-              <h1 className="text-[2.1rem] font-semibold leading-[1.08] sm:text-5xl lg:text-[3.3rem]">{h.title}</h1>
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-14 pt-8 sm:px-6 sm:pt-16 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pb-24 lg:pt-20">
+            <div>
+              <h1 className="text-[2.1rem] font-semibold leading-[1.08] sm:text-5xl lg:text-[3.6rem]">{h.title}</h1>
               <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-soft">{h.lead}</p>
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                <Link href={user ? "/dashboard/upload" : "/opret"} className="btn-primary px-6 py-3 text-base">
-                  {cta} <ArrowRight className="h-4 w-4" />
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Link
+                  href={user ? "/dashboard/upload" : "/opret"}
+                  className="btn-primary group rounded-2xl px-7 py-4 text-lg shadow-lg shadow-brand-700/30 ring-4 ring-brand-200/70 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-700/30"
+                  data-testid="hero-cta"
+                >
+                  <FileUp className="h-5 w-5" aria-hidden /> {cta}
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden />
                 </Link>
                 <Link href="/#saadan" className="btn-secondary hidden px-6 py-3 text-base sm:inline-flex">
                   {h.ctaSecondary}
                 </Link>
               </div>
-              <p className="mt-4 flex items-center gap-2 text-sm text-ink-muted">
-                <ShieldCheck className="h-4 w-4 text-brand-600" /> {reassurance}
-              </p>
+              <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-ink-muted">
+                <li className="flex items-center gap-1.5">
+                  <Timer className="h-4 w-4 text-brand-600" aria-hidden /> {h.ctaFast}
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <ShieldCheck className="h-4 w-4 text-brand-600" aria-hidden /> {reassurance}
+                </li>
+              </ul>
             </div>
             <HeroMock d={d} />
           </div>
         </section>
 
-        {/* The small print – the same point as the ads: the explanation was in the quote all along */}
-        <section className="border-t border-line bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-            <p className="font-medium">{h.smallPrintTitle}</p>
-            <ul className="mt-3 flex flex-wrap gap-2">
-              {SMALL_PRINT.map((w) => (
-                <li key={w} className="rounded-full bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-900 ring-1 ring-amber-200">{w}</li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
         {/* How it works */}
-        <section id="saadan" className="scroll-mt-20 border-t border-line">
+        <section id="saadan" className="scroll-mt-20 border-t border-line bg-white">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-20">
             <h2 className="text-2xl font-semibold sm:text-4xl">{h.howTitle}</h2>
             <ol className="mt-8 grid gap-6 md:grid-cols-3">
