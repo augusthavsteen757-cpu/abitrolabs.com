@@ -35,11 +35,15 @@ for (const legal of ["/handelsbetingelser", "/privatlivspolitik"]) {
 }
 await p.goto(B + "/opret");
 const email = "beta-tester@eksempel.dk"; // fresh database per run; also ADMIN_EMAILS in test-all
-await p.fill("#name", "Beta Tester"); await p.fill("#email", email); await p.fill("#password", "Kaffekande-Solsikke-77");
+await p.fill("#email", email); await p.fill("#password", "Kaffekande-Solsikke-77");
 await p.locator("input[type=checkbox]").first().check();
 await p.click("button[type=submit]"); await p.waitForURL(B + "/dashboard");
 ok((await p.innerText("body")).includes("Gratis prøveperiode"), "nav shows beta plan");
 ok(!(await p.innerText("body")).includes("Opgradér til Pro"), "no upgrade link");
+{ // Sign-up asks for e-mail and password only; the dashboard must not show an empty name or a stray comma.
+  const body = await p.innerText("body");
+  ok(!/undefined|null|, *\n/.test(body) && body.includes(email), "no-name account: greeting and nav read fine (shows the e-mail)");
+}
 for (let i = 0; i < 3; i++) {
   await p.goto(B + "/dashboard/upload");
   await p.setInputFiles("[data-testid=file-input]", "sample-quotes/eksempel-vvs-badevaerelse.pdf");

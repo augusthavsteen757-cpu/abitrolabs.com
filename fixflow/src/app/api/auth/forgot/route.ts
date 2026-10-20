@@ -27,9 +27,9 @@ export const POST = handle(async (req: Request) => {
       const url = `${process.env.APP_URL || new URL(req.url).origin}/nulstil?token=${token}`;
       await sendEmail({
         to: user.email,
-        toName: user.name,
+        toName: user.name || undefined,
         subject: "Nulstil din adgangskode til Klardal",
-        text: `Hej ${user.name}\n\nDu (eller en anden) har bedt om at nulstille adgangskoden til din Klardal-konto.\n\nVælg en ny adgangskode her (linket virker i 1 time og kan kun bruges én gang):\n${url}\n\nHar du ikke bedt om det, kan du se bort fra denne mail – din adgangskode er uændret.`,
+        text: `Hej${user.name ? ` ${user.name}` : ""}\n\nDu (eller en anden) har bedt om at nulstille adgangskoden til din Klardal-konto.\n\nVælg en ny adgangskode her (linket virker i 1 time og kan kun bruges én gang):\n${url}\n\nHar du ikke bedt om det, kan du se bort fra denne mail – din adgangskode er uændret.`,
       });
     }
   }

@@ -10,7 +10,8 @@ import { BETA_ANALYSES_TOTAL } from "@/lib/plans";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 const schema = z.object({
-  name: z.string().trim().min(1).max(100),
+  // Optional: the sign-up form only asks for e-mail and password (fewer fields, more sign-ups).
+  name: z.string().trim().max(100).optional().default(""),
   email: z.string().trim().toLowerCase().email().max(200),
   password: z.string().max(200),
   acceptTerms: z.literal(true),
@@ -25,7 +26,7 @@ export const POST = handle(async (req: Request) => {
     if (field === "acceptTerms") return jsonError(da.errors.acceptTerms);
     if (field === "email") return jsonError(da.errors.invalidEmail);
     if (field === "password") return jsonError(da.errors.enterPassword);
-    return jsonError(da.errors.enterName);
+    return jsonError(da.errors.enterPassword);
   }
   const { name, email, password } = parsed.data;
   const problem = passwordProblem(password, email);

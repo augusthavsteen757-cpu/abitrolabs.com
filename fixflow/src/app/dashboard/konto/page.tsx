@@ -51,7 +51,7 @@ export default async function AccountPage({
     <div className="mx-auto max-w-4xl animate-fade-up">
       <h1 className="text-3xl font-semibold sm:text-4xl">{t.title}</h1>
       <p className="mt-2 text-ink-soft">
-        {user.name} · {user.email}
+        {user.name ? `${user.name} · ${user.email}` : user.email}
       </p>
 
       {sp.betalt && (

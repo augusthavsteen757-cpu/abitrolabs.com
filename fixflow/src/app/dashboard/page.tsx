@@ -69,7 +69,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       )}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm text-ink-muted">{greeting(d)}, {user.name.split(" ")[0]}</p>
+          <p className="text-sm text-ink-muted">{user.name ? `${greeting(d)}, ${user.name.split(" ")[0]}` : greeting(d)}</p>
           <h1 className="mt-1 text-3xl font-semibold sm:text-4xl">{t.title}</h1>
         </div>
         <Link href="/dashboard/upload" className="btn-primary self-start sm:self-auto">

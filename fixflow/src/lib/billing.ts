@@ -180,10 +180,10 @@ export async function withdrawPurchase(user: User, paymentId: string) {
   const amount = (q.refundOere / 100).toFixed(2).replace(".", ",");
   await sendEmail({
     to: user.email,
-    toName: user.name,
+    toName: user.name || undefined,
     subject: `Bekræftelse: du har fortrudt dit køb hos ${COMPANY.name}`,
     text: [
-      `Hej ${user.name}`,
+      `Hej${user.name ? ` ${user.name}` : ""}`,
       "",
       `Vi har modtaget, at du fortryder dit køb (${PRODUCT_NAME[p.kind]}, ordrenummer ${p.id}) af ${p.createdAt.toLocaleDateString("da-DK")}.`,
       `Modtaget: ${new Date().toLocaleString("da-DK", { timeZone: "Europe/Copenhagen" })}.`,
@@ -232,7 +232,7 @@ async function sendOrderConfirmation(userId: string, p: Payment) {
   const pro = p.kind === "PRO_MONTHLY";
   const product = PRODUCT_NAME[p.kind];
   const lines = [
-    `Hej ${user.name}`,
+    `Hej${user.name ? ` ${user.name}` : ""}`,
     "",
     p.renewal ? "Dit Pro-abonnement er fornyet. Her er din kvittering." : "Tak for dit køb. Her er din ordrebekræftelse.",
     "",
@@ -269,7 +269,7 @@ async function sendOrderConfirmation(userId: string, p: Payment) {
   }
   await sendEmail({
     to: user.email,
-    toName: user.name,
+    toName: user.name || undefined,
     subject: p.renewal ? `Kvittering: Klardal Pro er fornyet` : `Ordrebekræftelse: ${product}`,
     text: lines.join("\n"),
   });
