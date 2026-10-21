@@ -223,6 +223,20 @@ export const de: Dict = {
       "Relevante dänische Vorschriften erklärt",
     ],
   },
+  guest: {
+    metaTitle: "Angebot prüfen",
+    title: "Angebot prüfen – ohne Konto",
+    text: "Laden Sie Ihr Handwerkerangebot hoch und sehen Sie, was unklar ist und was teurer werden kann. Sie müssen kein Konto anlegen.",
+    bullets: ["Keine E-Mail und kein Passwort", "Ihre Prüfung wird {days} Tage gespeichert", "Legen Sie danach ein Konto an, wenn Sie sie behalten möchten"],
+    startButton: "Prüfung starten",
+    haveAccount: "Sie haben schon ein Konto?",
+    bannerText: "Sie prüfen ohne Konto. Ihre Prüfung wird nach {days} Tagen gelöscht, wenn Sie kein kostenloses Konto anlegen.",
+    bannerLink: "Konto anlegen und speichern",
+    navName: "Gast",
+    usedTitle: "Möchten Sie weitere Angebote prüfen?",
+    usedText: "Legen Sie ein kostenloses Konto an, dann speichern wir Ihre Prüfung und Sie können weitere Angebote prüfen.",
+    usedButton: "Kostenloses Konto anlegen",
+  },
   notFound: {
     title: "Seite nicht gefunden",
     text: "Der Link ist möglicherweise falsch, oder die Seite wurde verschoben.",
@@ -859,6 +873,7 @@ export const de: Dict = {
     doneOther: "Code eingelöst. Du hast {n} kostenlose Analysen erhalten.",
   },
   errors: {
+    guestNeedsAccount: "Legen Sie zuerst ein kostenloses Konto an.",
     notLoggedIn: "Du musst angemeldet sein.",
     invalidInput: "Ungültige Angaben. Prüfe die Felder und versuche es erneut.",
     unexpected: "Ein unerwarteter Fehler ist aufgetreten. Versuche es gleich noch einmal.",

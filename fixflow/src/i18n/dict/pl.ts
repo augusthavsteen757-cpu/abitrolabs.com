@@ -219,6 +219,20 @@ export const pl: Dict = {
       "Wyjaśnienie odpowiednich duńskich przepisów",
     ],
   },
+  guest: {
+    metaTitle: "Sprawdź ofertę",
+    title: "Sprawdź ofertę – bez konta",
+    text: "Prześlij ofertę od wykonawcy i zobacz, co jest niejasne i co może podrożeć. Nie musisz zakładać konta.",
+    bullets: ["Bez e-maila i hasła", "Twoje sprawdzenie jest przechowywane przez {days} dni", "Załóż konto później, jeśli chcesz je zachować"],
+    startButton: "Rozpocznij sprawdzanie",
+    haveAccount: "Masz już konto?",
+    bannerText: "Sprawdzasz bez konta. Twoje sprawdzenie zostanie usunięte po {days} dniach, chyba że założysz darmowe konto.",
+    bannerLink: "Załóż konto i zapisz",
+    navName: "Gość",
+    usedTitle: "Chcesz sprawdzić więcej ofert?",
+    usedText: "Załóż darmowe konto, a zachowamy Twoje sprawdzenie i będziesz mógł sprawdzić więcej ofert.",
+    usedButton: "Załóż darmowe konto",
+  },
   notFound: {
     title: "Strona nie istnieje",
     text: "Link może być błędny albo strona została przeniesiona.",
@@ -855,6 +869,7 @@ export const pl: Dict = {
     doneOther: "Kod zrealizowany. Otrzymałeś bezpłatne analizy: {n}.",
   },
   errors: {
+    guestNeedsAccount: "Najpierw załóż darmowe konto.",
     notLoggedIn: "Musisz być zalogowany.",
     invalidInput: "Nieprawidłowe dane. Sprawdź pola i spróbuj ponownie.",
     unexpected: "Wystąpił nieoczekiwany błąd. Spróbuj ponownie za chwilę.",

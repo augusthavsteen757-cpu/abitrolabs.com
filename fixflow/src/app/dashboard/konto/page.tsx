@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { and, desc, eq } from "drizzle-orm";
 import { Check, Sparkles, FlaskConical, Receipt, CheckCircle2 } from "lucide-react";
 import { db } from "@/db";
@@ -15,6 +16,7 @@ import { cn, formatDate, formatKr } from "@/lib/format";
 import { CheckoutButton } from "@/components/CheckoutButton";
 import { AccountSettings } from "@/components/AccountSettings";
 import { RedeemCode } from "@/components/RedeemCode";
+import { isGuest } from "@/lib/guest";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getDict()).account.metaTitle };
@@ -27,6 +29,8 @@ export default async function AccountPage({
 }) {
   const sp = await searchParams;
   const user = await requireUser();
+  // A guest has nothing to manage yet – buying, codes and settings need a real account first.
+  if (isGuest(user)) redirect(sp.upgrade === "single" || sp.upgrade === "pack" ? `/opret?plan=${sp.upgrade}` : "/opret");
   const usage = getUsage(user);
   const { locale, d } = await getI18n();
   const t = d.account;

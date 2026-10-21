@@ -3,7 +3,7 @@ import { publishedArticles } from "@/content/articles";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = process.env.APP_URL || "https://klardal.com";
-  const pages = ["", "/om", "/priser", "/opret", "/login", "/handelsbetingelser", "/privatlivspolitik"];
+  const pages = ["", "/om", "/priser", "/tjek", "/opret", "/login", "/handelsbetingelser", "/privatlivspolitik"];
   const articles = publishedArticles();
   return [
     ...pages.map((p) => ({ url: `${base}${p}`, changeFrequency: "weekly" as const, priority: p === "" ? 1 : 0.5 })),

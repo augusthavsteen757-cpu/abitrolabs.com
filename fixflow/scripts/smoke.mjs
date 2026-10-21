@@ -15,7 +15,7 @@ const get = (p, init = {}) => fetch(BASE + p, { redirect: "manual", ...init });
 
 console.log(`Smoke test: ${BASE}`);
 
-for (const p of ["/", "/priser", "/login", "/opret", "/glemt-adgangskode", "/handelsbetingelser", "/privatlivspolitik"]) {
+for (const p of ["/", "/priser", "/login", "/opret", "/tjek", "/glemt-adgangskode", "/handelsbetingelser", "/privatlivspolitik"]) {
   const r = await get(p);
   const html = await r.text();
   ok(r.status === 200 && html.includes("Klardal"), `${p} → 200 and shows Klardal (${r.status})`);

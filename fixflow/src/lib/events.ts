@@ -15,6 +15,8 @@ export const EVENTS = {
   message_generated: "Besked genereret",
   message_copied: "Besked kopieret",
   questions_copied: "Spørgsmål kopieret",
+  guest_started: "Tjek uden konto startet",
+  guest_converted: "Gæst oprettede konto",
 } as const;
 export type EventName = keyof typeof EVENTS;
 

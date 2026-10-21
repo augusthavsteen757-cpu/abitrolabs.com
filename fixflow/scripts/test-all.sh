@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs every test suite from CLAUDE.md against fresh local databases:
-#   typecheck, unit tests, build, e2e (demo), beta mode, no-AI-key production, smoke.
+#   typecheck, unit tests, build, e2e (demo), beta mode, check without an account, no-AI-key production, smoke.
 #   bash scripts/test-all.sh
 set -u
 cd "$(dirname "$0")/.."
@@ -26,7 +26,7 @@ run() { # $1 = name, rest = command
 
 echo "Klardal – all tests"
 run typecheck npx tsc --noEmit
-run unit sh -c "npx tsx scripts/unit.test.ts && npx tsx scripts/cpr.test.mts && npx tsx scripts/combine.test.mts"
+run unit sh -c "npx tsx scripts/unit.test.ts && npx tsx scripts/cpr.test.mts && npx tsx scripts/combine.test.mts && npx tsx --import ./scripts/no-server-only.mjs scripts/guest-cleanup.test.mts"
 run build npm run build
 
 start ALLOW_LOCAL_DB=1 ALLOW_SIMULATED_PAYMENTS=1 ALLOW_DEMO_MODE=1 ADMIN_EMAILS=demo@klardal.dk PARTNER_CODES=E2E-PARTNER=1:2 &&
@@ -36,6 +36,9 @@ start BETA_FREE=1 ALLOW_LOCAL_DB=1 ALLOW_DEMO_MODE=1 COMPANY_NAME=Klardal "COMPA
   "COMPANY_ADDRESS=Strandhuse 93, 5700 Svendborg" CONTACT_EMAIL=kontakt@klardal.com COMPANY_FOOTER_ADDRESS=0 ADMIN_EMAILS=beta-tester@eksempel.dk &&
   run beta env BASE_URL=$BASE CHROMIUM_PATH=$CHROMIUM_PATH node scripts/beta.mjs &&
   run smoke env BASE_URL=$BASE node scripts/smoke.mjs
+
+start BETA_FREE=1 ALLOW_LOCAL_DB=1 ALLOW_DEMO_MODE=1 BETA_END_DATE=2026-11-09 ADMIN_EMAILS=gaest-test@eksempel.dk &&
+  run guest env BASE_URL=$BASE CHROMIUM_PATH=$CHROMIUM_PATH node scripts/guest.mjs
 
 start ALLOW_LOCAL_DB=1 && run no-ai-key env BASE_URL=$BASE node scripts/no-ai-key.mjs
 

@@ -221,6 +221,20 @@ export const da = {
       "Relevante danske regler forklaret",
     ],
   },
+  guest: {
+    metaTitle: "Tjek dit tilbud",
+    title: "Tjek dit tilbud – uden konto",
+    text: "Upload dit håndværkertilbud og se, hvad der er uklart, og hvad der kan blive dyrere. Du behøver ikke oprette en konto.",
+    bullets: ["Ingen e-mail eller adgangskode", "Dit tjek gemmes i {days} dage", "Opret en konto bagefter, hvis du vil gemme det"],
+    startButton: "Start tjekket",
+    haveAccount: "Har du allerede en konto?",
+    bannerText: "Du tjekker uden konto. Dit tjek slettes efter {days} dage, medmindre du opretter en gratis konto.",
+    bannerLink: "Opret konto og gem",
+    navName: "Gæst",
+    usedTitle: "Vil du tjekke flere tilbud?",
+    usedText: "Opret en gratis konto, så gemmer vi dit tjek, og du kan tjekke flere tilbud.",
+    usedButton: "Opret gratis konto",
+  },
   notFound: {
     title: "Siden findes ikke",
     text: "Linket kan være forkert, eller siden er blevet flyttet.",
@@ -857,6 +871,7 @@ export const da = {
     doneOther: "Koden er indløst. Du har fået {n} gratis analyser.",
   },
   errors: {
+    guestNeedsAccount: "Opret en gratis konto først.",
     notLoggedIn: "Du skal være logget ind.",
     invalidInput: "Ugyldige oplysninger. Tjek felterne og prøv igen.",
     unexpected: "Der skete en uventet fejl. Prøv igen om lidt.",

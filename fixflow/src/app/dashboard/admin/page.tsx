@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { gte, sql } from "drizzle-orm";
+import { and, gte, isNull, or, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { quotes, users } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
@@ -23,14 +23,16 @@ export default async function AdminPage() {
   const user = await requireUser();
   if (!isAdmin(user.email)) notFound();
 
+  // Guest checks ("tjek uden konto") are not accounts: they are counted as events below instead.
+  const realAccount = or(isNull(users.guest), eq(users.guest, false));
   // Only creation times are read (no e-mails or names), and only counts are shown.
   const since = new Date(Date.now() - 15 * 86_400_000);
   const [rows, totals, newUsers, newQuotes, [userTotal]] = await Promise.all([
     eventCounts(daysAgo(29)),
     eventTotals(),
-    db.select({ at: users.createdAt }).from(users).where(gte(users.createdAt, since)),
+    db.select({ at: users.createdAt }).from(users).where(and(gte(users.createdAt, since), realAccount)),
     db.select({ at: quotes.createdAt, status: quotes.status }).from(quotes).where(gte(quotes.createdAt, since)),
-    db.select({ count: sql<number>`count(*)` }).from(users),
+    db.select({ count: sql<number>`count(*)` }).from(users).where(realAccount),
   ]);
   const perDay = (list: { at: Date }[], day: string) => list.filter((r) => danishDay(r.at) === day).length;
   const names = Object.keys(EVENTS) as EventName[];

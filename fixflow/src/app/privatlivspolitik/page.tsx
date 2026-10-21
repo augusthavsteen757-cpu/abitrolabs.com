@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { COMPANY } from "@/lib/company";
+import { GUEST_DELETE_DAYS } from "@/lib/guest-rules";
 
 export const metadata: Metadata = { title: "Privatlivspolitik", alternates: { canonical: "/privatlivspolitik" } };
 export const dynamic = "force-dynamic";
@@ -25,6 +26,12 @@ export default function PrivacyPage() {
       <h2>Hvilke oplysninger behandler vi?</h2>
       <ul>
         <li><strong>Konto:</strong> e-mail og din adgangskode (gemt som et bcrypt-hash – vi kan ikke se den).</li>
+        <li>
+          <strong>Tjek uden konto:</strong> tjekker du et tilbud uden at oprette en konto, gemmer vi tilbuddet og analysen
+          på en midlertidig gæsteprofil uden navn og e-mail. Du får adgang til den med en nødvendig login-cookie i din
+          browser. Opretter du en konto, flyttes dit tjek over på den. Ellers sletter vi gæsteprofilen med tilbud og
+          analyse automatisk efter {GUEST_DELETE_DAYS} dage.
+        </li>
         <li>
           <strong>Postnummer</strong>, hvis du angiver det eller søger på det under Find håndværkere. Det gemmes på din
           profil, så vi kan vise afstande.
@@ -135,6 +142,7 @@ export default function PrivacyPage() {
           Konto, tilbud, analyser og beskeder: indtil du sletter dem eller din konto. Vi sletter straks i databasen; kopier
           i databasens sikkerhedskopier slettes automatisk, når de udløber.
         </li>
+        <li>Tjek uden konto: {GUEST_DELETE_DAYS} dage, medmindre du opretter en konto.</li>
         <li>Konti, der ikke har været brugt i 3 år, sletter vi automatisk – dog ikke, mens du har ubrugte købte analyser.</li>
         <li>
           Køb: 5 år efter regnskabsårets udløb (bogføringsloven). Sletter du din konto, gemmes de uden navn og e-mail.

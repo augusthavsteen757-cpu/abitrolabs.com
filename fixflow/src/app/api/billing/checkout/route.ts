@@ -9,6 +9,7 @@ import { resumePro, cancelPro, createStripeCheckout, fulfill, isPackAvailable, i
 import { isDemoMode } from "@/lib/ai";
 import { isBeta } from "@/lib/plans";
 import { getDict } from "@/i18n/server";
+import { isGuest } from "@/lib/guest";
 
 const schema = z.object({
   // Pro can no longer be bought; CANCEL/RESUME stay for any legacy Pro account.
@@ -19,6 +20,8 @@ const schema = z.object({
 
 export const POST = handle(async (req: Request) => {
   const user = await requireApiUser();
+  // Stripe needs a real e-mail for the receipt, and bought analyses must not vanish with a deleted guest.
+  if (isGuest(user)) return jsonError(da.errors.guestNeedsAccount, 403);
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return jsonError(da.errors.invalidPurchase);
   const { kind } = parsed.data;
