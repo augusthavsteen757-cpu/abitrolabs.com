@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Languages } from "lucide-react";
 import { MarketingFooter, MarketingHeader } from "@/components/MarketingShell";
 import { getCurrentUser } from "@/lib/auth";
 import { getI18n } from "@/i18n/server";
+import { isBeta } from "@/lib/plans";
 import { fmt } from "@/i18n/fmt";
 import { INTL_LOCALE } from "@/i18n/config";
 import { publishedArticles, articleBySlug, type Article } from "@/content/articles";
@@ -119,7 +120,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <h2 className="text-xl font-semibold">{t.ctaTitle}</h2>
           <p className="mt-2 text-ink-soft">{t.ctaText}</p>
           <Link href={cta} className="btn-primary mt-5 px-6 py-3 text-base">
-            {d.home.ctaPrimary} <ArrowRight className="h-4 w-4" />
+            {isBeta() ? d.home.ctaPrimary : d.home.ctaAfterBeta} <ArrowRight className="h-4 w-4" />
           </Link>
         </aside>
 

@@ -63,9 +63,12 @@ export const da = {
   home: {
     title: "Forstå dit håndværkertilbud – før du siger ja.",
     lead: "Upload tilbuddet. Vi viser, hvad der er uklart, hvad der kan blive dyrere, og hvad du skal spørge om.",
-    ctaPrimary: "Tjek et tilbud gratis",
+    ctaPrimary: "Tjek mit tilbud gratis",
+    ctaAfterBeta: "Se din tilbudsscore gratis",
+    ctaFast: "Svar på få minutter",
     ctaSecondary: "Sådan virker det",
-    reassurance: "Gratis at prøve. Intet kreditkort.",
+    reassurance: "Gratis til {date}. Intet kreditkort.",
+    reassuranceAfterBeta: "Scoren og det første røde flag er gratis. Intet kreditkort.",
     mock: {
       firm: "Eksempel VVS ApS",
       example: "Eksempel – fiktivt firma",
@@ -96,7 +99,6 @@ export const da = {
       { title: "Vid, hvad du skal spørge om", text: "Modtag et færdigt udkast til håndværkeren." },
       { title: "Sammenlign flere tilbud", text: "Se forskellene side om side, og vælg trygt." },
     ],
-    readyCta: "Start gratis",
     pricingTitle: "Mindre end en times håndværkerløn",
     pricingText: "Se din score gratis. Betal kun, hvis du vil se hele analysen. Alle priser er endelige – der kommer intet oveni.",
     faqTitle: "Spørgsmål og svar",

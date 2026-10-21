@@ -9,14 +9,18 @@ import {
   ListChecks,
   MessageSquareText,
   Columns3,
+  FileUp,
+  Timer,
 } from "lucide-react";
 import { MarketingFooter, MarketingHeader } from "@/components/MarketingShell";
 import { PricingCards } from "@/components/PricingCards";
-import { isBeta } from "@/lib/plans";
+import { betaEndText, isBeta } from "@/lib/plans";
 import { Faq } from "@/components/Faq";
 import { ScoreRing } from "@/components/ScoreRing";
 import { getCurrentUser } from "@/lib/auth";
-import { getDict } from "@/i18n/server";
+import { getI18n } from "@/i18n/server";
+import { INTL_LOCALE } from "@/i18n/config";
+import { fmt } from "@/i18n/fmt";
 import type { Dict } from "@/i18n/dict";
 import { MISSPELLINGS, organizationJsonLd } from "@/lib/organization";
 
@@ -91,8 +95,12 @@ function HeroMock({ d }: { d: Dict }) {
 
 export default async function HomePage() {
   const user = await getCurrentUser();
-  const d = await getDict();
+  const { locale, d } = await getI18n();
   const h = d.home;
+  // "Gratis" only while everything is free; afterwards only the score is free (see forbrugerombudsmanden-tjek.md).
+  const beta = isBeta();
+  const cta = beta ? h.ctaPrimary : h.ctaAfterBeta;
+  const reassurance = beta ? fmt(h.reassurance, { date: betaEndText(INTL_LOCALE[locale]) }) : h.reassuranceAfterBeta;
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd()) }} />
@@ -104,17 +112,27 @@ export default async function HomePage() {
             <div>
               <h1 className="text-[2.1rem] font-semibold leading-[1.08] sm:text-5xl lg:text-[3.6rem]">{h.title}</h1>
               <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-soft">{h.lead}</p>
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                <Link href={user ? "/dashboard/upload" : "/opret"} className="btn-primary px-6 py-3 text-base">
-                  {h.ctaPrimary} <ArrowRight className="h-4 w-4" />
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Link
+                  href={user ? "/dashboard/upload" : "/opret"}
+                  className="btn-primary group rounded-2xl px-7 py-4 text-lg shadow-lg shadow-brand-700/30 ring-4 ring-brand-200/70 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-700/30"
+                  data-testid="hero-cta"
+                >
+                  <FileUp className="h-5 w-5" aria-hidden /> {cta}
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden />
                 </Link>
                 <Link href="/#saadan" className="btn-secondary hidden px-6 py-3 text-base sm:inline-flex">
                   {h.ctaSecondary}
                 </Link>
               </div>
-              <p className="mt-4 flex items-center gap-2 text-sm text-ink-muted">
-                <ShieldCheck className="h-4 w-4 text-brand-600" /> {h.reassurance}
-              </p>
+              <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-ink-muted">
+                <li className="flex items-center gap-1.5">
+                  <Timer className="h-4 w-4 text-brand-600" aria-hidden /> {h.ctaFast}
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <ShieldCheck className="h-4 w-4 text-brand-600" aria-hidden /> {reassurance}
+                </li>
+              </ul>
             </div>
             <HeroMock d={d} />
           </div>
@@ -162,7 +180,7 @@ export default async function HomePage() {
               })}
             </ul>
             <Link href={user ? "/dashboard/upload" : "/opret"} className="btn-primary mt-8 px-6 py-3 text-base">
-              {h.readyCta} <ArrowRight className="h-4 w-4" />
+              {cta} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </section>
