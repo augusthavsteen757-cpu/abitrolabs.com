@@ -87,7 +87,6 @@ try {
   await visitor.goto(BASE);
   await visitor.locator("header nav").getByRole("link", { name: "Sammenlign" }).click();
   await visitor.waitForURL(/\/opret\?next=%2Fdashboard%2Fsammenlign/);
-  await visitor.fill("#name", "Ny Besøgende");
   await visitor.fill("#email", `visitor${Date.now()}@eksempel.dk`);
   await visitor.fill("#password", "Ny-Besoegende-Kode-31");
   await visitor.check("input[name=acceptTerms]");
@@ -98,7 +97,6 @@ try {
 
   const email = `test${Date.now()}@eksempel.dk`;
   await page.goto(`${BASE}/opret`);
-  await page.fill("#name", "Test Testesen");
   await page.fill("#email", email);
   await page.fill("#password", "kort");
   await page.check("input[name=acceptTerms]");
@@ -233,7 +231,6 @@ try {
   const buyer = await newPage();
   await buyer.goto(`${BASE}/opret?kode=E2E-PARTNER`);
   await buyer.getByTestId("code-note").waitFor();
-  await buyer.fill("#name", "Kode Kodesen");
   await buyer.fill("#email", `kode${Date.now()}@eksempel.dk`);
   await buyer.fill("#password", "Kode-Kodesen-2026");
   await buyer.check("input[name=acceptTerms]");
@@ -593,7 +590,6 @@ try {
   const otherQuoteId = quoteHref.split("/").pop();
   const intruder = await newPage();
   await intruder.goto(`${BASE}/opret`);
-  await intruder.fill("#name", "Anden Bruger");
   await intruder.fill("#email", `intruder${Date.now()}@eksempel.dk`);
   await intruder.fill("#password", "Anden-Bruger-Kode-77");
   await intruder.check("input[name=acceptTerms]");

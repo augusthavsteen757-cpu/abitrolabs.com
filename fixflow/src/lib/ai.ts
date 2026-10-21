@@ -455,7 +455,7 @@ export async function draftMessage(
       messages: [
         {
           role: "user",
-          content: `Tilbuddet (JSON):\n${JSON.stringify(context)}\n\nEmne kunden vil spørge om: ${topic}\nTone: ${TONE_TEXT[tone]}\nKundens navn: ${customerName}`,
+          content: `Tilbuddet (JSON):\n${JSON.stringify(context)}\n\nEmne kunden vil spørge om: ${topic}\nTone: ${TONE_TEXT[tone]}\nKundens navn: ${customerName || "ikke oplyst (slut med hilsenen uden navn og uden pladsholder)"}`,
         },
       ],
     });
@@ -499,5 +499,5 @@ export function templateMessage(
     : t.endsWith("?")
       ? t
       : fmt(m.aboutTopic, { topic: t.replace(/\.$/, "") });
-  return `${who}\n\n${opening}\n\n${topicLine} ${itemLine}\n\n${m.ask[tone]}\n\n${close}\n${customerName}`.replace(/ \n/g, "\n");
+  return `${who}\n\n${opening}\n\n${topicLine} ${itemLine}\n\n${m.ask[tone]}\n\n${close}${customerName ? `\n${customerName}` : ""}`.replace(/ \n/g, "\n");
 }

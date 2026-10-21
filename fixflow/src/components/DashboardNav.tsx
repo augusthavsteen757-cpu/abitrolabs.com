@@ -85,10 +85,10 @@ export function DashboardNav({ name, email, plan, used, limit, remaining, credit
         </div>
         <div className="flex items-center gap-3 border-t border-line px-4 py-4">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-800">
-            {name.slice(0, 1).toUpperCase()}
+            {(name || email).slice(0, 1).toUpperCase()}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{name}</p>
+            <p className="truncate text-sm font-medium">{name || email}</p>
             <p className="truncate text-xs text-ink-muted">{email}</p>
           </div>
           <button onClick={logout} className="rounded-lg p-2 text-ink-muted hover:bg-paper hover:text-ink" aria-label={d.nav.logout} title={d.nav.logout}>

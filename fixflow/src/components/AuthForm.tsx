@@ -88,12 +88,6 @@ export function AuthForm({ mode, showDemo = false }: { mode: "login" | "signup";
         </p>
       )}
       <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>
-        {isSignup && (
-          <div>
-            <label htmlFor="name" className="label">{a.name}</label>
-            <input id="name" name="name" required autoComplete="name" className="input" placeholder={a.namePlaceholder} />
-          </div>
-        )}
         <div>
           <label htmlFor="email" className="label">{a.email}</label>
           <input id="email" name="email" type="email" required autoComplete="email" inputMode="email" className="input" placeholder={a.emailPlaceholder} />
