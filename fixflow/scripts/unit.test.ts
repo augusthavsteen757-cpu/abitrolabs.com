@@ -17,6 +17,7 @@ import { createRequire } from "node:module";
 import { unusedPurchases, withdrawalQuote } from "../src/lib/purchases";
 import { normalizeCode, parsePartnerCodes } from "../src/lib/code-format";
 import type { Payment, User } from "../src/db/schema";
+import { GUEST_ANALYSES, GUEST_DELETE_DAYS, GUEST_EMAIL_DOMAIN, isGuest } from "../src/lib/guest-rules";
 import { BETA_ANALYSES_LEGACY, BETA_ANALYSES_TOTAL, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaLimitOf, getUsage, planLimit } from "../src/lib/plans";
 
 let passed = 0;
@@ -374,6 +375,34 @@ test("worst case is shown as a worst case, never as our expected estimate, in ev
     for (const k of ["{cheap}", "{w1}", "{safe}", "{w2}"]) assert.ok(compare.includes(k), `${loc}: compare keeps ${k}`);
     assert.ok(!bad.test(single) && !bad.test(compare), `${loc}: worst case framed as our estimate`);
   }
+});
+
+test("guest checks: recognised by flag or placeholder domain, never a real e-mail", () => {
+  assert.equal(isGuest({ guest: true, email: "x@y.dk" }), true);
+  assert.equal(isGuest({ guest: null, email: `gaest-abc@${GUEST_EMAIL_DOMAIN}` }), true);
+  assert.equal(isGuest({ guest: false, email: "gaest@klardal.com" }), false);
+  assert.equal(isGuest({ guest: null, email: "anna@eksempel.dk" }), false);
+  assert.ok(GUEST_EMAIL_DOMAIN.endsWith(".invalid"), "reserved domain: mail can never be delivered");
+  assert.equal(GUEST_ANALYSES, 1);
+  assert.equal(GUEST_DELETE_DAYS, 7);
+});
+
+test("guest texts exist in every language and keep their placeholders", () => {
+  for (const [loc, d] of Object.entries(DICTS)) {
+    assert.ok(d.guest.bannerText.includes("{days}"), `${loc}: banner keeps {days}`);
+    assert.ok(d.guest.bullets.some((b) => b.includes("{days}")), `${loc}: bullets keep {days}`);
+    assert.ok(d.errors.guestNeedsAccount.length > 5, `${loc}: guestNeedsAccount`);
+  }
+});
+
+test("guest beta usage: 1 analysis as a guest, 3 in total after creating an account", () => {
+  const prev = process.env.BETA_FREE;
+  process.env.BETA_FREE = "1";
+  const base = { plan: "FREE", periodUsed: 1, extraCredits: 0, giftCredits: 0, periodStart: new Date() } as unknown as User;
+  assert.equal(getUsage({ ...base, betaLimit: GUEST_ANALYSES }).remaining, 0);
+  assert.equal(getUsage({ ...base, betaLimit: BETA_ANALYSES_TOTAL }).remaining, BETA_ANALYSES_TOTAL - 1);
+  if (prev === undefined) delete process.env.BETA_FREE;
+  else process.env.BETA_FREE = prev;
 });
 
 console.log(`\n${passed} tests passed`);

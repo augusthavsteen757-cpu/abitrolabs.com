@@ -4,10 +4,12 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { hashPassword, passwordProblem, setSessionCookie } from "@/lib/auth";
+import { getCurrentUser, hashPassword, passwordProblem, setSessionCookie } from "@/lib/auth";
 import { handle, jsonError } from "@/lib/api";
 import { BETA_ANALYSES_TOTAL } from "@/lib/plans";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { isGuest } from "@/lib/guest";
+import { track } from "@/lib/events";
 
 const schema = z.object({
   // Optional: the sign-up form only asks for e-mail and password (fewer fields, more sign-ups).
@@ -34,6 +36,27 @@ export const POST = handle(async (req: Request) => {
 
   const existing = await db.query.users.findFirst({ where: eq(users.email, email) });
   if (existing) return jsonError(da.errors.emailTaken, 409);
+
+  // Someone who checked a quote without an account keeps it: the guest account becomes their real account.
+  const current = await getCurrentUser();
+  if (current && isGuest(current)) {
+    const [user] = await db
+      .update(users)
+      .set({
+        name,
+        email,
+        passwordHash: await hashPassword(password),
+        acceptedTermsAt: new Date(),
+        betaLimit: BETA_ANALYSES_TOTAL,
+        guest: false,
+        sessionVersion: current.sessionVersion + 1,
+      })
+      .where(eq(users.id, current.id))
+      .returning();
+    await setSessionCookie(user);
+    await track("guest_converted");
+    return NextResponse.json({ ok: true });
+  }
 
   const [user] = await db
     .insert(users)

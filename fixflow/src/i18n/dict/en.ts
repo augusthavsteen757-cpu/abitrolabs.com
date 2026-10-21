@@ -223,6 +223,20 @@ export const en: Dict = {
       "Relevant Danish rules explained",
     ],
   },
+  guest: {
+    metaTitle: "Check your quote",
+    title: "Check your quote – no account needed",
+    text: "Upload your tradesperson's quote and see what is unclear and what could get more expensive. You don't need to create an account.",
+    bullets: ["No e-mail or password", "Your check is kept for {days} days", "Create an account afterwards if you want to keep it"],
+    startButton: "Start the check",
+    haveAccount: "Already have an account?",
+    bannerText: "You are checking without an account. Your check is deleted after {days} days unless you create a free account.",
+    bannerLink: "Create account and save",
+    navName: "Guest",
+    usedTitle: "Want to check more quotes?",
+    usedText: "Create a free account and we'll keep your check, and you can check more quotes.",
+    usedButton: "Create free account",
+  },
   notFound: {
     title: "Page not found",
     text: "The link may be wrong, or the page has moved.",
@@ -859,6 +873,7 @@ export const en: Dict = {
     doneOther: "Code redeemed. You got {n} free analyses.",
   },
   errors: {
+    guestNeedsAccount: "Create a free account first.",
     notLoggedIn: "You need to be logged in.",
     invalidInput: "Invalid details. Check the fields and try again.",
     unexpected: "An unexpected error occurred. Please try again shortly.",

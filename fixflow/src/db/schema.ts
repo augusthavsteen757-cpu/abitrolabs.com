@@ -26,6 +26,8 @@ export const users = sqliteTable("users", {
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
   /** Free trial analyses promised when the account was created (empty for accounts from before this was stored = 5). */
   betaLimit: integer("beta_limit"),
+  /** A temporary account made by "tjek uden konto": no e-mail or password yet, deleted after a few days unless claimed. */
+  guest: integer("guest", { mode: "boolean" }),
 });
 
 export const quotes = sqliteTable(

@@ -223,6 +223,20 @@ export const ro: Dict = {
       "Reguli daneze relevante explicate",
     ],
   },
+  guest: {
+    metaTitle: "Verifică oferta",
+    title: "Verifică oferta – fără cont",
+    text: "Încarcă oferta meșterului și vezi ce este neclar și ce poate deveni mai scump. Nu trebuie să îți creezi un cont.",
+    bullets: ["Fără e-mail sau parolă", "Verificarea ta este păstrată {days} zile", "Creează un cont după aceea, dacă vrei să o păstrezi"],
+    startButton: "Începe verificarea",
+    haveAccount: "Ai deja un cont?",
+    bannerText: "Verifici fără cont. Verificarea ta este ștearsă după {days} zile, dacă nu îți creezi un cont gratuit.",
+    bannerLink: "Creează cont și salvează",
+    navName: "Vizitator",
+    usedTitle: "Vrei să verifici mai multe oferte?",
+    usedText: "Creează un cont gratuit și îți păstrăm verificarea, iar tu poți verifica mai multe oferte.",
+    usedButton: "Creează cont gratuit",
+  },
   notFound: {
     title: "Pagina nu există",
     text: "Linkul poate fi greșit sau pagina a fost mutată.",
@@ -859,6 +873,7 @@ export const ro: Dict = {
     doneOther: "Codul a fost folosit. Ai primit {n} analize gratuite.",
   },
   errors: {
+    guestNeedsAccount: "Creează mai întâi un cont gratuit.",
     notLoggedIn: "Trebuie să fii autentificat.",
     invalidInput: "Date invalide. Verifică câmpurile și încearcă din nou.",
     unexpected: "A apărut o eroare neașteptată. Încearcă din nou puțin mai târziu.",

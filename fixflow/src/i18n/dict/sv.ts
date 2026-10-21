@@ -223,6 +223,20 @@ export const sv: Dict = {
       "Relevanta danska regler förklarade",
     ],
   },
+  guest: {
+    metaTitle: "Kontrollera din offert",
+    title: "Kontrollera din offert – utan konto",
+    text: "Ladda upp hantverkarens offert och se vad som är otydligt och vad som kan bli dyrare. Du behöver inte skapa ett konto.",
+    bullets: ["Ingen e-post eller lösenord", "Din kontroll sparas i {days} dagar", "Skapa ett konto efteråt om du vill spara den"],
+    startButton: "Starta kontrollen",
+    haveAccount: "Har du redan ett konto?",
+    bannerText: "Du kontrollerar utan konto. Din kontroll raderas efter {days} dagar om du inte skapar ett gratis konto.",
+    bannerLink: "Skapa konto och spara",
+    navName: "Gäst",
+    usedTitle: "Vill du kontrollera fler offerter?",
+    usedText: "Skapa ett gratis konto, så sparar vi din kontroll och du kan kontrollera fler offerter.",
+    usedButton: "Skapa gratis konto",
+  },
   notFound: {
     title: "Sidan finns inte",
     text: "Länken kan vara fel, eller så har sidan flyttats.",
@@ -859,6 +873,7 @@ export const sv: Dict = {
     doneOther: "Koden är inlöst. Du har fått {n} gratis analyser.",
   },
   errors: {
+    guestNeedsAccount: "Skapa ett gratis konto först.",
     notLoggedIn: "Du måste vara inloggad.",
     invalidInput: "Ogiltiga uppgifter. Kontrollera fälten och försök igen.",
     unexpected: "Ett oväntat fel uppstod. Försök igen om en stund.",

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { COMPANY, WITHDRAWAL_DAYS } from "@/lib/company";
+import { GUEST_ANALYSES, GUEST_DELETE_DAYS } from "@/lib/guest-rules";
 import { BETA_ANALYSES_LEGACY, BETA_ANALYSES_TOTAL, PACK3_CREDITS, PACK3_PRICE_DKK, SINGLE_PRICE_DKK, betaEndText, isBeta } from "@/lib/plans";
 
 export const metadata: Metadata = { title: "Handelsbetingelser", alternates: { canonical: "/handelsbetingelser" } };
@@ -42,6 +43,12 @@ export default function TermsPage() {
 
       <h2>Hvem kan bruge Klardal?</h2>
       <p>Du skal være mindst 18 år for at oprette en konto og købe. Tjenesten er til privatpersoner (forbrugere).</p>
+      <h2>Tjek uden konto</h2>
+      <p>
+        Du kan tjekke {GUEST_ANALYSES === 1 ? "ét tilbud" : `${GUEST_ANALYSES} tilbud`} uden at oprette en konto. Du skal også her være mindst 18 år og acceptere
+        disse betingelser. Tjekket gemmes i {GUEST_DELETE_DAYS} dage og slettes derefter automatisk, medmindre du opretter en
+        konto – så flyttes det over på din konto. Vil du tjekke flere tilbud eller købe noget, skal du oprette en konto.
+      </p>
 
       {isBeta() && (
         <>

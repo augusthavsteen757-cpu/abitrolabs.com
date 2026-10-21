@@ -223,6 +223,20 @@ export const nb: Dict = {
       "Relevante danske regler forklart",
     ],
   },
+  guest: {
+    metaTitle: "Sjekk tilbudet ditt",
+    title: "Sjekk tilbudet ditt – uten konto",
+    text: "Last opp håndverkertilbudet ditt og se hva som er uklart, og hva som kan bli dyrere. Du trenger ikke opprette en konto.",
+    bullets: ["Ingen e-post eller passord", "Sjekken din lagres i {days} dager", "Opprett en konto etterpå hvis du vil beholde den"],
+    startButton: "Start sjekken",
+    haveAccount: "Har du allerede en konto?",
+    bannerText: "Du sjekker uten konto. Sjekken din slettes etter {days} dager, med mindre du oppretter en gratis konto.",
+    bannerLink: "Opprett konto og lagre",
+    navName: "Gjest",
+    usedTitle: "Vil du sjekke flere tilbud?",
+    usedText: "Opprett en gratis konto, så lagrer vi sjekken din, og du kan sjekke flere tilbud.",
+    usedButton: "Opprett gratis konto",
+  },
   notFound: {
     title: "Siden finnes ikke",
     text: "Lenken kan være feil, eller siden er flyttet.",
@@ -859,6 +873,7 @@ export const nb: Dict = {
     doneOther: "Koden er løst inn. Du har fått {n} gratis analyser.",
   },
   errors: {
+    guestNeedsAccount: "Opprett en gratis konto først.",
     notLoggedIn: "Du må være logget inn.",
     invalidInput: "Ugyldige opplysninger. Sjekk feltene og prøv igjen.",
     unexpected: "Det oppstod en uventet feil. Prøv igjen om litt.",

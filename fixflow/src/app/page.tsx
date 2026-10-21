@@ -114,7 +114,7 @@ export default async function HomePage() {
               <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-soft">{h.lead}</p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link
-                  href={user ? "/dashboard/upload" : "/opret"}
+                  href={user ? "/dashboard/upload" : "/tjek"}
                   className="btn-primary group rounded-2xl px-7 py-4 text-lg shadow-lg shadow-brand-700/30 ring-4 ring-brand-200/70 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-700/30"
                   data-testid="hero-cta"
                 >
@@ -179,7 +179,7 @@ export default async function HomePage() {
                 );
               })}
             </ul>
-            <Link href={user ? "/dashboard/upload" : "/opret"} className="btn-primary mt-8 px-6 py-3 text-base">
+            <Link href={user ? "/dashboard/upload" : "/tjek"} className="btn-primary mt-8 px-6 py-3 text-base">
               {cta} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

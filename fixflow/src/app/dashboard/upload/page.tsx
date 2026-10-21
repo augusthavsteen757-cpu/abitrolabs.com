@@ -7,6 +7,7 @@ import { listQuotes } from "@/lib/quotes";
 import { UploadForm } from "@/components/UploadForm";
 import { Paywall } from "@/components/Paywall";
 import { getDict } from "@/i18n/server";
+import { isGuest } from "@/lib/guest";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getDict()).upload.metaTitle };
@@ -35,7 +36,15 @@ export default async function UploadPage() {
         </Link>
       </p>
       <div className="mt-8">
-        {usage.remaining <= 0 ? (
+        {usage.remaining <= 0 && isGuest(user) ? (
+          <div className="card p-6 text-center" data-testid="guest-used">
+            <h2 className="text-xl font-semibold">{d.guest.usedTitle}</h2>
+            <p className="mt-2 text-ink-soft">{d.guest.usedText}</p>
+            <Link href="/opret" className="btn-primary mt-5 inline-flex">
+              {d.guest.usedButton}
+            </Link>
+          </div>
+        ) : usage.remaining <= 0 ? (
           <Paywall
             title={usage.plan === "PRO" ? t.usedProTitle : t.usedFreeTitle}
             text={usage.plan === "PRO" ? t.usedProText : t.usedFreeText}
