@@ -26,11 +26,11 @@ export const metadata: Metadata = {
 };
 
 const ITEMS = [
-  "Kunder kan booke eller skrive til jer døgnet rundt",
-  "Automatiske beskeder til jeres kunder",
-  "Flere anmeldelser på Google",
-  "Vi sætter det hele op",
-  "Hjælp, når I vil ændre noget",
+  "Jeres kunder kan selv booke en tid, også om aftenen",
+  "De får en påmindelse dagen før, så de ikke glemmer det",
+  "Flere af jeres glade kunder skriver en anmeldelse på Google",
+  "Vi sætter det hele op for jer",
+  "Skal noget laves om, så ringer I bare",
 ];
 
 export default function Landing() {
@@ -57,17 +57,17 @@ export default function Landing() {
         </div>
 
         <div className="wrap choices">
-          <h2>Samme pakke. To priser.</h2>
+          <h2>Hvad koster det?</h2>
           <div className="cards">
             <div className="card">
-              <h3>I har en hjemmeside</h3>
+              <h3>Har I allerede en hjemmeside?</h3>
               <ul>{ITEMS.map((t) => <li key={t}>{t}</li>)}</ul>
               <div className="price"><b>149 kr.</b><span>om måneden</span></div>
             </div>
             <div className="card main">
-              <h3>I har ingen hjemmeside</h3>
+              <h3>Har I ikke en hjemmeside?</h3>
               <ul>{ITEMS.map((t) => <li key={t}>{t}</li>)}</ul>
-              <div className="price"><b>199 kr.</b><span>om måneden, hjemmeside med</span></div>
+              <div className="price"><b>199 kr.</b><span>om måneden. Så laver vi også hjemmesiden.</span></div>
             </div>
           </div>
           <div className="terms"><span>I skal ikke give os kodeord</span><span>Ingen binding</span><span>Første måned gratis</span></div>
