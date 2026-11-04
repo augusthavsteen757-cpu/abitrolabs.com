@@ -57,7 +57,7 @@ export default function Landing() {
         </div>
 
         <div className="wrap choices">
-          <h2>Hvad koster det?</h2>
+          <h2>Priser</h2>
           <div className="cards">
             <div className="card">
               <h3>Har I allerede en hjemmeside?</h3>

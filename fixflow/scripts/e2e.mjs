@@ -69,6 +69,7 @@ try {
   // The front page sells booking for small firms; the quote check's own front page lives at /tilbud.
   await page.goto(BASE);
   await page.getByRole("heading", { name: /Pas jeres firma/ }).waitFor();
+  await page.getByRole("heading", { name: "Priser", exact: true }).waitFor();
   assert((await page.getByTestId("site-item").innerText()).includes("hjemmeside"), "the 199 kr card says we build the website");
   assert((await page.locator("[data-testid=beta-banner]").count()) === 0, "no quote-check beta banner on the booking landing page");
   await shot(page, "booking-landing");
