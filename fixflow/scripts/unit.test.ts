@@ -235,7 +235,7 @@ test("the terms name the withdrawal button exactly as the account page shows it"
   const terms = readFileSync(new URL("../src/app/handelsbetingelser/page.tsx", import.meta.url), "utf8");
   assert.ok(terms.includes(`»${DICTS.da.account.withdrawButton}«`), "terms mention the real button name");
   assert.ok(!/\bPro\b/.test(terms), "terms do not mention Pro");
-  const privacy = readFileSync(new URL("../src/app/privatlivspolitik/page.tsx", import.meta.url), "utf8");
+  const privacy = readFileSync(new URL("../src/app/privatlivspolitik/OldPrivacy.tsx", import.meta.url), "utf8");
   assert.ok(!/\bPro\b/.test(privacy), "privacy policy does not mention Pro");
 });
 
@@ -279,7 +279,7 @@ test("legal texts: AI without human review, errors in the trial period, terms ac
   assert.ok(terms.includes("Der sidder ikke et menneske") && terms.includes("fagperson"), "terms: no human review (AI Act transparency)");
   assert.ok(terms.includes("der kan forekomme fejl og perioder, hvor tjenesten"), "terms: errors/downtime in the trial period");
   assert.ok(terms.includes("Ubrugte analyser udløber ikke") && terms.includes("Der er intet abonnement"), "terms: no expiry, no subscription");
-  const privacy = readFileSync(new URL("../src/app/privatlivspolitik/page.tsx", import.meta.url), "utf8");
+  const privacy = readFileSync(new URL("../src/app/privatlivspolitik/OldPrivacy.tsx", import.meta.url), "utf8");
   assert.ok(privacy.includes("ikke til at træne") && privacy.includes("litra b"), "privacy: no training, legal basis");
   assert.ok(!privacy.includes("sender vi kun teksten"), "privacy matches what is sent (textless pages go along as images)");
   for (const [lang, d] of Object.entries(DICTS)) {

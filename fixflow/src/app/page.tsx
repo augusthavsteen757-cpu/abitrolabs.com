@@ -5,6 +5,7 @@ import "@fontsource-variable/hanken-grotesk";
 import "./landing.css";
 import { CallbackForm } from "@/components/CallbackForm";
 import { COMPANY } from "@/lib/company";
+import { MISSPELLINGS, organizationJsonLd } from "@/lib/organization";
 
 export const metadata: Metadata = {
   title: { absolute: "Klardal · Hjemmeside og online booking til små firmaer" },
@@ -25,6 +26,20 @@ export const metadata: Metadata = {
   },
 };
 
+/** WebSite + Organization: gives Google the site name and the logo it shows next to search results. */
+function siteJsonLd() {
+  const url = `${(process.env.APP_URL || "https://klardal.com").replace(/\/$/, "")}/`;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "WebSite", "@id": `${url}#website`, name: "Klardal", alternateName: ["klardal.com", ...MISSPELLINGS], url, publisher: { "@id": `${url}#organization` } },
+      organizationJsonLd(url),
+    ],
+  };
+}
+
+export const dynamic = "force-dynamic";
+
 const ITEMS = [
   "Jeres kunder kan selv booke en tid, også om aftenen",
   "De får en påmindelse dagen før, så de ikke glemmer det",
@@ -36,6 +51,7 @@ const ITEMS = [
 export default function Landing() {
   return (
     <div className="kl">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd()).replace(/</g, "\\u003c") }} />
       <header className="wrap">
         <nav>
           <span className="mark">Klardal</span>

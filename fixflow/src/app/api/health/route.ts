@@ -9,8 +9,8 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     await db.run(sql`select 1`);
-    // Without an AI key the site can't do its job – report unhealthy so it is noticed immediately.
-    if (isAiMissing()) return NextResponse.json({ ok: false, ai: false }, { status: 503 });
+    // Without an AI key the old quote check can't do its job – report unhealthy so it is noticed immediately.
+    if (process.env.OLD_TOOL === "1" && isAiMissing()) return NextResponse.json({ ok: false, ai: false }, { status: 503 });
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ ok: false }, { status: 503 });

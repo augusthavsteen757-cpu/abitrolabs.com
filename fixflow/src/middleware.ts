@@ -8,9 +8,12 @@ const REDIRECT_HOSTS = new Set(
 );
 const MAIN_URL = process.env.APP_URL || "https://klardal.com";
 
-/** Pages of the old quote-check tool. They still work, but Google should show the booking service instead. */
-const OLD_TOOL = ["/tilbud", "/tjek", "/priser", "/opret", "/login", "/glemt-adgangskode", "/artikler", "/handelsbetingelser"];
+/** Pages of the old quote-check tool. Closed: they send visitors to the front page (OLD_TOOL=1 reopens them, e.g. for tests). */
+const OLD_TOOL = ["/tilbud", "/tjek", "/priser", "/opret", "/login", "/glemt-adgangskode", "/nulstil", "/dashboard", "/artikler", "/handelsbetingelser"];
 const isOldToolPath = (p: string) => OLD_TOOL.some((o) => p === o || p.startsWith(`${o}/`));
+/** API routes the booking site still needs while the old tool is closed. */
+const OPEN_APIS = new Set(["/api/ring", "/api/health", "/api/billing/webhook"]);
+const oldToolOpen = () => process.env.OLD_TOOL === "1";
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -18,6 +21,18 @@ export function middleware(req: NextRequest) {
   const host = (req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "").split(":")[0].toLowerCase();
   if (REDIRECT_HOSTS.has(host)) {
     return NextResponse.redirect(new URL(pathname + req.nextUrl.search, MAIN_URL), 301);
+  }
+
+  if (!oldToolOpen()) {
+    if (isOldToolPath(pathname)) {
+      const home = req.nextUrl.clone();
+      home.pathname = "/";
+      home.search = "";
+      return NextResponse.redirect(home, 301);
+    }
+    if (pathname.startsWith("/api/") && !OPEN_APIS.has(pathname)) {
+      return NextResponse.json({ error: "Denne tjeneste er lukket." }, { status: 410 });
+    }
   }
 
   // CSRF protection: state-changing API calls must come from our own pages.

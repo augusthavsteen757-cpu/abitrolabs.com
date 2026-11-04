@@ -6,7 +6,8 @@ import { handle } from "@/lib/api";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { COMPANY } from "@/lib/company";
 import { sendEmail } from "@/lib/email";
-import { normalizePhone } from "@/lib/callback";
+import { CALLBACK_KEEP_DAYS, normalizePhone } from "@/lib/callback";
+import { lt } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
@@ -25,6 +26,8 @@ export const POST = handle(async (req: Request) => {
   }
   const company = parsed.data.firma.replace(/[\r\n\t]+/g, " ").trim().slice(0, 120) || null;
   await db.insert(callbackRequests).values({ phone, company });
+  // Keeps the promise in the privacy policy: old requests disappear by themselves.
+  await db.delete(callbackRequests).where(lt(callbackRequests.createdAt, new Date(Date.now() - CALLBACK_KEEP_DAYS * 86_400_000)));
   const to = process.env.CALLBACK_EMAIL || COMPANY.email;
   if (to.includes("@")) {
     await sendEmail({

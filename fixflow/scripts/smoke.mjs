@@ -14,8 +14,11 @@ const ok = (cond, msg) => {
 const get = (p, init = {}) => fetch(BASE + p, { redirect: "manual", ...init });
 
 console.log(`Smoke test: ${BASE}`);
+// The old quote-check tool is closed live (it only opens with OLD_TOOL=1); its checks run only while it is open.
+const OLD = (await get("/tjek")).status === 200;
+console.log(OLD ? "  (old quote-check tool is open)" : "  (old quote-check tool is closed)");
 
-for (const p of ["/", "/priser", "/login", "/opret", "/tjek", "/glemt-adgangskode", "/handelsbetingelser", "/privatlivspolitik"]) {
+for (const p of OLD ? ["/", "/priser", "/login", "/opret", "/tjek", "/glemt-adgangskode", "/handelsbetingelser", "/privatlivspolitik"] : ["/", "/om", "/privatlivspolitik"]) {
   const r = await get(p);
   const html = await r.text();
   ok(r.status === 200 && html.includes("Klardal"), `${p} → 200 and shows Klardal (${r.status})`);
@@ -35,10 +38,12 @@ ok(/Disallow: \/dashboard/.test(robots) && /Sitemap: https?:\/\//.test(robots), 
 ok(/User-Agent: GPTBot/i.test(robots) && /User-Agent: Google-Extended/i.test(robots) && !/Disallow: \/\s*$/m.test(robots), "robots.txt welcomes AI assistants and blocks nothing public");
 const llms = await get("/llms.txt");
 const llmsText = await llms.text();
-ok(llms.status === 200 && llmsText.startsWith("# Klardal") && llmsText.includes("149 kr.") && llmsText.includes("/tilbud") && !/undefined|NaN/.test(llmsText), "llms.txt describes Klardal for AI assistants");
-const iconHtml = await (await get("/tilbud")).text();
+ok(llms.status === 200 && llmsText.startsWith("# Klardal") && llmsText.includes("149 kr.") && !llmsText.includes("/tilbud") && !/undefined|NaN/.test(llmsText), "llms.txt describes the booking service for AI assistants, not the old tool");
+const iconHtml = await (await get("/")).text();
 ok(/"alternateName":\["klardal.com","Klardahl"/.test(iconHtml) && llmsText.includes("Klardahl"), "common misspellings (Klardahl) point to Klardal for search engines and AI");
 const privacy = await (await get("/privatlivspolitik")).text();
+if (!OLD) ok(privacy.includes("Når I beder os ringe") && /CVR (<!-- -->)?46839994/.test(privacy) && !privacy.replace(/<script[\s\S]*?<\/script>/g, "").includes("Anthropic"), "privacy policy covers the call-me form, not the closed AI tool");
+if (OLD) {
 ok(privacy.includes('data-testid="legal-summary"') && privacy.includes("Anthropic, PBC (USA)") && privacy.includes("overførsel til et tredjeland") && privacy.includes("standardkontraktbestemmelser"), "privacy policy explains the AI transfer to the USA and its legal basis");
 const privacyEn = await (await get("/privatlivspolitik", { headers: { cookie: "ff_lang=en" } })).text();
 ok(privacyEn.includes("outside the EU") && privacyEn.includes("standard contractual clauses"), "privacy summary in the reader's language");
@@ -46,16 +51,19 @@ const article = await get("/artikler/hvad-koster-et-nyt-badevaerelse");
 const articleHtml = await article.text();
 ok(article.status === 200 && /<meta name="robots" content="noindex, follow"/.test(articleHtml) && articleHtml.includes('"@type":"Article"') && articleHtml.includes('"@type":"BreadcrumbList"') && articleHtml.includes('<link rel="canonical" href="https://klardal.com/artikler/hvad-koster-et-nyt-badevaerelse"/>'), "article template: title, canonical, Article + breadcrumb data, draft kept out of Google");
 ok(/data-testid="article-cta"[\s\S]*href="\/opret\?next=%2Fdashboard%2Fupload"/.test(articleHtml), "article ends with \"Tjek et tilbud gratis\"");
+}
 const sitemapText = await (await get("/sitemap.xml")).text();
 ok(!sitemapText.includes("/artikler") && !sitemapText.includes("/tjek") && !sitemapText.includes("/priser") && sitemapText.includes("/om<"), "sitemap lists only the booking service, not the old quote-check pages");
-for (const p of ["/tilbud", "/tjek", "/priser", "/artikler"]) {
+for (const p of ["/tilbud", "/tjek", "/priser", "/artikler", "/login", "/dashboard"]) {
   const r = await get(p);
-  ok(r.status === 200 && /noindex/.test(r.headers.get("x-robots-tag") ?? ""), `${p} still works but is kept out of Google`);
+  if (OLD) ok(p === "/dashboard" || (r.status === 200 && /noindex/.test(r.headers.get("x-robots-tag") ?? "")), `${p} still works but is kept out of Google`);
+  else ok(r.status === 301 && new URL(r.headers.get("location") ?? "", BASE).pathname === "/", `${p} is closed and sends visitors to the front page (${r.status})`);
 }
 for (const p of ["/", "/om"]) {
   const r = await get(p);
   ok(r.status === 200 && !r.headers.get("x-robots-tag"), `${p} can be found on Google`);
 }
+if (OLD) {
 for (const slug of ["tjek-dit-haandvaerkertilbud", "tilbud-eller-overslag", "efter-regning", "sammenlign-haandvaerkertilbud"]) {
   const r = await get(`/artikler/${slug}`);
   const html = await r.text();
@@ -67,6 +75,7 @@ for (const p of ["/tilbud", "/priser", "/handelsbetingelser", "/privatlivspoliti
   const html = await (await get(p)).text();
   ok(html.includes(`<link rel="canonical" href="https://klardal.com${p}"/>`), `${p} has its own canonical`);
 }
+}
 ok(/<link rel="canonical" href="https:\/\/klardal\.com\/?"\/>/.test(await (await get("/")).text()), "front page canonical");
 // The brand page answers "hvad er Klardal" – with Organization data, but never the street address.
 const about = await get("/om");
@@ -74,10 +83,13 @@ const aboutHtml = await about.text();
 ok(about.status === 200 && aboutHtml.includes('<link rel="canonical" href="https://klardal.com/om"/>') && aboutHtml.includes("<title>Hvad er Klardal? · Om Klardal</title>") && /data-testid="about-lead"[^>]*>Klardal er en dansk virksomhed fra Svendborg/.test(aboutHtml), "/om explains what Klardal is");
 ok(aboutHtml.includes('"@type":"AboutPage"') && aboutHtml.includes('"@type":"Organization"') && aboutHtml.includes('"addressLocality":"Svendborg"') && !/application\/ld\+json[^<]*Strandhuse/.test(aboutHtml), "/om has Organization data with the town, not the street");
 ok(sitemapText.includes("/om<") && llmsText.includes("/om)"), "/om is in the sitemap and llms.txt");
+if (OLD) {
 const homeLd = await (await get("/tilbud")).text();
 ok(homeLd.includes('"@type":"FAQPage"') && homeLd.includes("Kan jeg få mit håndværkertilbud tjekket online?") && homeLd.includes("Få dit håndværkertilbud tjekket online"), "front page answers \"can I get my quote checked online\" in text and FAQ data");
 ok(homeLd.includes('"description":"Klardal er en dansk virksomhed fra Svendborg') && homeLd.includes('href="/om"'), "front page: Organization description and footer link to /om");
 ok((await get("/artikler/findes-ikke")).status === 404, "unknown article gives 404");
+}
+ok(/"description":"Klardal er en dansk virksomhed fra Svendborg/.test(iconHtml) && iconHtml.includes('href="/om"'), "front page: Organization description and footer link to /om");
 const typo = await get("/priser", { headers: { "x-forwarded-host": "www.klardahl.dk" } });
 ok(typo.status === 301 && /\/priser$/.test(typo.headers.get("location") ?? "") && !(typo.headers.get("location") ?? "").includes("klardahl"), `klardahl.dk sends visitors to the main domain (${typo.status})`);
 ok(/<link rel="icon" href="\/icon2.png[^"]*" type="image\/png" sizes="192x192"/.test(iconHtml) && (await get("/icon2.png")).status === 200, "192 px PNG logo is linked for Google results");
@@ -89,7 +101,7 @@ for (const [p, type] of [["/favicon.ico", "image/"], ["/icon1.svg", "image/svg"]
   const r = await get(p);
   ok(r.status === 200 && (r.headers.get("content-type") ?? "").startsWith(type), `${p} served as ${type}* (${r.status})`);
 }
-const homeHtml = await (await get("/tilbud")).text();
+const homeHtml = iconHtml;
 ok(/<link rel="icon" href="\/favicon\.ico/.test(homeHtml) && /rel="icon" href="\/icon1\.svg/.test(homeHtml), "home page links favicon.ico and icon1.svg");
 const ld = homeHtml.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)?.[1];
 let ldOk = false;
@@ -102,6 +114,7 @@ ok(ldOk, "home page has WebSite + Organization structured data (site name and lo
 const health = await get("/api/health");
 ok(health.status === 200, `health check → 200 (${health.status})`);
 
+if (OLD) {
 const dash = await get("/dashboard");
 ok([302, 307, 308].includes(dash.status) && (dash.headers.get("location") ?? "").includes("/login"), "dashboard requires login");
 ok((await get("/api/quotes")).status === 401, "quote API requires login");
@@ -110,6 +123,12 @@ ok((await get("/api/quotes", { method: "POST", headers: { origin: BASE } })).sta
 ok((await get("/api/billing/checkout", { method: "POST", headers: { origin: BASE, "content-type": "application/json" }, body: "{}" })).status === 401, "checkout requires login");
 ok((await get("/findes-ikke-" + Date.now())).status === 404, "unknown page → 404");
 ok((await get("/login?next=%2F%5Cevil.example")).status === 200, "login page with crafted ?next renders (redirect is checked client-side)");
+} else {
+  ok((await get("/api/quotes")).status === 410, "the old quote API is closed");
+  ok((await get("/api/auth/login", { method: "POST", headers: { origin: BASE } })).status === 410, "the old login API is closed");
+  ok((await get("/api/ring", { method: "POST" })).status === 403, "call-me form still blocks POSTs from other sites (CSRF)");
+  ok((await get("/findes-ikke-" + Date.now())).status === 404, "unknown page → 404");
+}
 
 for (const extra of EXTRA) {
   const r = await fetch(extra.replace(/\/$/, "") + "/priser", { redirect: "manual" }).catch(() => null);

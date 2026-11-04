@@ -1,0 +1,179 @@
+import { LegalPage } from "@/components/LegalPage";
+import { COMPANY } from "@/lib/company";
+import { GUEST_DELETE_DAYS } from "@/lib/guest-rules";
+
+
+// UDKAST – skal godkendes af August. Tjekket på dataprivacyframework.gov 11/10-2026: Render er aktiv (EU-US DPF);
+// Anthropic og ChiselStrike (Turso) står ikke på listen.
+const US_ACCESS = "Selskabet er amerikansk, så adgang fra USA (fx ved support) er en overførsel til et tredjeland.";
+
+/** Privacy policy of the old quote-check tool – only shown while it is open (OLD_TOOL=1). */
+export function OldPrivacy() {
+  return (
+    <LegalPage title="Privatlivspolitik" summary="privacy">
+      <p>
+        Her kan du læse, hvilke oplysninger Klardal behandler om dig, hvorfor, og hvilke rettigheder du har. Vi indsamler
+        kun det, der er nødvendigt for at levere tjenesten.
+      </p>
+
+      <h2>Dataansvarlig</h2>
+      <p>
+        {COMPANY.name}, CVR {COMPANY.cvr}, {COMPANY.address}. E-mail: {COMPANY.email}.{COMPANY.phone && ` Telefon: ${COMPANY.phone}.`}
+      </p>
+
+      <h2>Hvilke oplysninger behandler vi?</h2>
+      <ul>
+        <li><strong>Konto:</strong> e-mail og din adgangskode (gemt som et bcrypt-hash – vi kan ikke se den).</li>
+        <li>
+          <strong>Tjek uden konto:</strong> tjekker du et tilbud uden at oprette en konto, gemmer vi tilbuddet og analysen
+          på en midlertidig gæsteprofil uden navn og e-mail. Du får adgang til den med en nødvendig login-cookie i din
+          browser. Opretter du en konto, flyttes dit tjek over på den. Ellers sletter vi gæsteprofilen med tilbud og
+          analyse automatisk efter {GUEST_DELETE_DAYS} dage.
+        </li>
+        <li>
+          <strong>Postnummer</strong>, hvis du angiver det eller søger på det under Find håndværkere. Det gemmes på din
+          profil, så vi kan vise afstande.
+        </li>
+        <li>
+          <strong>Tilbud du uploader</strong> og analysen af dem. Et tilbud kan indeholde dit navn og din adresse samt
+          håndværkerens oplysninger. Upload kun tilbud, du selv har modtaget. Står der et CPR-nummer i en PDF, fjerner vi
+          det automatisk, før tilbuddet sendes til AI-analyse. På billeder og scannede PDF&apos;er kan vi ikke finde det,
+          så overstreg selv CPR-nummer og andre følsomme oplysninger.
+        </li>
+        <li>
+          <strong>Oplysninger om opgaven</strong>, hvis du vælger at give dem ved upload: hvilken type arbejde det er,
+          en kort beskrivelse (højst 100 tegn), boligtype, byggeår og om arbejdet berører bærende konstruktioner. Skriv
+          ikke personlige oplysninger i beskrivelsen. De gemmes sammen med tilbuddet og sendes med til AI-analysen, så den
+          kan tage højde for dem.
+        </li>
+        <li><strong>Beskeder</strong>, du laver med beskedgeneratoren (udkastet indeholder dit navn, hvis du har oplyst det).</li>
+        <li>
+          <strong>Køb:</strong> type, beløb, dato, dit samtykke til levering med det samme og evt. fortrydelse.
+          Kortoplysninger håndteres alene af Stripe – vi ser dem aldrig.
+        </li>
+        <li>
+          <strong>Koder:</strong> hvis du indløser en kode fra en partner, gemmer vi hvilken kode og hvornår, så koden
+          kun kan bruges én gang pr. konto. Partneren får ikke at vide, hvem der har brugt koden.
+        </li>
+        <li>
+          <strong>Tekniske oplysninger:</strong> din IP-adresse og, ved loginforsøg, den indtastede e-mail gemmes i højst
+          1 time for at beskytte mod misbrug. Vores hostingudbyder fører tekniske logfiler med IP-adresser i en kort
+          periode. Vi registrerer også, hvornår du sidst har været aktiv (bruges til at slette inaktive konti).
+        </li>
+        <li>
+          <strong>Anonym brugsstatistik:</strong> vi tæller, hvor mange gange om dagen udvalgte funktioner bruges (fx
+          &quot;analyse fuldført&quot; eller &quot;besked kopieret&quot;), så vi kan forbedre Klardal. Tællingen gemmes kun
+          med funktionens navn og datoen – uden navn, e-mail, IP-adresse, klokkeslæt eller cookies – og kan ikke føres
+          tilbage til dig.
+        </li>
+      </ul>
+
+      <h2>Formål og retsgrundlag</h2>
+      <ul>
+        <li>At levere tjenesten, du har bedt om (databeskyttelsesforordningens art. 6, stk. 1, litra b).</li>
+        <li>At opfylde bogføringsloven og forbrugeraftaleloven for køb (art. 6, stk. 1, litra c).</li>
+        <li>At beskytte tjenesten mod misbrug og hacking (art. 6, stk. 1, litra f – vores legitime interesse i sikker drift).</li>
+      </ul>
+      <p>Vi bruger ikke dine oplysninger til markedsføring, og vi sælger dem ikke.</p>
+
+      <h2>Oplysninger om andre end dig</h2>
+      <p>
+        Tilbud og søgeresultater indeholder oplysninger om håndværkere (navn, adresse, telefon, CVR). For
+        enkeltmandsvirksomheder er det personoplysninger. Vi behandler dem kun for at vise dig analysen og søgeresultatet,
+        på grundlag af legitim interesse (art. 6, stk. 1, litra f), og sletter dem sammen med dit tilbud eller din konto.
+        Søgeresultater kommer fra det offentlige CVR-register; firmaer med reklamebeskyttelse vises ikke.
+      </p>
+
+      <h2>Hvem deler vi oplysninger med?</h2>
+      <p>Vi bruger disse databehandlere, som kun må behandle oplysningerne efter vores instruks og under en databehandleraftale:</p>
+      <ul>
+        <li>
+          <strong>Render Services, Inc. (USA)</strong> – drift af serveren, der står i Frankfurt (EU). {US_ACCESS} Render
+          er certificeret under EU-US Data Privacy Framework, som overførslen sker på grundlag af
+          (databeskyttelsesforordningens art. 45).
+        </li>
+        <li>
+          <strong>ChiselStrike, Inc. (Turso, USA)</strong> – database med din konto, dine analyser og dine uploadede filer,
+          opbevaret hos Amazon Web Services i Stockholm (EU). {US_ACCESS} Den sker på grundlag af EU-Kommissionens
+          standardkontraktbestemmelser (art. 46, stk. 2, litra c).
+        </li>
+        <li>
+          <strong>Anthropic, PBC (USA)</strong> – AI-analyse af dine tilbud og udkast til beskeder. Se afsnittet om
+          AI-analyse og overførsel til USA nedenfor.
+        </li>
+        <li>
+          <strong>Brevo (Sendinblue SAS, Frankrig)</strong> – afsendelse af ordrebekræftelser og andre e-mails om din
+          konto.
+        </li>
+      </ul>
+      <p>
+        <strong>Stripe Payments Europe Ltd. (Irland)</strong> er selvstændig dataansvarlig for kortbetalingen og opbevarer
+        oplysningerne efter egne regler – også hvis du sletter din konto hos os.
+      </p>
+      <p>
+        Når du søger efter håndværkere, slår vi offentlige virksomhedsoplysninger op i CVR-registret (Erhvervsstyrelsen).
+        Søgningen indeholder kun fag og postnummer – ikke oplysninger om dig.
+      </p>
+
+      <h2>AI-analyse og overførsel til USA</h2>
+      <p>
+        Når du uploader et tilbud, sender vi det til Anthropic, PBC i USA, som laver analysen med kunstig intelligens.
+        Analysen laves automatisk – ingen medarbejder hos Klardal læser dit tilbud for at lave den.
+        Indeholder en PDF et CPR-nummer, sender vi teksten uden CPR-nummeret i stedet for selve filen. Sider uden tekst
+        (fx skærmbilleder og fotos) sendes som billeder – på dem skal du selv overstrege CPR-nummeret. Når du laver en
+        besked til håndværkeren, sender vi analysen, dit navn (hvis du har oplyst det) og det emne, du har valgt.
+      </p>
+      <p>
+        USA ligger uden for EU/EØS, så det er en <strong>overførsel til et tredjeland</strong>. Den sker på grundlag af
+        vores databehandleraftale med Anthropic, som indeholder EU-Kommissionens standardkontraktbestemmelser
+        (databeskyttelsesforordningens art. 46, stk. 2, litra c). Anthropic er ikke certificeret under EU-US Data
+        Privacy Framework. Du kan få en kopi af standardkontraktbestemmelserne ved at skrive til os.
+      </p>
+      <p>
+        Anthropic må kun bruge indholdet til at levere analysen til os. Efter Anthropics kommercielle vilkår bruges det
+        ikke til at træne deres AI-modeller, og det slettes hos Anthropic efter en begrænset periode.
+      </p>
+
+      <h2>Hvor længe gemmer vi oplysningerne?</h2>
+      <ul>
+        <li>
+          Konto, tilbud, analyser og beskeder: indtil du sletter dem eller din konto. Vi sletter straks i databasen; kopier
+          i databasens sikkerhedskopier slettes automatisk, når de udløber.
+        </li>
+        <li>Tjek uden konto: {GUEST_DELETE_DAYS} dage, medmindre du opretter en konto.</li>
+        <li>Konti, der ikke har været brugt i 3 år, sletter vi automatisk – dog ikke, mens du har ubrugte købte analyser.</li>
+        <li>
+          Køb: 5 år efter regnskabsårets udløb (bogføringsloven). Sletter du din konto, gemmes de uden navn og e-mail.
+        </li>
+        <li>IP-adresse og e-mail ved loginforsøg: højst 1 time.</li>
+      </ul>
+
+      <h2>Cookies</h2>
+      <p>
+        Vi bruger to nødvendige cookies: <strong>ff_session</strong> holder dig logget ind (30 dage), og{" "}
+        <strong>ff_lang</strong> husker dit valgte sprog (12 måneder, kun hvis du vælger et sprog). De er nødvendige for
+        at levere den tjeneste, du har bedt om, og kræver derfor ikke samtykke. Vi bruger ingen statistik-, reklame- eller
+        tredjepartscookies, og skrifttyperne hentes fra vores egen server.
+      </p>
+
+      <h2>Dine rettigheder</h2>
+      <ul>
+        <li>Indsigt i dine oplysninger og dataportabilitet – brug <strong>Hent mine data</strong> på din kontoside.</li>
+        <li>Berigtigelse af forkerte oplysninger.</li>
+        <li>Sletning – brug <strong>Slet min konto</strong> på din kontoside.</li>
+        <li>Begrænsning af og indsigelse mod behandlingen.</li>
+      </ul>
+      <p>
+        Skriv til {COMPANY.email}, hvis du vil bruge dine rettigheder eller har spørgsmål. Du kan klage til Datatilsynet,
+        Carl Jacobsens Vej 35, 2500 Valby, www.datatilsynet.dk.
+      </p>
+
+      <h2>Sikkerhed</h2>
+      <p>
+        Al trafik er krypteret (HTTPS). Adgangskoder gemmes som hash, filer kontrolleres ved upload og kan kun hentes af
+        dig, og der er beskyttelse mod gentagne loginforsøg og forfalskede anmodninger. Opdager vi et sikkerhedsbrud, der
+        kan påvirke dig, giver vi dig og Datatilsynet besked efter reglerne.
+      </p>
+    </LegalPage>
+  );
+}

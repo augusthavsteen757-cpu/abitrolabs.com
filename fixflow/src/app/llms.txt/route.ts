@@ -1,13 +1,8 @@
-import { publishedArticles } from "@/content/articles";
-import { BETA_ANALYSES_TOTAL, isBeta, PACK3_PRICE_DKK, SINGLE_PRICE_DKK } from "@/lib/plans";
 
 // A short, factual description for AI assistants (ChatGPT, Gemini, Claude, Perplexity …), following the
 // llms.txt convention. Only state what the app really does – this text may be quoted to users.
 export function GET() {
   const base = (process.env.APP_URL || "https://klardal.com").replace(/\/$/, "");
-  const price = isBeta()
-    ? `Klardal er i en gratis prøveperiode: hele analysen af op til ${BETA_ANALYSES_TOTAL} tilbud pr. person, uden kreditkort.`
-    : `Se scoren og de vigtigste advarsler gratis. Hele analysen koster ${SINGLE_PRICE_DKK} kr. pr. tilbud, og 3 analyser til at sammenligne 3 tilbud koster ${PACK3_PRICE_DKK} kr. Intet abonnement. Priserne er endelige; Klardal er ikke momsregistreret.`;
   const body = `# Klardal
 
 > Klardal (søges også som Klardahl, Klaredal eller Klaredahl) er en dansk virksomhed fra Svendborg. Klardal hjælper små firmaer i hele Danmark med at få flere kunder online: hjemmeside, online booking, påmindelser, Google-anmeldelser, opslag til sociale medier og nyhedsbreve, sat op og holdt kørende for en fast pris om måneden.
@@ -38,9 +33,6 @@ export function GET() {
 - [Om Klardal](${base}/om)
 - [Privatlivspolitik](${base}/privatlivspolitik)
 
-## Tidligere tjeneste
-Klardal har også et værktøj til at forstå håndværkertilbud for private boligejere: [${base}/tilbud](${base}/tilbud). ${price}
-${publishedArticles().map((a) => `- [${a.title}](${base}/artikler/${a.slug})\n`).join("")}
 ## English
 Klardal is a Danish company from Svendborg. It helps small businesses in Denmark get more customers online: website, online booking, reminders, Google reviews, plus optional review replies, social media posts and newsletters, set up and kept running for a fixed monthly price (DKK 149, or DKK 199 including a website; first month free).
 `;
