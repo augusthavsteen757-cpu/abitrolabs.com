@@ -46,14 +46,23 @@ export default function AboutPage() {
         <p className="lead" data-testid="about-lead">{ORG_DESCRIPTION}</p>
 
         <h2>Hvad vi laver</h2>
-        <p>
-          Vi giver små firmaer en online booking, så kunderne selv kan finde en tid. Kunderne får en påmindelse dagen før, og vi
-          hjælper jer med at få flere anmeldelser på Google. Har I ikke en hjemmeside, laver vi også den.
-        </p>
+        <ul>
+          <li>Hjemmeside, hvis I ikke har en</li>
+          <li>Online booking, så kunderne selv kan finde en tid</li>
+          <li>En påmindelse til kunderne dagen før</li>
+          <li>Flere anmeldelser på Google</li>
+        </ul>
+        <p>Det kan I også få lagt til:</p>
+        <ul>
+          <li>Vi svarer på jeres anmeldelser</li>
+          <li>Opslag til Facebook og Instagram</li>
+          <li>Nyhedsbreve og tilbud til jeres faste kunder</li>
+          <li>En SMS, der får kunder til at komme igen</li>
+        </ul>
         <p>I skal ikke give os kodeord. Vi sætter det hele op, og I kan altid ringe, hvis noget skal laves om.</p>
 
         <h2>Hvad koster det?</h2>
-        <p>149 kr. om måneden, hvis I har en hjemmeside. 199 kr. om måneden, hvis vi også laver hjemmesiden. Første måned er gratis, og der er ingen binding.</p>
+        <p>149 kr. om måneden, hvis I har en hjemmeside. 199 kr. om måneden, hvis vi også laver hjemmesiden. Første måned er gratis, og der er ingen binding. Tilvalg aftaler vi pris på, før vi går i gang.</p>
 
         <h2>Hvem står bag?</h2>
         <p>

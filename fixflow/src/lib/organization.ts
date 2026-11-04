@@ -5,7 +5,7 @@ export const MISSPELLINGS = ["Klardahl", "Klaredahl", "Klaredal"];
 
 /** Short, factual description of Klardal – the same sentence on /om and in structured data. */
 export const ORG_DESCRIPTION =
-  "Klardal er en dansk virksomhed fra Svendborg, der sætter hjemmeside, online booking og Google-anmeldelser op for små firmaer og holder det kørende for en fast pris om måneden.";
+  "Klardal er en dansk virksomhed fra Svendborg, der hjælper små firmaer med at få flere kunder online. Vi laver hjemmesider, online booking, påmindelser og flere Google-anmeldelser, og vi kan også svare på anmeldelser, lave opslag til Facebook og Instagram og sende nyhedsbreve. Vi sætter det op og holder det kørende for en fast pris om måneden.";
 
 /** Klardal's own profiles elsewhere (Facebook, LinkedIn …), comma-separated in SOCIAL_LINKS. Only https URLs. */
 export const socialLinks = () =>

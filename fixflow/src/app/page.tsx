@@ -8,7 +8,7 @@ import { COMPANY } from "@/lib/company";
 
 export const metadata: Metadata = {
   title: { absolute: "Klardal · Hjemmeside og online booking til små firmaer" },
-  description: "Vi sætter hjemmeside, online booking og Google-anmeldelser op for små firmaer og holder det kørende. Første måned er gratis.",
+  description: "Hjemmeside, online booking, påmindelser og flere Google-anmeldelser for små firmaer. Vi sætter det op og holder det kørende. Første måned er gratis.",
   alternates: { canonical: "/" },
   // Shared links (Facebook, SMS, Messenger) show the booking offer, not the quote check from the root layout.
   openGraph: {
@@ -66,8 +66,11 @@ export default function Landing() {
             </div>
             <div className="card main">
               <h3>Har I ikke en hjemmeside?</h3>
-              <ul>{ITEMS.map((t) => <li key={t}>{t}</li>)}</ul>
-              <div className="price"><b>199 kr.</b><span>om måneden. Så laver vi også hjemmesiden.</span></div>
+              <ul>
+                <li data-testid="site-item"><strong>Vi laver en flot hjemmeside til jer</strong></li>
+                {ITEMS.map((t) => <li key={t}>{t}</li>)}
+              </ul>
+              <div className="price"><b>199 kr.</b><span>om måneden, hjemmeside med</span></div>
             </div>
           </div>
           <div className="terms"><span>I skal ikke give os kodeord</span><span>Ingen binding</span><span>Første måned gratis</span></div>

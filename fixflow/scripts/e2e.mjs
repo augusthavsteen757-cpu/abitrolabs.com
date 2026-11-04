@@ -69,6 +69,7 @@ try {
   // The front page sells booking for small firms; the quote check's own front page lives at /tilbud.
   await page.goto(BASE);
   await page.getByRole("heading", { name: /Pas jeres firma/ }).waitFor();
+  assert((await page.getByTestId("site-item").innerText()).includes("hjemmeside"), "the 199 kr card says we build the website");
   assert((await page.locator("[data-testid=beta-banner]").count()) === 0, "no quote-check beta banner on the booking landing page");
   await shot(page, "booking-landing");
   // "Lav min gratis prøve": a wrong number is refused in the page, a right one is stored.
@@ -88,6 +89,8 @@ try {
   await phoneLanding.close();
   await page.goto(`${BASE}/om`);
   assert((await page.locator("[data-testid=beta-banner]").count()) === 0, "no quote-check beta banner on /om");
+  const omText = await page.locator("main").innerText();
+  assert(["Online booking", "Opslag til Facebook og Instagram", "Nyhedsbreve", "svarer på jeres anmeldelser"].every((t) => omText.includes(t)), "/om lists everything Klardal does, not only booking");
   log("booking landing page and the call-me form work");
   await page.goto(`${BASE}/tilbud`);
   await page.getByRole("heading", { name: /Forstå dit håndværkertilbud/ }).waitFor();
