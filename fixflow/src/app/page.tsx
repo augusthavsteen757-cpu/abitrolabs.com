@@ -10,6 +10,19 @@ export const metadata: Metadata = {
   title: { absolute: "Klardal · Hjemmeside og online booking til små firmaer" },
   description: "Vi sætter hjemmeside, online booking og Google-anmeldelser op for små firmaer og holder det kørende. Første måned er gratis.",
   alternates: { canonical: "/" },
+  // Shared links (Facebook, SMS, Messenger) show the booking offer, not the quote check from the root layout.
+  openGraph: {
+    type: "website",
+    siteName: "Klardal",
+    url: "/",
+    title: "Pas jeres firma. Vi passer resten.",
+    description: "Hjemmeside, online booking og Google-anmeldelser til små firmaer. Fra 149 kr. om måneden, første måned gratis.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Pas jeres firma. Vi passer resten.",
+    description: "Hjemmeside, online booking og Google-anmeldelser til små firmaer. Fra 149 kr. om måneden, første måned gratis.",
+  },
 };
 
 const ITEMS = [
