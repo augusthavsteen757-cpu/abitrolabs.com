@@ -8,6 +8,10 @@ const REDIRECT_HOSTS = new Set(
 );
 const MAIN_URL = process.env.APP_URL || "https://klardal.com";
 
+/** Pages of the old quote-check tool. They still work, but Google should show the booking service instead. */
+const OLD_TOOL = ["/tilbud", "/tjek", "/priser", "/opret", "/login", "/glemt-adgangskode", "/artikler", "/handelsbetingelser"];
+const isOldToolPath = (p: string) => OLD_TOOL.some((o) => p === o || p.startsWith(`${o}/`));
+
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -41,7 +45,9 @@ export function middleware(req: NextRequest) {
   // Lets the root layout know which page it renders (the landing page has no beta banner).
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-klardal-path", pathname);
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  const res = NextResponse.next({ request: { headers: requestHeaders } });
+  if (isOldToolPath(pathname)) res.headers.set("X-Robots-Tag", "noindex, follow");
+  return res;
 }
 
 // Every page (for the domain redirect) – but not Next's static assets.

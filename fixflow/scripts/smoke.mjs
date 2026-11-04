@@ -47,11 +47,19 @@ const articleHtml = await article.text();
 ok(article.status === 200 && /<meta name="robots" content="noindex, follow"/.test(articleHtml) && articleHtml.includes('"@type":"Article"') && articleHtml.includes('"@type":"BreadcrumbList"') && articleHtml.includes('<link rel="canonical" href="https://klardal.com/artikler/hvad-koster-et-nyt-badevaerelse"/>'), "article template: title, canonical, Article + breadcrumb data, draft kept out of Google");
 ok(/data-testid="article-cta"[\s\S]*href="\/opret\?next=%2Fdashboard%2Fupload"/.test(articleHtml), "article ends with \"Tjek et tilbud gratis\"");
 const sitemapText = await (await get("/sitemap.xml")).text();
-ok(!sitemapText.includes("/artikler/hvad-koster-et-nyt-badevaerelse") && sitemapText.includes("/artikler/tjek-dit-haandvaerkertilbud"), "draft articles are not in the sitemap, published ones are");
+ok(!sitemapText.includes("/artikler") && !sitemapText.includes("/tjek") && !sitemapText.includes("/priser") && sitemapText.includes("/om<"), "sitemap lists only the booking service, not the old quote-check pages");
+for (const p of ["/tilbud", "/tjek", "/priser", "/artikler"]) {
+  const r = await get(p);
+  ok(r.status === 200 && /noindex/.test(r.headers.get("x-robots-tag") ?? ""), `${p} still works but is kept out of Google`);
+}
+for (const p of ["/", "/om"]) {
+  const r = await get(p);
+  ok(r.status === 200 && !r.headers.get("x-robots-tag"), `${p} can be found on Google`);
+}
 for (const slug of ["tjek-dit-haandvaerkertilbud", "tilbud-eller-overslag", "efter-regning", "sammenlign-haandvaerkertilbud"]) {
   const r = await get(`/artikler/${slug}`);
   const html = await r.text();
-  ok(r.status === 200 && !/noindex/.test(html) && html.includes(`<link rel="canonical" href="https://klardal.com/artikler/${slug}"/>`) && sitemapText.includes(`/artikler/${slug}`), `guide ${slug}: indexable, own canonical, in sitemap`);
+  ok(r.status === 200 && !/noindex/.test(html) && html.includes(`<link rel="canonical" href="https://klardal.com/artikler/${slug}"/>`), `guide ${slug}: works, own canonical`);
   ok(/data-testid="article-more"/.test(html) && !html.includes(`href="/artikler/${slug}"`) && html.includes('href="/artikler/hvad-koster') === false, `guide ${slug} links to the other guides, not itself or drafts`);
 }
 // Every public page names itself as canonical – not the front page – or Google drops it as a duplicate.
