@@ -86,7 +86,7 @@ export default function Landing() {
       <footer>
         <div className="wrap">
           <span>Klardal · CVR {COMPANY.cvr}</span>
-          <span><a href="/privatlivspolitik">Privatlivspolitik</a></span>
+          <span><a href="/om">Om Klardal</a> · <a href="/privatlivspolitik">Privatlivspolitik</a></span>
         </div>
       </footer>
     </div>

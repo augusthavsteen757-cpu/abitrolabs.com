@@ -3,9 +3,9 @@ import { COMPANY, isCompanyConfigured } from "@/lib/company";
 // Common ways people mistype the name, so search engines can connect them to Klardal.
 export const MISSPELLINGS = ["Klardahl", "Klaredahl", "Klaredal"];
 
-/** Short, factual description of Klardal – the same sentence on the front page, /om and in structured data. */
+/** Short, factual description of Klardal – the same sentence on /om and in structured data. */
 export const ORG_DESCRIPTION =
-  "Klardal er en dansk onlinetjeneste fra Svendborg, der forklarer håndværkertilbud for private boligejere: hvad der er uklart, hvad der kan gøre det dyrere, og hvad man kan spørge håndværkeren om.";
+  "Klardal er en dansk virksomhed fra Svendborg, der sætter hjemmeside, online booking og Google-anmeldelser op for små firmaer og holder det kørende for en fast pris om måneden.";
 
 /** Klardal's own profiles elsewhere (Facebook, LinkedIn …), comma-separated in SOCIAL_LINKS. Only https URLs. */
 export const socialLinks = () =>

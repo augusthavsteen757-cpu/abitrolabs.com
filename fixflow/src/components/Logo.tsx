@@ -4,10 +4,17 @@ import { cn } from "@/lib/format";
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 64 64" className={cn("h-8 w-8", className)} aria-hidden>
-      <rect width="64" height="64" rx="16" fill="#1c5746" />
-      {/* "Klar dal": the checkmark is a valley with the sun rising in it. Keep in sync with app/icon1.svg (and regenerate icon2.png, favicon.ico, apple-icon.png, public/logo.png). */}
-      <circle cx="25" cy="28.5" r="5.5" fill="#f2c46d" />
-      <path d="M11 33 24 46 52 17" fill="none" stroke="#7cc0a5" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
+      <rect width="64" height="64" rx="14" fill="#10231f" />
+      {/* A serif "K" in brass. Keep in sync with app/icon1.svg (and regenerate icon2.png, favicon.ico, apple-icon.png, public/logo.png). */}
+      <g fill="#c9a46a">
+        <rect x="17" y="14" width="7" height="36" />
+        <rect x="13" y="14" width="15" height="2.4" />
+        <rect x="13" y="47.6" width="15" height="2.4" />
+        <path d="M24 33.5 41.6 15.2h3.4L24 37z" />
+        <path d="M28.3 30.2 33.4 26 47.5 47.6H40z" />
+        <rect x="36" y="14" width="13" height="2.4" />
+        <rect x="36.5" y="47.6" width="14" height="2.4" />
+      </g>
     </svg>
   );
 }

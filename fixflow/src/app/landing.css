@@ -53,3 +53,9 @@
 .kl footer .wrap{padding-block:26px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:.85rem;color:var(--muted)}
 .kl footer a{color:inherit}
 @media (max-width:700px){.kl .cards{grid-template-columns:1fr}.kl .hero{padding-block:40px 64px}.kl .choices{padding-block:0 64px}}
+.kl .about{padding-block:56px 96px;max-width:720px;display:flex;flex-direction:column;gap:14px}
+.kl .about h1{font-size:clamp(2.4rem,7vw,4rem);line-height:1}
+.kl .about h2{font-size:1.6rem;margin-top:28px}
+.kl .about p{color:var(--muted)}
+.kl .about .lead{color:var(--ink);margin-top:8px}
+.kl .about a{color:inherit}
