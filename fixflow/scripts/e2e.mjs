@@ -66,7 +66,28 @@ function log(msg) {
 try {
   /* ---------------- 1. Signup → upload → analysis → paywall → buy → unlock ---------------- */
   const page = await newPage();
+  // The front page sells booking for small firms; the quote check's own front page lives at /tilbud.
   await page.goto(BASE);
+  await page.getByRole("heading", { name: /Pas jeres firma/ }).waitFor();
+  assert((await page.locator("[data-testid=beta-banner]").count()) === 0, "no quote-check beta banner on the booking landing page");
+  await shot(page, "booking-landing");
+  // "Lav min gratis prøve": a wrong number is refused in the page, a right one is stored.
+  await page.fill("#tlf", "1234");
+  await page.getByRole("button", { name: "Lav min gratis prøve" }).click();
+  await page.getByRole("alert").filter({ hasText: "8 cifre" }).waitFor();
+  // (Checked from Node, so the expected 400 does not show up as a browser console error.)
+  const ringBad = (await fetch(`${BASE}/api/ring`, { method: "POST", headers: { "content-type": "application/json", origin: BASE }, body: JSON.stringify({ telefon: "abc" }) })).status;
+  assert(ringBad === 400, "the server refuses an invalid phone number too");
+  await page.fill("#tlf", "+45 12 34 56 78");
+  await page.fill("#firma", "Salon Test");
+  await page.getByRole("button", { name: "Lav min gratis prøve" }).click();
+  await page.getByTestId("ring-done").waitFor();
+  const phoneLanding = await newPage(390, 844);
+  await phoneLanding.goto(BASE);
+  assert((await phoneLanding.evaluate(() => document.documentElement.scrollWidth)) <= 390, "landing page fits a 390 px phone");
+  await phoneLanding.close();
+  log("booking landing page and the call-me form work");
+  await page.goto(`${BASE}/tilbud`);
   await page.getByRole("heading", { name: /Forstå dit håndværkertilbud/ }).waitFor();
   await shot(page, "landing");
   const landing = await page.innerText("body");
@@ -79,12 +100,12 @@ try {
   assert(!/Engangskøb|3-pakke|[Kk]redit(?!kort)|[Ll]ås .*op|[Ll]åst/.test(pricing), "pricing page uses plain words (no 'engangskøb', '3-pakke', 'kredit', 'lås op')");
   await page.goto(`${BASE}/handelsbetingelser`);
   assert(!/\bPro\b|abonnementet fornyes/i.test(await page.innerText("main")), "no Pro in the terms");
-  await page.goto(BASE);
+  await page.goto(`${BASE}/tilbud`);
   log("landing, pricing and terms page – no Pro");
 
   // Visitors on a phone can go straight to a feature from the top menu: sign up, then land on it.
   const visitor = await newPage(390, 844);
-  await visitor.goto(BASE);
+  await visitor.goto(`${BASE}/tilbud`);
   await visitor.locator("header nav").getByRole("link", { name: "Sammenlign" }).click();
   await visitor.waitForURL(/\/opret\?next=%2Fdashboard%2Fsammenlign/);
   await visitor.fill("#email", `visitor${Date.now()}@eksempel.dk`);
@@ -668,7 +689,7 @@ try {
   await intruder.getByText("Linket er ugyldigt eller udløbet").waitFor();
   log("forgot/reset password flow handles unknown e-mails and invalid links");
 
-  await mobile.goto(`${BASE}/`);
+  await mobile.goto(`${BASE}/tilbud`);
   await shot(mobile, "mobile-landing");
   await mobile.goto(`${BASE}${quoteHref}`);
   await shot(mobile, "mobile-quote");
@@ -679,7 +700,7 @@ try {
   /* ---------------- 4. Languages ---------------- */
   // Browser language is picked up automatically (no cookie yet).
   const en = await newPage(1280, 900, "en-GB");
-  await en.goto(BASE);
+  await en.goto(`${BASE}/tilbud`);
   assert((await en.getAttribute("html", "lang")) === "en", "English browser gets English UI");
   // The switcher stores the choice in a cookie and reloads.
   await en.locator("[data-testid=language-switcher]:visible").first().selectOption("de");

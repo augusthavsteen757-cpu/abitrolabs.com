@@ -38,7 +38,10 @@ export function middleware(req: NextRequest) {
     url.search = `?next=${encodeURIComponent(pathname + req.nextUrl.search)}`;
     return NextResponse.redirect(url);
   }
-  return NextResponse.next();
+  // Lets the root layout know which page it renders (the landing page has no beta banner).
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-klardal-path", pathname);
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 // Every page (for the domain redirect) – but not Next's static assets.

@@ -1,0 +1,55 @@
+/* Landing page (klardal.com/). Everything is scoped under .kl so the rest of the site is untouched. */
+.kl{
+  --paper:#eef0ec; --card:#f8f9f6; --ink:#12201e; --muted:#5c6764; --line:rgba(18,32,30,.14);
+  --brass:#9c7a45; --deep:#10231f; --on-deep:#eef0ec; --field:#16302b;
+  --serif:"Bodoni Moda",Didot,"Bodoni 72",Georgia,serif;
+  --sans:"Hanken Grotesk Variable","Hanken Grotesk",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:var(--paper);color:var(--ink);font:17px/1.6 var(--sans);min-height:100vh;
+}
+@media (prefers-color-scheme:dark){.kl{
+  --paper:#0e1513; --card:#141d1b; --ink:#e7ebe7; --muted:#97a29f; --line:rgba(231,235,231,.14);
+  --brass:#c9a46a; --deep:#0a2a24; --field:#0f3a32; color-scheme:dark}}
+.kl *{box-sizing:border-box}
+.kl .wrap{max-width:880px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.kl h1,.kl h2,.kl h3{font-family:var(--serif);font-weight:500;margin:0;text-wrap:balance;letter-spacing:-.015em}
+.kl em{font-style:italic;color:var(--brass)}
+.kl p{margin:0}
+.kl .btn{display:inline-block;background:var(--ink);color:var(--paper);padding:15px 28px;border-radius:2px;text-decoration:none;font:inherit;font-weight:600;letter-spacing:.02em;border:0;cursor:pointer}
+.kl .btn:disabled{opacity:.6;cursor:wait}
+.kl .btn:focus-visible,.kl .navlink:focus-visible,.kl input:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+.kl nav{display:flex;justify-content:space-between;align-items:center;padding-block:26px}
+.kl .mark{font-family:var(--serif);font-size:1.6rem}
+.kl .navlink{color:inherit;font-weight:600;font-size:.95rem;text-decoration:none;border-bottom:1px solid var(--brass);padding-bottom:2px}
+.kl .hero{padding-block:72px 88px;display:flex;flex-direction:column;gap:28px}
+.kl .hero h1{font-size:clamp(2.8rem,8.5vw,5.6rem);line-height:.98}
+.kl .lead{font-size:1.2rem;color:var(--muted);max-width:31em}
+.kl .row{display:flex;flex-wrap:wrap;gap:22px;align-items:center}
+.kl .fine{font-size:.9rem;color:var(--muted)}
+.kl .choices{padding-block:0 96px;display:flex;flex-direction:column;gap:28px}
+.kl .choices h2{font-size:clamp(1.8rem,4vw,2.4rem)}
+.kl .cards{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.kl .card{background:var(--card);border:1px solid var(--line);padding:32px 28px;display:flex;flex-direction:column;gap:20px;min-width:0}
+.kl .card.main{border-color:var(--brass)}
+.kl .card h3{font-size:1.6rem;line-height:1.1}
+.kl .card ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;flex:1}
+.kl .card li{display:flex;gap:12px;align-items:baseline}
+.kl .card li::before{content:"";width:12px;height:1px;background:var(--brass);flex:none;transform:translateY(-4px)}
+.kl .price{border-top:1px solid var(--line);padding-top:18px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.kl .price b{font-family:var(--serif);font-weight:500;font-size:2.6rem;line-height:1;font-variant-numeric:lining-nums}
+.kl .price span{color:var(--muted);font-size:.95rem}
+.kl .terms{display:flex;flex-wrap:wrap;gap:8px 28px;color:var(--muted);font-size:.95rem}
+.kl .terms span::before{content:"✓ ";color:var(--brass)}
+.kl .close{background:var(--deep);color:var(--on-deep)}
+.kl .close .wrap{padding-block:88px;display:flex;flex-direction:column;gap:24px;align-items:flex-start}
+.kl .close h2{font-size:clamp(2.2rem,6vw,3.8rem);line-height:1.05}
+.kl .close .fine{color:rgba(238,240,236,.72)}
+.kl form{display:flex;flex-direction:column;gap:14px;width:min(520px,100%)}
+.kl .fields{display:flex;flex-wrap:wrap;gap:12px}
+.kl .fields label{flex:1 1 200px;display:flex;flex-direction:column;gap:6px;font-size:.85rem;color:rgba(238,240,236,.72)}
+.kl input{font:inherit;font-size:1.05rem;padding:14px 16px;background:var(--field);color:var(--on-deep);border:1px solid rgba(238,240,236,.25);border-radius:2px;width:100%}
+.kl input::placeholder{color:rgba(238,240,236,.45)}
+.kl .close .btn{background:var(--brass);color:#fff;align-self:flex-start}
+.kl .msg{font-size:1rem;color:var(--on-deep);border-left:2px solid var(--brass);padding-left:14px}
+.kl footer .wrap{padding-block:26px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:.85rem;color:var(--muted)}
+.kl footer a{color:inherit}
+@media (max-width:700px){.kl .cards{grid-template-columns:1fr}.kl .hero{padding-block:40px 64px}.kl .choices{padding-block:0 64px}}

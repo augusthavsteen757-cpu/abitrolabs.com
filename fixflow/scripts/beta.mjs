@@ -10,7 +10,7 @@ const ctx = await br.newContext({ locale: "da-DK" });
 const p = await ctx.newPage();
 const errs = []; p.on("pageerror", e => errs.push(e.message));
 const ok = (c, m) => { if (!c) throw new Error("FAIL: " + m); console.log("  ✓ " + m); };
-await p.goto(B);
+await p.goto(B + "/tilbud");
 ok(await p.getByTestId("beta-notice").isVisible(), "landing shows beta notice instead of prices");
 ok(!(await p.innerText("body")).includes("Vælg Pro"), "no Pro purchase button on landing");
 ok(!(await p.innerText("body")).includes("Er der et abonnement?"), "FAQ hides the payment question while nothing can be bought");
@@ -24,7 +24,7 @@ ok((await p.getByTestId("beta-later").innerText()).startsWith("Prøveperioden sl
 ok((await p.getByTestId("beta-notice").innerText()).includes("Gratis frem til 19. oktober 2026"), "pricing box title has the end date");
 ok((await p.getByTestId("beta-notice").innerText()).includes("op til 3 tilbud"), "new accounts are offered 3 free analyses");
 ok((await plansBox.locator("s, del, .line-through").count()) === 0, "no struck-through 'before' price (never charged – would be misleading)");
-await p.goto(B);
+await p.goto(B + "/tilbud");
 // COMPANY_FOOTER_ADDRESS=0 (set by test-all): CVR in the footer without the address – the legal pages keep it.
 const footer = await p.locator("footer").innerText();
 ok(footer.includes("CVR under registrering") && footer.includes("kontakt@klardal.com") && !footer.includes("Strandhuse"), "footer shows CVR and e-mail without the address");

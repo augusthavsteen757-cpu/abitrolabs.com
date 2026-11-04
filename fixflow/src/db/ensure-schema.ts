@@ -33,6 +33,12 @@ const TABLES = [
 	\`day\` text NOT NULL
 )`,
   "CREATE INDEX IF NOT EXISTS `usage_events_day_idx` ON `usage_events` (`day`,`name`)",
+  `CREATE TABLE IF NOT EXISTS \`callback_requests\` (
+	\`id\` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	\`phone\` text NOT NULL,
+	\`company\` text,
+	\`created_at\` integer NOT NULL
+)`,
 ];
 
 /** [table, column, definition] – added with ALTER TABLE only when missing. */

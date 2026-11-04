@@ -36,7 +36,7 @@ ok(/User-Agent: GPTBot/i.test(robots) && /User-Agent: Google-Extended/i.test(rob
 const llms = await get("/llms.txt");
 const llmsText = await llms.text();
 ok(llms.status === 200 && llmsText.startsWith("# Klardal") && llmsText.includes("/priser") && !/undefined|NaN/.test(llmsText), "llms.txt describes Klardal for AI assistants");
-const iconHtml = await (await get("/")).text();
+const iconHtml = await (await get("/tilbud")).text();
 ok(/"alternateName":\["klardal.com","Klardahl"/.test(iconHtml) && llmsText.includes("Klardahl"), "common misspellings (Klardahl) point to Klardal for search engines and AI");
 const privacy = await (await get("/privatlivspolitik")).text();
 ok(privacy.includes('data-testid="legal-summary"') && privacy.includes("Anthropic, PBC (USA)") && privacy.includes("overførsel til et tredjeland") && privacy.includes("standardkontraktbestemmelser"), "privacy policy explains the AI transfer to the USA and its legal basis");
@@ -55,7 +55,7 @@ for (const slug of ["tjek-dit-haandvaerkertilbud", "tilbud-eller-overslag", "eft
   ok(/data-testid="article-more"/.test(html) && !html.includes(`href="/artikler/${slug}"`) && html.includes('href="/artikler/hvad-koster') === false, `guide ${slug} links to the other guides, not itself or drafts`);
 }
 // Every public page names itself as canonical – not the front page – or Google drops it as a duplicate.
-for (const p of ["/priser", "/handelsbetingelser", "/privatlivspolitik", "/artikler", "/opret", "/login"]) {
+for (const p of ["/tilbud", "/priser", "/handelsbetingelser", "/privatlivspolitik", "/artikler", "/opret", "/login"]) {
   const html = await (await get(p)).text();
   ok(html.includes(`<link rel="canonical" href="https://klardal.com${p}"/>`), `${p} has its own canonical`);
 }
@@ -66,7 +66,7 @@ const aboutHtml = await about.text();
 ok(about.status === 200 && aboutHtml.includes('<link rel="canonical" href="https://klardal.com/om"/>') && aboutHtml.includes("<title>Hvad er Klardal? · Om Klardal</title>") && /data-testid="about-lead"[^>]*>Klardal er en dansk onlinetjeneste/.test(aboutHtml), "/om explains what Klardal is");
 ok(aboutHtml.includes('"@type":"AboutPage"') && aboutHtml.includes('"@type":"Organization"') && aboutHtml.includes('"addressLocality":"Svendborg"') && !/application\/ld\+json[^<]*Strandhuse/.test(aboutHtml), "/om has Organization data with the town, not the street");
 ok(sitemapText.includes("/om<") && llmsText.includes("/om)"), "/om is in the sitemap and llms.txt");
-const homeLd = await (await get("/")).text();
+const homeLd = await (await get("/tilbud")).text();
 ok(homeLd.includes('"@type":"FAQPage"') && homeLd.includes("Kan jeg få mit håndværkertilbud tjekket online?") && homeLd.includes("Få dit håndværkertilbud tjekket online"), "front page answers \"can I get my quote checked online\" in text and FAQ data");
 ok(homeLd.includes('"description":"Klardal er en dansk onlinetjeneste') && homeLd.includes('href="/om"'), "front page: Organization description and footer link to /om");
 ok((await get("/artikler/findes-ikke")).status === 404, "unknown article gives 404");
@@ -81,7 +81,7 @@ for (const [p, type] of [["/favicon.ico", "image/"], ["/icon1.svg", "image/svg"]
   const r = await get(p);
   ok(r.status === 200 && (r.headers.get("content-type") ?? "").startsWith(type), `${p} served as ${type}* (${r.status})`);
 }
-const homeHtml = await (await get("/")).text();
+const homeHtml = await (await get("/tilbud")).text();
 ok(/<link rel="icon" href="\/favicon\.ico/.test(homeHtml) && /rel="icon" href="\/icon1\.svg/.test(homeHtml), "home page links favicon.ico and icon1.svg");
 const ld = homeHtml.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)?.[1];
 let ldOk = false;

@@ -208,3 +208,11 @@ export type User = typeof users.$inferSelect;
 export type Quote = typeof quotes.$inferSelect;
 export type ContractorMessage = typeof contractorMessages.$inferSelect;
 export type Payment = typeof payments.$inferSelect;
+
+/** "Ring mig op" requests from the landing page: a phone number and optionally a company name. */
+export const callbackRequests = sqliteTable("callback_requests", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  phone: text("phone").notNull(),
+  company: text("company"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+});

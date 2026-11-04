@@ -26,8 +26,8 @@ const post = (p, url, body) =>
   p.evaluate(async ([u, b]) => (await fetch(u, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(b) })).status, [url, body]);
 
 const p = await phone();
-await p.goto(B + "/?utm_source=facebook&utm_medium=paid");
-ok((await p.getByTestId("hero-cta").getAttribute("href")) === "/tjek", "the homepage button starts a check without an account");
+await p.goto(B + "/tilbud?utm_source=facebook&utm_medium=paid");
+ok((await p.getByTestId("hero-cta").getAttribute("href")) === "/tjek", "the quote-check front page button starts a check without an account");
 await p.getByTestId("hero-cta").click();
 await p.waitForURL(B + "/tjek");
 ok(await noOverflow(p), "the start page fits a phone (390 px)");

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import { getI18n } from "@/i18n/server";
 import { I18nProvider } from "@/i18n/client";
@@ -23,11 +24,13 @@ export const viewport: Viewport = { themeColor: "#f7f6f2", width: "device-width"
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { locale, d } = await getI18n();
+  // The landing page ("/") sells booking for small firms, not the quote check, so it has no beta banner.
+  const isLanding = (await headers()).get("x-klardal-path") === "/";
   return (
     <html lang={INTL_LOCALE[locale].split("-")[0] === "nb" ? "nb" : INTL_LOCALE[locale].split("-")[0]}>
       <body>
         <I18nProvider locale={locale} d={d}>
-          {isBeta() && (
+          {isBeta() && !isLanding && (
             // The end of the free trial is stated on every page.
             <p className="bg-brand-800 px-4 py-2 text-center text-sm font-medium text-white" data-testid="beta-banner">
               {fmt(d.beta.banner, { date: betaEndText(INTL_LOCALE[locale]) })}
