@@ -86,6 +86,8 @@ try {
   await phoneLanding.goto(BASE);
   assert((await phoneLanding.evaluate(() => document.documentElement.scrollWidth)) <= 390, "landing page fits a 390 px phone");
   await phoneLanding.close();
+  await page.goto(`${BASE}/om`);
+  assert((await page.locator("[data-testid=beta-banner]").count()) === 0, "no quote-check beta banner on /om");
   log("booking landing page and the call-me form work");
   await page.goto(`${BASE}/tilbud`);
   await page.getByRole("heading", { name: /Forstå dit håndværkertilbud/ }).waitFor();

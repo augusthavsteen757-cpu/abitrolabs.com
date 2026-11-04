@@ -15,6 +15,8 @@ export const metadata: Metadata = {
   title: { absolute: "Hvad er Klardal? · Om Klardal" },
   description: ORG_DESCRIPTION,
   alternates: { canonical: "/om" },
+  openGraph: { type: "website", siteName: "Klardal", url: "/om", title: "Hvad er Klardal?", description: ORG_DESCRIPTION },
+  twitter: { card: "summary", title: "Hvad er Klardal?", description: ORG_DESCRIPTION },
 };
 
 /** AboutPage + Organization, so a search for "Klardal" can be answered from Klardal's own page. */

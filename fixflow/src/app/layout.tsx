@@ -24,8 +24,8 @@ export const viewport: Viewport = { themeColor: "#f7f6f2", width: "device-width"
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { locale, d } = await getI18n();
-  // The landing page ("/") sells booking for small firms, not the quote check, so it has no beta banner.
-  const isLanding = (await headers()).get("x-klardal-path") === "/";
+  // The booking pages ("/" and "/om") are not part of the quote check, so they have no beta banner.
+  const isLanding = ["/", "/om"].includes((await headers()).get("x-klardal-path") ?? "");
   return (
     <html lang={INTL_LOCALE[locale].split("-")[0] === "nb" ? "nb" : INTL_LOCALE[locale].split("-")[0]}>
       <body>
