@@ -3,6 +3,7 @@ import "@fontsource/bodoni-moda/500.css";
 import "@fontsource/bodoni-moda/500-italic.css";
 import "@fontsource-variable/hanken-grotesk";
 import "../landing.css";
+import { KlFooter } from "@/components/KlChrome";
 import { COMPANY, isCompanyConfigured } from "@/lib/company";
 import { ORG_DESCRIPTION, organizationJsonLd } from "@/lib/organization";
 
@@ -76,12 +77,7 @@ export default function AboutPage() {
           <a href="/#ring">skriv jeres nummer på forsiden</a>, så ringer vi.
         </p>
       </main>
-      <footer>
-        <div className="wrap">
-          <span>Klardal · CVR {COMPANY.cvr}</span>
-          <span><a href="/privatlivspolitik">Privatlivspolitik</a></span>
-        </div>
-      </footer>
+      <KlFooter />
     </div>
   );
 }

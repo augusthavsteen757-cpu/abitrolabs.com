@@ -3,6 +3,7 @@ import "@fontsource/bodoni-moda/500.css";
 import "@fontsource/bodoni-moda/500-italic.css";
 import "@fontsource-variable/hanken-grotesk";
 import "../landing.css";
+import { KlFooter } from "@/components/KlChrome";
 import { COMPANY } from "@/lib/company";
 import { CALLBACK_KEEP_DAYS } from "@/lib/callback";
 import { OldPrivacy } from "./OldPrivacy";
@@ -73,12 +74,7 @@ export default function PrivacyPage() {
           I kan klage til Datatilsynet, Carl Jacobsens Vej 35, 2500 Valby, www.datatilsynet.dk.
         </p>
       </main>
-      <footer>
-        <div className="wrap">
-          <span>Klardal · CVR {COMPANY.cvr}</span>
-          <span><a href="/om">Om Klardal</a></span>
-        </div>
-      </footer>
+      <KlFooter />
     </div>
   );
 }

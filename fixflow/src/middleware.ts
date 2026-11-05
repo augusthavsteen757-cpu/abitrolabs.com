@@ -12,7 +12,7 @@ const MAIN_URL = process.env.APP_URL || "https://klardal.com";
 const OLD_TOOL = ["/tilbud", "/tjek", "/priser", "/opret", "/login", "/glemt-adgangskode", "/nulstil", "/dashboard", "/artikler", "/handelsbetingelser"];
 const isOldToolPath = (p: string) => OLD_TOOL.some((o) => p === o || p.startsWith(`${o}/`));
 /** API routes the booking site still needs while the old tool is closed. */
-const OPEN_APIS = new Set(["/api/ring", "/api/health", "/api/billing/webhook"]);
+const OPEN_APIS = new Set(["/api/ring", "/api/tilmeld", "/api/health", "/api/billing/webhook"]);
 const oldToolOpen = () => process.env.OLD_TOOL === "1";
 
 export function middleware(req: NextRequest) {

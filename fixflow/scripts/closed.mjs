@@ -48,6 +48,28 @@ ok(privacy.includes("Når I beder os ringe") && privacy.includes("180 dage") && 
 const llms = await (await get("/llms.txt")).text();
 ok(!/\/tilbud|\/tjek|\/artikler|håndværk/.test(llms), "llms.txt no longer sends AI assistants to the old tool");
 
+// Sign-up link, terms and data processing agreement (open while the old tool is closed).
+const tilmeld = await get("/tilmeld?firma=Rask%20Klip&pakke=199");
+const tilmeldHtml = await tilmeld.text();
+ok(tilmeld.status === 200 && tilmeldHtml.includes("Klar til Rask Klip?") && /<meta name="robots" content="noindex, follow"/.test(tilmeldHtml), "/tilmeld works, fills in the firm and stays off Google");
+ok(/<input[^>]*name="pakke" checked="" value="199"/.test(tilmeldHtml) && !/<input[^>]*name="pakke" checked="" value="149"/.test(tilmeldHtml), "/tilmeld picks the package from the link");
+for (const [p, text] of [["/vilkaar", "Ingen binding"], ["/databehandleraftale", "Underdatabehandlere"]]) {
+  const r = await get(p);
+  const html = await r.text();
+  ok(r.status === 200 && html.includes(text.replace("Ingen binding", "ingen binding")) && /CVR (<!-- -->)?46839994/.test(html), `${p} → 200 with Klardal's CVR`);
+}
+ok(home.includes('href="/vilkaar"'), "front page links to the terms");
+const signup = (body) => get("/api/tilmeld", { method: "POST", headers: { origin: BASE, "content-type": "application/json" }, body: JSON.stringify(body) });
+const good = { firma: "Rask Klip", navn: "Lone", telefon: "+45 12 34 56 78", email: "lone@eksempel.dk", pakke: "149", tilvalg: ["opslag"], accept: true };
+ok((await signup({ ...good, accept: false })).status === 400, "sign-up without the yes-box is refused");
+ok((await signup({ ...good, telefon: "123" })).status === 400, "sign-up with a wrong phone number is refused");
+ok((await signup({ ...good, email: "ikke-en-mail" })).status === 400, "sign-up with a wrong e-mail is refused");
+ok((await signup({ ...good, pakke: "999" })).status === 400, "sign-up with an unknown package is refused");
+ok((await signup({ ...good, tilvalg: ["noget-andet"] })).status === 400, "sign-up with an unknown extra is refused");
+ok((await get("/api/tilmeld", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(good) })).status === 403, "sign-up from another site is blocked (CSRF)");
+const okSignup = await signup(good);
+ok(okSignup.status === 200, `a complete sign-up is accepted (${okSignup.status})`);
+
 // The call-me form still works, and old requests are deleted automatically (privacy policy promise).
 const db = createClient({ url: "file:data/fixflow.db" });
 const old = Date.now() - 181 * 86_400_000;
@@ -55,6 +77,8 @@ await db.execute({ sql: "INSERT INTO callback_requests (phone, company, created_
 const ring = await get("/api/ring", { method: "POST", headers: { origin: BASE, "content-type": "application/json" }, body: JSON.stringify({ telefon: "22 33 44 55", firma: "Lukket-test" }) });
 ok(ring.status === 200, `call-me form works while the old tool is closed (${ring.status})`);
 const rows = (await db.execute("SELECT phone FROM callback_requests")).rows.map((r) => r.phone);
+const saved = (await db.execute("SELECT company, phone, plan, details FROM signups")).rows;
+ok(saved.length === 1 && saved[0].company === "Rask Klip" && saved[0].phone === "12 34 56 78" && saved[0].plan === "149" && JSON.parse(saved[0].details).tilvalg[0] === "opslag", "the sign-up is saved with phone, package and extras");
 ok(rows.includes("22 33 44 55") && !rows.includes("11 11 11 11"), "requests older than 180 days are deleted automatically");
 
 console.log(failed ? `\n${failed} check(s) failed` : "\nAll checks passed");

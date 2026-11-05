@@ -62,3 +62,17 @@
 .kl .about ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;color:var(--muted)}
 .kl .about li{display:flex;gap:12px;align-items:baseline}
 .kl .about li::before{content:"";width:12px;height:1px;background:var(--brass);flex:none;transform:translateY(-4px)}
+.kl .signup{display:flex;flex-direction:column;gap:22px;margin-top:8px}
+.kl .signup fieldset{border:1px solid var(--line);background:var(--card);padding:22px 20px;margin:0;display:flex;flex-direction:column;gap:12px;min-width:0}
+.kl .signup legend{font-family:var(--serif);font-size:1.3rem;padding:0 6px}
+.kl .signup label{display:flex;flex-direction:column;gap:6px;font-size:.95rem;color:var(--muted)}
+.kl .signup input:not([type=radio]):not([type=checkbox]),.kl .signup textarea{font:inherit;font-size:1.05rem;padding:12px 14px;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:2px;width:100%}
+.kl .signup .choice{flex-direction:row;align-items:baseline;gap:10px;color:var(--ink)}
+.kl .signup .choice input{flex:none;width:18px;height:18px;accent-color:var(--brass);transform:translateY(3px)}
+.kl .signup .sub{font-size:.95rem;color:var(--muted);margin-top:6px}
+.kl .signup .hint{font-size:.85rem;color:var(--muted)}
+.kl .signup .accept{border:1px solid var(--brass);padding:18px;background:var(--card)}
+.kl .signup .accept a{color:inherit}
+.kl .signup .btn{align-self:flex-start}
+.kl .signup .err{color:#b3261e;border-left:2px solid #b3261e;padding-left:12px}
+.kl .done{border:1px solid var(--brass);background:var(--card);padding:28px;display:flex;flex-direction:column;gap:10px}

@@ -216,3 +216,16 @@ export const callbackRequests = sqliteTable("callback_requests", {
   company: text("company"),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
 });
+
+/** "Ja tak" from /tilmeld: a firm signs up for the booking service. Kept while they are a customer. */
+export const signups = sqliteTable("signups", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  company: text("company").notNull(),
+  contactName: text("contact_name").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email").notNull(),
+  plan: text("plan").notNull(),
+  /** JSON with the rest of the answers (services, hours, extras …). */
+  details: text("details").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
+});

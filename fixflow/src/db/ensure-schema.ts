@@ -39,6 +39,16 @@ const TABLES = [
 	\`company\` text,
 	\`created_at\` integer NOT NULL
 )`,
+  `CREATE TABLE IF NOT EXISTS \`signups\` (
+	\`id\` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	\`company\` text NOT NULL,
+	\`contact_name\` text NOT NULL,
+	\`phone\` text NOT NULL,
+	\`email\` text NOT NULL,
+	\`plan\` text NOT NULL,
+	\`details\` text NOT NULL,
+	\`created_at\` integer NOT NULL
+)`,
 ];
 
 /** [table, column, definition] – added with ALTER TABLE only when missing. */

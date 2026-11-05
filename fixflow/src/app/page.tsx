@@ -3,6 +3,7 @@ import "@fontsource/bodoni-moda/500.css";
 import "@fontsource/bodoni-moda/500-italic.css";
 import "@fontsource-variable/hanken-grotesk";
 import "./landing.css";
+import { KlFooter } from "@/components/KlChrome";
 import { CallbackForm } from "@/components/CallbackForm";
 import { COMPANY } from "@/lib/company";
 import { MISSPELLINGS, organizationJsonLd } from "@/lib/organization";
@@ -102,12 +103,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer>
-        <div className="wrap">
-          <span>Klardal · CVR {COMPANY.cvr}</span>
-          <span><a href="/om">Om Klardal</a> · <a href="/privatlivspolitik">Privatlivspolitik</a></span>
-        </div>
-      </footer>
+      <KlFooter />
     </div>
   );
 }

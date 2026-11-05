@@ -1,0 +1,109 @@
+"use client";
+import { useState } from "react";
+import { EXTRAS, PLANS, type Plan } from "@/lib/signup";
+
+/** "Ja tak" for the booking service: the firm fills in what it wants and accepts – posted to /api/tilmeld. */
+export function SignupForm({ firma = "", pakke = "149" }: { firma?: string; pakke?: Plan }) {
+  const [state, setState] = useState<"idle" | "sending" | "done">("idle");
+  const [error, setError] = useState("");
+  const [plan, setPlan] = useState<Plan>(pakke);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (state === "sending") return;
+    const f = new FormData(e.currentTarget);
+    const body = {
+      firma: String(f.get("firma") ?? ""),
+      navn: String(f.get("navn") ?? ""),
+      telefon: String(f.get("telefon") ?? ""),
+      email: String(f.get("email") ?? ""),
+      cvr: String(f.get("cvr") ?? ""),
+      pakke: plan,
+      besked: f.get("besked") === "sms" ? "sms" : "mail",
+      behandlinger: String(f.get("behandlinger") ?? ""),
+      aabningstider: String(f.get("aabningstider") ?? ""),
+      billeder: f.get("billeder") === "on",
+      tilvalg: f.getAll("tilvalg").map(String),
+      betaling: f.get("betaling") === "faktura" ? "faktura" : "mobilepay",
+      accept: f.get("accept") === "on",
+    };
+    if (!body.accept) return setError("Sæt kryds ved ja, før I sender.");
+    setError("");
+    setState("sending");
+    try {
+      const res = await fetch("/api/tilmeld", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Noget gik galt. Prøv igen om lidt.");
+      setState("done");
+    } catch (err) {
+      setError(err instanceof Error && err.message !== "Failed to fetch" ? err.message : "Ingen forbindelse. Prøv igen om lidt.");
+      setState("idle");
+    }
+  }
+
+  if (state === "done") {
+    return (
+      <div className="done" role="status" data-testid="signup-done">
+        <h2>Tak, så går vi i gang.</h2>
+        <p>Vi ringer, når det hele er sat op, så I kan se det, før det går live. Første måned er gratis.</p>
+      </div>
+    );
+  }
+  return (
+    <form className="signup" onSubmit={onSubmit} noValidate data-testid="signup-form">
+      <fieldset>
+        <legend>1. Hvem er I?</legend>
+        <label>Firma<input name="firma" defaultValue={firma} autoComplete="organization" required maxLength={120} /></label>
+        <label>Dit navn<input name="navn" autoComplete="name" required maxLength={120} /></label>
+        <label>Telefon<input name="telefon" type="tel" inputMode="tel" autoComplete="tel" placeholder="12 34 56 78" required maxLength={40} /></label>
+        <label>E-mail<input name="email" type="email" autoComplete="email" required maxLength={200} /></label>
+        <label>CVR (valgfrit)<input name="cvr" inputMode="numeric" maxLength={20} /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>2. Pakke</legend>
+        {(Object.keys(PLANS) as Plan[]).map((p) => (
+          <label className="choice" key={p}>
+            <input type="radio" name="pakke" value={p} checked={plan === p} onChange={() => setPlan(p)} /> {PLANS[p]}
+          </label>
+        ))}
+      </fieldset>
+
+      <fieldset>
+        <legend>3. Booking</legend>
+        <label>Hvad kan kunderne booke, og hvor lang tid tager det? (valgfrit)
+          <textarea name="behandlinger" rows={4} maxLength={2000} placeholder={"Fx\nHerreklip, 30 min\nDameklip, 45 min"} />
+        </label>
+        <label>Åbningstider (valgfrit)<input name="aabningstider" maxLength={500} placeholder="Som på Google" /></label>
+        <p className="hint">Springer I over, spørger vi, når vi ringer.</p>
+        <span className="sub">Nye bookinger sendes til jer på</span>
+        <label className="choice"><input type="radio" name="besked" value="mail" defaultChecked /> Mail</label>
+        <label className="choice"><input type="radio" name="besked" value="sms" /> SMS</label>
+        <label className="choice"><input type="checkbox" name="billeder" defaultChecked /> I må bruge billeder fra vores hjemmeside og Facebook</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>4. Ekstra (valgfrit, vi aftaler pris først)</legend>
+        {(Object.keys(EXTRAS) as (keyof typeof EXTRAS)[]).map((k) => (
+          <label className="choice" key={k}><input type="checkbox" name="tilvalg" value={k} /> {EXTRAS[k]}</label>
+        ))}
+      </fieldset>
+
+      <fieldset>
+        <legend>5. Betaling fra måned 2</legend>
+        <label className="choice"><input type="radio" name="betaling" value="mobilepay" defaultChecked /> MobilePay</label>
+        <label className="choice"><input type="radio" name="betaling" value="faktura" /> Faktura på mail</label>
+      </fieldset>
+
+      <label className="choice accept">
+        <input type="checkbox" name="accept" data-testid="signup-accept" />
+        <span>
+          Ja, sæt det op. Første måned er gratis, derefter {plan} kr. om måneden. Ingen binding. Vi accepterer{" "}
+          <a href="/vilkaar" target="_blank">vilkårene</a> og <a href="/databehandleraftale" target="_blank">databehandleraftalen</a>.
+        </span>
+      </label>
+      <button className="btn" type="submit" disabled={state === "sending"}>{state === "sending" ? "Sender…" : "Send ja"}</button>
+      {error && <p className="err" role="alert">{error}</p>}
+    </form>
+  );
+}
