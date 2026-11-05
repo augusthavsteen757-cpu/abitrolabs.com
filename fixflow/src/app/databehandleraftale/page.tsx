@@ -54,7 +54,7 @@ export default function DpaPage() {
         <p>Klardal sender jer en kopi af kundelisten og sletter den derefter senest 30 dage efter.</p>
 
         <p className="hint">
-          Aftalen gælder fra den dag, I trykker &quot;Send ja&quot;. Vi gemmer jeres ja sammen med dato og tidspunkt.
+          Aftalen gælder fra den dag, I trykker &quot;Kom i gang&quot;. Vi gemmer jeres ja sammen med dato og tidspunkt.
         </p>
       </main>
       <KlFooter />

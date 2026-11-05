@@ -97,20 +97,20 @@ try {
   // "Send ja": the firm's own sign-up link, on a phone.
   const su = await newPage(390, 844);
   await su.goto(`${BASE}/tilmeld?firma=Rask%20Klip&pakke=149`);
-  await su.getByRole("heading", { name: "Klar til Rask Klip?" }).waitFor();
+  await su.getByRole("heading", { name: "Velkommen, Rask Klip" }).waitFor();
   assert((await su.locator("input[name=firma]").inputValue()) === "Rask Klip", "the link fills in the firm's name");
   assert(await su.locator("input[name=pakke][value='149']").isChecked(), "the link picks the 149 kr package");
   assert((await su.evaluate(() => document.documentElement.scrollWidth)) <= 390, "sign-up page fits a 390 px phone");
   await su.fill("input[name=navn]", "Lone Test");
   await su.fill("input[name=telefon]", "12345678");
   await su.fill("input[name=email]", "lone@eksempel.dk");
-  await su.getByRole("button", { name: "Send ja" }).click();
-  await su.getByRole("alert").filter({ hasText: "Sæt kryds ved ja" }).waitFor();
+  await su.getByRole("button", { name: "Kom i gang" }).click();
+  await su.getByRole("alert").filter({ hasText: "Sæt kryds i boksen" }).waitFor();
   await su.locator("input[name=pakke][value='199']").check();
   assert((await su.locator(".accept").innerText()).includes("derefter 199 kr."), "the yes-box follows the chosen package");
   await su.locator("input[name=tilvalg][value=opslag]").check();
   await su.getByTestId("signup-accept").check();
-  await su.getByRole("button", { name: "Send ja" }).click();
+  await su.getByRole("button", { name: "Kom i gang" }).click();
   await su.getByTestId("signup-done").waitFor();
   await shot(su, "signup-done");
   await su.close();

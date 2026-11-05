@@ -7,7 +7,7 @@ import { SignupForm } from "@/components/SignupForm";
 import { KlFooter, KlHeader } from "@/components/KlChrome";
 
 export const metadata: Metadata = {
-  title: "Sig ja til Klardal",
+  title: "Kom i gang med Klardal",
   // A personal link sent to firms – not something to show on Google.
   robots: { index: false, follow: true },
   alternates: { canonical: "/tilmeld" },
@@ -23,8 +23,8 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
     <div className="kl" lang="da">
       <KlHeader />
       <main className="wrap about">
-        <h1>{firma ? `Klar til ${firma}?` : "Sig ja til Klardal"}</h1>
-        <p className="lead">Udfyld det, I vil, og tryk på Send ja. Resten klarer vi. I skal ikke give os kodeord.</p>
+        <h1>{firma ? `Velkommen, ${firma}` : "Kom i gang med Klardal"}</h1>
+        <p className="lead">Det tager to minutter. Fortæl os lidt om jer, så sætter vi det hele op og viser jer resultatet, før det går live. Første måned er gratis, og I binder jer ikke.</p>
         <SignupForm firma={firma} pakke={pakke} />
       </main>
       <KlFooter />

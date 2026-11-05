@@ -3,8 +3,8 @@ import { normalizePhone } from "@/lib/callback";
 
 /** The two packages on the front page – same content, the 199 kr one includes a website. */
 export const PLANS = {
-  "149": "149 kr/md – vi har en hjemmeside",
-  "199": "199 kr/md – I laver også vores hjemmeside",
+  "149": "149 kr/md: vi har allerede en hjemmeside",
+  "199": "199 kr/md: inklusive en ny hjemmeside",
 } as const;
 export type Plan = keyof typeof PLANS;
 
@@ -39,7 +39,7 @@ export const signupSchema = z.object({
   billeder: z.boolean().default(false),
   tilvalg: z.array(z.enum(Object.keys(EXTRAS) as [keyof typeof EXTRAS, ...(keyof typeof EXTRAS)[]])).max(4).default([]),
   betaling: z.enum(["mobilepay", "faktura"]).default("mobilepay"),
-  accept: z.literal(true, { message: "Sæt kryds ved ja, før I sender." }),
+  accept: z.literal(true, { message: "Sæt kryds i boksen nederst, før I sender." }),
 });
 export type Signup = z.infer<typeof signupSchema>;
 

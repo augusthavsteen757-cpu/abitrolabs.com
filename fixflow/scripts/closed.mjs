@@ -51,7 +51,7 @@ ok(!/\/tilbud|\/tjek|\/artikler|håndværk/.test(llms), "llms.txt no longer send
 // Sign-up link, terms and data processing agreement (open while the old tool is closed).
 const tilmeld = await get("/tilmeld?firma=Rask%20Klip&pakke=199");
 const tilmeldHtml = await tilmeld.text();
-ok(tilmeld.status === 200 && tilmeldHtml.includes("Klar til Rask Klip?") && /<meta name="robots" content="noindex, follow"/.test(tilmeldHtml), "/tilmeld works, fills in the firm and stays off Google");
+ok(tilmeld.status === 200 && tilmeldHtml.includes("Velkommen, Rask Klip") && /<meta name="robots" content="noindex, follow"/.test(tilmeldHtml), "/tilmeld works, fills in the firm and stays off Google");
 ok(/<input[^>]*name="pakke" checked="" value="199"/.test(tilmeldHtml) && !/<input[^>]*name="pakke" checked="" value="149"/.test(tilmeldHtml), "/tilmeld picks the package from the link");
 for (const [p, text] of [["/vilkaar", "Ingen binding"], ["/databehandleraftale", "Underdatabehandlere"]]) {
   const r = await get(p);

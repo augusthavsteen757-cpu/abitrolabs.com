@@ -27,7 +27,7 @@ export function SignupForm({ firma = "", pakke = "149" }: { firma?: string; pakk
       betaling: f.get("betaling") === "faktura" ? "faktura" : "mobilepay",
       accept: f.get("accept") === "on",
     };
-    if (!body.accept) return setError("Sæt kryds ved ja, før I sender.");
+    if (!body.accept) return setError("Sæt kryds i boksen nederst, før I sender.");
     setError("");
     setState("sending");
     try {
@@ -44,15 +44,15 @@ export function SignupForm({ firma = "", pakke = "149" }: { firma?: string; pakk
   if (state === "done") {
     return (
       <div className="done" role="status" data-testid="signup-done">
-        <h2>Tak, så går vi i gang.</h2>
-        <p>Vi ringer, når det hele er sat op, så I kan se det, før det går live. Første måned er gratis.</p>
+        <h2>Tak. Vi går i gang.</h2>
+        <p>Vi ringer, når alt er sat op, så I kan se det hele, før det går live. Første måned er gratis.</p>
       </div>
     );
   }
   return (
     <form className="signup" onSubmit={onSubmit} noValidate data-testid="signup-form">
       <fieldset>
-        <legend>1. Hvem er I?</legend>
+        <legend>1. Om jer</legend>
         <label>Firma<input name="firma" defaultValue={firma} autoComplete="organization" required maxLength={120} /></label>
         <label>Dit navn<input name="navn" autoComplete="name" required maxLength={120} /></label>
         <label>Telefon<input name="telefon" type="tel" inputMode="tel" autoComplete="tel" placeholder="12 34 56 78" required maxLength={40} /></label>
@@ -61,7 +61,7 @@ export function SignupForm({ firma = "", pakke = "149" }: { firma?: string; pakk
       </fieldset>
 
       <fieldset>
-        <legend>2. Pakke</legend>
+        <legend>2. Vælg pakke</legend>
         {(Object.keys(PLANS) as Plan[]).map((p) => (
           <label className="choice" key={p}>
             <input type="radio" name="pakke" value={p} checked={plan === p} onChange={() => setPlan(p)} /> {PLANS[p]}
@@ -70,27 +70,29 @@ export function SignupForm({ firma = "", pakke = "149" }: { firma?: string; pakk
       </fieldset>
 
       <fieldset>
-        <legend>3. Booking</legend>
-        <label>Hvad kan kunderne booke, og hvor lang tid tager det? (valgfrit)
+        <legend>3. Jeres booking</legend>
+        <label>Ydelser og varighed (valgfrit)
           <textarea name="behandlinger" rows={4} maxLength={2000} placeholder={"Fx\nHerreklip, 30 min\nDameklip, 45 min"} />
         </label>
         <label>Åbningstider (valgfrit)<input name="aabningstider" maxLength={500} placeholder="Som på Google" /></label>
-        <p className="hint">Springer I over, spørger vi, når vi ringer.</p>
-        <span className="sub">Nye bookinger sendes til jer på</span>
+        <p className="hint">Mangler noget, tager vi det, når vi ringer.</p>
+        <span className="sub">Giv besked om nye bookinger på</span>
         <label className="choice"><input type="radio" name="besked" value="mail" defaultChecked /> Mail</label>
         <label className="choice"><input type="radio" name="besked" value="sms" /> SMS</label>
-        <label className="choice"><input type="checkbox" name="billeder" defaultChecked /> I må bruge billeder fra vores hjemmeside og Facebook</label>
+        <label className="choice"><input type="checkbox" name="billeder" defaultChecked /> I må bruge billeder fra vores hjemmeside og sociale medier</label>
       </fieldset>
 
       <fieldset>
-        <legend>4. Ekstra (valgfrit, vi aftaler pris først)</legend>
+        <legend>4. Tilvalg (valgfrit)</legend>
+        <p className="hint">Vi aftaler prisen med jer, før vi starter.</p>
         {(Object.keys(EXTRAS) as (keyof typeof EXTRAS)[]).map((k) => (
           <label className="choice" key={k}><input type="checkbox" name="tilvalg" value={k} /> {EXTRAS[k]}</label>
         ))}
       </fieldset>
 
       <fieldset>
-        <legend>5. Betaling fra måned 2</legend>
+        <legend>5. Betaling</legend>
+        <p className="hint">Første betaling er først efter en måned.</p>
         <label className="choice"><input type="radio" name="betaling" value="mobilepay" defaultChecked /> MobilePay</label>
         <label className="choice"><input type="radio" name="betaling" value="faktura" /> Faktura på mail</label>
       </fieldset>
@@ -98,11 +100,11 @@ export function SignupForm({ firma = "", pakke = "149" }: { firma?: string; pakk
       <label className="choice accept">
         <input type="checkbox" name="accept" data-testid="signup-accept" />
         <span>
-          Ja, sæt det op. Første måned er gratis, derefter {plan} kr. om måneden. Ingen binding. Vi accepterer{" "}
+          Vi vil gerne i gang. Første måned er gratis, derefter {plan} kr. om måneden uden binding. Vi accepterer{" "}
           <a href="/vilkaar" target="_blank">vilkårene</a> og <a href="/databehandleraftale" target="_blank">databehandleraftalen</a>.
         </span>
       </label>
-      <button className="btn" type="submit" disabled={state === "sending"}>{state === "sending" ? "Sender…" : "Send ja"}</button>
+      <button className="btn" type="submit" disabled={state === "sending"}>{state === "sending" ? "Sender…" : "Kom i gang"}</button>
       {error && <p className="err" role="alert">{error}</p>}
     </form>
   );
