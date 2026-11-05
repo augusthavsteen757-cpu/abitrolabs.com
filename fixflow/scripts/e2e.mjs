@@ -70,6 +70,7 @@ try {
   await page.goto(BASE);
   await page.getByRole("heading", { name: /Pas jeres firma/ }).waitFor();
   await page.getByRole("heading", { name: "Priser", exact: true }).waitFor();
+  assert((await page.locator(".cards").innerText()).split("inden for 24 timer på hverdage").length === 3, "both packages promise an answer within 24 hours on weekdays");
   assert((await page.getByTestId("site-item").innerText()).includes("hjemmeside"), "the 199 kr card says we build the website");
   assert((await page.locator("[data-testid=beta-banner]").count()) === 0, "no quote-check beta banner on the booking landing page");
   await shot(page, "booking-landing");

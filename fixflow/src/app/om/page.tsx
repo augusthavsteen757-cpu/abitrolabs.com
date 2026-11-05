@@ -59,7 +59,7 @@ export default function AboutPage() {
           <li>Nyhedsbreve og tilbud til jeres faste kunder</li>
           <li>En SMS, der får kunder til at komme igen</li>
         </ul>
-        <p>I skal ikke give os kodeord. Vi sætter det hele op, og I kan altid ringe, hvis noget skal laves om.</p>
+        <p>I skal ikke give os kodeord. Vi sætter det hele op. Driller noget, så ring eller skriv, så svarer vi inden for 24 timer på hverdage og retter det.</p>
 
         <h2>Hvad koster det?</h2>
         <p>149 kr. om måneden, hvis I har en hjemmeside. 199 kr. om måneden, hvis vi også laver hjemmesiden. Første måned er gratis, og der er ingen binding. Tilvalg aftaler vi pris på, før vi går i gang.</p>

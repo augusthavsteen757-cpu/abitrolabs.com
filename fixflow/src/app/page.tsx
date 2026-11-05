@@ -45,7 +45,7 @@ const ITEMS = [
   "De får en påmindelse dagen før, så de ikke glemmer det",
   "Flere af jeres glade kunder skriver en anmeldelse på Google",
   "Vi sætter det hele op for jer",
-  "Skal noget laves om, så ringer I bare",
+  "Driller noget, så ring eller skriv. Vi svarer inden for 24 timer på hverdage",
 ];
 
 export default function Landing() {

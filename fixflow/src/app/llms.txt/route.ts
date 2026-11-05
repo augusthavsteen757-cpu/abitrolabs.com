@@ -11,7 +11,7 @@ export function GET() {
 - Online booking, så kunderne selv kan finde en tid, også om aftenen
 - En påmindelse til kunden dagen før
 - Hjælp til at få flere anmeldelser på Google
-- Opsætning og hjælp, når noget skal ændres
+- Opsætning og hjælp: ring eller skriv, Klardal svarer inden for 24 timer på hverdage
 - En hjemmeside, hvis firmaet ikke har en
 
 ## Tilvalg (pris aftales)
