@@ -11,6 +11,8 @@ export function GET() {
 - Online booking, så kunderne selv kan finde en tid, også om aftenen
 - En påmindelse til kunden dagen før
 - Hjælp til at få flere anmeldelser på Google
+- Priser, ydelser og åbningstider skrevet, så søgemaskiner og AI-assistenter kan læse dem (schema.org og llms.txt)
+- Et månedligt tjek af, hvad ChatGPT, Gemini og Perplexity svarer, når nogen spørger efter firmaets branche i byen
 - Opsætning og hjælp: ring eller skriv, Klardal svarer inden for 24 timer på hverdage
 - En hjemmeside, hvis firmaet ikke har en
 

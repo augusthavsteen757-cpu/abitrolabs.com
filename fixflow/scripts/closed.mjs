@@ -109,5 +109,27 @@ await hook({ type: "customer.subscription.deleted", data: { object: { id: "sub_k
 st = (await db.execute({ sql: "SELECT payment_status FROM signups WHERE id = ?", args: [signupRow.id] })).rows[0];
 ok(st.payment_status === "opsagt", "subscription ended → sign-up marked opsagt");
 
+// "Klar til AI": customer profile pages with schema.org JSON-LD and llms.txt
+{
+  const r = await get("/firma/eksempel-snedker");
+  const html = await r.text();
+  ok(r.status === 200, `/firma/eksempel-snedker → 200 (${r.status})`);
+  const ld = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  let j = null;
+  try { j = ld && JSON.parse(ld[1]); } catch { j = null; }
+  ok(j?.["@type"] === "HomeAndConstructionBusiness" && j.openingHoursSpecification?.length === 1 && j.hasOfferCatalog?.itemListElement?.length === 4, "profile has schema.org JSON-LD with hours and prices");
+  ok(/<meta name="robots" content="noindex, nofollow"/.test(html), "example profile is noindex");
+  ok(html.includes("Firmaet findes ikke"), "example profile shows the example banner");
+  const t = await get("/firma/eksempel-snedker/llms.txt");
+  const txt = await t.text();
+  ok(t.status === 200 && t.headers.get("content-type")?.startsWith("text/markdown") && txt.includes("# Eksempel Snedkeri") && txt.includes("Mandag til fredag 07:00-16:00"), "profile llms.txt has the facts");
+  ok(t.headers.get("x-robots-tag") === "noindex", "example llms.txt is noindex");
+  ok((await get("/firma/findes-ikke")).status === 404, "unknown profile → 404");
+  ok((await get("/firma/findes-ikke/llms.txt")).status === 404, "unknown profile llms.txt → 404");
+  ok((await get("/firma/__proto__")).status === 404, "prototype key is not a profile");
+  ok(!(await (await get("/sitemap.xml")).text()).includes("eksempel-snedker"), "example profile is not in the sitemap");
+  ok((await (await get("/llms.txt")).text()).includes("Perplexity"), "Klardal llms.txt mentions the monthly AI check");
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : "\nAll checks passed");
 process.exitCode = failed ? 1 : 0;

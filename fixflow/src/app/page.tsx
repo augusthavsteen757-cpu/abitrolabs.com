@@ -45,6 +45,7 @@ const ITEMS = [
   "Jeres kunder kan selv booke en tid, også om aftenen",
   "De får en påmindelse dagen før, så de ikke glemmer det",
   "Flere af jeres glade kunder skriver en anmeldelse på Google",
+  "Jeres priser og åbningstider står, så ChatGPT, Google og Siri kan læse dem. Vi tjekker hver måned, hvad de svarer om jer",
   "Vi sætter det hele op for jer",
   "Driller noget, så ring eller skriv. Vi svarer inden for 24 timer på hverdage",
 ];

@@ -3,6 +3,8 @@
  */
 import assert from "node:assert/strict";
 import { LEADS, SERVICES, servicesFor } from "../src/lib/leads";
+import { firmaJsonLd, firmaLlmsTxt, profilFejl, type FirmaProfil } from "../src/lib/firma-profil";
+import { KUNDER } from "../src/lib/kunder";
 import { DEMO_QUOTES } from "../src/lib/demo-data";
 import { HOUSING, JOB_NOTE_MAX, JOB_SUBTYPES, JOB_TYPES, LOAD_BEARING, jobContextForAi, parseJobContext, readJobContext } from "../src/lib/job-context";
 import { analysisOfQuote, applyVatChoice, normalizeAnalysis, parseStoredAnalysis, priceOfQuote, refusalOf, scoreOfQuote } from "../src/lib/analysis";
@@ -416,6 +418,43 @@ test("personal sign-up links: valid slugs, known trades, no contact details", ()
   }
   assert.ok(Object.keys(LEADS).length >= 30);
   assert.doesNotMatch(src, /\d{2} ?\d{2} ?\d{2} ?\d{2}|[\w.+-]+@[\w-]+\.[a-z]/, "no phone numbers or e-mails in public lead data");
+});
+
+test("AI profile: schema.org JSON-LD has hours, prices and booking; llms.txt has the facts", () => {
+  const p: FirmaProfil = {
+    navn: "Test Snedkeri", type: "HomeAndConstructionBusiness", branche: "Snedker", beskrivelse: "Snedker på Sydfyn med vinduer og døre.",
+    adresse: { gade: "Testvej 2", postnr: "5700", by: "Svendborg" }, telefon: "11 22 33 44", omraade: ["Svendborg", "Ærø"],
+    ydelser: [{ navn: "Besigtigelse", minutter: 60, pris: 0 }, { navn: "Nyt vindue", pris: 9500, fraPris: true }, { navn: "Reparation" }],
+    aabning: [{ dage: ["Mo", "Tu", "We", "Th", "Fr"], fra: "07:00", til: "16:00" }], bookingUrl: "https://example.dk/book",
+  };
+  assert.deepEqual(profilFejl(p), []);
+  const j = firmaJsonLd(p, "https://klardal.com/firma/test") as Record<string, any>;
+  assert.equal(j["@type"], "HomeAndConstructionBusiness");
+  assert.equal(j.address.addressCountry, "DK");
+  assert.deepEqual(j.openingHoursSpecification[0].dayOfWeek, ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]);
+  assert.equal(j.hasOfferCatalog.itemListElement[1].priceSpecification.price, 9500);
+  assert.equal(j.hasOfferCatalog.itemListElement[1].priceSpecification.minPrice, 9500);
+  assert.equal(j.hasOfferCatalog.itemListElement[0].itemOffered.duration, "PT60M");
+  assert.equal(j.hasOfferCatalog.itemListElement[2].priceSpecification, undefined, "no invented price");
+  assert.equal(j.potentialAction["@type"], "ReserveAction");
+  assert.equal(j.areaServed.length, 2);
+  const t = firmaLlmsTxt(p, "https://klardal.com/firma/test");
+  for (const s of ["# Test Snedkeri", "Mandag til fredag 07:00-16:00", "Nyt vindue, fra 9.500 kr.", "Arbejder i: Svendborg, Ærø", "Book online: https://example.dk/book", "Ring på 11 22 33 44"]) assert.ok(t.includes(s), s);
+  // Broken or untrue profiles are caught
+  assert.ok(profilFejl({ ...p, adresse: { ...p.adresse, postnr: "57" } }).length);
+  assert.ok(profilFejl({ ...p, aabning: [] }).length);
+  assert.deepEqual(profilFejl({ ...p, aabning: [], efterAftale: true }), []);
+  assert.ok(profilFejl({ ...p, aabning: [{ dage: ["Mo"], fra: "16:00", til: "07:00" }] }).length);
+  assert.ok(profilFejl({ ...p, telefon: undefined, bookingUrl: undefined }).length);
+  assert.ok(profilFejl({ ...p, beskrivelse: "Nr. 1 på Google i Svendborg, altid." }).length, "no promises about rankings");
+  assert.ok(profilFejl({ ...p, links: ["http://facebook.com/x"] }).length);
+});
+
+test("customer profiles: valid slugs and every profile passes the checks", () => {
+  for (const [slug, k] of Object.entries(KUNDER)) {
+    assert.match(slug, /^[a-z0-9]+(-[a-z0-9]+)*$/, slug);
+    assert.deepEqual(profilFejl(k), [], slug);
+  }
 });
 
 console.log(`\n${passed} tests passed`);
