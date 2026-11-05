@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { EXTRAS, PLANS, type Plan } from "@/lib/signup";
+import { EXTRAS, PAYMENTS, PLANS, type Payment, type Plan } from "@/lib/signup";
 
 /** "Ja tak" for the booking service: the firm fills in what it wants and accepts – posted to /api/tilmeld. */
 export function SignupForm({
@@ -18,6 +18,7 @@ export function SignupForm({
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
   const [plan, setPlan] = useState<Plan>(pakke);
+  const [payment, setPayment] = useState<Payment>("kort");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -35,7 +36,7 @@ export function SignupForm({
       aabningstider: String(f.get("aabningstider") ?? ""),
       billeder: f.get("billeder") === "on",
       tilvalg: f.getAll("tilvalg").map(String),
-      betaling: f.get("betaling") === "faktura" ? "faktura" : "mobilepay",
+      betaling: payment,
       accept: f.get("accept") === "on",
     };
     if (!body.accept) return setError("Sæt kryds i boksen nederst, før I sender.");
@@ -45,6 +46,10 @@ export function SignupForm({
       const res = await fetch("/api/tilmeld", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Noget gik galt. Prøv igen om lidt.");
+      if (typeof data.checkoutUrl === "string" && data.checkoutUrl.startsWith("https://checkout.stripe.com/")) {
+        window.location.href = data.checkoutUrl;
+        return;
+      }
       setState("done");
     } catch (err) {
       setError(err instanceof Error && err.message !== "Failed to fetch" ? err.message : "Ingen forbindelse. Prøv igen om lidt.");
@@ -56,7 +61,12 @@ export function SignupForm({
     return (
       <div className="done" role="status" data-testid="signup-done">
         <h2>Tak. Vi går i gang.</h2>
-        <p>Vi ringer, når alt er sat op, så I kan se det hele, før det går live. Første måned er gratis.</p>
+        <p>
+          {payment === "kort"
+            ? "Vi sender jer et link, hvor I lægger kortet ind. Der trækkes først penge efter den gratis måned."
+            : `Vi sender jer en aftale om fast betaling via ${PAYMENTS[payment]}, som I godkender med et enkelt tryk. Der trækkes først penge efter den gratis måned.`}
+        </p>
+        <p>Vi ringer, når alt er sat op, så I kan se det hele, før det går live.</p>
       </div>
     );
   }
@@ -114,9 +124,12 @@ export function SignupForm({
 
       <fieldset>
         <legend>5. Betaling</legend>
-        <p className="hint">Første betaling er først efter en måned.</p>
-        <label className="choice"><input type="radio" name="betaling" value="mobilepay" defaultChecked /> MobilePay</label>
-        <label className="choice"><input type="radio" name="betaling" value="faktura" /> Faktura på mail</label>
+        <p className="hint">Betalingen kører automatisk hver måned. Der trækkes først penge efter den gratis måned.</p>
+        {(Object.keys(PAYMENTS) as Payment[]).map((p) => (
+          <label className="choice" key={p}>
+            <input type="radio" name="betaling" value={p} checked={payment === p} onChange={() => setPayment(p)} /> {PAYMENTS[p]}
+          </label>
+        ))}
       </fieldset>
 
       <label className="choice accept">

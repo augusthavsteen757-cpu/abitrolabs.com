@@ -43,7 +43,7 @@ start OLD_TOOL=1 BETA_FREE=1 ALLOW_LOCAL_DB=1 ALLOW_DEMO_MODE=1 BETA_END_DATE=20
 start OLD_TOOL=1 ALLOW_LOCAL_DB=1 && run no-ai-key env BASE_URL=$BASE node scripts/no-ai-key.mjs
 
 # As live: the old quote-check tool is closed (no OLD_TOOL), only the booking service is open.
-start BETA_FREE=1 ALLOW_LOCAL_DB=1 COMPANY_NAME=Klardal COMPANY_CVR=46839994 "COMPANY_ADDRESS=Strandhuse 93, 5700 Svendborg" CONTACT_EMAIL=kontakt@klardal.com &&
+start BETA_FREE=1 ALLOW_LOCAL_DB=1 STRIPE_WEBHOOK_SECRET=whsec_closedtest COMPANY_NAME=Klardal COMPANY_CVR=46839994 "COMPANY_ADDRESS=Strandhuse 93, 5700 Svendborg" CONTACT_EMAIL=kontakt@klardal.com &&
   run closed env BASE_URL=$BASE node scripts/closed.mjs &&
   run smoke-live env BASE_URL=$BASE node scripts/smoke.mjs
 

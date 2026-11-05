@@ -109,9 +109,11 @@ try {
   await su.locator("input[name=pakke][value='199']").check();
   assert((await su.locator(".accept").innerText()).includes("derefter 199 kr."), "the yes-box follows the chosen package");
   await su.locator("input[name=tilvalg][value=opslag]").check();
+  assert((await su.locator("input[name=betaling]").count()) === 3 && (await su.getByText("Faktura").count()) === 0, "three automatic payment options, no manual invoice");
+  await su.locator("input[name=betaling][value=mobilepay]").check();
   await su.getByTestId("signup-accept").check();
   await su.getByRole("button", { name: "Kom i gang" }).click();
-  await su.getByTestId("signup-done").waitFor();
+  await su.getByTestId("signup-done").filter({ hasText: "fast betaling via MobilePay" }).waitFor();
   await shot(su, "signup-done");
   await su.close();
   log("sign-up link: the firm says yes on its own");

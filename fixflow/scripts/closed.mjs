@@ -4,6 +4,7 @@
  *
  *   BASE_URL=http://localhost:3000 node scripts/closed.mjs
  */
+import { createHmac } from "node:crypto";
 import { createClient } from "@libsql/client";
 
 const BASE = (process.env.BASE_URL || "http://localhost:3000").replace(/\/$/, "");
@@ -71,9 +72,14 @@ ok((await signup({ ...good, telefon: "123" })).status === 400, "sign-up with a w
 ok((await signup({ ...good, email: "ikke-en-mail" })).status === 400, "sign-up with a wrong e-mail is refused");
 ok((await signup({ ...good, pakke: "999" })).status === 400, "sign-up with an unknown package is refused");
 ok((await signup({ ...good, tilvalg: ["noget-andet"] })).status === 400, "sign-up with an unknown extra is refused");
+ok((await signup({ ...good, betaling: "faktura" })).status === 400, "manual invoice is no longer a payment option");
 ok((await get("/api/tilmeld", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(good) })).status === 403, "sign-up from another site is blocked (CSRF)");
 const okSignup = await signup(good);
 ok(okSignup.status === 200, `a complete sign-up is accepted (${okSignup.status})`);
+ok((await okSignup.json()).checkoutUrl === null, "without Stripe keys, card sign-ups are saved and no checkout link is invented");
+const thanks = await get("/tilmeld/tak");
+ok(thanks.status === 200 && (await thanks.text()).includes("Kortet er gemt"), "/tilmeld/tak (back from Stripe) works");
+ok((await (await get("/tilmeld/tak?betaling=afbrudt")).text()).includes("Kortet blev ikke lagt ind"), "/tilmeld/tak explains a cancelled card");
 
 // The call-me form still works, and old requests are deleted automatically (privacy policy promise).
 const db = createClient({ url: "file:data/fixflow.db" });
@@ -85,6 +91,23 @@ const rows = (await db.execute("SELECT phone FROM callback_requests")).rows.map(
 const saved = (await db.execute("SELECT company, phone, plan, details FROM signups")).rows;
 ok(saved.length === 1 && saved[0].company === "Rask Klip" && saved[0].phone === "12 34 56 78" && saved[0].plan === "149" && JSON.parse(saved[0].details).tilvalg[0] === "opslag", "the sign-up is saved with phone, package and extras");
 ok(rows.includes("22 33 44 55") && !rows.includes("11 11 11 11"), "requests older than 180 days are deleted automatically");
+
+// Automatic card payment: Stripe's webhook marks the sign-up's card as approved, and later as cancelled.
+const signupRow = (await db.execute("SELECT id, payment, payment_status FROM signups")).rows[0];
+ok(signupRow.payment === "kort" && signupRow.payment_status === "afventer", "a new sign-up waits for its card (kort, afventer)");
+const hook = (event) => {
+  const body = JSON.stringify(event);
+  const t = Math.floor(Date.now() / 1000);
+  const sig = createHmac("sha256", "whsec_closedtest").update(`${t}.${body}`).digest("hex");
+  return get("/api/billing/webhook", { method: "POST", headers: { "stripe-signature": `t=${t},v1=${sig}`, "content-type": "application/json" }, body });
+};
+ok((await get("/api/billing/webhook", { method: "POST", body: "{}" })).status === 400, "webhook without a Stripe signature is refused");
+ok((await hook({ type: "checkout.session.completed", data: { object: { id: "cs_1", subscription: "sub_klardal_1", payment_status: "no_payment_required", metadata: { signupId: String(signupRow.id) } } } })).status === 200, "Stripe webhook is accepted");
+let st = (await db.execute({ sql: "SELECT payment_status, stripe_subscription FROM signups WHERE id = ?", args: [signupRow.id] })).rows[0];
+ok(st.payment_status === "godkendt" && st.stripe_subscription === "sub_klardal_1", "card saved → sign-up marked godkendt");
+await hook({ type: "customer.subscription.deleted", data: { object: { id: "sub_klardal_1" } } });
+st = (await db.execute({ sql: "SELECT payment_status FROM signups WHERE id = ?", args: [signupRow.id] })).rows[0];
+ok(st.payment_status === "opsagt", "subscription ended → sign-up marked opsagt");
 
 console.log(failed ? `\n${failed} check(s) failed` : "\nAll checks passed");
 process.exitCode = failed ? 1 : 0;

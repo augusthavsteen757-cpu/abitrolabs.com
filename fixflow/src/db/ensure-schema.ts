@@ -47,6 +47,9 @@ const TABLES = [
 	\`email\` text NOT NULL,
 	\`plan\` text NOT NULL,
 	\`details\` text NOT NULL,
+	\`payment\` text,
+	\`payment_status\` text,
+	\`stripe_subscription\` text,
 	\`created_at\` integer NOT NULL
 )`,
 ];
@@ -57,6 +60,9 @@ const COLUMNS: [string, string, string][] = [
   ["quotes", "job_context", "text"],
   ["users", "beta_limit", "integer"],
   ["users", "guest", "integer"],
+  ["signups", "payment", "text"],
+  ["signups", "payment_status", "text"],
+  ["signups", "stripe_subscription", "text"],
 ];
 
 export async function ensureSchema() {

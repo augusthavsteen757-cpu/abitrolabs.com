@@ -283,7 +283,7 @@ function stripePeriodEnd(sub: Record<string, unknown>): Date | null {
   return end ? new Date(end * 1000) : null;
 }
 
-async function stripe(path: string, params: Record<string, string>, method = "POST") {
+export async function stripe(path: string, params: Record<string, string>, method = "POST") {
   const res = await fetch(`https://api.stripe.com${path}`, {
     method,
     headers: {

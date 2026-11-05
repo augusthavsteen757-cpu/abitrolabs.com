@@ -56,6 +56,8 @@ export default function PrivacyPage() {
           <li>Render Services, Inc. driver hjemmesiden på en server i Frankfurt (EU). Render er certificeret under EU-US Data Privacy Framework.</li>
           <li>ChiselStrike, Inc. (Turso) opbevarer databasen hos Amazon Web Services i Stockholm (EU), under EU-Kommissionens standardkontraktbestemmelser.</li>
           <li>Brevo (Sendinblue SAS, Frankrig) sender os en e-mail, når I beder os ringe.</li>
+          <li>Stripe Payments Europe Ltd. (Irland) håndterer kortbetalinger. Vi ser aldrig jeres kortnummer.</li>
+          <li>Vipps MobilePay AS og Mastercard Payment Services (Betalingsservice) håndterer betalingen, hvis I vælger dem.</li>
         </ul>
         <p>Vi sælger aldrig jeres oplysninger og bruger dem ikke til reklame.</p>
 

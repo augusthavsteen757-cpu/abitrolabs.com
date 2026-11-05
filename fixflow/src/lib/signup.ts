@@ -8,6 +8,14 @@ export const PLANS = {
 } as const;
 export type Plan = keyof typeof PLANS;
 
+/** Automatic monthly payment. Card runs through Stripe; MobilePay and Betalingsservice through their own agreements. */
+export const PAYMENTS = {
+  kort: "Betalingskort",
+  mobilepay: "MobilePay",
+  betalingsservice: "Betalingsservice",
+} as const;
+export type Payment = keyof typeof PAYMENTS;
+
 /** Extras that can be added later (price agreed before we start). */
 export const EXTRAS = {
   anmeldelser: "Svar på Google-anmeldelser",
@@ -38,7 +46,7 @@ export const signupSchema = z.object({
   aabningstider: clean(500).optional().default(""),
   billeder: z.boolean().default(false),
   tilvalg: z.array(z.enum(Object.keys(EXTRAS) as [keyof typeof EXTRAS, ...(keyof typeof EXTRAS)[]])).max(4).default([]),
-  betaling: z.enum(["mobilepay", "faktura"]).default("mobilepay"),
+  betaling: z.enum(["kort", "mobilepay", "betalingsservice"], { message: "Vælg hvordan I vil betale." }).default("kort"),
   accept: z.literal(true, { message: "Sæt kryds i boksen nederst, før I sender." }),
 });
 export type Signup = z.infer<typeof signupSchema>;
@@ -54,7 +62,7 @@ export function signupSummary(s: Signup): string {
     `Åbningstider: ${s.aabningstider || "ikke udfyldt – brug dem fra Google"}`,
     `Må bruge billeder fra hjemmeside/Facebook: ${s.billeder ? "ja" : "nej"}`,
     `Tilvalg (pris aftales): ${s.tilvalg.length ? s.tilvalg.map((t) => EXTRAS[t]).join(", ") : "ingen"}`,
-    `Betaling: ${s.betaling === "faktura" ? "faktura på mail" : "MobilePay"}`,
+    `Betaling (automatisk hver måned): ${PAYMENTS[s.betaling]}`,
     `Accepteret: vilkår og databehandleraftale (klardal.com/vilkaar, klardal.com/databehandleraftale)`,
   ].join("\n");
 }

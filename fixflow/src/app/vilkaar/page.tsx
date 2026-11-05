@@ -33,7 +33,7 @@ export default function TermsPage() {
         <h2>Pris og betaling</h2>
         <p>
           Første måned er gratis. Derefter koster det 149 kr. om måneden, eller 199 kr. om måneden med hjemmeside. Klardal er
-          ikke momsregistreret, så der lægges ikke moms oven i. I betaler forud for hver måned via MobilePay eller faktura.
+          ikke momsregistreret, så der lægges ikke moms oven i. Betalingen trækkes automatisk hver måned med betalingskort, MobilePay eller Betalingsservice, som I vælger ved tilmeldingen. Første træk sker, når den gratis måned er gået. Siger I op, stopper trækket ved udgangen af måneden.
         </p>
 
         <h2>Opsigelse</h2>

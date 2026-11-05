@@ -6,6 +6,7 @@ import {
   verifyStripeSignature,
   type CheckoutKind,
 } from "@/lib/billing";
+import { signupCardApproved, signupSubscriptionEnded } from "@/lib/signup-billing";
 
 export const runtime = "nodejs";
 
@@ -27,6 +28,12 @@ export async function POST(req: Request) {
   }
   const event = JSON.parse(payload) as StripeEvent;
   const o = event.data.object;
+  // Klardal sign-up: the card is saved (the free month means nothing is charged yet).
+  if (event.type === "checkout.session.completed" && o.metadata?.signupId) {
+    const id = Number(o.metadata.signupId);
+    if (Number.isInteger(id) && id > 0) await signupCardApproved(id, o.subscription ?? null);
+    return NextResponse.json({ received: true });
+  }
   if (event.type === "checkout.session.completed") {
     const kind = o.metadata?.kind as CheckoutKind | undefined;
     const userId = o.metadata?.userId;
@@ -50,7 +57,7 @@ export async function POST(req: Request) {
     if (sub) await subscriptionRenewed(sub, o.id, o.payment_intent ?? null);
   }
   if (event.type === "customer.subscription.deleted") {
-    await subscriptionEnded(o.id);
+    if (!(await signupSubscriptionEnded(o.id))) await subscriptionEnded(o.id);
   }
   return NextResponse.json({ received: true });
 }

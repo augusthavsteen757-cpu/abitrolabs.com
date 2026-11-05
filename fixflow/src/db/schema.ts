@@ -227,5 +227,10 @@ export const signups = sqliteTable("signups", {
   plan: text("plan").notNull(),
   /** JSON with the rest of the answers (services, hours, extras …). */
   details: text("details").notNull(),
+  /** How they pay: kort (Stripe), mobilepay or betalingsservice. */
+  payment: text("payment"),
+  /** "afventer" until the card/agreement is approved, then "godkendt"; "opsagt" when the subscription ends. */
+  paymentStatus: text("payment_status"),
+  stripeSubscription: text("stripe_subscription"),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
 });
