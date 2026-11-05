@@ -53,6 +53,11 @@ const tilmeld = await get("/tilmeld?firma=Rask%20Klip&pakke=199");
 const tilmeldHtml = await tilmeld.text();
 ok(tilmeld.status === 200 && tilmeldHtml.includes("Velkommen, Rask Klip") && /<meta name="robots" content="noindex, follow"/.test(tilmeldHtml), "/tilmeld works, fills in the firm and stays off Google");
 ok(/<input[^>]*name="pakke" checked="" value="199"/.test(tilmeldHtml) && !/<input[^>]*name="pakke" checked="" value="149"/.test(tilmeldHtml), "/tilmeld picks the package from the link");
+const personal = await get("/tilmeld/rask-klip");
+const personalHtml = await personal.text();
+ok(personal.status === 200 && personalHtml.includes("Velkommen, Rask Klip") && personalHtml.includes("Dameklip (45 min)") && /<meta name="robots" content="noindex, nofollow"/.test(personalHtml), "personal link /tilmeld/rask-klip is filled in and stays off Google");
+ok((await get("/tilmeld/findes-ikke")).status === 404, "unknown personal link → 404");
+ok((await get("/tilmeld/constructor")).status === 404, "personal link can't reach object internals");
 for (const [p, text] of [["/vilkaar", "Ingen binding"], ["/databehandleraftale", "Underdatabehandlere"]]) {
   const r = await get(p);
   const html = await r.text();

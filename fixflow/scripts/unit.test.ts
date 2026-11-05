@@ -2,6 +2,7 @@
  * Fast unit tests for pure logic (no app, no database):  npx tsx scripts/unit.test.ts
  */
 import assert from "node:assert/strict";
+import { LEADS, SERVICES, servicesFor } from "../src/lib/leads";
 import { DEMO_QUOTES } from "../src/lib/demo-data";
 import { HOUSING, JOB_NOTE_MAX, JOB_SUBTYPES, JOB_TYPES, LOAD_BEARING, jobContextForAi, parseJobContext, readJobContext } from "../src/lib/job-context";
 import { analysisOfQuote, applyVatChoice, normalizeAnalysis, parseStoredAnalysis, priceOfQuote, refusalOf, scoreOfQuote } from "../src/lib/analysis";
@@ -403,6 +404,18 @@ test("guest beta usage: 1 analysis as a guest, 3 in total after creating an acco
   assert.equal(getUsage({ ...base, betaLimit: BETA_ANALYSES_TOTAL }).remaining, BETA_ANALYSES_TOTAL - 1);
   if (prev === undefined) delete process.env.BETA_FREE;
   else process.env.BETA_FREE = prev;
+});
+
+test("personal sign-up links: valid slugs, known trades, no contact details", () => {
+  const src = readFileSync("src/lib/leads.ts", "utf8");
+  for (const [slug, lead] of Object.entries(LEADS)) {
+    assert.match(slug, /^[a-z0-9]+(-[a-z0-9]+)*$/, slug);
+    assert.ok(lead.branche in SERVICES, slug);
+    assert.ok(servicesFor(lead).length > 0, slug);
+    assert.ok(["149", "199"].includes(lead.pakke), slug);
+  }
+  assert.ok(Object.keys(LEADS).length >= 30);
+  assert.doesNotMatch(src, /\d{2} ?\d{2} ?\d{2} ?\d{2}|[\w.+-]+@[\w-]+\.[a-z]/, "no phone numbers or e-mails in public lead data");
 });
 
 console.log(`\n${passed} tests passed`);

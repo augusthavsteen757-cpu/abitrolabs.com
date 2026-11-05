@@ -3,7 +3,18 @@ import { useState } from "react";
 import { EXTRAS, PLANS, type Plan } from "@/lib/signup";
 
 /** "Ja tak" for the booking service: the firm fills in what it wants and accepts – posted to /api/tilmeld. */
-export function SignupForm({ firma = "", pakke = "149" }: { firma?: string; pakke?: Plan }) {
+export function SignupForm({
+  firma = "",
+  pakke = "149",
+  ydelser,
+  aabningstider = "",
+}: {
+  firma?: string;
+  pakke?: Plan;
+  /** Suggested services from a personal link, shown as ticked boxes instead of a blank text field. */
+  ydelser?: readonly string[];
+  aabningstider?: string;
+}) {
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
   const [plan, setPlan] = useState<Plan>(pakke);
@@ -20,7 +31,7 @@ export function SignupForm({ firma = "", pakke = "149" }: { firma?: string; pakk
       cvr: String(f.get("cvr") ?? ""),
       pakke: plan,
       besked: f.get("besked") === "sms" ? "sms" : "mail",
-      behandlinger: String(f.get("behandlinger") ?? ""),
+      behandlinger: [...f.getAll("ydelse").map(String), String(f.get("behandlinger") ?? "")].filter((t) => t.trim()).join("\n"),
       aabningstider: String(f.get("aabningstider") ?? ""),
       billeder: f.get("billeder") === "on",
       tilvalg: f.getAll("tilvalg").map(String),
@@ -71,11 +82,22 @@ export function SignupForm({ firma = "", pakke = "149" }: { firma?: string; pakk
 
       <fieldset>
         <legend>3. Jeres booking</legend>
-        <label>Ydelser og varighed (valgfrit)
-          <textarea name="behandlinger" rows={4} maxLength={2000} placeholder={"Fx\nHerreklip, 30 min\nDameklip, 45 min"} />
-        </label>
-        <label>Åbningstider (valgfrit)<input name="aabningstider" maxLength={500} placeholder="Som på Google" /></label>
-        <p className="hint">Mangler noget, tager vi det, når vi ringer.</p>
+        {ydelser?.length ? (
+          <>
+            <span className="sub">Det kan kunderne booke</span>
+            <p className="hint">Vi har udfyldt det på forhånd. Fjern det, I ikke tilbyder.</p>
+            {ydelser.map((y) => (
+              <label className="choice" key={y}><input type="checkbox" name="ydelse" value={y} defaultChecked /> {y}</label>
+            ))}
+            <label>Andre ydelser (valgfrit)<input name="behandlinger" maxLength={500} placeholder="Fx Permanent (120 min)" /></label>
+          </>
+        ) : (
+          <label>Ydelser og varighed (valgfrit)
+            <textarea name="behandlinger" rows={4} maxLength={2000} placeholder={"Fx\nHerreklip, 30 min\nDameklip, 45 min"} />
+          </label>
+        )}
+        <label>Åbningstider (valgfrit)<input name="aabningstider" maxLength={500} defaultValue={aabningstider} placeholder="Som på Google" /></label>
+        <p className="hint">Tider og priser finjusterer vi sammen, når vi ringer.</p>
         <span className="sub">Giv besked om nye bookinger på</span>
         <label className="choice"><input type="radio" name="besked" value="mail" defaultChecked /> Mail</label>
         <label className="choice"><input type="radio" name="besked" value="sms" /> SMS</label>

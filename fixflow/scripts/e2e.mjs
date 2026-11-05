@@ -115,6 +115,26 @@ try {
   await shot(su, "signup-done");
   await su.close();
   log("sign-up link: the firm says yes on its own");
+  // Personal link: the form arrives filled in, the firm only unticks what it doesn't offer.
+  const pl = await newPage(390, 844);
+  await pl.goto(`${BASE}/tilmeld/rask-klip`);
+  await pl.getByRole("heading", { name: "Velkommen, Rask Klip" }).waitFor();
+  assert(await pl.locator("input[name=ydelse][value='Dameklip (45 min)']").isChecked(), "personal link ticks the firm's services");
+  assert((await pl.locator("input[name=aabningstider]").inputValue()).includes("Tirsdag"), "personal link fills in opening hours");
+  assert(await pl.locator("input[name=pakke][value='149']").isChecked(), "personal link picks the firm's package");
+  assert((await pl.evaluate(() => document.documentElement.scrollWidth)) <= 390, "personal link fits a 390 px phone");
+  await pl.locator("input[name=ydelse][value='Farve (90 min)']").uncheck();
+  await pl.fill("input[name=behandlinger]", "Permanent (120 min)");
+  await pl.fill("input[name=navn]", "Lone Test");
+  await pl.fill("input[name=telefon]", "12345678");
+  await pl.fill("input[name=email]", "lone@eksempel.dk");
+  await pl.getByTestId("signup-accept").check();
+  const [req] = await Promise.all([pl.waitForRequest((r) => r.url().endsWith("/api/tilmeld")), pl.getByRole("button", { name: "Kom i gang" }).click()]);
+  const sent = JSON.parse(req.postData() || "{}");
+  assert(sent.behandlinger.includes("Dameklip (45 min)") && !sent.behandlinger.includes("Farve") && sent.behandlinger.includes("Permanent"), "only the ticked services (plus extras) are sent");
+  await pl.getByTestId("signup-done").waitFor();
+  await pl.close();
+  log("personal sign-up link arrives filled in");
   await page.goto(`${BASE}/tilbud`);
   await page.getByRole("heading", { name: /Forstå dit håndværkertilbud/ }).waitFor();
   await shot(page, "landing");
