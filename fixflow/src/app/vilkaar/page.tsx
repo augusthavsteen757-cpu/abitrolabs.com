@@ -36,6 +36,16 @@ export default function TermsPage() {
           ikke momsregistreret, så der lægges ikke moms oven i. Betalingen trækkes automatisk hver måned med betalingskort, MobilePay eller Betalingsservice, som I vælger ved tilmeldingen. Første træk sker, når den gratis måned er gået. Siger I op, stopper trækket ved udgangen af måneden.
         </p>
 
+        <h2 id="garanti">Garanti på anmeldelser</h2>
+        <p>
+          Har I ikke fået mindst 5 nye anmeldelser på jeres Google-profil, når den gratis måned er gået, er næste måned også
+          gratis. Vi tæller de anmeldelser, der er kommet til i den gratis måned, ud fra jeres offentlige Google-profil.
+          Garantien kræver, at I har en Google-profil, at vi må bede jeres kunder om en anmeldelse via booking eller
+          påmindelser, eller at I selv har vores anmeldelseskort fremme, og at I har haft mindst 20 kunder i måneden.
+          Garantien gælder én gang pr. firma. Vi beder kun kunderne om en ærlig anmeldelse og giver aldrig noget til gengæld,
+          sådan som Googles regler kræver.
+        </p>
+
         <h2>Opsigelse</h2>
         <p>
           Der er ingen binding. I kan opsige til udgangen af den måned, I er i, ved at ringe eller skrive. Klardal kan opsige

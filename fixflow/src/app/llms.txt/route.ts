@@ -26,9 +26,10 @@ export function GET() {
 - 149 kr. om måneden for firmaer, der har en hjemmeside
 - 199 kr. om måneden, hvis Klardal også laver hjemmesiden
 - Første måned er gratis. Ingen binding.
+- Garanti: Har firmaet ikke fået mindst 5 nye Google-anmeldelser, når den gratis måned er gået, er næste måned også gratis (betingelser på ${base}/vilkaar#garanti).
 
 ## Sådan kommer man i gang
-- Skriv telefonnummeret på forsiden. Klardal laver en gratis prøveversion og ringer, når den er klar.
+- Skriv telefonnummeret på forsiden. Klardal laver et gratis AI-tjek af, hvem ChatGPT, Gemini og Google anbefaler i firmaets branche og by, og ringer med resultatet.
 
 ## Sider
 - [Forside](${base}/)

@@ -68,22 +68,24 @@ try {
   const page = await newPage();
   // The front page sells booking for small firms; the quote check's own front page lives at /tilbud.
   await page.goto(BASE);
-  await page.getByRole("heading", { name: /Pas jeres firma/ }).waitFor();
+  await page.getByRole("heading", { name: /skal de finde jer/ }).waitFor();
+  assert((await page.getByTestId("garanti").innerText()).includes("5 nye anmeldelser"), "the landing page states the review guarantee");
+  assert((await page.locator("a[href='/vilkaar#garanti']").count()) >= 1, "the guarantee links to its conditions");
   await page.getByRole("heading", { name: "Priser", exact: true }).waitFor();
   assert((await page.locator(".cards").innerText()).split("inden for 24 timer på hverdage").length === 3, "both packages promise an answer within 24 hours on weekdays");
   assert((await page.getByTestId("site-item").innerText()).includes("hjemmeside"), "the 199 kr card says we build the website");
   assert((await page.locator("[data-testid=beta-banner]").count()) === 0, "no quote-check beta banner on the booking landing page");
   await shot(page, "booking-landing");
-  // "Lav min gratis prøve": a wrong number is refused in the page, a right one is stored.
+  // "Få mit gratis AI-tjek": a wrong number is refused in the page, a right one is stored.
   await page.fill("#tlf", "1234");
-  await page.getByRole("button", { name: "Lav min gratis prøve" }).click();
+  await page.getByRole("button", { name: "Få mit gratis AI-tjek" }).click();
   await page.getByRole("alert").filter({ hasText: "8 cifre" }).waitFor();
   // (Checked from Node, so the expected 400 does not show up as a browser console error.)
   const ringBad = (await fetch(`${BASE}/api/ring`, { method: "POST", headers: { "content-type": "application/json", origin: BASE }, body: JSON.stringify({ telefon: "abc" }) })).status;
   assert(ringBad === 400, "the server refuses an invalid phone number too");
   await page.fill("#tlf", "+45 12 34 56 78");
   await page.fill("#firma", "Salon Test");
-  await page.getByRole("button", { name: "Lav min gratis prøve" }).click();
+  await page.getByRole("button", { name: "Få mit gratis AI-tjek" }).click();
   await page.getByTestId("ring-done").waitFor();
   const phoneLanding = await newPage(390, 844);
   await phoneLanding.goto(BASE);
@@ -93,6 +95,9 @@ try {
   assert((await page.locator("[data-testid=beta-banner]").count()) === 0, "no quote-check beta banner on /om");
   const omText = await page.locator("main").innerText();
   assert(["Online booking", "Opslag til Facebook og Instagram", "Nyhedsbreve", "svarer på jeres anmeldelser"].every((t) => omText.includes(t)), "/om lists everything Klardal does, not only booking");
+  await page.goto(`${BASE}/vilkaar`);
+  const garanti = await page.locator("#garanti + p").innerText();
+  assert(["5 nye anmeldelser", "20 kunder", "én gang"].every((t) => garanti.includes(t)), "the terms spell out the guarantee's conditions");
   log("booking landing page and the call-me form work");
   // "Send ja": the firm's own sign-up link, on a phone.
   const su = await newPage(390, 844);

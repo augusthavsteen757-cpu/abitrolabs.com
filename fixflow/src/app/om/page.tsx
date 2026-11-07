@@ -63,7 +63,7 @@ export default function AboutPage() {
         <p>I skal ikke give os kodeord. Vi sætter det hele op. Driller noget, så ring eller skriv, så svarer vi inden for 24 timer på hverdage og retter det.</p>
 
         <h2>Hvad koster det?</h2>
-        <p>149 kr. om måneden, hvis I har en hjemmeside. 199 kr. om måneden, hvis vi også laver hjemmesiden. Første måned er gratis, og der er ingen binding. Tilvalg aftaler vi pris på, før vi går i gang.</p>
+        <p>149 kr. om måneden, hvis I har en hjemmeside. 199 kr. om måneden, hvis vi også laver hjemmesiden. Første måned er gratis, og der er ingen binding. Har I ikke fået mindst 5 nye anmeldelser på Google, når den gratis måned er gået, er næste måned også gratis (se <a href="/vilkaar#garanti">vilkårene</a>). Tilvalg aftaler vi pris på, før vi går i gang.</p>
 
         <h2>Hvem står bag?</h2>
         <p>

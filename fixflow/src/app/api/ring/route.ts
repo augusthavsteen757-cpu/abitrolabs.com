@@ -33,7 +33,7 @@ export const POST = handle(async (req: Request) => {
     await sendEmail({
       to,
       subject: `Ring op: ${phone}${company ? ` (${company})` : ""}`,
-      text: `Nyt ønske om en gratis prøve fra klardal.com.\n\nTelefon: ${phone}\nFirma: ${company ?? "ikke oplyst"}\nTidspunkt: ${new Date().toLocaleString("da-DK", { timeZone: "Europe/Copenhagen" })}`,
+      text: `Nyt ønske om et gratis AI-tjek fra klardal.com.\n\nTelefon: ${phone}\nFirma: ${company ?? "ikke oplyst"}\nTidspunkt: ${new Date().toLocaleString("da-DK", { timeZone: "Europe/Copenhagen" })}`,
     });
   }
   return NextResponse.json({ ok: true });
