@@ -58,6 +58,7 @@ export const LEADS: Record<string, Lead> = {
   "salon-lund": { firma: "Salon Lund", branche: "frisoer", pakke: "199" },
   "salon-country-cut": { firma: "Salon Country Cut", branche: "frisoer", pakke: "199" },
   "mettes-coiffure": { firma: "Mette's Coiffure", branche: "frisoer", pakke: "199" },
+  "kronborg-snedkeri": { firma: "Kronborg Snedkeri", branche: "haandvaerker", pakke: "199", ydelser: ["Besigtigelse og tilbud (60 min)", "Opmåling af vinduer og døre (45 min)"] },
   "fruens-salon": { firma: "Fruens Salon", branche: "frisoer", pakke: "199" },
 };
 

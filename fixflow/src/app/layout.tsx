@@ -30,7 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // The booking pages ("/" and "/om") are not part of the quote check, so they have no beta banner.
   const isLanding = ["/", "/om"].includes((await headers()).get("x-klardal-path") ?? "");
   return (
-    <html lang={INTL_LOCALE[locale].split("-")[0] === "nb" ? "nb" : INTL_LOCALE[locale].split("-")[0]}>
+    <html lang={process.env.OLD_TOOL === "1" ? INTL_LOCALE[locale].split("-")[0] : "da"}>
       <body>
         <I18nProvider locale={locale} d={d}>
           {isBeta() && process.env.OLD_TOOL === "1" && !isLanding && (
