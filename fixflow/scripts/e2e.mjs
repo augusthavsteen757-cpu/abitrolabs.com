@@ -69,7 +69,7 @@ try {
   // The front page sells booking for small firms; the quote check's own front page lives at /tilbud.
   await page.goto(BASE);
   await page.getByRole("heading", { name: /skal de finde jer/ }).waitFor();
-  assert((await page.getByTestId("garanti").innerText()).includes("5 nye anmeldelser"), "the landing page states the review guarantee");
+  assert((await page.getByTestId("garanti").innerText()).includes("5 nye Google-anmeldelser"), "the landing page states the review guarantee");
   assert((await page.locator("a[href='/vilkaar#garanti']").count()) >= 1, "the guarantee links to its conditions");
   await page.getByRole("heading", { name: "Priser", exact: true }).waitFor();
   assert((await page.locator(".cards").innerText()).split("inden for 24 timer på hverdage").length === 3, "both packages promise an answer within 24 hours on weekdays");

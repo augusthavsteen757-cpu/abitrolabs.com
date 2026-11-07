@@ -42,13 +42,11 @@ function siteJsonLd() {
 export const dynamic = "force-dynamic";
 
 const ITEMS = [
-  "Jeres ydelser, priser og åbningstider står, så ChatGPT, Google og Siri kan læse dem",
-  "Hver måned tjekker vi, hvad de svarer om jer, og sender jer en kort rapport",
-  "Flere af jeres glade kunder skriver en anmeldelse på Google",
-  "Jeres kunder kan selv booke en tid eller bede om et tilbud, også om aftenen",
-  "De får en påmindelse dagen før, så de ikke glemmer det",
-  "Vi sætter det hele op for jer",
-  "Driller noget, så ring eller skriv. Vi svarer inden for 24 timer på hverdage",
+  "ChatGPT og Google kan læse jeres priser og ydelser",
+  "Månedlig rapport: hvad svarer AI'erne om jer?",
+  "Flere anmeldelser på Google",
+  "Online booking og påmindelser",
+  "Svar inden for 24 timer på hverdage",
 ];
 
 export default function Landing() {
@@ -65,23 +63,16 @@ export default function Landing() {
       <main>
         <div className="wrap hero">
           <h1>Når kunderne spørger ChatGPT, skal de finde <em>jer.</em></h1>
-          <p className="lead">
-            Flere og flere spørger ChatGPT eller Google, før de vælger en frisør, en maler eller et værksted. Svaret bygger på
-            det, der står om jer på nettet. Vi sørger for, at det er det rigtige, skaffer jer flere anmeldelser og viser jer hver
-            måned, hvad der sker.
-          </p>
+          <p className="lead">Vi gør jer lette at finde og viser jer hver måned, hvad der sker.</p>
           <div className="row">
             <a className="btn" href="#ring">Få et gratis AI-tjek</a>
-            <span className="fine">Vi ser, hvem ChatGPT anbefaler i jeres by</span>
+            <span className="fine">Første måned er gratis</span>
           </div>
         </div>
 
         <div className="wrap choices" data-testid="garanti">
           <h2>Vores garanti</h2>
-          <p className="lead">
-            Har I ikke fået mindst 5 nye anmeldelser på Google, når den gratis måned er gået, er næste måned også gratis. Så
-            betaler I først, når I kan se, at det virker. <a href="/vilkaar#garanti">Læs betingelserne</a>.
-          </p>
+          <p className="lead">5 nye Google-anmeldelser i den gratis måned, ellers er næste måned også gratis. <a href="/vilkaar#garanti">Betingelser</a></p>
         </div>
 
         <div className="wrap choices">
@@ -101,14 +92,14 @@ export default function Landing() {
               <div className="price"><b>199 kr.</b><span>om måneden, hjemmeside med</span></div>
             </div>
           </div>
-          <div className="terms"><span>I skal ikke give os kodeord</span><span>Ingen binding</span><span>Første måned gratis</span><span>5 nye anmeldelser, ellers er næste måned gratis</span></div>
+          <div className="terms"><span>I skal ikke give os kodeord</span><span>Ingen binding</span><span>Første måned gratis</span></div>
         </div>
       </main>
 
       <section className="close" id="ring">
         <div className="wrap">
           <h2>Se, hvem ChatGPT anbefaler <em>i stedet for jer.</em></h2>
-          <p className="fine">Skriv jeres nummer. Vi spørger ChatGPT, Gemini og Google, hvem de anbefaler i jeres branche og by, og ringer med resultatet. Det er gratis og uforpligtende.</p>
+          <p className="fine">Skriv jeres nummer, så ringer vi med resultatet. Gratis og uforpligtende.</p>
           <CallbackForm />
           <p className="fine">Vi bruger kun nummeret til at ringe til jer om tjekket.</p>
         </div>
