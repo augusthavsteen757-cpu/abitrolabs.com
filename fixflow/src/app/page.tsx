@@ -5,6 +5,7 @@ import "@fontsource-variable/hanken-grotesk";
 import "./landing.css";
 import { KlFooter } from "@/components/KlChrome";
 import { CallbackForm } from "@/components/CallbackForm";
+import { ChatVisual, CheckVisual, ReportVisual, ReviewVisual } from "@/components/KlVisuals";
 import { COMPANY } from "@/lib/company";
 import { MISSPELLINGS, organizationJsonLd } from "@/lib/organization";
 
@@ -42,8 +43,8 @@ function siteJsonLd() {
 export const dynamic = "force-dynamic";
 
 const ITEMS = [
-  "ChatGPT og Google kan læse jeres priser og ydelser",
-  "Månedlig rapport: hvad svarer AI'erne om jer?",
+  "ChatGPT og Google kan læse jeres priser",
+  "Rapport hver måned",
   "Flere anmeldelser på Google",
   "Online booking og påmindelser",
   "Svar inden for 24 timer på hverdage",
@@ -61,30 +62,44 @@ export default function Landing() {
       </header>
 
       <main>
-        <div className="wrap hero">
-          <h1>Når kunderne spørger ChatGPT, skal de finde <em>jer.</em></h1>
-          <p className="lead">Vi gør jer lette at finde og viser jer hver måned, hvad der sker.</p>
-          <div className="row">
-            <a className="btn" href="#ring">Få et gratis AI-tjek</a>
-            <span className="fine">Første måned er gratis</span>
+        <div className="wrap hero hero-split">
+          <div className="hero-text">
+            <h1>Når kunderne spørger ChatGPT, skal de finde <em>jer.</em></h1>
+            <p className="lead">Vi gør jer lette at finde og viser jer hver måned, hvad der sker.</p>
+            <div className="row">
+              <a className="btn" href="#ring">Få et gratis AI-tjek</a>
+              <span className="fine">Første måned er gratis</span>
+            </div>
           </div>
+          <ChatVisual />
         </div>
 
-        <div className="wrap choices" data-testid="garanti">
-          <h2>Vores garanti</h2>
-          <p className="lead">5 nye Google-anmeldelser i den gratis måned, ellers er næste måned også gratis. <a href="/vilkaar#garanti">Betingelser</a></p>
+        <div className="wrap steps">
+          <h2>Sådan gør vi</h2>
+          <ol className="step-grid">
+            <li><CheckVisual /><h3><span>1</span>Gratis AI-tjek</h3><p>Vi ser, hvem ChatGPT og Google anbefaler i jeres by.</p></li>
+            <li><ReviewVisual /><h3><span>2</span>Vi sætter det op</h3><p>Side, booking og anmeldelser. I giver os ingen kodeord.</p></li>
+            <li><ReportVisual /><h3><span>3</span>Rapport hver måned</h3><p>I kan se, om det virker.</p></li>
+          </ol>
+        </div>
+
+        <div className="wrap">
+          <div className="guarantee" data-testid="garanti">
+            <b aria-hidden="true">5</b>
+            <p><strong>Vores garanti</strong>5 nye Google-anmeldelser i den gratis måned, ellers er næste måned også gratis. <a href="/vilkaar#garanti">Betingelser</a></p>
+          </div>
         </div>
 
         <div className="wrap choices">
           <h2>Priser</h2>
           <div className="cards">
             <div className="card">
-              <h3>Har I allerede en hjemmeside?</h3>
+              <h3>Har I en hjemmeside?</h3>
               <ul>{ITEMS.map((t) => <li key={t}>{t}</li>)}</ul>
               <div className="price"><b>149 kr.</b><span>om måneden</span></div>
             </div>
             <div className="card main">
-              <h3>Har I ikke en hjemmeside?</h3>
+              <h3>Har I ingen hjemmeside?</h3>
               <ul>
                 <li data-testid="site-item"><strong>Vi laver en flot hjemmeside til jer</strong></li>
                 {ITEMS.map((t) => <li key={t}>{t}</li>)}
@@ -92,7 +107,7 @@ export default function Landing() {
               <div className="price"><b>199 kr.</b><span>om måneden, hjemmeside med</span></div>
             </div>
           </div>
-          <div className="terms"><span>I skal ikke give os kodeord</span><span>Ingen binding</span><span>Første måned gratis</span></div>
+          <div className="terms"><span>Ingen kodeord</span><span>Ingen binding</span><span>Første måned gratis</span></div>
         </div>
       </main>
 

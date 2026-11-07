@@ -6,7 +6,7 @@ export function KlHeader() {
     <header className="wrap">
       <nav>
         <a className="mark" href="/" style={{ color: "inherit", textDecoration: "none" }}>Klardal</a>
-        <a className="navlink" href="/#ring">Gratis prøve</a>
+        <a className="navlink" href="/#ring">Gratis AI-tjek</a>
       </nav>
     </header>
   );
