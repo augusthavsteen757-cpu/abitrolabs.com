@@ -26,11 +26,37 @@ export function ChatVisual() {
   );
 }
 
+/** A Google local search result ("map pack"), with the firm we want in it highlighted. */
+export function GoogleVisual() {
+  const rows: [string, string, number, number, boolean][] = [
+    ["Sydfyns Malerservice", "4,8", 41, 5, false],
+    ["Jeres firma", "4,9", 23, 5, true],
+    ["Maler Holm", "4,5", 12, 4, false],
+  ];
+  return (
+    <figure className="v-frame v-chat" aria-label="Eksempel på et søgeresultat på Google">
+      <div className="v-search"><span className="v-g">G</span><span>maler svendborg</span></div>
+      <div className="v-body">
+        <ol className="v-places">
+          {rows.map(([name, score, count, stars, you]) => (
+            <li key={name} className={you ? "v-you" : undefined}>
+              <b>{name}</b>
+              <span><small>{score}</small> <Stars n={stars} /> <small>({count})</small></span>
+              <small>Maler · Svendborg</small>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <figcaption>Eksempel</figcaption>
+    </figure>
+  );
+}
+
 /** Step 1: the free check, one row per assistant. */
 export function CheckVisual() {
-  const rows: [string, boolean][] = [["ChatGPT", false], ["Gemini", false], ["Perplexity", true]];
+  const rows: [string, boolean][] = [["Google, top 3", false], ["ChatGPT", false], ["Gemini", true]];
   return (
-    <div className="v-frame v-mini" aria-label="Eksempel på et AI-tjek">
+    <div className="v-frame v-mini" aria-label="Eksempel på et tjek">
       <p className="v-label">Nævner de jer?</p>
       {rows.map(([ai, yes]) => (
         <div className="v-row" key={ai}><span>{ai}</span><b className={yes ? "v-yes" : "v-no"}>{yes ? "Ja" : "Nej"}</b></div>
@@ -53,12 +79,12 @@ export function ReviewVisual() {
   );
 }
 
-/** Step 3: the monthly report, as a tiny bar chart of AI mentions. */
+/** Step 3: the monthly report, as a tiny bar chart of Google reviews. */
 export function ReportVisual() {
-  const months: [string, number][] = [["Aug", 0], ["Sep", 1], ["Okt", 3], ["Nov", 5]];
+  const months: [string, number][] = [["Aug", 1], ["Sep", 2], ["Okt", 4], ["Nov", 5]];
   return (
     <div className="v-frame v-mini" aria-label="Eksempel på en månedsrapport">
-      <p className="v-label">Antal AI-svar, der nævner jer</p>
+      <p className="v-label">Anmeldelser på Google</p>
       <div className="v-bars">
         {months.map(([m, v]) => (
           <div key={m}><i style={{ height: `${12 + v * 14}px` }} /><span>{m}</span></div>

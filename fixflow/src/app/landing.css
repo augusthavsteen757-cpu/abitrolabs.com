@@ -79,7 +79,7 @@
 /* Front page illustrations and layout (2026-11) */
 .kl .hero-split{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
 .kl .hero-text{display:flex;flex-direction:column;gap:24px}
-.kl .hero-split h1{font-size:clamp(2.5rem,6.2vw,4.4rem);line-height:1}
+.kl .hero-split h1{font-size:clamp(2.3rem,5vw,3.6rem);line-height:1.02}
 .kl .v-frame{background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 18px 40px -24px rgba(16,35,31,.35);margin:0;position:relative}
 .kl .v-chat{overflow:hidden;font-size:.92rem}
 .kl .v-bar{display:flex;align-items:center;gap:6px;padding:10px 14px;border-bottom:1px solid var(--line)}
@@ -122,3 +122,8 @@
 .kl .guarantee strong{display:block;font-family:var(--serif);font-weight:500;font-size:1.35rem;margin-bottom:2px}
 .kl .guarantee a{color:#c9a46a}
 @media (max-width:820px){.kl .hero-split{grid-template-columns:1fr;gap:32px}.kl .step-grid{grid-template-columns:1fr}}
+.kl .v-search{display:flex;align-items:center;gap:10px;margin:12px 14px 0;padding:9px 14px;border:1px solid var(--line);border-radius:999px;font-size:.9rem}
+.kl .v-g{font-weight:700;color:#4a7fd6}
+.kl .v-places{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.kl .v-places li{padding:9px 11px;border-radius:6px;display:flex;flex-direction:column;gap:1px}
+.kl .v-places small{color:var(--muted);font-size:.78rem}

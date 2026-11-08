@@ -76,16 +76,16 @@ try {
   assert((await page.getByTestId("site-item").innerText()).includes("hjemmeside"), "the 199 kr card says we build the website");
   assert((await page.locator("[data-testid=beta-banner]").count()) === 0, "no quote-check beta banner on the booking landing page");
   await shot(page, "booking-landing");
-  // "Få mit gratis AI-tjek": a wrong number is refused in the page, a right one is stored.
+  // "Få mit gratis tjek": a wrong number is refused in the page, a right one is stored.
   await page.fill("#tlf", "1234");
-  await page.getByRole("button", { name: "Få mit gratis AI-tjek" }).click();
+  await page.getByRole("button", { name: "Få mit gratis tjek" }).click();
   await page.getByRole("alert").filter({ hasText: "8 cifre" }).waitFor();
   // (Checked from Node, so the expected 400 does not show up as a browser console error.)
   const ringBad = (await fetch(`${BASE}/api/ring`, { method: "POST", headers: { "content-type": "application/json", origin: BASE }, body: JSON.stringify({ telefon: "abc" }) })).status;
   assert(ringBad === 400, "the server refuses an invalid phone number too");
   await page.fill("#tlf", "+45 12 34 56 78");
   await page.fill("#firma", "Salon Test");
-  await page.getByRole("button", { name: "Få mit gratis AI-tjek" }).click();
+  await page.getByRole("button", { name: "Få mit gratis tjek" }).click();
   await page.getByTestId("ring-done").waitFor();
   const phoneLanding = await newPage(390, 844);
   await phoneLanding.goto(BASE);

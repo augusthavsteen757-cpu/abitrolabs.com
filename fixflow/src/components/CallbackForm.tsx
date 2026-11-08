@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 
-/** "Få mit gratis AI-tjek": phone number (required) and company (optional), posted to /api/ring. */
+/** "Få mit gratis tjek": phone number (required) and company (optional), posted to /api/ring. */
 export function CallbackForm() {
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
@@ -33,7 +33,7 @@ export function CallbackForm() {
   }
 
   if (state === "done") {
-    return <p className="msg" role="status" data-testid="ring-done">Tak. Vi ringer med resultatet af jeres AI-tjek, typisk inden for to hverdage.</p>;
+    return <p className="msg" role="status" data-testid="ring-done">Tak. Vi ringer med resultatet af jeres tjek, typisk inden for to hverdage.</p>;
   }
   return (
     <form onSubmit={onSubmit} noValidate data-testid="ring-form">
@@ -48,7 +48,7 @@ export function CallbackForm() {
         </label>
       </div>
       <button className="btn" type="submit" disabled={state === "sending"}>
-        {state === "sending" ? "Sender…" : "Få mit gratis AI-tjek"}
+        {state === "sending" ? "Sender…" : "Få mit gratis tjek"}
       </button>
       {error && <p className="msg" role="alert">{error}</p>}
     </form>
