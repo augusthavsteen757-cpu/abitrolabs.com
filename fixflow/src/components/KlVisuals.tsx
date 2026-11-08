@@ -65,31 +65,29 @@ export function CheckVisual() {
   );
 }
 
-/** Step 2: a Google review card. */
-export function ReviewVisual() {
+/** Step 2: what an AI assistant reads about the firm on its Klardal profile. */
+export function AiReadyVisual() {
+  const lines: [string, string][] = [["Firma", "Jeres firma"], ["Fag", "Maler"], ["Område", "Svendborg, Tåsinge, Faaborg"], ["Pris", "Fra 425 kr. i timen"], ["Ledig", "Uge 48"]];
   return (
-    <div className="v-frame v-mini" aria-label="Eksempel på en Google-anmeldelse">
-      <div className="v-review">
-        <span className="v-avatar" aria-hidden="true">M</span>
-        <div><b>Mette</b><Stars /></div>
-      </div>
-      <p className="v-quote">Kom til tiden og efterlod alt pænt. Kan varmt anbefales.</p>
-      <p className="v-label v-plus">+5 nye anmeldelser denne måned</p>
+    <div className="v-frame v-mini" aria-label="Eksempel på det, ChatGPT kan læse om jer">
+      <p className="v-label">Det læser ChatGPT om jer</p>
+      <dl className="v-facts">
+        {lines.map(([k, v]) => (<div key={k}><dt>{k}</dt><dd>{v}</dd></div>))}
+      </dl>
     </div>
   );
 }
 
-/** Step 3: the monthly report, as a tiny bar chart of Google reviews. */
-export function ReportVisual() {
-  const months: [string, number][] = [["Aug", 1], ["Sep", 2], ["Okt", 4], ["Nov", 5]];
+/** Step 3: watching the competition, the firm's place in the local ranking month by month. */
+export function RivalsVisual() {
+  const rows: [string, string, string][] = [["Sydfyns Malerservice", "1", "1"], ["Jeres firma", "6", "2"], ["Maler Holm", "2", "3"]];
   return (
-    <div className="v-frame v-mini" aria-label="Eksempel på en månedsrapport">
-      <p className="v-label">Anmeldelser på Google</p>
-      <div className="v-bars">
-        {months.map(([m, v]) => (
-          <div key={m}><i style={{ height: `${12 + v * 14}px` }} /><span>{m}</span></div>
-        ))}
-      </div>
+    <div className="v-frame v-mini" aria-label="Eksempel på en rapport om konkurrenterne">
+      <p className="v-label">Hvem anbefales i Svendborg?</p>
+      <div className="v-row v-head"><span /><span>Okt</span><span>Nov</span></div>
+      {rows.map(([n, a, b]) => (
+        <div className={`v-row${n === "Jeres firma" ? " v-me" : ""}`} key={n}><span>{n}</span><span>#{a}</span><b>#{b}</b></div>
+      ))}
     </div>
   );
 }

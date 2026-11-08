@@ -5,7 +5,7 @@ import "@fontsource-variable/hanken-grotesk";
 import "./landing.css";
 import { KlFooter } from "@/components/KlChrome";
 import { CallbackForm } from "@/components/CallbackForm";
-import { CheckVisual, GoogleVisual, ReportVisual, ReviewVisual } from "@/components/KlVisuals";
+import { AiReadyVisual, CheckVisual, GoogleVisual, RivalsVisual } from "@/components/KlVisuals";
 import { COMPANY } from "@/lib/company";
 import { MISSPELLINGS, organizationJsonLd } from "@/lib/organization";
 
@@ -85,8 +85,8 @@ export default function Landing() {
           <h2>Sådan gør vi</h2>
           <ol className="step-grid">
             <li><CheckVisual /><h3><span>1</span>Gratis tjek</h3><p>Vi ser, hvem Google og ChatGPT anbefaler i jeres by.</p></li>
-            <li><ReviewVisual /><h3><span>2</span>Flere anmeldelser</h3><p>Vi beder jeres glade kunder om en anmeldelse. I giver os ingen kodeord.</p></li>
-            <li><ReportVisual /><h3><span>3</span>Rapport hver måned</h3><p>Anmeldelser, Google og ChatGPT. I kan se, om det virker.</p></li>
+            <li><AiReadyVisual /><h3><span>2</span>Klar til ChatGPT</h3><p>Vi skriver jeres ydelser, priser og område, så ChatGPT og Google kan læse dem.</p></li>
+            <li><RivalsVisual /><h3><span>3</span>Øje på konkurrenterne</h3><p>Hver måned ser I, hvem der anbefales, og hvor I står.</p></li>
           </ol>
         </div>
 
