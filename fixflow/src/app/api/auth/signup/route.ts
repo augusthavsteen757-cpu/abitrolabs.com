@@ -10,6 +10,7 @@ import { BETA_ANALYSES_TOTAL } from "@/lib/plans";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { isGuest } from "@/lib/guest";
 import { track } from "@/lib/events";
+import { isAdminEmail } from "@/lib/admin";
 
 const schema = z.object({
   // Optional: the sign-up form only asks for e-mail and password (fewer fields, more sign-ups).
@@ -21,6 +22,8 @@ const schema = z.object({
 
 export const POST = handle(async (req: Request) => {
   await rateLimit(`signup:${await clientIp()}`, 5, 60 * 60);
+  // Global cap: each new account gets free AI analyses, so mass sign-ups must not be able to drain the daily AI budget.
+  await rateLimit("signup-all", Number.parseInt(process.env.SIGNUP_DAILY_LIMIT ?? "", 10) || 200, 24 * 60 * 60);
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
@@ -35,7 +38,8 @@ export const POST = handle(async (req: Request) => {
   if (problem) return jsonError(problem);
 
   const existing = await db.query.users.findFirst({ where: eq(users.email, email) });
-  if (existing) return jsonError(da.errors.emailTaken, 409);
+  // Admin addresses can't be registered here: otherwise anyone could claim an admin address that has no account yet.
+  if (existing || isAdminEmail(email)) return jsonError(da.errors.emailTaken, 409);
 
   // Someone who checked a quote without an account keeps it: the guest account becomes their real account.
   const current = await getCurrentUser();

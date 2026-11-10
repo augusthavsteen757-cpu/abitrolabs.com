@@ -19,7 +19,8 @@ export const POST = handle(async (req: Request) => {
   // Limit guesses per account too, so a single account can't be brute-forced from many IPs.
   // Per email *and* IP, so a stranger can't lock the owner out; plus a looser per-email cap against spraying.
   await rateLimit(`login-email-ip:${parsed.data.email}:${ip}`, 10, 15 * 60);
-  await rateLimit(`login-email:${parsed.data.email}`, 50, 15 * 60);
+  await rateLimit(`login-email:${parsed.data.email}`, 30, 15 * 60);
+  await rateLimit(`login-email-day:${parsed.data.email}`, 100, 24 * 60 * 60);
 
   const user = await db.query.users.findFirst({ where: eq(users.email, parsed.data.email) });
   const ok = await checkPassword(parsed.data.password, user?.passwordHash);

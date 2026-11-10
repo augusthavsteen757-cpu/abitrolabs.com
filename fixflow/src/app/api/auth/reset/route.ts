@@ -35,5 +35,6 @@ export const POST = handle(async (req: Request) => {
     .update(users)
     .set({ passwordHash: await hashPassword(parsed.data.password), sessionVersion: sql`${users.sessionVersion} + 1` })
     .where(eq(users.id, user.id));
+  await db.update(passwordResets).set({ usedAt: new Date() }).where(and(eq(passwordResets.userId, user.id), isNull(passwordResets.usedAt)));
   return NextResponse.json({ ok: true });
 });

@@ -4,24 +4,19 @@ import { and, gte, isNull, or, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { quotes, users } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
+import { isAdminEmail } from "@/lib/admin";
 import { EVENTS, danishDay, eventCounts, eventTotals, type EventName } from "@/lib/events";
 
 export const metadata: Metadata = { title: "Brugstal", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
-/** Only for the e-mail addresses in ADMIN_EMAILS (comma-separated). Everyone else gets a 404. */
-const isAdmin = (email: string) =>
-  (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
-    .includes(email.toLowerCase());
 
 const daysAgo = (n: number) => danishDay(new Date(Date.now() - n * 86_400_000));
 
 export default async function AdminPage() {
   const user = await requireUser();
-  if (!isAdmin(user.email)) notFound();
+  // Only for ADMIN_EMAILS; everyone else gets a 404.
+  if (!isAdminEmail(user.email)) notFound();
 
   // Guest checks ("tjek uden konto") are not accounts: they are counted as events below instead.
   const realAccount = or(isNull(users.guest), eq(users.guest, false));

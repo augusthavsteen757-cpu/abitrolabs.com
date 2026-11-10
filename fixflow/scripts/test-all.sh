@@ -33,11 +33,11 @@ start OLD_TOOL=1 ALLOW_LOCAL_DB=1 ALLOW_SIMULATED_PAYMENTS=1 ALLOW_DEMO_MODE=1 A
   run e2e env BASE_URL=$BASE CHROMIUM_PATH=$CHROMIUM_PATH node scripts/e2e.mjs
 
 start OLD_TOOL=1 BETA_FREE=1 ALLOW_LOCAL_DB=1 ALLOW_DEMO_MODE=1 COMPANY_NAME=Klardal "COMPANY_CVR=under registrering" \
-  "COMPANY_ADDRESS=Strandhuse 93, 5700 Svendborg" CONTACT_EMAIL=kontakt@klardal.com COMPANY_FOOTER_ADDRESS=0 ADMIN_EMAILS=beta-tester@eksempel.dk &&
+  "COMPANY_ADDRESS=Strandhuse 93, 5700 Svendborg" CONTACT_EMAIL=kontakt@klardal.com COMPANY_FOOTER_ADDRESS=0 ADMIN_EMAILS=demo@klardal.dk,ny-admin@eksempel.dk &&
   run beta env BASE_URL=$BASE CHROMIUM_PATH=$CHROMIUM_PATH node scripts/beta.mjs &&
   run smoke env BASE_URL=$BASE node scripts/smoke.mjs
 
-start OLD_TOOL=1 BETA_FREE=1 ALLOW_LOCAL_DB=1 ALLOW_DEMO_MODE=1 BETA_END_DATE=2026-11-09 ADMIN_EMAILS=gaest-test@eksempel.dk &&
+start OLD_TOOL=1 BETA_FREE=1 ALLOW_LOCAL_DB=1 ALLOW_DEMO_MODE=1 BETA_END_DATE=2026-11-09 ADMIN_EMAILS=demo@klardal.dk,ny-admin@eksempel.dk &&
   run guest env BASE_URL=$BASE CHROMIUM_PATH=$CHROMIUM_PATH node scripts/guest.mjs
 
 start OLD_TOOL=1 ALLOW_LOCAL_DB=1 && run no-ai-key env BASE_URL=$BASE node scripts/no-ai-key.mjs

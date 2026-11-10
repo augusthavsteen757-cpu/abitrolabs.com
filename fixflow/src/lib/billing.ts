@@ -1,6 +1,6 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "crypto";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { payments, quotes, users, type User } from "@/db/schema";
 import { PRO_PRICE_DKK, currentPeriod } from "./plans";
@@ -160,12 +160,26 @@ export async function withdrawPurchase(user: User, paymentId: string) {
   const q = withdrawalQuote(p, unusedPurchases(user, all));
   if ("reason" in q) throw new HttpError(400, da.errors[q.reason]);
 
+  // Claim first: of several parallel withdrawals only one gets past this line, so money is only paid back once.
+  const claimed = await db
+    .update(payments)
+    .set({ refundedAt: new Date(), refundedOere: q.refundOere })
+    .where(and(eq(payments.id, p.id), isNull(payments.refundedAt)))
+    .returning({ id: payments.id });
+  if (!claimed.length) throw new HttpError(400, da.errors.withdrawDone);
+
   let refundedAutomatically = p.provider === "simulated";
   if (p.provider === "stripe" && q.refundOere > 0) {
-    const intent = p.paymentIntent ?? (p.reference?.startsWith("sub_") ? await firstInvoicePaymentIntent(p.reference) : null);
-    if (intent) {
-      await stripe("/v1/refunds", { payment_intent: intent, amount: String(q.refundOere) });
-      refundedAutomatically = true;
+    try {
+      const intent = p.paymentIntent ?? (p.reference?.startsWith("sub_") ? await firstInvoicePaymentIntent(p.reference) : null);
+      if (intent) {
+        await stripe("/v1/refunds", { payment_intent: intent, amount: String(q.refundOere) });
+        refundedAutomatically = true;
+      }
+    } catch (e) {
+      // Nothing was paid back: release the claim so the customer can try again.
+      await db.update(payments).set({ refundedAt: null, refundedOere: null }).where(eq(payments.id, p.id));
+      throw e;
     }
   }
 
@@ -175,8 +189,6 @@ export async function withdrawPurchase(user: User, paymentId: string) {
   } else {
     await cancelPro(user, { immediately: true });
   }
-  await db.update(payments).set({ refundedAt: new Date(), refundedOere: q.refundOere }).where(eq(payments.id, p.id));
-
   const amount = (q.refundOere / 100).toFixed(2).replace(".", ",");
   await sendEmail({
     to: user.email,

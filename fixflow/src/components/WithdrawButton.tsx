@@ -36,7 +36,7 @@ export function WithdrawButton({ paymentId, amount }: { paymentId: string; amoun
   return (
     <div className="mt-2">
       {confirming && !msg && <p className="mb-2 text-sm">{fmt(t.withdrawConfirm, { amount })}</p>}
-      <button type="button" onClick={run} disabled={busy} className="btn-secondary px-3 py-1.5 text-sm" data-testid="withdraw">
+      <button type="button" onClick={run} disabled={busy} className="btn-secondary px-3 py-1.5 text-sm" data-testid="withdraw" data-payment-id={paymentId}>
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Undo2 className="h-4 w-4" />}
         {confirming ? t.withdrawConfirmButton : t.withdrawButton}
       </button>
