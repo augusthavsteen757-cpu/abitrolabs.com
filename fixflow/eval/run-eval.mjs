@@ -118,7 +118,8 @@ const cases = [
   },
 ];
 
-const password = "Eval-Klardal-2026!x";
+// Fresh random password per run, so a test account left behind after a failed clean-up can't be logged into.
+const password = `Eval-${crypto.randomUUID()}`;
 let email = "";
 
 /** A fresh test account (each gets the free analyses of the beta). */

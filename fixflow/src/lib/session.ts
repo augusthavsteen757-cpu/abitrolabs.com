@@ -5,11 +5,15 @@ import { SignJWT, jwtVerify } from "jose";
 export const SESSION_COOKIE = "ff_session";
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
+// The example value from .env.example is public (the repo can be read by others), so it must never sign real sessions.
+const PLACEHOLDER_SECRETS = new Set(["skift-mig-til-en-lang-tilfaeldig-hemmelighed-1234567890"]);
+
 function secretKey() {
   const s = process.env.AUTH_SECRET;
-  if (!s || s.length < 16) {
-    if (process.env.NODE_ENV === "production" && process.env.NEXT_PHASE !== "phase-production-build") {
-      throw new Error("AUTH_SECRET mangler eller er for kort (mindst 32 tegn anbefales).");
+  if (!s || s.length < 16 || PLACEHOLDER_SECRETS.has(s)) {
+    const localDev = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+    if (!localDev && process.env.NEXT_PHASE !== "phase-production-build") {
+      throw new Error("AUTH_SECRET mangler, er for kort eller er eksempelværdien fra .env.example (brug mindst 32 tilfældige tegn).");
     }
     return new TextEncoder().encode("fixflow-dev-secret-change-me-please-0123456789");
   }

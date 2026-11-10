@@ -11,12 +11,21 @@ import { HttpError } from "./auth";
  * so we prefer headers our edge proxy overwrites (Cloudflare in front of Render), then the right-most
  * X-Forwarded-For entry, which our own proxy appended.
  */
+let warnedNoTrustedHeader = false;
+
 export async function clientIp(): Promise<string> {
   const h = await headers();
-  const trusted = process.env.TRUSTED_IP_HEADER;
-  const fromTrusted = trusted ? h.get(trusted) : null;
   const fwd = h.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean);
-  const ip = fromTrusted || h.get("cf-connecting-ip") || h.get("true-client-ip") || fwd?.at(-1) || h.get("x-real-ip") || "unknown";
+  const trusted = process.env.TRUSTED_IP_HEADER?.trim();
+  if (trusted) {
+    // Only the header our edge overwrites counts. Falling back to other headers would let a client pick its own IP.
+    return (h.get(trusted)?.split(",")[0]?.trim() || fwd?.at(-1) || "unknown").slice(0, 64);
+  }
+  if (process.env.NODE_ENV === "production" && !warnedNoTrustedHeader) {
+    warnedNoTrustedHeader = true;
+    console.warn(JSON.stringify({ event: "trusted_ip_header_missing", hint: "Set TRUSTED_IP_HEADER (e.g. cf-connecting-ip) so clients cannot fake their IP" }));
+  }
+  const ip = h.get("cf-connecting-ip") || h.get("true-client-ip") || fwd?.at(-1) || h.get("x-real-ip") || "unknown";
   return ip.trim().slice(0, 64);
 }
 
