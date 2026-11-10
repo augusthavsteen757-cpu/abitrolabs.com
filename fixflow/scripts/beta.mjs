@@ -10,6 +10,19 @@ const ctx = await br.newContext({ locale: "da-DK" });
 const p = await ctx.newPage();
 const errs = []; p.on("pageerror", e => errs.push(e.message));
 const ok = (c, m) => { if (!c) throw new Error("FAIL: " + m); console.log("  ✓ " + m); };
+
+// Admin = an account that already existed when ADMIN_EMAILS was set (test-all: the seeded demo user).
+// Sign-up refuses admin addresses, so nobody can claim an admin address that has no account yet.
+const adminPage = async () => {
+  const a = await (await br.newContext({ locale: "da-DK" })).newPage();
+  await a.goto(B + "/login");
+  await a.fill("#email", "demo@klardal.dk"); await a.fill("#password", "Klardal-Test-2026");
+  await a.click("button[type=submit]"); await a.waitForURL(B + "/dashboard");
+  const claim = await a.evaluate(async () => (await fetch("/api/auth/signup", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: "ny-admin@eksempel.dk", password: "Solsikke-Kaffekop-4821", acceptTerms: true }) })).status);
+  ok(claim === 409, `sign-up with an admin address without an account is refused (${claim})`);
+  await a.goto(B + "/dashboard/admin");
+  return a;
+};
 await p.goto(B + "/tilbud");
 ok(await p.getByTestId("beta-notice").isVisible(), "landing shows beta notice instead of prices");
 ok(!(await p.innerText("body")).includes("Vælg Pro"), "no Pro purchase button on landing");
@@ -34,7 +47,7 @@ for (const legal of ["/handelsbetingelser", "/privatlivspolitik"]) {
   await page.close();
 }
 await p.goto(B + "/opret");
-const email = "beta-tester@eksempel.dk"; // fresh database per run; also ADMIN_EMAILS in test-all
+const email = "beta-tester@eksempel.dk"; // fresh database per run
 await p.fill("#email", email); await p.fill("#password", "Kaffekande-Solsikke-77");
 await p.locator("input[type=checkbox]").first().check();
 await p.click("button[type=submit]"); await p.waitForURL(B + "/dashboard");
@@ -55,8 +68,8 @@ for (let i = 0; i < 3; i++) {
     ok(!html.includes("Gå til betaling"), "no checkout on analysis page");
   }
 }
-await p.goto(B + "/dashboard/admin");
-const usage = await p.getByTestId("admin-totals").innerText();
+const admin = await adminPage();
+const usage = await admin.getByTestId("admin-totals").innerText();
 const row = (label) => usage.split("\n").find((l) => l.startsWith(label)) ?? "";
 ok(/\t3\t3\t3\t3$/.test(row("Analyse fuldført")), `3 analyses counted (${row("Analyse fuldført")})`);
 ok(/\t1\t1\t1\t1$/.test(row("Tilbud nr. 2 i samme projekt")), `second quote in the same project counted once, not per upload (${row("Tilbud nr. 2 i samme projekt")})`);

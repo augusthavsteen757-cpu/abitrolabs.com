@@ -1,6 +1,6 @@
 /**
  * "Tjek uden konto" end to end, in beta mode (what klardal.com runs). Needs a running app started like the beta
- * suite in test-all.sh, with ADMIN_EMAILS including gaest-test@eksempel.dk.
+ * suite in test-all.sh, with ADMIN_EMAILS including demo@klardal.dk and ny-admin@eksempel.dk.
  *
  *   BASE_URL=http://localhost:3000 node scripts/guest.mjs  (bash scripts/test-all.sh starts it for you)
  */
@@ -22,6 +22,19 @@ async function phone() {
   return p;
 }
 const noOverflow = async (p) => p.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+
+// Admin = an account that already existed when ADMIN_EMAILS was set (test-all: the seeded demo user).
+// Sign-up refuses admin addresses, so nobody can claim an admin address that has no account yet.
+const adminPage = async () => {
+  const a = await (await br.newContext({ locale: "da-DK" })).newPage();
+  await a.goto(B + "/login");
+  await a.fill("#email", "demo@klardal.dk"); await a.fill("#password", "Klardal-Test-2026");
+  await a.click("button[type=submit]"); await a.waitForURL(B + "/dashboard");
+  const claim = await a.evaluate(async () => (await fetch("/api/auth/signup", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: "ny-admin@eksempel.dk", password: "Solsikke-Kaffekop-4821", acceptTerms: true }) })).status);
+  ok(claim === 409, `sign-up with an admin address without an account is refused (${claim})`);
+  await a.goto(B + "/dashboard/admin");
+  return a;
+};
 const post = (p, url, body) =>
   p.evaluate(async ([u, b]) => (await fetch(u, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(b) })).status, [url, body]);
 
@@ -105,12 +118,12 @@ ok((await p.innerText("main")).includes("1 af 3"), "the account page shows 1 of 
 const relogin = await post(p, "/api/auth/guest", { acceptTerms: true });
 ok(relogin === 200 && (await p.goto(B + "/dashboard")) && (await p.getByTestId("guest-banner").count()) === 0, "starting a guest check while signed in does not replace the account");
 
-await p.goto(B + "/dashboard/admin");
-const signups = await p.getByTestId("admin-signups").innerText();
+const admin = await adminPage();
+const signups = await admin.getByTestId("admin-signups").innerText();
 const today = signups.split("\n").find((l) => /^\d{4}-\d{2}-\d{2}\t/.test(l)) ?? "";
 // Today: the seeded demo account + the converted guest. The second (unclaimed) guest is not an account.
 ok(/^\S+\t2\t/.test(today), `admin counts the converted guest as a new account, but not the unclaimed guest (${today})`);
-const usage = await p.getByTestId("admin-totals").innerText();
+const usage = await admin.getByTestId("admin-totals").innerText();
 const row = (label) => usage.split("\n").find((l) => l.startsWith(label)) ?? "";
 ok(/\t2\t2\t2\t2$/.test(row("Tjek uden konto startet")), `admin counts 2 guest checks (${row("Tjek uden konto startet")})`);
 ok(/\t1\t1\t1\t1$/.test(row("Gæst oprettede konto")), `admin counts 1 guest who created an account (${row("Gæst oprettede konto")})`);
