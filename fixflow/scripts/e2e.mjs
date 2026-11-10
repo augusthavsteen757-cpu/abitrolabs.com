@@ -283,6 +283,25 @@ try {
   await page.getByText(/Fortrudt – 49 kr\. tilbagebetalt/).waitFor({ timeout: 10_000 });
   log("unused purchase can be withdrawn in the app with full refund");
 
+  // Parallel withdrawals of the same purchase pay back only once.
+  await buyOne.getByRole("checkbox").check();
+  await buyOne.getByRole("button", { name: "Køb 1 analyse" }).click();
+  await page.getByTestId("withdraw").waitFor({ timeout: 15_000 });
+  const paymentId = await page.getByTestId("withdraw").getAttribute("data-payment-id");
+  const withdrawStatuses = await page.evaluate(
+    (id) =>
+      Promise.all(
+        Array.from({ length: 5 }, () =>
+          fetch("/api/billing/withdraw", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ paymentId: id }) }).then((r) => r.status),
+        ),
+      ),
+    paymentId,
+  );
+  assert(withdrawStatuses.filter((s) => s === 200).length === 1, `5 parallel withdrawals: exactly one succeeds (${withdrawStatuses})`);
+  await page.reload();
+  assert((await page.getByText(/Fortrudt – 49 kr\. tilbagebetalt/).count()) === 2, "each withdrawn purchase is refunded once");
+  log("parallel withdrawals refund only once");
+
   await page.goto(quoteUrl);
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "Slet" }).click();
@@ -366,9 +385,18 @@ try {
   await buyer.locator("p.font-medium", { hasText: /^3 analyser$/ }).first().waitFor({ timeout: 15_000 }); // payment history
   await buyer.getByText(/Analyser tilbage: 3\./).waitFor();
   await buyer.goto(freeUrl);
-  await buyer.getByRole("button", { name: "Brug 1 analyse her" }).click();
+  await buyer.getByRole("button", { name: "Brug 1 analyse her" }).waitFor();
+  // Double-click / parallel requests: unlocking the same quote 3 times at once spends only one analysis.
+  const unlockStatuses = await buyer.evaluate(
+    (id) => Promise.all(Array.from({ length: 3 }, () => fetch(`/api/quotes/${id}/unlock`, { method: "POST" }).then((r) => r.status))),
+    freeUrl.split("/").pop(),
+  );
+  assert(unlockStatuses.every((s) => s === 200), `parallel unlocks all answer OK (${unlockStatuses})`);
+  await buyer.reload();
   await buyer.getByText("Skriv en besked").first().waitFor({ timeout: 15_000 });
-  log("3-pakke adds 3 analyses; one unlocks the free analysis");
+  await buyer.goto(`${BASE}/dashboard/konto`);
+  await buyer.getByText(/Analyser tilbage: 2\./).waitFor();
+  log("3-pakke adds 3 analyses; 3 parallel unlocks of the free analysis spend only one");
 
   await buyer.goto(`${BASE}/dashboard/konto`);
   await buyer.getByTestId("withdraw").click();
